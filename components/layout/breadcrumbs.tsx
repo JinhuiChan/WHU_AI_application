@@ -19,8 +19,15 @@ const pageNames: Record<string, string> = {
 
 export function Breadcrumbs() {
   const pathname = usePathname();
-  const current = pageNames[pathname] ?? "页面详情";
-  const inAdministration = pathname.startsWith("/admin");
+  const detail = pathname.startsWith("/competitions/")
+    ? { href: "/competitions", label: "赛事", current: "赛事详情" }
+    : pathname.startsWith("/projects/")
+      ? { href: "/projects", label: "项目", current: "项目全貌" }
+      : null;
+  const current = pageNames[pathname] ?? detail?.current ?? "页面详情";
+  const parent: { label: string; href?: string } | null = pathname.startsWith("/admin")
+    ? { label: "管理" }
+    : detail;
 
   return (
     <nav aria-label="面包屑" className="min-w-0">
@@ -30,10 +37,12 @@ export function Breadcrumbs() {
             首页
           </Link>
         </li>
-        {inAdministration ? (
+        {parent ? (
           <li className="flex items-center gap-1">
             <ChevronRight size={14} className="text-slate-400" aria-hidden="true" />
-            <span className="text-slate-500">管理</span>
+            {parent.href ? (
+              <Link href={parent.href} className="text-slate-500 hover:text-blue-600">{parent.label}</Link>
+            ) : <span className="text-slate-500">{parent.label}</span>}
           </li>
         ) : null}
         <li className="flex min-w-0 items-center gap-1">
