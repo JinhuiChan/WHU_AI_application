@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { SESSION_COOKIE, verifySession } from "@/lib/auth";
 
 const writeMethods = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+const userWriteAllowedPaths = new Set(["/api/assistant/ask", "/api/check/material"]);
 
 function apiError(status: number, message: string) {
   return NextResponse.json({ code: status, message, data: null }, { status });
@@ -56,7 +57,11 @@ export async function middleware(request: NextRequest) {
         headers: { "Content-Type": "text/plain; charset=utf-8" },
       });
     }
-    if (pathname.startsWith("/api/") && writeMethods.has(request.method)) {
+    if (
+      pathname.startsWith("/api/") &&
+      writeMethods.has(request.method) &&
+      !userWriteAllowedPaths.has(pathname)
+    ) {
       return apiError(403, "普通用户无写操作权限");
     }
   }

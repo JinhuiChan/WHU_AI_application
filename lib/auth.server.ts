@@ -23,17 +23,23 @@ export async function getActiveUser(): Promise<AuthUser | null> {
   });
 }
 
-type ApiAdminResult =
+type ApiUserResult =
   | { ok: true; user: AuthUser }
   | { ok: false; response: ReturnType<typeof apiError> };
 
-export async function requireApiAdmin(): Promise<ApiAdminResult> {
+export async function requireApiUser(): Promise<ApiUserResult> {
   const user = await getActiveUser();
   if (!user) {
     return { ok: false, response: apiError(401, "未登录或账号不可用") };
   }
-  if (user.role !== "ADMIN") {
+  return { ok: true, user };
+}
+
+export async function requireApiAdmin(): Promise<ApiUserResult> {
+  const authorization = await requireApiUser();
+  if (!authorization.ok) return authorization;
+  if (authorization.user.role !== "ADMIN") {
     return { ok: false, response: apiError(403, "无权限执行此操作") };
   }
-  return { ok: true, user };
+  return authorization;
 }

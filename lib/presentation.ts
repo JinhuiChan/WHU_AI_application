@@ -73,6 +73,17 @@ export const anomalyResolutionLabels = {
   UNTRACEABLE: "无法追溯",
 } as const;
 
+export const auditActionLabels: Record<string, string> = {
+  LOGIN: "登录",
+  LOGOUT: "退出登录",
+  USER_APPROVED: "审核用户",
+  USER_ROLE_UPDATED: "修改用户角色",
+  IMPORT_COMMITTED: "确认导入",
+  ANOMALY_RESOLVED: "处置异常",
+  ASSISTANT_ASKED: "站内咨询",
+  MATERIAL_CHECKED: "材料检查",
+};
+
 export function formatDateTime(value: string) {
   return new Intl.DateTimeFormat("zh-CN", {
     year: "numeric",
