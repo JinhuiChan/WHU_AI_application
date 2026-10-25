@@ -86,10 +86,7 @@ function scoreChunk(chunk: RetrievedChunk, terms: string[]) {
   return score;
 }
 
-async function retrieve(question: string): Promise<{ best: ScoredChunk; multipleYears: boolean } | null> {
-  const terms = searchTerms(question);
-  if (!terms.length) return null;
-  const year = requestedYear(question);
+async function searchChunks(terms: string[], year: number | null) {
   const rows = await prisma.kbChunk.findMany({
     where: {
       ...(year ? { document: { year } } : {}),
@@ -103,33 +100,55 @@ async function retrieve(question: string): Promise<{ best: ScoredChunk; multiple
     orderBy: [{ document: { year: "desc" } }, { document: { createdAt: "desc" } }, { page: "asc" }],
     take: 60,
   });
-
-  const scored = rows
+  return rows
     .map((chunk) => ({ chunk, score: scoreChunk(chunk, terms) }))
     .filter((item) => item.score >= 16)
-    .sort((left, right) => right.score - left.score);
-  if (!scored.length) return null;
-
-  const bestByYear = new Map<number, ScoredChunk>();
-  for (const item of scored) {
-    const chunkYear = item.chunk.document.year;
-    if (!bestByYear.has(chunkYear)) bestByYear.set(chunkYear, item);
-  }
-  const highestScore = scored[0].score;
-  const eligibleYears = [...bestByYear.entries()]
-    .filter(([, item]) => item.score >= highestScore * 0.55)
-    .map(([chunkYear]) => chunkYear);
-  const selectedYear = year ?? Math.max(...eligibleYears);
-  const best = scored
-    .filter((item) => item.chunk.document.year === selectedYear)
     .sort((left, right) => {
       if (right.score !== left.score) return right.score - left.score;
       const createdAtDifference = right.chunk.document.createdAt.getTime() - left.chunk.document.createdAt.getTime();
       if (createdAtDifference !== 0) return createdAtDifference;
       return (left.chunk.page ?? Number.MAX_SAFE_INTEGER) - (right.chunk.page ?? Number.MAX_SAFE_INTEGER);
-    })[0];
+    });
+}
 
-  return best ? { best, multipleYears: !year && eligibleYears.length > 1 } : null;
+function bestChunksByYear(scored: ScoredChunk[]) {
+  const bestByYear = new Map<number, ScoredChunk>();
+  for (const item of scored) {
+    const year = item.chunk.document.year;
+    if (!bestByYear.has(year)) bestByYear.set(year, item);
+  }
+  return bestByYear;
+}
+
+async function retrieve(
+  question: string,
+): Promise<{ best: ScoredChunk; multipleYears: boolean; usedYearFallback: boolean } | null> {
+  const terms = searchTerms(question);
+  if (!terms.length) return null;
+  const year = requestedYear(question);
+  const scored = await searchChunks(terms, year);
+
+  if (year && scored.length) {
+    return { best: scored[0], multipleYears: false, usedYearFallback: false };
+  }
+  if (year) {
+    const fallbackChunks = await searchChunks(terms, null);
+    const bestByYear = bestChunksByYear(fallbackChunks);
+    const nearestYear = [...bestByYear.keys()].sort(
+      (left, right) => Math.abs(left - year) - Math.abs(right - year) || right - left,
+    )[0];
+    const best = bestByYear.get(nearestYear);
+    return best ? { best, multipleYears: false, usedYearFallback: true } : null;
+  }
+
+  if (!scored.length) return null;
+  const bestByYear = bestChunksByYear(scored);
+  const highestScore = scored[0].score;
+  const eligibleYears = [...bestByYear.entries()]
+    .filter(([, item]) => item.score >= highestScore * 0.55)
+    .map(([chunkYear]) => chunkYear);
+  const best = bestByYear.get(Math.max(...eligibleYears));
+  return best ? { best, multipleYears: eligibleYears.length > 1, usedYearFallback: false } : null;
 }
 
 function citation(chunk: RetrievedChunk) {
@@ -215,10 +234,17 @@ export async function answerQuestion(question: string): Promise<AssistantResult>
   }
 
   const { chunk } = retrieved.best;
-  const generated = await modelAnswer(question, chunk);
+  const year = requestedYear(question);
+  const fallbackNote = retrieved.usedYearFallback && year !== null
+    ? `\n注：知识库暂无 ${year} 版材料，以上为 ${chunk.document.year} 口径。`
+    : "";
+  const modelQuestion = retrieved.usedYearFallback && year !== null
+    ? question.replace(/20\d{2}/g, String(chunk.document.year))
+    : question;
+  const generated = await modelAnswer(modelQuestion, chunk);
   const answer = generated
-    ? `${generated}\n\n${citation(chunk)}${retrieved.multipleYears ? "\n如需其他赛年请说明。" : ""}`
-    : offlineAnswer(chunk, retrieved.multipleYears);
+    ? `${generated}\n\n${citation(chunk)}${retrieved.multipleYears ? "\n如需其他赛年请说明。" : ""}${fallbackNote}`
+    : `${offlineAnswer(chunk, retrieved.multipleYears)}${fallbackNote}`;
   return {
     answer,
     evidence: {
