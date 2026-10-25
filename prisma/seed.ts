@@ -674,7 +674,16 @@ async function main() {
     competitions.find((competition) => competition.year === 2026 && competition.name === "中国国际大学生创新大赛"),
     "缺少 2026 年示例赛事",
   );
-  const sampleProjects = [0, 1, 2, 3].map((index) => required(projects2026[index], `2026 年示例项目 ${index} 缺失`));
+  const sampleValidProject = required(
+    projects2026.find((project) =>
+      awards.every((award) => award.projectId !== project.id || award.competitionId !== competition2026.id),
+    ),
+    "缺少无重复获奖的示例项目",
+  );
+  const sampleProjects = [
+    sampleValidProject,
+    ...[1, 2, 3].map((index) => required(projects2026[index], `2026 年示例项目 ${index} 缺失`)),
+  ];
   const sampleLeaders = sampleProjects.map((project) => leaderOf(project.id));
   const sampleRows: (string | number)[][] = [
     ["项目名称", "赛年", "学院", "赛事名称", "奖项等级", "证据类型", "证据地址", "负责人学号", "负责人姓名"],

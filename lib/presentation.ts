@@ -58,6 +58,21 @@ export const dataSourceTypeLabels: Record<DataSourceType, string> = {
   MANUAL: "手工",
 };
 
+export const anomalyRuleNames: Record<string, string> = {
+  R1: "一人多队",
+  R2: "成员数超限",
+  R3: "指导老师超编",
+  R4: "同名不同号",
+  R5: "获奖后换人",
+  R6: "跨院冲突",
+};
+
+export const anomalyResolutionLabels = {
+  CONFIRMED: "确认异常",
+  FIXED: "已修正",
+  UNTRACEABLE: "无法追溯",
+} as const;
+
 export function formatDateTime(value: string) {
   return new Intl.DateTimeFormat("zh-CN", {
     year: "numeric",
