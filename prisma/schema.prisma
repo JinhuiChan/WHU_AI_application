@@ -1,0 +1,252 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum CompetitionLevel {
+  SCHOOL
+  PROVINCE
+  NATIONAL
+}
+
+enum ProjectStatus {
+  ACTIVE
+  WITHDRAWN
+}
+
+enum AliasType {
+  NAME
+  REG_NO
+  TEAM_NO
+}
+
+enum MemberRole {
+  LEADER
+  MEMBER
+  TEACHER
+}
+
+enum AwardLevel {
+  S
+  A
+  B
+  C
+  EXCELLENT
+}
+
+enum EvidenceType {
+  URL
+  FILE
+}
+
+enum AwardStatus {
+  DRAFT
+  VERIFIED
+  PUBLISHED
+  VOIDED
+}
+
+enum AnomalyStatus {
+  PENDING
+  RESOLVED
+}
+
+enum AnomalyResolution {
+  CONFIRMED
+  FIXED
+  UNTRACEABLE
+}
+
+enum ImportSourceType {
+  IMPORT
+  MANUAL
+}
+
+enum DataSourceType {
+  API
+  IMPORT
+  MANUAL
+}
+
+model User {
+  id              String           @id @default(uuid())
+  phone           String           @unique
+  passwordHash    String
+  name            String
+  role            Role             @default(USER)
+  externalId      String?
+  createdAt       DateTime         @default(now())
+  deletedAt       DateTime?
+  auditLogs       AuditLog[]
+  verifiedAwards  AwardRecord[]
+  memberSnapshots MemberSnapshot[]
+  anomalies       Anomaly[]
+  importBatches   ImportBatch[]
+  kbDocuments     KbDocument[]
+}
+
+model Competition {
+  id           String           @id @default(uuid())
+  name         String
+  level        CompetitionLevel
+  seriesId     String
+  year         Int
+  organizer    String?
+  createdAt    DateTime         @default(now())
+  awardRecords AwardRecord[]
+
+  @@unique([name, year])
+}
+
+model Project {
+  id              String           @id @default(uuid())
+  name            String
+  college         String
+  year            Int
+  status          ProjectStatus    @default(ACTIVE)
+  createdAt       DateTime         @default(now())
+  deletedAt       DateTime?
+  aliases         ProjectAlias[]
+  teamMembers     TeamMember[]
+  awardRecords    AwardRecord[]
+  memberSnapshots MemberSnapshot[]
+  anomalies       Anomaly[]
+
+  @@index([year, college])
+}
+
+model ProjectAlias {
+  id         String    @id @default(uuid())
+  projectId  String
+  aliasType  AliasType
+  aliasValue String
+  project    Project   @relation(fields: [projectId], references: [id])
+
+  @@unique([aliasType, aliasValue])
+}
+
+model TeamMember {
+  id        String    @id @default(uuid())
+  projectId String
+  personNo  String
+  name      String
+  role      MemberRole
+  joinedAt  DateTime
+  leftAt    DateTime?
+  project   Project   @relation(fields: [projectId], references: [id])
+
+  @@index([personNo])
+}
+
+model AwardRecord {
+  id            String         @id @default(uuid())
+  projectId     String
+  competitionId String
+  awardLevel    AwardLevel
+  evidenceType  EvidenceType
+  evidenceRef   String
+  verifiedBy    String
+  verifiedAt    DateTime
+  status        AwardStatus    @default(DRAFT)
+  voidReason    String?
+  createdAt     DateTime       @default(now())
+  project       Project        @relation(fields: [projectId], references: [id])
+  competition   Competition    @relation(fields: [competitionId], references: [id])
+  verifier      User           @relation(fields: [verifiedBy], references: [id])
+
+  @@unique([projectId, competitionId])
+}
+
+model MemberSnapshot {
+  id          String   @id @default(uuid())
+  projectId   String
+  versionNo   Int
+  membersJson String
+  changedBy   String
+  changedAt   DateTime
+  reason      String?
+  project     Project  @relation(fields: [projectId], references: [id])
+  changer     User     @relation(fields: [changedBy], references: [id])
+
+  @@unique([projectId, versionNo])
+}
+
+model Anomaly {
+  id         String             @id @default(uuid())
+  ruleId     String
+  projectId  String
+  description String
+  status     AnomalyStatus      @default(PENDING)
+  resolution AnomalyResolution?
+  resolvedBy String?
+  resolvedAt DateTime?
+  project    Project            @relation(fields: [projectId], references: [id])
+  resolver   User?              @relation(fields: [resolvedBy], references: [id])
+
+  @@unique([ruleId, projectId])
+}
+
+model ImportBatch {
+  id          String          @id @default(uuid())
+  fileName    String
+  sourceType  ImportSourceType
+  totalRows   Int
+  successRows Int
+  failureRows Int
+  importedBy  String
+  createdAt   DateTime        @default(now())
+  importer    User            @relation(fields: [importedBy], references: [id])
+  dataSources DataSource[]
+}
+
+model DataSource {
+  id         String         @id @default(uuid())
+  recordType String
+  recordId   String
+  sourceType DataSourceType
+  sourceRef  String
+  batchId    String
+  syncedAt   DateTime
+  batch      ImportBatch    @relation(fields: [batchId], references: [id])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String
+  action     String
+  targetType String
+  targetId   String
+  detail     String
+  createdAt  DateTime @default(now())
+  actor      User     @relation(fields: [actorId], references: [id])
+}
+
+model KbDocument {
+  id         String    @id @default(uuid())
+  title      String
+  fileName   String
+  year       Int
+  uploadedBy String
+  createdAt  DateTime  @default(now())
+  uploader   User      @relation(fields: [uploadedBy], references: [id])
+  chunks     KbChunk[]
+}
+
+model KbChunk {
+  id         String     @id @default(uuid())
+  documentId String
+  section    String
+  page       Int?
+  content    String
+  keywords   String
+  document   KbDocument @relation(fields: [documentId], references: [id])
+}
