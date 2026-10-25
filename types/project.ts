@@ -78,6 +78,7 @@ export type ProjectFilters = {
   year?: number;
   college?: string;
   level?: AwardLevel;
+  awarded?: boolean;
   q?: string;
   page: number;
   pageSize: number;

@@ -10,6 +10,7 @@ import {
   FolderKanban,
   LayoutDashboard,
   Settings,
+  TrendingUp,
   Trophy,
   Upload,
   Users,
@@ -18,6 +19,7 @@ import type { Role } from "@prisma/client";
 
 const navigation = [
   { href: "/dashboard", label: "看板", icon: LayoutDashboard },
+  { href: "/rankings", label: "学院排行", icon: TrendingUp },
   { href: "/competitions", label: "赛事", icon: Trophy },
   { href: "/projects", label: "项目", icon: FolderKanban },
   { href: "/import", label: "导入", icon: Upload },

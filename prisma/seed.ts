@@ -784,8 +784,15 @@ async function main() {
     }
   }
 
-  console.log("种子数据写入完成，示例 Excel 已生成。");
+  console.log("基础种子数据写入完成，示例 Excel 已生成。");
   console.log(JSON.stringify(counts, null, 2));
+
+  const { createR6DemoData } = await import("./demo-extra");
+  const r6DemoResult = await createR6DemoData(prisma);
+  const { recalculateAnomalies } = await import("../lib/anomaly-rules");
+  await recalculateAnomalies(prisma);
+  console.log("R6 构造演示数据已补充并完成规则重算。");
+  console.log(JSON.stringify(r6DemoResult, null, 2));
 }
 
 main()

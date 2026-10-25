@@ -110,6 +110,13 @@ export async function getProjectPage(filters: ProjectFilters, role: Role): Promi
   if (filters.level) {
     where.awardRecords = { some: { ...awardWhereForRole(role), awardLevel: filters.level } };
   }
+  if (filters.awarded) {
+    where.AND = [{
+      awardRecords: {
+        some: { status: { in: role === "ADMIN" ? ["VERIFIED", "PUBLISHED"] : ["PUBLISHED"] } },
+      },
+    }];
+  }
   if (filters.q) {
     where.OR = [
       { name: { contains: filters.q } },

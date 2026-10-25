@@ -189,12 +189,7 @@ export async function recalculateAnomalies(client: RuleClient = prisma) {
     addHit({
       ruleId: "R6",
       projectId: hit.projectId,
-      description: `项目“${hit.projectName}”（${hit.year}）与${hit.otherCollege}的同名项目存在${evidence}`,
-    });
-    addHit({
-      ruleId: "R6",
-      projectId: hit.otherProjectId,
-      description: `项目“${hit.projectName}”（${hit.year}）与${hit.college}的同名项目存在${evidence}`,
+      description: `项目“${hit.projectName}”（${hit.year}）由${hit.college}与${hit.otherCollege}分别上报，存在${evidence}`,
     });
   }
 

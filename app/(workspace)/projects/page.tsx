@@ -21,6 +21,7 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
   const college = firstParam(searchParams?.college);
   const level = firstParam(searchParams?.level);
   const q = firstParam(searchParams?.q);
+  const awarded = firstParam(searchParams?.awarded) === "1";
   const { page, pageSize } = pageParams(firstParam(searchParams?.page), firstParam(searchParams?.pageSize));
   const [data, options] = await Promise.all([
     getProjectPage(
@@ -28,6 +29,7 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
         year: optionalYear(year),
         college: optionalText(college),
         level: optionalAwardLevel(level),
+        awarded,
         q: optionalText(q),
         page,
         pageSize,
@@ -46,6 +48,7 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
 
       <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
         <form action="/projects" method="get" className="flex flex-wrap items-end gap-3">
+          {awarded ? <input type="hidden" name="awarded" value="1" /> : null}
           <label className="text-xs text-slate-500">
             <span className="mb-1 block">赛年</span>
             <select name="year" defaultValue={year} className="h-10 min-w-28 rounded-md border border-slate-300 bg-white px-3 text-sm">
@@ -125,7 +128,7 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
             </tbody>
           </table>
         </div>
-        <Pagination basePath="/projects" query={{ year, college, level, q, pageSize: String(pageSize) }} total={data.total} page={data.page} pageSize={data.pageSize} />
+        <Pagination basePath="/projects" query={{ year, college, level, awarded: awarded ? "1" : "", q, pageSize: String(pageSize) }} total={data.total} page={data.page} pageSize={data.pageSize} />
       </section>
     </div>
   );

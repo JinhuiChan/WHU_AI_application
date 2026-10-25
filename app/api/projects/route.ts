@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
           year: optionalYear(params.get("year") ?? undefined),
           college: optionalText(params.get("college") ?? undefined),
           level: optionalAwardLevel(params.get("level") ?? undefined),
+          awarded: params.get("awarded") === "1",
           q: optionalText(params.get("q") ?? undefined),
           page,
           pageSize,

@@ -34,3 +34,11 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## 学院折算分与统计口径
+
+- `得分 = 赛事等级权重 × 奖项权重`。
+- 赛事等级权重：国赛 `10`、省赛 `5`、校赛 `2`。
+- 奖项权重：`S 1.5`、`A 1.2`、`B 1.0`、`C 0.8`、`EXCELLENT 0.5`。
+- 看板、排行与导出只统计 `VERIFIED`、`PUBLISHED` 获奖，排除 `DRAFT` 与 `VOIDED`；普通用户仅可见 `PUBLISHED`。
+- `/api/dashboard/summary`、`/api/dashboard/rankings`、`/api/export/awards.xlsx` 均必须提供 `year` 参数。
