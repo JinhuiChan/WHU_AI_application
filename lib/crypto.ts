@@ -61,7 +61,9 @@ export function decryptField(cipher: string): string {
 
 export function maskTail(value: string, keep = 4): string {
   const normalizedKeep = Math.max(0, Math.trunc(keep));
-  if (normalizedKeep === 0) return "*".repeat(value.length);
-  if (value.length <= normalizedKeep) return value;
+  // 长度不足时整串遮蔽，绝不原样返回（否则短值等于没脱敏）
+  if (normalizedKeep === 0 || value.length <= normalizedKeep) {
+    return "*".repeat(value.length);
+  }
   return `${"*".repeat(value.length - normalizedKeep)}${value.slice(-normalizedKeep)}`;
 }

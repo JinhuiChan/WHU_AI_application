@@ -79,3 +79,14 @@ build 已由 AI 在 2026-10-30 执行成功（Middleware 32.3 kB，无错误）�
 - 验证：`npx.cmd tsx scripts/crypto-selftest.ts` 通过；`npx.cmd tsc --noEmit` 通过
 - 下一步：等待阶段 2.2 指令，不提前实现页面或接口
 **不做页面、不做接口、不改 schema。**
+
+### 阶段 2.1 验收：✅ 通过（Lead 独立复核）
+- 密钥：64 位 hex，解码 32 字节 ✓
+- 往返一致 ✓、同明文两次密文不同（IV 随机）✓、篡改密文抛错 ✓
+- 密文格式 `v1:<iv>:<tag>:<data>`，4 段；解密失败不返回原文 ✓
+- **Lead 加固**：`maskTail` 原实现对长度 ≤ keep 的值原样返回（短值等于没脱敏），已改为整串遮蔽
+
+## 阶段 2（进行中）：2.2 报名表单 UI（待做）
+- 页面 `app/(workspace)/apply`、组件 `components/apply/*`
+- 只读接口：`/api/lookup/student`、`/api/lookup/teacher`、`/api/apply/options`
+- 不做提交/保存，不做 prisma 写入
