@@ -68,8 +68,8 @@ export type ProjectFormInput = {
   remark?: string;
   groupName: string;
   categoryName: string;
-  propositionName?: string;
-  propositionCompany?: string;
+  propositionName: string;
+  propositionCompany: string;
   isPayee: boolean;
   payee?: PayeeInput;
   teachers: TeacherInput[];

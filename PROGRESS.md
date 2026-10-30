@@ -95,3 +95,12 @@ build 已由 AI 在 2026-10-30 执行成功（Middleware 32.3 kB，无错误）�
 - 真实请求：学生登录后 `/apply` 正常；选项含 3 赛事及国内/海外层级；学生查询 200/404、老师查询命中/空数组均通过
 - 未做：`/my`、提交逻辑、schema 变更；等待下一阶段指令
 - 不做提交/保存，不做 prisma 写入
+
+## 阶段 2.2.1：赛道三级字段（已完成）
+- 仅修改 `basic-info-card.tsx`、`apply-form.tsx`、`options/route.ts`、`types/apply.ts` 四个允许文件
+- `/api/apply/options` 每个赛道节点均返回 `groups` / `categories`，支持赛道专属、父级继承和通用字典回退
+- 实际字典 key：`GROUP` / `CATEGORY`；当前无 `TRACK_GROUP` / `TRACK_CATEGORY` 及赛道专属记录，故使用通用字典，回退逻辑已保留
+- 新增项目组别、项目类别必填下拉；赛道 kind/name 含“企业命题”时显示命题名称和命题企业并校验必填
+- 切换赛道会清空组别、类别、命题名称和命题企业；字典在表单状态统一保存 code，界面显示 label
+- 验证：`npx.cmd tsc --noEmit`、`npm.cmd run build` 均通过；真实 GET 验证赛道节点字典与新增表单字段通过
+- 未做提交逻辑、`/my` 或 schema 变更
