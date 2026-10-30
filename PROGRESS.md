@@ -1,181 +1,61 @@
 # PROGRESS
 
-> 渚?AI 缁帴浣跨敤銆?*鎭㈠鏃跺彧璇绘湰鏂囦欢 + `git log --oneline | head -5`锛岀姝㈤€氳 `schema.prisma` / `seed.ts`銆?*
+> 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
-## 闃舵 0锛堣繘琛屼腑锛?
-### 宸插畬鎴?- [0.1] 澶囦唤鏃у簱锛歚prisma/dev.db` 鈫?`prisma/dev.db.v1.bak`锛堝凡 gitignore锛?- [0.2] `prisma/schema.prisma` 閲嶅啓锛?*28 model / 20 enum**锛宍prisma validate` 閫氳繃
-- [0.2] `prisma/seed.ts` 閲嶅啓骞堕€氳繃鎵ц
-- [0.2] `.env` / `.env.example` 澧炲姞 `FIELD_ENCRYPTION_KEY`
-- [0.3] `prisma db push` 鎴愬姛锛泂eed 鎵ц鎴愬姛锛屾暟鎹垎甯冨凡鏍搁獙锛?  - Project 18锛? 璧涗簨 脳 6锛夈€乀eamMember 54銆乀eacher 18銆丳ayeeBank 18銆乄ork 18銆丼ealedFile 18
-  - Review 23銆丆hangeLog 1銆丆hangeRequest 1銆乀imeWindow 3銆丏ictOption 14銆丗ormTemplate 3
-  - Award 2銆丄wardHistory 2銆両mportBatch 1銆丒xportRecord 1銆丼ensitiveAccessLog 1
-  - 瀹℃牳鐘舵€侊細REJECTED 2 / PENDING 4 / COLLEGE_REVIEW 4 / SCHOOL_FINAL 4 / PROVINCE_ADVANCED 4
-  - 鑰佸笀纭锛歅ENDING 1 / CONFIRMED 17锛涙湭涓婁紶鐩栫珷浠堕」鐩?1
+## 已完成阶段
 
-### 鏈畬鎴?- [0.4] 4 涓棫鍏ュ彛鏀瑰崰浣嶏紙rankings / anomalies / assistant / check锛? 璋冩暣 sidebar
-- [0.5] `tsc --noEmit` + `build` 楠屾敹 + 鏀跺熬
-
-## 鍏抽敭鍐冲畾锛堝嬁鎿呰嚜鏇存敼锛?
-1. **鏍″鎴愬憳 `TeamMember.personNo` 鍏佽 null**銆?2. **`RegistrationStatus` 鍙栧€?*锛歚DRAFT / PENDING / COLLEGE_REVIEW / SCHOOL_FINAL / REJECTED / PROVINCE_ADVANCED / NATIONAL_ADVANCED / WITHDRAWN`銆?3. **椤圭洰鍚屾椂鏈?`status`锛圥rojectStatus锛変笌 `reviewStatus`锛圧egistrationStatus锛?*锛宻eed 閲屼袱鑰呭悓鍊硷紱鍒彧鍐欎竴涓€?4. **鍏煎琛ヤ竵**锛堥樁娈?2/3/6 閲嶅啓瀵瑰簲妯″潡鏃剁Щ闄わ級锛?   - `types/project.ts`锛歚personNo` 鏀惧涓?`string | null`
-   - `lib/scoring.ts`锛歚AwardLevel` 琛?`GOLD 1.0 / SILVER 0.8 / BRONZE 0.6`
-   - `lib/presentation.ts`锛氳ˉ榻愭柊澧炵姸鎬併€佸椤广€佹垚鍛樿鑹蹭腑鏂囨爣绛?
-## 韪╄繃鐨勫潙锛堥伩鍏嶉噸澶嶏級
-
-| 鐜拌薄 | 鏍瑰洜 | 澶勭疆 |
+| 阶段 | 内容 | 提交 |
 |---|---|---|
-| `prisma validate` 鎶?P1012 | 寮曠敤浜嗘湭瀹氫箟鏋氫妇 `RegistrationStatus` | 琛ュ畾涔?|
-| seed 鎶?`Argument 'project' is missing` | `personNo` 蹇呭～浣嗗啓 null锛孭risma 鍥為€€鍒?checked 杈撳叆 | 鏀逛负鍙┖ |
-| seed 鑷 `琚┏鍥為」鐩?搴斾负 2锛屽疄闄呬负 0` | `status` 绠楀浜嗕絾鍙啓杩?`status`锛屾病鍐?`reviewStatus` | 涓や釜瀛楁鍚屾椂鍐?|
+| 0 | 数据底座：29 表 + 种子（3 赛事 × 6 项目、含 2 驳回/1 待确认老师/1 未上传盖章件） | `9405575` |
+| 0.4 | 冻结旧模块（rankings/anomalies/assistant/check 改占位页） | `ef0d90f` |
+| 1 | 三角色认证：学生注册、ADMIN/TEACHER/STUDENT 守卫、中间件按路由段拦截 | `aa40222` `4378e54` |
+| 2.1 | 加密与字典层：AES-256-GCM、maskTail（短值整串遮蔽）、DictOption 读取 | `ff50472` `bcd122d` |
+| 2.2 | 报名表单 UI：17 项基本信息 + 老师/成员双弹窗 + 领款人 + 作品 + PPT | `4f3bba6` |
+| 2.2.1 | 赛道三级字段：组别/类别/命题名称/命题企业，字典值统一用 code | `618e42d` |
+| 2.3 | 提交与「我的项目」：草稿、提交、跨学生越权拦截、银行卡密文入库 | `ac5a854` |
+| 3.1 | 管理员赛事管理：新建/编辑赛事、附件上传（白名单+MIME+文件头+20MB）、报名窗口开关 | `78813b0` |
+| — | Lead 补：提交时服务端校验报名窗口 | `125fc81` |
+| 3.2 | 审核工作台：27 列对齐 PRD 5.3、两级审核、批量逐条失败、详情含盖章件与审核历史 | `bb571b7` |
+| 4.1 | 盖章闭环：报名表 xlsx（签字位/公章位）、上传版本化、最终版回退、管理员批量打包 zip | `e5fda82` |
+| 4.2 | 自定义数据表导出：字段勾选与调序、`full` 参数（脱敏 vs 完整件）、4 个导出接口均写 ExportRecord | `23e8fe2` |
+| 5.1 | 统计看板：byCollege/byTrack/byStage/byAward，学生 scope=mine 隔离，数字与查库一致 | `8c1e5e1` |
+| 5.2 | 变更申请（轻量版） | 待做 |
 
-## 涓嬩竴姝ワ紙鍙仛杩欎竴鏉★紝鍋氬畬鍋滀笅锛?
-寰 0.4锛氭妸 `rankings` 鏀逛负"宸插苟鍏ョ湅鏉?鍗犱綅锛宍anomalies` / `assistant` / `check` 鏀逛负"鍔熻兘鏆傛湭寮€鏀?鍗犱綅锛?*椤甸潰鏂囦欢淇濈暀銆佸彧鏀瑰唴瀹?*锛夛紝骞惰皟鏁?`components/layout/sidebar.tsx` 涓嬬嚎杩?4 涓叆鍙ｃ€?**涓嶈缁х画 0.5銆?*
+## 关键决定（勿擅自更改）
 
+1. `TeamMember.personNo` 可空（校外成员无学号）。
+2. `RegistrationStatus` 取值：DRAFT / PENDING / COLLEGE_REVIEW / SCHOOL_FINAL / REJECTED / PROVINCE_ADVANCED / NATIONAL_ADVANCED / WITHDRAWN。
+3. 审核状态流转：提交→PENDING；学院通过→COLLEGE_REVIEW；校级通过→SCHOOL_FINAL；任一级驳回→REJECTED。
+4. 报名表敏感字段：默认脱敏；`full=1` 才出完整身份证/银行卡，限负责人/第二三负责人/管理员，且带水印 + ExportRecord。
+5. 学生看板只看本人数据（scope=mine），不看全校聚合。
+6. 兼容补丁（阶段 2/3/6 重写对应模块时可移除）：`types/project.ts` personNo 可空、`lib/scoring.ts` 补 GOLD/SILVER/BRONZE、`lib/presentation.ts` 补状态标签与 roleLabels。
 
-## 阶段 1（代码已写，待 AI review + build 验证）
+## 踩过的坑（避免重复）
 
-### Lead 已写（均通过 tsc --noEmit）
-- `lib/auth.ts`：角色校验扩展到 5 种（ADMIN/USER/STUDENT/TEACHER/FINANCE），新增 `isRole`
-- `lib/auth.server.ts`：新增 `requireApiRoles` / `requireApiStudent` / `requireApiTeacher`
-- `middleware.ts`：按路由段守卫（/admin、/settings、/review、/import 仅 ADMIN；/apply、/my 仅 STUDENT；/teacher 仅 TEACHER；FINANCE 只读）
-- `app/api/auth/register/route.ts`：学生注册（学号 6–20 位、手机号、密码≥6、查重、写审计）
-- `app/register/page.tsx`：注册页
-- `app/login/page.tsx`：加注册入口
-- `lib/presentation.ts`：新增 `roleLabels`
+| 现象 | 根因 | 处置 |
+|---|---|---|
+| `prisma validate` 报 P1012 | 引用了未定义枚举 RegistrationStatus | 补定义 |
+| seed 报 `Argument 'project' is missing` | personNo 必填但 seed 写 null，Prisma 回退到 checked 输入 | 改可空 |
+| seed 自检「被驳回项目应为 2，实际 0」 | `status` 算对但只写了 `status`，没写 `reviewStatus` | 两个字段同时写 |
+| seed 自检「DictOption 应为 14，实际 119」 | 补了 105 条赛道级字典，断言没跟着拆 | 拆成全局 14 + 赛道 105 两条断言 |
+| 学生侧栏出现「导入」且点进去 403 | 导航项没按角色过滤 | 侧栏改 role-aware |
+| 学生找不到报名入口 | `/apply` 与 `/my` 没有导航入口 | 学生侧栏「赛事与报名 / 我的项目」 |
+| 报名关闭期仍能提交 | 只在编辑时校验窗口，提交时没校验 | `submitProject` 内校验 TimeWindow |
 
-### 待验证
-- `npm.cmd run build`（Lead 沙箱禁止 fork，无法执行）
-- 三种角色登录与越权拦截的真机验证
+## 工具环境注意
 
-### 下一步（AI 执行）
-1. review 上述 7 个文件，输出问题清单（最多 5 条，按严重度排序），**先不改代码**
-2. 执行 `npm.cmd run build`
-3. 若 build 失败，只修阻断项（最多改 3 个文件），修完再 build 一次
-4. 汇报后停下
+- Windows PowerShell 5.1：**没有 pwsh**；脚本写文件必须显式 UTF-8，否则中英混编会乱码（本文件曾因此损坏过）。
+- 沙箱限制：`next build` 与 `tsx` 因 fork 被拒（spawn EPERM），需在本机终端执行。
+- `npx.cmd tsc` 有时去网上抓包导致 EPERM，改用 `node_modules\.bin\tsc.cmd`。
 
-### 阶段 1 review 结论（AI review + Lead 裁定）
+## 自测纪律（硬约束）
 
-| # | 问题 | 裁定 | 处理 |
-|---|---|---|---|
-| 1 | 学生/教师 API 未纳入中间件守卫 | 真问题 | 已加 `/api/apply` `/api/my` `/api/teacher` 前缀守卫 |
-| 2 | 中间件信任 JWT 内旧角色（最长 8h） | 接受 | Edge 无法查库；每个接口内部用 `getActiveUser` 回查，页面渲染前也会校验。已记录为已知限制 |
-| 3 | 注册查重非原子，并发撞唯一键返回 500 | 真问题 | 捕获 P2002 → 返回 409，并按冲突字段给提示 |
-| 4 | 建用户与写审计不在同一事务 | 真问题 | 改为 `prisma.\` 内完成，审计失败则用户不落库 |
-| 5 | ADMIN 始终通过学生/教师守卫 | 接受 | 设计意图：管理员可代操作；后续若限制需显式加参数 |
+- 集成自测脚本**最多一次、≤5 分钟**；失败不许改脚本重跑，改用一条数据库查询核对。
+- **严禁放宽断言**（如 `>=5` 改成 `>=4`）。发现一次，本阶段判失败。
+- 临时数据/服务/脚本收尾必须清理并在汇报中确认。
 
-build 已由 AI 在 2026-10-30 执行成功（Middleware 32.3 kB，无错误）。
+## 下一步
 
-### 阶段 1 验收结论：✅ 通过（2026-10-30）
-- `npm.cmd run build` 成功，路由表包含 `/register`（1.47 kB）、`/api/auth/register`
-- 中间件守卫覆盖页面与 API：/admin、/settings、/review、/import → ADMIN；/apply、/my、/api/apply、/api/my → STUDENT；/teacher、/api/teacher → TEACHER；FINANCE 只读
-- 已知限制：JWT 内角色最长 8 小时有效（中间件无法查库），业务接口均以 `getActiveUser` 回查兜底
+**5.2 变更申请（轻量版）**：接口 `POST /api/change/request`、`POST /api/change/review`、`GET /api/change/list`；`ChangeRequest` 表已就绪，**不需要改 schema**。
 
-## 阶段 2（进行中）
-
-### 2.1 加密与字典基础层（已完成）
-- `lib/crypto.ts`：AES-256-GCM，支持 64 位 hex / base64 密钥；密文版本格式为 `v1:iv:tag:data`
-- `lib/dict.ts`：新增 `listOptions` / `getLabelMap`；现有模型以 `enabled: true` 实现 active 过滤并按 `sortOrder` 排序
-- `types/apply.ts`：新增 `ProjectFormInput` / `MemberInput` / `TeacherInput` / `PayeeInput`
-- `scripts/crypto-selftest.ts`：中文长文本往返、随机 IV、篡改抛错、脱敏共 4 项全部通过
-- 验证：`npx.cmd tsx scripts/crypto-selftest.ts` 通过；`npx.cmd tsc --noEmit` 通过
-- 下一步：等待阶段 2.2 指令，不提前实现页面或接口
-**不做页面、不做接口、不改 schema。**
-
-### 阶段 2.1 验收：✅ 通过（Lead 独立复核）
-- 密钥：64 位 hex，解码 32 字节 ✓
-- 往返一致 ✓、同明文两次密文不同（IV 随机）✓、篡改密文抛错 ✓
-- 密文格式 `v1:<iv>:<tag>:<data>`，4 段；解密失败不返回原文 ✓
-- **Lead 加固**：`maskTail` 原实现对长度 ≤ keep 的值原样返回（短值等于没脱敏），已改为整串遮蔽
-
-## 阶段 2（进行中）：2.2 报名表单 UI（已完成）
-- 新增 `app/(workspace)/apply/page.tsx`：服务端读取当前学生、赛事赛道树与字典；学号和姓名固定展示
-- 新增 `components/apply/` 6 个组件：17 项基本信息、老师/成员双入口弹窗、上限与排序、唯一领款人、作品与 PPT 占位、前端校验
-- 新增只读接口：`/api/lookup/student`、`/api/lookup/teacher`、`/api/apply/options`；学生查不到返回 404，老师查不到返回空数组
-- 全部表单数据均为客户端状态；提交按钮禁用并显示“提交功能开发中”，无保存、上传或 Prisma 写入
-- 验证：`npx.cmd tsc --noEmit` 通过；`npm.cmd run build` 通过（21 个静态页生成步骤完成）
-- 真实请求：学生登录后 `/apply` 正常；选项含 3 赛事及国内/海外层级；学生查询 200/404、老师查询命中/空数组均通过
-- 未做：`/my`、提交逻辑、schema 变更；等待下一阶段指令
-- 不做提交/保存，不做 prisma 写入
-
-## 阶段 2.2.1：赛道三级字段（已完成）
-- 仅修改 `basic-info-card.tsx`、`apply-form.tsx`、`options/route.ts`、`types/apply.ts` 四个允许文件
-- `/api/apply/options` 每个赛道节点均返回 `groups` / `categories`，支持赛道专属、父级继承和通用字典回退
-- 实际字典 key：`GROUP` / `CATEGORY`；当前无 `TRACK_GROUP` / `TRACK_CATEGORY` 及赛道专属记录，故使用通用字典，回退逻辑已保留
-- 新增项目组别、项目类别必填下拉；赛道 kind/name 含“企业命题”时显示命题名称和命题企业并校验必填
-- 切换赛道会清空组别、类别、命题名称和命题企业；字典在表单状态统一保存 code，界面显示 label
-- 验证：`npx.cmd tsc --noEmit`、`npm.cmd run build` 均通过；真实 GET 验证赛道节点字典与新增表单字段通过
-- 未做提交逻辑、`/my` 或 schema 变更
-
-## 阶段 2.3：报名提交与我的项目（已完成）
-- 新增 `lib/apply.ts`：`createOrUpdateDraft` / `submitProject` / `withdrawProject` / `getMyProjects` / `getMyProject`；写操作均走事务
-- 新增 `POST /api/apply` 保存嵌套草稿、`POST /api/apply/submit` 校验并提交；失败 message 会回传表单
-- 新增 `/my` 与 `/my/[id]`：列表展示名称、赛道、状态、驳回原因、修改时间；详情只读并脱敏，窗口内才显示编辑
-- 提交后 `status` / `reviewStatus` 同时为 `PENDING`；以 `ChangeLog.field=SUBMIT` 记录“首次提交/重新提交”并计算次数
-- 读写权限均限定为项目负责人或 `TeamMember.userId` 成员；身份证和银行卡仅密文入库，详情仅用 `maskTail` 展示
-- `/apply` 已接入草稿、提交和已有项目编辑；成员、老师、作品、领款人嵌套写入，未改 schema 或 `lib/crypto.ts`
-- 验证：`npx.cmd tsc --noEmit`、`npm.cmd run build` 通过；真实草稿→提交→列表/详情、密文、脱敏、成员访问和跨学生读写拦截均通过
-- 端到端测试项目已清理；未做审核、导出
-
-## 阶段 3.1：管理员赛事管理（已完成）
-- 新增管理员接口：新建/编辑赛事、上传/删除附件、upsert 校赛报名窗口；全部 `requireApiAdmin` 且写 AuditLog
-- 上传校验扩展名、MIME、文件头和 20MB 上限；文件保存至 `public/uploads/competitions/<id>/`，目录已加入 `.gitignore`
-- 新增公开附件读取路由，解决生产模式下运行时新增 public 文件无法下载的问题；下载无需登录，管理写接口仍仅管理员
-- 赛事详情新增管理员编辑抽屉、附件上传/删除、报名设置；列表新增管理员新建赛事入口
-- 学生端 `enabled=false` 时显示“报名未开放”；未修改 schema、`lib/crypto.ts`、学生端 `/apply` 或 `/my`
-- 验证：`tsc` 与 `build` 通过；真实 PDF 上传/删除、无登录下载、学生管理写 403、关闭/开放窗口均通过；已执行 `db:push` 同步既有附件模型
-- 实测落盘：`public/uploads/competitions/d717b357-366d-48c8-bd12-12e769dc7801/f8375123-ad73-4977-a9c1-18842ec9fe45-stage31-upload.pdf`
-- 实测窗口：`competitionId=d717b357-366d-48c8-bd12-12e769dc7801`，`stage=SCHOOL`，`startAt=2026-10-30T08:56:24.858Z`，`endAt=2026-11-29T09:56:24.996Z`，`enabled=true`
-- 构建附带修复：移除 `components/layout/sidebar.tsx` 未使用的 `FilePlus2` 导入
-
-## 阶段 3.2：管理员审核（已完成）
-- 状态流转：提交后为 `PENDING`；学院通过后为 `COLLEGE_REVIEW`；校级通过后为 `SCHOOL_FINAL`；任一级驳回为 `REJECTED`，记录理由与驳回级别
-- 接口（全部 `requireApiAdmin`）：`GET /api/review/list`（PRD 5.3 的 27 列、赛事/阶段/学院/状态/赛道/关键词筛选、分页）；`POST /api/review/approve`；`POST /api/review/reject`；`POST /api/review/batch`
-- 学院级仅处理 `PENDING`，校级仅处理 `COLLEGE_REVIEW`；其他状态返回 422。驳回理由必填且不超过 200 字，空理由返回「请填写驳回理由」
-- 批量通过或驳回使用同一理由，先过滤状态不符项，并分别返回成功与 `{ projectId, message }` 失败清单
-- 每次成功审核在同一事务写 `Review` 与 `AuditLog`；现有学生重新提交逻辑保持回到 `PENDING` 且不删除审核历史，未修改 `/apply`
-- 页面：`/review` 27 列审核列表并显示提交次数，未确认指导关系的项目标红；`/review/[id]` 展示基本信息、老师、成员、作品、盖章件、变更历史与审核记录
-- 组件：筛选栏、勾选后显示的批量操作条、驳回理由弹窗；侧栏管理区已增加「报名审核」入口
-- 约束：未改 schema，未碰 `/apply` 与 `/my`，未做导出、看板或晋级流转
-- 验证：`npx.cmd tsc --noEmit`、`npm.cmd run build` 通过；构建包含 `/review`、`/review/[id]` 和四个审核 API
-- 真实 HTTP 验收：未登录 401、学生页面与接口 403；27 列及六类筛选/分页正确；空理由/超长理由/越级与重复审核 422；学院通过→校级通过、驳回、批量部分成功均正确
-- 数据库验收：成功操作的状态同步、驳回级别/理由、Review 与 AuditLog 数量一致；失败项未写 Review 且状态未变；临时项目、赛事、赛道与脚本均已清理
-- 提交：`bb571b7 stage-3.2: review workbench`
-- 下一步：等待后续阶段指令，不提前实现晋级流转、奖项或看板
-
-## 阶段 4.1：盖章件上传与最终版闭环（已完成）
-- 学生项目详情提供报名表 xlsx 下载；包含基本信息、指导老师、团队成员、领款人，以及留空的三个签字位和公章位；银行信息默认脱敏并写入唯一导出编号
-- 本队任一学生成员可上传 PDF/JPG/PNG 盖章件，单文件不超过 20MB；校验扩展名、MIME 与文件头，UUID 重命名，版本递增且旧版保留
-- 以最后上传且 `reviewResult != REJECTED` 的盖章件为当前最终版；学生与管理员可查看全部版本并下载，最新版被驳回后回退上一可用版本
-- 接口：`POST /api/sealed/upload`、`GET /api/sealed/download`、`GET /api/export/form`、`POST /api/export/package`；每次表单、单版本或打包下载均写 `ExportRecord`
-- 管理员按当前审核筛选结果流式打包 zip，单次不超过 100 个项目且文件总量不超过 500MB；按 `赛事_阶段_学院_项目名_队长_第N版` 命名，PDF 使用 `.pdf`，图片保留对应扩展名
-- 运行时上传目录已由现有 `.gitignore` 的 `public/uploads/` 覆盖；未改 schema、`lib/crypto.ts` 或 `/apply`，未做 4.2 数据表自定义导出
-- 真实验收：本队两名成员均可上传，无关学生跨项目操作被拦截；文件头、MIME 和 20MB 上限通过；两版替换后旧文件保留且内容一致
-- 真实验收：学生/管理员页面、历史版本下载、教师报名表下载通过；xlsx 已解析核对四类字段、签字公章位、脱敏与导出编号；zip 已解压核对文件名和文件内容
-- 限额验收：101 个项目返回分批提示；25×20MB=500MB 可准备打包，26×20MB 超限返回分批提示；临时数据库行、文件和脚本均已清理
-- 验证：`npx.cmd tsc --noEmit`、`npm.cmd run build` 通过，构建包含四个新增接口
-- 提交：`e5fda82 stage-4.1: sealed files and form export`
-- 下一步：等待 4.2 指令，不提前实现数据表自定义导出
-
-## 阶段 4.2：完整报名表与自定义数据表导出（已完成）
-- `/api/export/form` 支持 `full=0|1`，默认脱敏；`full=1` 输出完整身份证与银行卡号，仅项目负责人/第二三负责人/管理员可用，其他成员返回 403
-- `full=1` 报名表带「项目名+导出人+时间+导出编号」可见水印与文档属性，`ExportRecord.includeSensitive=true`；学生详情提供交学院核验与脱敏留存两个入口
-- 字段目录集中于 `lib/export-fields.ts`：27 个标准字段加身份证、银行卡两个敏感字段，定义 key、中文列名与敏感标记，页面和接口共用
-- `GET/POST /api/export/dataset` 支持 `scope=mine|all`、当前审核筛选与有序 `fields[]`；`all` 仅管理员，xlsx 第一行为中文表头、第二行起为数据，列序与请求一致
-- 学生数据表仅含本人参与项目，UI 至少保留项目名称、状态；管理员可勾选 27 字段并上下移调序，单次超过 5000 行返回缩小筛选提示
-- 敏感列默认脱敏；仅管理员在 `scope=all` 且 `confirmSensitive=1` 时可导出所选完整敏感列，并在导出信息页记录水印与二次确认状态
-- `ExportRecord` 覆盖：`GET /api/export/form`（FORM，含 full 与敏感标记）、`GET/POST /api/export/dataset`（DATASET，含字段顺序/行数/范围/确认状态）、`POST /api/export/package`（PACKAGE）、`GET /api/sealed/download`（FORM，单版本下载）
-- 真实验收：负责人/第二三负责人/管理员 full 权限、普通队员与教师 full=1 拦截、完整与脱敏内容、水印、GET/POST 列序、mine 数据隔离、管理员敏感确认及导出记录均通过
-- 验证：`npx.cmd tsc --noEmit` 与 `npm.cmd run build` 通过；5000 行限制已实现，收尾时按指令停止额外大数据自测
-- 未改 schema、未碰 `/apply`、未做 Word/PDF 导入；`.stage42-verify.ts` 已删除，无 4.2 上传文件或未跟踪测试残留
-- 提交：`stage-4.2: custom dataset export`
-- 下一步：等待后续阶段指令
-
-## 阶段 5.1：统计看板（已完成）
-- `GET /api/dashboard/summary` 按当前赛事/赛年/阶段筛选实时聚合，无缓存；返回学院、赛道、阶段和 Award 奖项四组数据及数字卡
-- 学院统计项目数、按成员学号去重的参与人数和晋级省赛数；赛道统计项目数与占比；阶段统计校赛/省赛/国赛；奖项统计金/银/铜/优秀
-- 看板已替换 V1：项目总数、去重参与人数、待审核数、晋级省赛数四张卡，学院表格下钻 `/review?college=xxx`，Recharts 饼图与两个柱图
-- 筛选包含赛事、赛年、阶段，切换即刷新；学生由服务端限定本人参与项目，仅显示我的项目与状态，不返回或展示全校统计
-- 未改 schema、未碰 `/apply` 与 `/my`、未做导出；数字全部由接口共享聚合服务计算，不使用 mock 数据
-- 直接核对：`/api/dashboard/summary` 的 byCollege 前 5 项与 `SELECT college, COUNT(*) FROM Project WHERE deletedAt IS NULL GROUP BY college` 前 5 项在相同排序下逐项一致
-- 验证：`npx.cmd tsc --noEmit` 与 `npm.cmd run build` 通过；临时脚本、服务和数据均已清理
-- 提交：`stage-5.1: statistics dashboard`
-- 下一步：等待后续阶段指令
+安全红线：`newValues` 必须走白名单映射，禁止直接 spread 进 `prisma.update`（否则可夹带 status/score 改状态）。
