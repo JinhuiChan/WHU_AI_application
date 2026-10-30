@@ -36,10 +36,10 @@ export function BasicInfoCard({ student, value, competitions, dictionaries, onCh
       <h2 className="text-base font-semibold text-slate-900">项目基本信息</h2>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <label className="text-xs text-slate-600">负责人学号
-          <input className={fieldClass} value={student.studentNo ?? "未绑定学号"} disabled />
+          <input className={fieldClass} value={value.leaderStudentNo || "未绑定学号"} disabled />
         </label>
         <label className="text-xs text-slate-600">负责人姓名
-          <input className={fieldClass} value={student.name} disabled />
+          <input className={fieldClass} value={value.leaderName} disabled />
         </label>
         <label className="text-xs text-slate-600">年级
           <input className={fieldClass} value={value.grade} onChange={(event) => onChange({ grade: event.target.value })} required />

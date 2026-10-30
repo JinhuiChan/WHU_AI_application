@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ApplyForm } from "@/components/apply/apply-form";
 import type { ApplyOptions } from "@/components/apply/apply-form";
+import { getMyProject } from "@/lib/apply";
 import { getActiveUser } from "@/lib/auth.server";
 import { listOptions } from "@/lib/dict";
 import { prisma } from "@/lib/prisma";
@@ -17,10 +18,14 @@ function trackTree(tracks: FlatTrack[], parentId: string | null = null): ApplyOp
     .map((track) => ({ ...track, children: trackTree(tracks, track.id) }));
 }
 
-export default async function ApplyPage() {
+type PageProps = { searchParams?: { projectId?: string | string[] } };
+
+export default async function ApplyPage({ searchParams }: PageProps) {
   const user = await getActiveUser();
   if (!user) redirect("/login");
   if (user.role !== "STUDENT") redirect("/dashboard");
+  const rawProjectId = searchParams?.projectId;
+  const projectId = Array.isArray(rawProjectId) ? rawProjectId[0] : rawProjectId;
 
   const [student, competitions, ethnicities, educationStages, workForms, groups, categories] = await Promise.all([
     prisma.user.findFirst({
@@ -62,6 +67,8 @@ export default async function ApplyPage() {
     listOptions("CATEGORY"),
   ]);
   if (!student) redirect("/login");
+  const existing = projectId ? await getMyProject(projectId, user.id) : null;
+  if (projectId && !existing) redirect("/my");
   const labels = (items: Array<{ value: string; label: string }>) => items.map(({ value, label }) => ({ value, label }));
   const options: ApplyOptions = {
     competitions: competitions.map((competition) => ({
@@ -85,7 +92,7 @@ export default async function ApplyPage() {
         <h1 className="text-xl font-semibold text-slate-900">项目报名</h1>
         <p className="mt-1 text-sm text-blue-900">当前学生：{student.studentNo ?? "未绑定学号"} · {student.name}</p>
       </header>
-      <ApplyForm student={student} options={options} />
+      <ApplyForm student={student} options={options} projectId={projectId} initialValue={existing?.formInput} />
     </div>
   );
 }

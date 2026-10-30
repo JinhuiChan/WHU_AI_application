@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { MemberInput, PayeeInput, ProjectFormInput, TeacherInput } from "@/types/apply";
 import { BasicInfoCard } from "./basic-info-card";
 import { MemberSection } from "./member-section";
@@ -45,7 +46,12 @@ export type ApplyOptions = {
   };
 };
 
-type ApplyFormProps = { student: StudentProfile; options: ApplyOptions };
+type ApplyFormProps = {
+  student: StudentProfile;
+  options: ApplyOptions;
+  projectId?: string;
+  initialValue?: ProjectFormInput;
+};
 
 function emptyPayee(bound: boolean): PayeeInput {
   return bound ? { boundFinancePlatform: true } : {
@@ -159,10 +165,13 @@ function validateForm(form: ProjectFormInput, options: ApplyOptions): string[] {
   return errors;
 }
 
-export function ApplyForm({ student, options }: ApplyFormProps) {
+export function ApplyForm({ student, options, projectId, initialValue }: ApplyFormProps) {
+  const router = useRouter();
   const [resolvedOptions, setResolvedOptions] = useState(options);
-  const [form, setForm] = useState<ProjectFormInput>(() => initialForm(student, options));
+  const [form, setForm] = useState<ProjectFormInput>(() => initialValue ?? initialForm(student, options));
   const [validationVisible, setValidationVisible] = useState(false);
+  const [pendingAction, setPendingAction] = useState<"draft" | "submit" | null>(null);
+  const [requestError, setRequestError] = useState("");
   const errors = validateForm(form, resolvedOptions);
 
   useEffect(() => {
@@ -221,6 +230,34 @@ export function ApplyForm({ student, options }: ApplyFormProps) {
     }));
   }
 
+  async function persist(action: "draft" | "submit") {
+    setRequestError("");
+    if (action === "submit" && errors.length) {
+      setValidationVisible(true);
+      return;
+    }
+    setPendingAction(action);
+    try {
+      const response = await fetch(action === "draft" ? "/api/apply" : "/api/apply/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ input: form, projectId }),
+      });
+      const result = await response.json() as { code: number; message: string; data?: { projectId: string } };
+      if (!response.ok || result.code !== 0) {
+        setRequestError(result.message || (action === "draft" ? "保存草稿失败" : "提交报名失败"));
+        return;
+      }
+      if (action === "submit") router.push("/my");
+      else if (result.data?.projectId) router.push(`/my/${result.data.projectId}`);
+      else router.push("/my");
+    } catch {
+      setRequestError("网络异常，请稍后重试");
+    } finally {
+      setPendingAction(null);
+    }
+  }
+
   return (
     <div className="space-y-5" onBlur={() => setValidationVisible(true)}>
       <BasicInfoCard student={student} value={form} competitions={resolvedOptions.competitions} dictionaries={resolvedOptions.dictionaries} onChange={updateBasic} onPayeeToggle={toggleLeaderPayee} />
@@ -251,8 +288,10 @@ export function ApplyForm({ student, options }: ApplyFormProps) {
           {errors.length ? <ul className="mt-2 list-disc space-y-1 pl-5">{errors.map((error) => <li key={error}>{error}</li>)}</ul> : <p className="mt-2">当前填写已通过前端校验，尚未保存或提交。</p>}
         </section>
       ) : null}
-      <div className="flex justify-end rounded-lg border border-slate-200 bg-white p-4">
-        <button type="button" disabled className="cursor-not-allowed rounded-md bg-slate-400 px-6 py-2 text-sm font-medium text-white">提交功能开发中</button>
+      {requestError ? <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{requestError}</p> : null}
+      <div className="flex justify-end gap-3 rounded-lg border border-slate-200 bg-white p-4">
+        <button type="button" disabled={pendingAction !== null} onClick={() => void persist("draft")} className="rounded-md border border-slate-300 px-5 py-2 text-sm text-slate-700 disabled:opacity-60">{pendingAction === "draft" ? "保存中…" : "保存草稿"}</button>
+        <button type="button" disabled={pendingAction !== null} onClick={() => void persist("submit")} className="rounded-md bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60">{pendingAction === "submit" ? "提交中…" : "提交报名"}</button>
       </div>
     </div>
   );

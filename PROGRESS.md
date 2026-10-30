@@ -104,3 +104,13 @@ build 已由 AI 在 2026-10-30 执行成功（Middleware 32.3 kB，无错误）�
 - 切换赛道会清空组别、类别、命题名称和命题企业；字典在表单状态统一保存 code，界面显示 label
 - 验证：`npx.cmd tsc --noEmit`、`npm.cmd run build` 均通过；真实 GET 验证赛道节点字典与新增表单字段通过
 - 未做提交逻辑、`/my` 或 schema 变更
+
+## 阶段 2.3：报名提交与我的项目（已完成）
+- 新增 `lib/apply.ts`：`createOrUpdateDraft` / `submitProject` / `withdrawProject` / `getMyProjects` / `getMyProject`；写操作均走事务
+- 新增 `POST /api/apply` 保存嵌套草稿、`POST /api/apply/submit` 校验并提交；失败 message 会回传表单
+- 新增 `/my` 与 `/my/[id]`：列表展示名称、赛道、状态、驳回原因、修改时间；详情只读并脱敏，窗口内才显示编辑
+- 提交后 `status` / `reviewStatus` 同时为 `PENDING`；以 `ChangeLog.field=SUBMIT` 记录“首次提交/重新提交”并计算次数
+- 读写权限均限定为项目负责人或 `TeamMember.userId` 成员；身份证和银行卡仅密文入库，详情仅用 `maskTail` 展示
+- `/apply` 已接入草稿、提交和已有项目编辑；成员、老师、作品、领款人嵌套写入，未改 schema 或 `lib/crypto.ts`
+- 验证：`npx.cmd tsc --noEmit`、`npm.cmd run build` 通过；真实草稿→提交→列表/详情、密文、脱敏、成员访问和跨学生读写拦截均通过
+- 端到端测试项目已清理；未做审核、导出
