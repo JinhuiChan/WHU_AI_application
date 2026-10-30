@@ -153,6 +153,49 @@ async function main() {
     const industryTrack = await prisma.track.create({
       data: { competitionId: competition.id, name: "产业赛道", kind: "TRACK", sortOrder: 3 },
     });
+
+    // 按样表补全各赛道的组别与类别（按赛道挂载，避免不同赛道互相串选项）
+    const trackDictionaries = [
+      {
+        trackId: domesticTrack.id,
+        groups: ["本科生创意组", "本科生创业组", "研究生创意组", "研究生创业组"],
+        categories: ["新工科", "新医科", "新农科", "新文科", "人工智能+"],
+      },
+      {
+        trackId: overseasTrack.id,
+        groups: ["本科生创意组", "本科生创业组", "研究生创意组", "研究生创业组"],
+        categories: ["新工科", "新医科", "新农科", "新文科", "人工智能+"],
+      },
+      {
+        trackId: redTrack.id,
+        groups: ["公益组", "创意组", "创业组"],
+        categories: ["现代农业", "制造业", "信息技术服务", "文化创意服务", "社会服务"],
+      },
+      {
+        trackId: industryTrack.id,
+        groups: ["企业命题组", "成果转化组"],
+        categories: ["产教协同创新组", "区域特色产业组", "国产操作系统软件组", "新工科", "新医科", "新农科", "新文科"],
+      },
+    ];
+    await prisma.dictOption.createMany({
+      data: trackDictionaries.flatMap((entry) => [
+        ...entry.groups.map((label, index) => ({
+          type: "GROUP",
+          value: `G${index + 1}`,
+          label,
+          trackId: entry.trackId,
+          sortOrder: index + 1,
+        })),
+        ...entry.categories.map((label, index) => ({
+          type: "CATEGORY",
+          value: `C${index + 1}`,
+          label,
+          trackId: entry.trackId,
+          sortOrder: index + 1,
+        })),
+      ]),
+    });
+
     const trackIds = [domesticTrack.id, overseasTrack.id, redTrack.id, industryTrack.id, domesticTrack.id, redTrack.id];
     const template = await prisma.formTemplate.create({
       data: {
