@@ -7,6 +7,7 @@ import type {
   EvidenceType,
   MemberRole,
   ProjectStatus,
+  RegistrationStatus,
   Role,
 } from "@prisma/client";
 
@@ -27,6 +28,17 @@ export const projectStatusLabels: Record<ProjectStatus, string> = {
   PROVINCE_ADVANCED: "已晋级省赛",
   NATIONAL_ADVANCED: "已晋级国赛",
   FINISHED: "已结束",
+};
+
+export const registrationStatusLabels: Record<RegistrationStatus, string> = {
+  DRAFT: "草稿",
+  PENDING: "待学院审核",
+  COLLEGE_REVIEW: "待校级终审",
+  SCHOOL_FINAL: "校内终审通过",
+  REJECTED: "已驳回",
+  PROVINCE_ADVANCED: "已晋级省赛",
+  NATIONAL_ADVANCED: "已晋级国赛",
+  WITHDRAWN: "已撤回",
 };
 
 export const awardLevelLabels: Record<AwardLevel, string> = {

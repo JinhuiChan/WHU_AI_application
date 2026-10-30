@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  ClipboardCheck,
   FileText,
   FolderKanban,
   LayoutDashboard,
@@ -39,6 +40,7 @@ function navigationFor(role: Role) {
 }
 
 const administration = [
+  { href: "/review", label: "报名审核", icon: ClipboardCheck },
   { href: "/import", label: "数据导入", icon: Upload },
   { href: "/admin/users", label: "用户管理", icon: Users },
   { href: "/admin/logs", label: "审计日志", icon: FileText },
