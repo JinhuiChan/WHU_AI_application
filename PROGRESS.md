@@ -1,4 +1,4 @@
-﻿# PROGRESS
+# PROGRESS
 
 > 渚?AI 缁帴浣跨敤銆?*鎭㈠鏃跺彧璇绘湰鏂囦欢 + `git log --oneline | head -5`锛岀姝㈤€氳 `schema.prisma` / `seed.ts`銆?*
 
@@ -71,9 +71,11 @@ build 已由 AI 在 2026-10-30 执行成功（Middleware 32.3 kB，无错误）�
 
 ## 阶段 2（进行中）
 
-### 2.1 加密与字典基础层（待做）
-- `lib/crypto.ts`：AES-256-GCM，`FIELD_ENCRYPTION_KEY`，`encryptField` / `decryptField` / `maskTail`
-- `lib/dict.ts`：读 `DictOption`
-- `types/apply.ts`：报名相关类型
-- `scripts/crypto-selftest.ts`：往返一致 + IV 随机 + 篡改失败
+### 2.1 加密与字典基础层（已完成）
+- `lib/crypto.ts`：AES-256-GCM，支持 64 位 hex / base64 密钥；密文版本格式为 `v1:iv:tag:data`
+- `lib/dict.ts`：新增 `listOptions` / `getLabelMap`；现有模型以 `enabled: true` 实现 active 过滤并按 `sortOrder` 排序
+- `types/apply.ts`：新增 `ProjectFormInput` / `MemberInput` / `TeacherInput` / `PayeeInput`
+- `scripts/crypto-selftest.ts`：中文长文本往返、随机 IV、篡改抛错、脱敏共 4 项全部通过
+- 验证：`npx.cmd tsx scripts/crypto-selftest.ts` 通过；`npx.cmd tsc --noEmit` 通过
+- 下一步：等待阶段 2.2 指令，不提前实现页面或接口
 **不做页面、不做接口、不改 schema。**
