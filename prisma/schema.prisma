@@ -10,6 +10,9 @@ datasource db {
 enum Role {
   ADMIN
   USER
+  STUDENT
+  TEACHER
+  FINANCE
 }
 
 enum CompetitionLevel {
@@ -18,8 +21,34 @@ enum CompetitionLevel {
   NATIONAL
 }
 
+enum ProjectStage {
+  SCHOOL
+  PROVINCE
+  NATIONAL
+  FINISHED
+}
+
 enum ProjectStatus {
   ACTIVE
+  WITHDRAWN
+  DRAFT
+  PENDING
+  COLLEGE_REVIEW
+  SCHOOL_FINAL
+  REJECTED
+  PROVINCE_ADVANCED
+  NATIONAL_ADVANCED
+  FINISHED
+}
+
+enum RegistrationStatus {
+  DRAFT
+  PENDING
+  COLLEGE_REVIEW
+  SCHOOL_FINAL
+  REJECTED
+  PROVINCE_ADVANCED
+  NATIONAL_ADVANCED
   WITHDRAWN
 }
 
@@ -31,6 +60,8 @@ enum AliasType {
 
 enum MemberRole {
   LEADER
+  SECOND_LEADER
+  THIRD_LEADER
   MEMBER
   TEACHER
 }
@@ -41,6 +72,9 @@ enum AwardLevel {
   B
   C
   EXCELLENT
+  GOLD
+  SILVER
+  BRONZE
 }
 
 enum EvidenceType {
@@ -77,21 +111,87 @@ enum DataSourceType {
   MANUAL
 }
 
+enum TeacherConfirmStatus {
+  PENDING
+  CONFIRMED
+  REJECTED
+}
+
+enum ReviewLevel {
+  COLLEGE
+  SCHOOL
+}
+
+enum ReviewResult {
+  APPROVED
+  REJECTED
+}
+
+enum ChangeSource {
+  DIRECT
+  CHANGE_REQUEST
+  IMPORT
+  SYSTEM
+}
+
+enum ChangeRequestStatus {
+  PENDING_COLLEGE
+  PENDING_SCHOOL
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum ExportType {
+  FORM
+  DATASET
+  PACKAGE
+}
+
 model User {
-  id              String           @id @default(uuid())
-  phone           String           @unique
-  passwordHash    String
-  name            String
-  role            Role             @default(USER)
-  externalId      String?
-  createdAt       DateTime         @default(now())
-  deletedAt       DateTime?
-  auditLogs       AuditLog[]
-  verifiedAwards  AwardRecord[]
-  memberSnapshots MemberSnapshot[]
-  anomalies       Anomaly[]
-  importBatches   ImportBatch[]
-  kbDocuments     KbDocument[]
+  id                    String              @id @default(uuid())
+  studentNo             String?             @unique
+  staffNo               String?             @unique
+  phone                 String              @unique
+  passwordHash          String
+  name                  String
+  role                  Role                @default(USER)
+  externalId            String?
+  gender                String?
+  ethnicity             String?
+  educationStage        String?
+  trainingUnit          String?
+  college               String?
+  major                 String?
+  grade                 String?
+  enrollmentYear        Int?
+  graduationYear        Int?
+  email                 String?
+  boundFinancePlatform  Boolean             @default(false)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @default(now()) @updatedAt
+  deletedAt             DateTime?
+  ownedProjects         Project[]           @relation("ProjectOwner")
+  teamMemberships       TeamMember[]        @relation("MemberUser")
+  teacherProfiles       Teacher[]           @relation("TeacherUser")
+  sealedFiles           SealedFile[]        @relation("SealedFileUploader")
+  reviews               Review[]            @relation("ReviewReviewer")
+  changeLogs            ChangeLog[]         @relation("ChangeLogChanger")
+  changeRequests        ChangeRequest[]     @relation("ChangeRequestApplicant")
+  collegeChangeRequests ChangeRequest[]     @relation("ChangeRequestCollegeReviewer")
+  schoolChangeRequests  ChangeRequest[]     @relation("ChangeRequestSchoolReviewer")
+  timeWindows           TimeWindow[]        @relation("TimeWindowConfigurator")
+  exportRecords         ExportRecord[]      @relation("ExportRecordExporter")
+  sensitiveAccessLogs   SensitiveAccessLog[] @relation("SensitiveAccessUser")
+  awards                Award[]             @relation("AwardCreator")
+  awardHistories        AwardHistory[]      @relation("AwardHistoryChanger")
+  formTemplates         FormTemplate[]      @relation("FormTemplateCreator")
+  auditLogs             AuditLog[]
+  verifiedAwards        AwardRecord[]
+  memberSnapshots       MemberSnapshot[]
+  anomalies             Anomaly[]
+  importBatches         ImportBatch[]
+  kbDocuments           KbDocument[]
 }
 
 model Competition {
@@ -101,27 +201,86 @@ model Competition {
   seriesId     String
   year         Int
   organizer    String?
+  description  String?
   createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @default(now()) @updatedAt
+  tracks       Track[]
+  projects     Project[]
+  timeWindows  TimeWindow[]
+  importBatches ImportBatch[]
+  formTemplates FormTemplate[]
+  awards       Award[]
   awardRecords AwardRecord[]
 
   @@unique([name, year])
 }
 
+model Track {
+  id            String       @id @default(uuid())
+  competitionId String
+  parentId      String?
+  name          String
+  kind          String       @default("TRACK")
+  sortOrder     Int          @default(0)
+  enabled       Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @default(now()) @updatedAt
+  competition   Competition  @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  parent        Track?       @relation("TrackHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children      Track[]      @relation("TrackHierarchy")
+  projects      Project[]
+  dictOptions   DictOption[]
+
+  @@unique([competitionId, parentId, name])
+  @@index([competitionId, enabled])
+}
+
 model Project {
-  id              String           @id @default(uuid())
-  name            String
-  college         String
-  year            Int
-  status          ProjectStatus    @default(ACTIVE)
-  createdAt       DateTime         @default(now())
-  deletedAt       DateTime?
-  aliases         ProjectAlias[]
-  teamMembers     TeamMember[]
-  awardRecords    AwardRecord[]
-  memberSnapshots MemberSnapshot[]
-  anomalies       Anomaly[]
+  id                 String         @id @default(uuid())
+  name               String
+  college            String
+  year               Int
+  competitionId      String?
+  trackId            String?
+  ownerId            String?
+  payeeMemberId      String?        @unique
+  applicationUnit    String         @default("")
+  trainingUnit       String         @default("")
+  groupName          String?
+  categoryName       String?
+  batchName          String?
+  propositionName    String?
+  propositionCompany String?
+  stage              ProjectStage   @default(SCHOOL)
+  status             ProjectStatus  @default(ACTIVE)
+  reviewStatus       RegistrationStatus @default(PENDING)
+  score              Float?
+  remark             String?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @default(now()) @updatedAt
+  submittedAt        DateTime?
+  deletedAt          DateTime?
+  competition        Competition?   @relation(fields: [competitionId], references: [id], onDelete: SetNull)
+  track              Track?         @relation(fields: [trackId], references: [id], onDelete: SetNull)
+  owner              User?          @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  payeeMember        TeamMember?    @relation("ProjectPayee", fields: [payeeMemberId], references: [id], onDelete: SetNull)
+  aliases            ProjectAlias[]
+  teamMembers        TeamMember[]   @relation("ProjectMembers")
+  teachers           Teacher[]
+  work               Work?
+  sealedFiles        SealedFile[]
+  reviews            Review[]
+  changeLogs         ChangeLog[]
+  changeRequests     ChangeRequest[]
+  sensitiveAccessLogs SensitiveAccessLog[]
+  awards             Award[]
+  awardRecords       AwardRecord[]
+  memberSnapshots    MemberSnapshot[]
+  anomalies          Anomaly[]
 
   @@index([year, college])
+  @@index([competitionId, stage, status])
+  @@index([trackId])
 }
 
 model ProjectAlias {
@@ -129,22 +288,367 @@ model ProjectAlias {
   projectId  String
   aliasType  AliasType
   aliasValue String
-  project    Project   @relation(fields: [projectId], references: [id])
+  project    Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@unique([aliasType, aliasValue])
 }
 
 model TeamMember {
-  id        String    @id @default(uuid())
-  projectId String
-  personNo  String
-  name      String
-  role      MemberRole
-  joinedAt  DateTime
-  leftAt    DateTime?
-  project   Project   @relation(fields: [projectId], references: [id])
+  id              String      @id @default(uuid())
+  projectId       String
+  userId          String?
+  personNo        String?
+  name            String
+  role            MemberRole  @default(MEMBER)
+  backupOrder     Int?
+  isInternal      Boolean     @default(true)
+  school          String      @default("武汉大学")
+  educationStage  String      @default("")
+  trainingUnit    String      @default("")
+  major           String      @default("")
+  gender          String      @default("")
+  ethnicity       String      @default("汉族")
+  enrollmentYear  Int?
+  graduationYear  Int?
+  phone           String?
+  email           String?
+  remark          String?
+  sortOrder       Int         @default(0)
+  isPayee         Boolean     @default(false)
+  joinedAt        DateTime    @default(now())
+  leftAt          DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @default(now()) @updatedAt
+  project         Project     @relation("ProjectMembers", fields: [projectId], references: [id], onDelete: Cascade)
+  user            User?       @relation("MemberUser", fields: [userId], references: [id], onDelete: SetNull)
+  payeeForProject Project?    @relation("ProjectPayee")
+  payeeBank       PayeeBank?
+  sensitiveAccessLogs SensitiveAccessLog[]
 
+  @@index([projectId, personNo])
   @@index([personNo])
+}
+
+model Teacher {
+  id             String              @id @default(uuid())
+  projectId      String
+  userId         String?
+  isInternal     Boolean             @default(true)
+  staffNo        String?
+  name           String
+  gender         String?
+  phone          String?
+  school         String              @default("武汉大学")
+  unit           String
+  title          String?
+  email          String?
+  confirmStatus  TeacherConfirmStatus @default(PENDING)
+  confirmedAt    DateTime?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @default(now()) @updatedAt
+  project        Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user           User?               @relation("TeacherUser", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@unique([projectId, staffNo])
+  @@index([userId, confirmStatus])
+}
+
+model PayeeBank {
+  id                    String     @id @default(uuid())
+  memberId              String     @unique
+  boundFinancePlatform  Boolean    @default(false)
+  organization          String?
+  phone                 String?
+  idCardEncrypted       String?
+  bankCardEncrypted     String?
+  bankName              String?
+  accountName           String?
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @default(now()) @updatedAt
+  member                TeamMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+}
+
+model Work {
+  id           String    @id @default(uuid())
+  projectId    String    @unique
+  fileName     String?
+  fileUrl      String?
+  externalUrl  String?
+  form         String
+  category     String?
+  groupName    String?
+  pptFileName  String?
+  pptFileUrl   String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now()) @updatedAt
+  project      Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model SealedFile {
+  id           String    @id @default(uuid())
+  projectId    String
+  fileName     String
+  filePath     String
+  mimeType     String
+  sizeBytes    Int
+  versionNo    Int
+  uploadedBy   String
+  uploadedAt   DateTime  @default(now())
+  isFinal      Boolean   @default(false)
+  reviewResult String    @default("PENDING")
+  reviewNote   String?
+  project      Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  uploader     User      @relation("SealedFileUploader", fields: [uploadedBy], references: [id], onDelete: Restrict)
+
+  @@unique([projectId, versionNo])
+  @@index([projectId, isFinal])
+}
+
+model Review {
+  id         String      @id @default(uuid())
+  projectId  String
+  level      ReviewLevel
+  result     ReviewResult
+  reason     String?
+  reviewerId String
+  createdAt  DateTime    @default(now())
+  project    Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  reviewer   User        @relation("ReviewReviewer", fields: [reviewerId], references: [id], onDelete: Restrict)
+
+  @@index([projectId, createdAt])
+}
+
+model ChangeLog {
+  id        String       @id @default(uuid())
+  projectId String
+  field     String
+  oldValue  String?
+  newValue  String?
+  changedBy String
+  changedAt DateTime     @default(now())
+  source    ChangeSource @default(DIRECT)
+  requestId String?
+  project   Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  changer   User         @relation("ChangeLogChanger", fields: [changedBy], references: [id], onDelete: Restrict)
+  request   ChangeRequest? @relation(fields: [requestId], references: [id], onDelete: SetNull)
+
+  @@index([projectId, changedAt])
+}
+
+model ChangeRequest {
+  id                 String              @id @default(uuid())
+  projectId          String
+  applicantId        String
+  type               String
+  fieldDiffJson      String
+  reason             String
+  evidenceFileName   String?
+  evidenceFileUrl    String?
+  status             ChangeRequestStatus @default(PENDING_COLLEGE)
+  collegeReviewerId  String?
+  collegeReviewedAt  DateTime?
+  collegeReason      String?
+  schoolReviewerId   String?
+  schoolReviewedAt   DateTime?
+  schoolReason       String?
+  cooldownUntil      DateTime?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @default(now()) @updatedAt
+  project            Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  applicant          User                @relation("ChangeRequestApplicant", fields: [applicantId], references: [id], onDelete: Restrict)
+  collegeReviewer    User?               @relation("ChangeRequestCollegeReviewer", fields: [collegeReviewerId], references: [id], onDelete: SetNull)
+  schoolReviewer     User?               @relation("ChangeRequestSchoolReviewer", fields: [schoolReviewerId], references: [id], onDelete: SetNull)
+  changeLogs         ChangeLog[]
+
+  @@index([projectId, status, createdAt])
+}
+
+model TimeWindow {
+  id            String       @id @default(uuid())
+  competitionId String
+  stage         ProjectStage
+  startAt       DateTime
+  endAt         DateTime
+  configuredBy  String
+  isDefault     Boolean      @default(false)
+  enabled       Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @default(now()) @updatedAt
+  competition   Competition  @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  configurator  User         @relation("TimeWindowConfigurator", fields: [configuredBy], references: [id], onDelete: Restrict)
+
+  @@unique([competitionId, stage])
+}
+
+model ImportBatch {
+  id            String          @id @default(uuid())
+  competitionId String?
+  templateId    String?
+  stage         ProjectStage    @default(SCHOOL)
+  fileName      String
+  fileType      String          @default("xlsx")
+  sourceType    ImportSourceType
+  totalRows     Int
+  successRows   Int
+  failureRows   Int
+  mappingJson   String          @default("{}")
+  importedBy    String
+  createdAt     DateTime        @default(now())
+  competition   Competition?    @relation(fields: [competitionId], references: [id], onDelete: SetNull)
+  template      FormTemplate?   @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  importer      User            @relation(fields: [importedBy], references: [id], onDelete: Restrict)
+  dataSources   DataSource[]
+}
+
+model ExportRecord {
+  id               String     @id @default(uuid())
+  exporterId       String
+  type             ExportType
+  fieldsJson       String
+  rowCount         Int
+  watermarkNo      String     @unique
+  fileName         String?
+  includeSensitive Boolean    @default(false)
+  filtersJson      String?
+  createdAt        DateTime   @default(now())
+  exporter         User       @relation("ExportRecordExporter", fields: [exporterId], references: [id], onDelete: Restrict)
+
+  @@index([exporterId, createdAt])
+}
+
+model SensitiveAccessLog {
+  id           String      @id @default(uuid())
+  userId       String
+  projectId    String?
+  memberId     String?
+  resourceType String
+  resourceId   String
+  fieldNames   String
+  reason       String?
+  createdAt    DateTime    @default(now())
+  user         User        @relation("SensitiveAccessUser", fields: [userId], references: [id], onDelete: Restrict)
+  project      Project?    @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  member       TeamMember? @relation(fields: [memberId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([projectId, createdAt])
+}
+
+model Award {
+  id            String         @id @default(uuid())
+  projectId     String
+  competitionId String
+  stage         ProjectStage   @default(SCHOOL)
+  awardLevel    AwardLevel
+  createdBy     String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @default(now()) @updatedAt
+  project       Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  competition   Competition    @relation(fields: [competitionId], references: [id], onDelete: Restrict)
+  creator       User           @relation("AwardCreator", fields: [createdBy], references: [id], onDelete: Restrict)
+  histories     AwardHistory[]
+
+  @@unique([projectId, competitionId, stage])
+}
+
+model AwardHistory {
+  id        String    @id @default(uuid())
+  awardId   String
+  field     String
+  oldValue  String?
+  newValue  String?
+  reason    String?
+  changedBy String
+  changedAt DateTime  @default(now())
+  award     Award     @relation(fields: [awardId], references: [id], onDelete: Cascade)
+  changer   User      @relation("AwardHistoryChanger", fields: [changedBy], references: [id], onDelete: Restrict)
+
+  @@index([awardId, changedAt])
+}
+
+model DictOption {
+  id        String      @id @default(uuid())
+  type      String
+  value     String
+  label     String
+  trackId   String?
+  parentId  String?
+  enabled   Boolean     @default(true)
+  sortOrder Int         @default(0)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @default(now()) @updatedAt
+  track     Track?      @relation(fields: [trackId], references: [id], onDelete: SetNull)
+  parent    DictOption? @relation("DictHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children  DictOption[] @relation("DictHierarchy")
+
+  @@unique([type, trackId, value])
+  @@index([type, enabled, sortOrder])
+}
+
+model FormTemplate {
+  id            String        @id @default(uuid())
+  competitionId String?
+  stage         ProjectStage
+  name          String
+  version       Int           @default(1)
+  fieldsJson    String
+  fileName      String?
+  fileUrl       String?
+  isActive      Boolean       @default(true)
+  createdBy     String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @default(now()) @updatedAt
+  competition   Competition?  @relation(fields: [competitionId], references: [id], onDelete: SetNull)
+  creator       User          @relation("FormTemplateCreator", fields: [createdBy], references: [id], onDelete: Restrict)
+  importBatches ImportBatch[]
+
+  @@unique([competitionId, stage, version])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String
+  action     String
+  targetType String
+  targetId   String
+  detail     String
+  createdAt  DateTime @default(now())
+  actor      User     @relation(fields: [actorId], references: [id], onDelete: Restrict)
+}
+
+model DataSource {
+  id         String         @id @default(uuid())
+  recordType String
+  recordId   String
+  sourceType DataSourceType
+  sourceRef  String
+  batchId    String
+  syncedAt   DateTime
+  batch      ImportBatch    @relation(fields: [batchId], references: [id], onDelete: Cascade)
+}
+
+model KbDocument {
+  id          String    @id @default(uuid())
+  title       String
+  fileName    String
+  filePath    String?
+  year        Int
+  effectiveAt DateTime?
+  isActive    Boolean   @default(true)
+  uploadedBy  String
+  createdAt   DateTime  @default(now())
+  uploader    User      @relation(fields: [uploadedBy], references: [id], onDelete: Restrict)
+  chunks      KbChunk[]
+}
+
+model KbChunk {
+  id         String     @id @default(uuid())
+  documentId String
+  section    String
+  page       Int?
+  content    String
+  keywords   String
+  document   KbDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
 }
 
 model AwardRecord {
@@ -159,9 +663,9 @@ model AwardRecord {
   status        AwardStatus    @default(DRAFT)
   voidReason    String?
   createdAt     DateTime       @default(now())
-  project       Project        @relation(fields: [projectId], references: [id])
-  competition   Competition    @relation(fields: [competitionId], references: [id])
-  verifier      User           @relation(fields: [verifiedBy], references: [id])
+  project       Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  competition   Competition    @relation(fields: [competitionId], references: [id], onDelete: Restrict)
+  verifier      User           @relation(fields: [verifiedBy], references: [id], onDelete: Restrict)
 
   @@unique([projectId, competitionId])
 }
@@ -174,8 +678,8 @@ model MemberSnapshot {
   changedBy   String
   changedAt   DateTime
   reason      String?
-  project     Project  @relation(fields: [projectId], references: [id])
-  changer     User     @relation(fields: [changedBy], references: [id])
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  changer     User     @relation(fields: [changedBy], references: [id], onDelete: Restrict)
 
   @@unique([projectId, versionNo])
 }
@@ -189,64 +693,8 @@ model Anomaly {
   resolution AnomalyResolution?
   resolvedBy String?
   resolvedAt DateTime?
-  project    Project            @relation(fields: [projectId], references: [id])
-  resolver   User?              @relation(fields: [resolvedBy], references: [id])
+  project    Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  resolver   User?              @relation(fields: [resolvedBy], references: [id], onDelete: SetNull)
 
   @@unique([ruleId, projectId])
-}
-
-model ImportBatch {
-  id          String          @id @default(uuid())
-  fileName    String
-  sourceType  ImportSourceType
-  totalRows   Int
-  successRows Int
-  failureRows Int
-  importedBy  String
-  createdAt   DateTime        @default(now())
-  importer    User            @relation(fields: [importedBy], references: [id])
-  dataSources DataSource[]
-}
-
-model DataSource {
-  id         String         @id @default(uuid())
-  recordType String
-  recordId   String
-  sourceType DataSourceType
-  sourceRef  String
-  batchId    String
-  syncedAt   DateTime
-  batch      ImportBatch    @relation(fields: [batchId], references: [id])
-}
-
-model AuditLog {
-  id         String   @id @default(uuid())
-  actorId    String
-  action     String
-  targetType String
-  targetId   String
-  detail     String
-  createdAt  DateTime @default(now())
-  actor      User     @relation(fields: [actorId], references: [id])
-}
-
-model KbDocument {
-  id         String    @id @default(uuid())
-  title      String
-  fileName   String
-  year       Int
-  uploadedBy String
-  createdAt  DateTime  @default(now())
-  uploader   User      @relation(fields: [uploadedBy], references: [id])
-  chunks     KbChunk[]
-}
-
-model KbChunk {
-  id         String     @id @default(uuid())
-  documentId String
-  section    String
-  page       Int?
-  content    String
-  keywords   String
-  document   KbDocument @relation(fields: [documentId], references: [id])
 }
