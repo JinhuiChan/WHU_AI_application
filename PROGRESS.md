@@ -154,3 +154,13 @@ build 已由 AI 在 2026-10-30 执行成功（Middleware 32.3 kB，无错误）�
 - 验证：`npx.cmd tsc --noEmit`、`npm.cmd run build` 通过，构建包含四个新增接口
 - 提交：`e5fda82 stage-4.1: sealed files and form export`
 - 下一步：等待 4.2 指令，不提前实现数据表自定义导出
+
+## 阶段 4.2：完整报名表与自定义数据表导出（进行中）
+- 修正 `/api/export/form`：`full=0` 默认脱敏；`full=1` 输出完整身份证与银行卡号，仅项目负责人/第二三负责人/管理员可用，其他成员返回 403
+- `full=1` 报名表带「项目名+导出人+时间+导出编号」水印，`ExportRecord.includeSensitive=true`；学生详情提供交学院核验与脱敏留存两个入口
+- 字段目录集中于 `lib/export-fields.ts`，包含 key、中文列名和敏感标记，页面与接口共用
+- `GET/POST /api/export/dataset` 支持 `scope=mine|all`、赛事/阶段/学院/状态筛选和有序 `fields[]`；`all` 仅管理员，输出首行中文表头的 xlsx
+- 身份证与银行卡列默认脱敏；仅管理员在 `scope=all` 且 `confirmSensitive=1` 时可导出完整敏感列，并写 `ExportRecord`
+- 学生可导出本队数据表，字段勾选与上下移调序且至少保留项目名称、状态；管理员可勾选 27 字段并调序，导出当前筛选结果
+- 单次最多 5000 行，超限提示缩小筛选；不改 schema、不碰 `/apply`，不做 Word/PDF 导入
+- 验收：权限、水印、敏感信息、字段顺序、GET/POST 一致性、真实 xlsx 解析与 5000 行边界；`tsc --noEmit` 和 `build` 通过后提交 `stage-4.2: custom dataset export`
