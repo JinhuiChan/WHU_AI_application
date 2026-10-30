@@ -126,13 +126,17 @@ build 已由 AI 在 2026-10-30 执行成功（Middleware 32.3 kB，无错误）�
 - 实测窗口：`competitionId=d717b357-366d-48c8-bd12-12e769dc7801`，`stage=SCHOOL`，`startAt=2026-10-30T08:56:24.858Z`，`endAt=2026-11-29T09:56:24.996Z`，`enabled=true`
 - 构建附带修复：移除 `components/layout/sidebar.tsx` 未使用的 `FilePlus2` 导入
 
-## 阶段 3.2：管理员审核（进行中）
+## 阶段 3.2：管理员审核（已完成）
 - 状态流转：提交后为 `PENDING`；学院通过后为 `COLLEGE_REVIEW`；校级通过后为 `SCHOOL_FINAL`；任一级驳回为 `REJECTED`，记录理由与驳回级别
 - 接口（全部 `requireApiAdmin`）：`GET /api/review/list`（PRD 5.3 的 27 列、赛事/阶段/学院/状态/赛道/关键词筛选、分页）；`POST /api/review/approve`；`POST /api/review/reject`；`POST /api/review/batch`
 - 学院级仅处理 `PENDING`，校级仅处理 `COLLEGE_REVIEW`；其他状态返回 422。驳回理由必填且不超过 200 字，空理由返回「请填写驳回理由」
 - 批量通过或驳回使用同一理由，先过滤状态不符项，并分别返回成功与 `{ projectId, message }` 失败清单
-- 每次审核操作写 `Review` 与 `AuditLog`；学生重新提交回到 `PENDING`，保留审核历史
+- 每次成功审核在同一事务写 `Review` 与 `AuditLog`；现有学生重新提交逻辑保持回到 `PENDING` 且不删除审核历史，未修改 `/apply`
 - 页面：`/review` 27 列审核列表并显示提交次数，未确认指导关系的项目标红；`/review/[id]` 展示基本信息、老师、成员、作品、盖章件、变更历史与审核记录
-- 组件：筛选栏、勾选后显示的批量操作条、驳回理由弹窗；侧栏管理区增加「报名审核」入口
-- 约束：不改 schema，不碰 `/apply` 与 `/my`，不做导出、看板或晋级流转
-- 验收：`tsc --noEmit` 与 `build` 通过，真实接口验证状态流转、权限、驳回校验及批量结果后提交 `stage-3.2: review workbench`
+- 组件：筛选栏、勾选后显示的批量操作条、驳回理由弹窗；侧栏管理区已增加「报名审核」入口
+- 约束：未改 schema，未碰 `/apply` 与 `/my`，未做导出、看板或晋级流转
+- 验证：`npx.cmd tsc --noEmit`、`npm.cmd run build` 通过；构建包含 `/review`、`/review/[id]` 和四个审核 API
+- 真实 HTTP 验收：未登录 401、学生页面与接口 403；27 列及六类筛选/分页正确；空理由/超长理由/越级与重复审核 422；学院通过→校级通过、驳回、批量部分成功均正确
+- 数据库验收：成功操作的状态同步、驳回级别/理由、Review 与 AuditLog 数量一致；失败项未写 Review 且状态未变；临时项目、赛事、赛道与脚本均已清理
+- 提交：`bb571b7 stage-3.2: review workbench`
+- 下一步：等待后续阶段指令，不提前实现晋级流转、奖项或看板
