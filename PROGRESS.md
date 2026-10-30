@@ -1,44 +1,32 @@
-# PROGRESS
+﻿# PROGRESS
 
-> 供 AI 续接使用。**恢复时只读本文件 + `git log --oneline | head -5`，禁止通读 `schema.prisma` / `seed.ts`。**
+> 渚?AI 缁帴浣跨敤銆?*鎭㈠鏃跺彧璇绘湰鏂囦欢 + `git log --oneline | head -5`锛岀姝㈤€氳 `schema.prisma` / `seed.ts`銆?*
 
-## 阶段 0（进行中）
+## 闃舵 0锛堣繘琛屼腑锛?
+### 宸插畬鎴?- [0.1] 澶囦唤鏃у簱锛歚prisma/dev.db` 鈫?`prisma/dev.db.v1.bak`锛堝凡 gitignore锛?- [0.2] `prisma/schema.prisma` 閲嶅啓锛?*28 model / 20 enum**锛宍prisma validate` 閫氳繃
+- [0.2] `prisma/seed.ts` 閲嶅啓骞堕€氳繃鎵ц
+- [0.2] `.env` / `.env.example` 澧炲姞 `FIELD_ENCRYPTION_KEY`
+- [0.3] `prisma db push` 鎴愬姛锛泂eed 鎵ц鎴愬姛锛屾暟鎹垎甯冨凡鏍搁獙锛?  - Project 18锛? 璧涗簨 脳 6锛夈€乀eamMember 54銆乀eacher 18銆丳ayeeBank 18銆乄ork 18銆丼ealedFile 18
+  - Review 23銆丆hangeLog 1銆丆hangeRequest 1銆乀imeWindow 3銆丏ictOption 14銆丗ormTemplate 3
+  - Award 2銆丄wardHistory 2銆両mportBatch 1銆丒xportRecord 1銆丼ensitiveAccessLog 1
+  - 瀹℃牳鐘舵€侊細REJECTED 2 / PENDING 4 / COLLEGE_REVIEW 4 / SCHOOL_FINAL 4 / PROVINCE_ADVANCED 4
+  - 鑰佸笀纭锛歅ENDING 1 / CONFIRMED 17锛涙湭涓婁紶鐩栫珷浠堕」鐩?1
 
-### 已完成
-- [0.1] 备份旧库：`prisma/dev.db` → `prisma/dev.db.v1.bak`（已 gitignore）
-- [0.2] `prisma/schema.prisma` 重写：**28 model / 20 enum**，`prisma validate` 通过
-- [0.2] `prisma/seed.ts` 重写并通过执行
-- [0.2] `.env` / `.env.example` 增加 `FIELD_ENCRYPTION_KEY`
-- [0.3] `prisma db push` 成功；seed 执行成功，数据分布已核验：
-  - Project 18（3 赛事 × 6）、TeamMember 54、Teacher 18、PayeeBank 18、Work 18、SealedFile 18
-  - Review 23、ChangeLog 1、ChangeRequest 1、TimeWindow 3、DictOption 14、FormTemplate 3
-  - Award 2、AwardHistory 2、ImportBatch 1、ExportRecord 1、SensitiveAccessLog 1
-  - 审核状态：REJECTED 2 / PENDING 4 / COLLEGE_REVIEW 4 / SCHOOL_FINAL 4 / PROVINCE_ADVANCED 4
-  - 老师确认：PENDING 1 / CONFIRMED 17；未上传盖章件项目 1
+### 鏈畬鎴?- [0.4] 4 涓棫鍏ュ彛鏀瑰崰浣嶏紙rankings / anomalies / assistant / check锛? 璋冩暣 sidebar
+- [0.5] `tsc --noEmit` + `build` 楠屾敹 + 鏀跺熬
 
-### 未完成
-- [0.4] 4 个旧入口改占位（rankings / anomalies / assistant / check）+ 调整 sidebar
-- [0.5] `tsc --noEmit` + `build` 验收 + 收尾
+## 鍏抽敭鍐冲畾锛堝嬁鎿呰嚜鏇存敼锛?
+1. **鏍″鎴愬憳 `TeamMember.personNo` 鍏佽 null**銆?2. **`RegistrationStatus` 鍙栧€?*锛歚DRAFT / PENDING / COLLEGE_REVIEW / SCHOOL_FINAL / REJECTED / PROVINCE_ADVANCED / NATIONAL_ADVANCED / WITHDRAWN`銆?3. **椤圭洰鍚屾椂鏈?`status`锛圥rojectStatus锛変笌 `reviewStatus`锛圧egistrationStatus锛?*锛宻eed 閲屼袱鑰呭悓鍊硷紱鍒彧鍐欎竴涓€?4. **鍏煎琛ヤ竵**锛堥樁娈?2/3/6 閲嶅啓瀵瑰簲妯″潡鏃剁Щ闄わ級锛?   - `types/project.ts`锛歚personNo` 鏀惧涓?`string | null`
+   - `lib/scoring.ts`锛歚AwardLevel` 琛?`GOLD 1.0 / SILVER 0.8 / BRONZE 0.6`
+   - `lib/presentation.ts`锛氳ˉ榻愭柊澧炵姸鎬併€佸椤广€佹垚鍛樿鑹蹭腑鏂囨爣绛?
+## 韪╄繃鐨勫潙锛堥伩鍏嶉噸澶嶏級
 
-## 关键决定（勿擅自更改）
-
-1. **校外成员 `TeamMember.personNo` 允许 null**。
-2. **`RegistrationStatus` 取值**：`DRAFT / PENDING / COLLEGE_REVIEW / SCHOOL_FINAL / REJECTED / PROVINCE_ADVANCED / NATIONAL_ADVANCED / WITHDRAWN`。
-3. **项目同时有 `status`（ProjectStatus）与 `reviewStatus`（RegistrationStatus）**，seed 里两者同值；别只写一个。
-4. **兼容补丁**（阶段 2/3/6 重写对应模块时移除）：
-   - `types/project.ts`：`personNo` 放宽为 `string | null`
-   - `lib/scoring.ts`：`AwardLevel` 补 `GOLD 1.0 / SILVER 0.8 / BRONZE 0.6`
-   - `lib/presentation.ts`：补齐新增状态、奖项、成员角色中文标签
-
-## 踩过的坑（避免重复）
-
-| 现象 | 根因 | 处置 |
+| 鐜拌薄 | 鏍瑰洜 | 澶勭疆 |
 |---|---|---|
-| `prisma validate` 报 P1012 | 引用了未定义枚举 `RegistrationStatus` | 补定义 |
-| seed 报 `Argument 'project' is missing` | `personNo` 必填但写 null，Prisma 回退到 checked 输入 | 改为可空 |
-| seed 自检 `被驳回项目 应为 2，实际为 0` | `status` 算对了但只写进 `status`，没写 `reviewStatus` | 两个字段同时写 |
+| `prisma validate` 鎶?P1012 | 寮曠敤浜嗘湭瀹氫箟鏋氫妇 `RegistrationStatus` | 琛ュ畾涔?|
+| seed 鎶?`Argument 'project' is missing` | `personNo` 蹇呭～浣嗗啓 null锛孭risma 鍥為€€鍒?checked 杈撳叆 | 鏀逛负鍙┖ |
+| seed 鑷 `琚┏鍥為」鐩?搴斾负 2锛屽疄闄呬负 0` | `status` 绠楀浜嗕絾鍙啓杩?`status`锛屾病鍐?`reviewStatus` | 涓や釜瀛楁鍚屾椂鍐?|
 
-## 下一步（只做这一条，做完停下）
+## 涓嬩竴姝ワ紙鍙仛杩欎竴鏉★紝鍋氬畬鍋滀笅锛?
+寰 0.4锛氭妸 `rankings` 鏀逛负"宸插苟鍏ョ湅鏉?鍗犱綅锛宍anomalies` / `assistant` / `check` 鏀逛负"鍔熻兘鏆傛湭寮€鏀?鍗犱綅锛?*椤甸潰鏂囦欢淇濈暀銆佸彧鏀瑰唴瀹?*锛夛紝骞惰皟鏁?`components/layout/sidebar.tsx` 涓嬬嚎杩?4 涓叆鍙ｃ€?**涓嶈缁х画 0.5銆?*
 
-微步 0.4：把 `rankings` 改为"已并入看板"占位，`anomalies` / `assistant` / `check` 改为"功能暂未开放"占位（**页面文件保留、只改内容**），并调整 `components/layout/sidebar.tsx` 下线这 4 个入口。
-**不要继续 0.5。**

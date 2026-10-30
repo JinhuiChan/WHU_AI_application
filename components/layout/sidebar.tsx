@@ -3,14 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  AlertTriangle,
-  Bot,
-  FileCheck,
   FileText,
   FolderKanban,
   LayoutDashboard,
   Settings,
-  TrendingUp,
   Trophy,
   Upload,
   Users,
@@ -19,13 +15,9 @@ import type { Role } from "@prisma/client";
 
 const navigation = [
   { href: "/dashboard", label: "看板", icon: LayoutDashboard },
-  { href: "/rankings", label: "学院排行", icon: TrendingUp },
   { href: "/competitions", label: "赛事", icon: Trophy },
   { href: "/projects", label: "项目", icon: FolderKanban },
   { href: "/import", label: "导入", icon: Upload },
-  { href: "/anomalies", label: "异常", icon: AlertTriangle },
-  { href: "/assistant", label: "AI 助手", icon: Bot },
-  { href: "/check", label: "材料检查", icon: FileCheck },
 ];
 
 const administration = [
@@ -39,10 +31,7 @@ export function Sidebar({ role }: { role: Role }) {
     { href: "/dashboard", label: "看板", icon: LayoutDashboard },
     { href: "/competitions", label: "赛事", icon: Trophy },
     { href: "/projects", label: "项目", icon: FolderKanban },
-    { href: "/assistant", label: "AI 助手", icon: Bot },
-    role === "ADMIN"
-      ? { href: "/admin/users", label: "管理", icon: Settings }
-      : { href: "/check", label: "检查", icon: FileCheck },
+    ...(role === "ADMIN" ? [{ href: "/admin/users", label: "管理", icon: Settings }] : []),
   ];
 
   function isActive(href: string) {
