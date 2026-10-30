@@ -141,11 +141,16 @@ build 已由 AI 在 2026-10-30 执行成功（Middleware 32.3 kB，无错误）�
 - 提交：`bb571b7 stage-3.2: review workbench`
 - 下一步：等待后续阶段指令，不提前实现晋级流转、奖项或看板
 
-## 阶段 4.1：盖章件上传与最终版闭环（进行中）
-- 学生项目详情提供报名表 xlsx 下载；包含基本信息、指导老师、团队成员、领款人，以及留空的三个签字位和公章位
+## 阶段 4.1：盖章件上传与最终版闭环（已完成）
+- 学生项目详情提供报名表 xlsx 下载；包含基本信息、指导老师、团队成员、领款人，以及留空的三个签字位和公章位；银行信息默认脱敏并写入唯一导出编号
 - 本队任一学生成员可上传 PDF/JPG/PNG 盖章件，单文件不超过 20MB；校验扩展名、MIME 与文件头，UUID 重命名，版本递增且旧版保留
-- 以最后上传且 `reviewResult != REJECTED` 的盖章件为当前最终版；学生与管理员可查看版本并下载，每次导出/下载写 `ExportRecord`
-- 接口：`POST /api/sealed/upload`、`GET /api/sealed/download`、`GET /api/export/form`、`POST /api/export/package`
-- 管理员按当前审核筛选结果打包 zip，单次不超过 100 个项目且文件总量不超过 500MB；条目按 `赛事_阶段_学院_项目名_队长_第N版.pdf` 命名
-- 运行时上传目录纳入 `.gitignore`；不改 schema、不改 `lib/crypto.ts`、不碰 `/apply`，不做 4.2 数据表自定义导出
-- 验收：真实上传/替换/下载、跨项目权限、文件头与大小校验、xlsx 内容、zip 解压及限额验证；`tsc --noEmit` 与 `build` 通过后提交 `stage-4.1: sealed files and form export`
+- 以最后上传且 `reviewResult != REJECTED` 的盖章件为当前最终版；学生与管理员可查看全部版本并下载，最新版被驳回后回退上一可用版本
+- 接口：`POST /api/sealed/upload`、`GET /api/sealed/download`、`GET /api/export/form`、`POST /api/export/package`；每次表单、单版本或打包下载均写 `ExportRecord`
+- 管理员按当前审核筛选结果流式打包 zip，单次不超过 100 个项目且文件总量不超过 500MB；按 `赛事_阶段_学院_项目名_队长_第N版` 命名，PDF 使用 `.pdf`，图片保留对应扩展名
+- 运行时上传目录已由现有 `.gitignore` 的 `public/uploads/` 覆盖；未改 schema、`lib/crypto.ts` 或 `/apply`，未做 4.2 数据表自定义导出
+- 真实验收：本队两名成员均可上传，无关学生跨项目操作被拦截；文件头、MIME 和 20MB 上限通过；两版替换后旧文件保留且内容一致
+- 真实验收：学生/管理员页面、历史版本下载、教师报名表下载通过；xlsx 已解析核对四类字段、签字公章位、脱敏与导出编号；zip 已解压核对文件名和文件内容
+- 限额验收：101 个项目返回分批提示；25×20MB=500MB 可准备打包，26×20MB 超限返回分批提示；临时数据库行、文件和脚本均已清理
+- 验证：`npx.cmd tsc --noEmit`、`npm.cmd run build` 通过，构建包含四个新增接口
+- 提交：`e5fda82 stage-4.1: sealed files and form export`
+- 下一步：等待 4.2 指令，不提前实现数据表自定义导出
