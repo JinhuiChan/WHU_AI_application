@@ -63,3 +63,17 @@
 | 5 | ADMIN 始终通过学生/教师守卫 | 接受 | 设计意图：管理员可代操作；后续若限制需显式加参数 |
 
 build 已由 AI 在 2026-10-30 执行成功（Middleware 32.3 kB，无错误）。
+
+### 阶段 1 验收结论：✅ 通过（2026-10-30）
+- `npm.cmd run build` 成功，路由表包含 `/register`（1.47 kB）、`/api/auth/register`
+- 中间件守卫覆盖页面与 API：/admin、/settings、/review、/import → ADMIN；/apply、/my、/api/apply、/api/my → STUDENT；/teacher、/api/teacher → TEACHER；FINANCE 只读
+- 已知限制：JWT 内角色最长 8 小时有效（中间件无法查库），业务接口均以 `getActiveUser` 回查兜底
+
+## 阶段 2（进行中）
+
+### 2.1 加密与字典基础层（待做）
+- `lib/crypto.ts`：AES-256-GCM，`FIELD_ENCRYPTION_KEY`，`encryptField` / `decryptField` / `maskTail`
+- `lib/dict.ts`：读 `DictOption`
+- `types/apply.ts`：报名相关类型
+- `scripts/crypto-selftest.ts`：往返一致 + IV 随机 + 篡改失败
+**不做页面、不做接口、不改 schema。**
