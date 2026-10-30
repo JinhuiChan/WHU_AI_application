@@ -3,21 +3,41 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  FilePlus2,
   FileText,
   FolderKanban,
   LayoutDashboard,
   Settings,
   Trophy,
   Upload,
+  UserCheck,
   Users,
 } from "lucide-react";
 import type { Role } from "@prisma/client";
 
-const navigation = [
+const adminNavigation = [
   { href: "/dashboard", label: "看板", icon: LayoutDashboard },
   { href: "/competitions", label: "赛事", icon: Trophy },
   { href: "/projects", label: "项目", icon: FolderKanban },
 ];
+
+const studentNavigation = [
+  { href: "/dashboard", label: "看板", icon: LayoutDashboard },
+  { href: "/apply", label: "我要报名", icon: FilePlus2 },
+  { href: "/my", label: "我的项目", icon: FolderKanban },
+];
+
+const teacherNavigation = [
+  { href: "/dashboard", label: "看板", icon: LayoutDashboard },
+  { href: "/teacher", label: "指导项目", icon: UserCheck },
+];
+
+function navigationFor(role: Role) {
+  if (role === "ADMIN") return adminNavigation;
+  if (role === "TEACHER") return teacherNavigation;
+  if (role === "STUDENT") return studentNavigation;
+  return [{ href: "/dashboard", label: "看板", icon: LayoutDashboard }];
+}
 
 const administration = [
   { href: "/import", label: "数据导入", icon: Upload },
@@ -27,10 +47,9 @@ const administration = [
 
 export function Sidebar({ role }: { role: Role }) {
   const pathname = usePathname();
+  const navigation = navigationFor(role);
   const mobileNavigation = [
-    { href: "/dashboard", label: "看板", icon: LayoutDashboard },
-    { href: "/competitions", label: "赛事", icon: Trophy },
-    { href: "/projects", label: "项目", icon: FolderKanban },
+    ...navigation.slice(0, 4),
     ...(role === "ADMIN" ? [{ href: "/admin/users", label: "管理", icon: Settings }] : []),
   ];
 

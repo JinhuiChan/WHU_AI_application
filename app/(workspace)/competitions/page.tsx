@@ -35,9 +35,21 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-xl font-semibold text-slate-900">赛事管理</h1>
-        <p className="mt-1 text-sm text-slate-500">按赛年、等级和关键词查找赛事，进入详情查看获奖名单。</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-semibold text-slate-900">赛事管理</h1>
+          <p className="mt-1 text-sm text-slate-500">按赛年、等级和关键词查找赛事，进入详情查看获奖名单。</p>
+        </div>
+        {user.role === "STUDENT" ? (
+          <div className="flex items-center gap-2">
+            <Link href="/my" className="rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+              我的项目
+            </Link>
+            <Link href="/apply" className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+              我要报名
+            </Link>
+          </div>
+        ) : null}
       </div>
 
       <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
