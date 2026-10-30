@@ -169,10 +169,13 @@ build 已由 AI 在 2026-10-30 执行成功（Middleware 32.3 kB，无错误）�
 - 提交：`stage-4.2: custom dataset export`
 - 下一步：等待后续阶段指令
 
-## 阶段 5.1：统计看板（进行中）
+## 阶段 5.1：统计看板（已完成）
 - `GET /api/dashboard/summary` 按当前赛事/赛年/阶段筛选实时聚合，无缓存；返回学院、赛道、阶段和 Award 奖项四组数据及数字卡
 - 学院统计项目数、按成员学号去重的参与人数和晋级省赛数；赛道统计项目数与占比；阶段统计校赛/省赛/国赛；奖项统计金/银/铜/优秀
-- 看板替换 V1：项目总数、去重参与人数、待审核数、晋级省赛数四张卡，学院表格下钻 `/review?college=xxx`，Recharts 饼图与两个柱图
+- 看板已替换 V1：项目总数、去重参与人数、待审核数、晋级省赛数四张卡，学院表格下钻 `/review?college=xxx`，Recharts 饼图与两个柱图
 - 筛选包含赛事、赛年、阶段，切换即刷新；学生由服务端限定本人参与项目，仅显示我的项目与状态，不返回或展示全校统计
-- 不改 schema、不碰 `/apply` 与 `/my`、不做导出；数字全部由接口共享聚合服务计算，不使用 mock 数据
-- 验收：真实数据库聚合、筛选联动、学生数据隔离、接口与页面数字一致；`tsc --noEmit` 和 `build` 通过后提交 `stage-5.1: statistics dashboard`
+- 未改 schema、未碰 `/apply` 与 `/my`、未做导出；数字全部由接口共享聚合服务计算，不使用 mock 数据
+- 直接核对：`/api/dashboard/summary` 的 byCollege 前 5 项与 `SELECT college, COUNT(*) FROM Project WHERE deletedAt IS NULL GROUP BY college` 前 5 项在相同排序下逐项一致
+- 验证：`npx.cmd tsc --noEmit` 与 `npm.cmd run build` 通过；临时脚本、服务和数据均已清理
+- 提交：`stage-5.1: statistics dashboard`
+- 下一步：等待后续阶段指令

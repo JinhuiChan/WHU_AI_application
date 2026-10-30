@@ -1,19 +1,18 @@
 import { NextRequest } from "next/server";
 import { apiError, apiSuccess } from "@/lib/api";
-import { getActiveUser } from "@/lib/auth.server";
-import { getDashboardSummary, parseStatisticYear } from "@/lib/dashboard";
+import { requireApiUser } from "@/lib/auth.server";
+import { getStatisticsSummary, parseStatisticsQuery } from "@/lib/statistics";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function GET(request: NextRequest) {
+  const authorization = await requireApiUser();
+  if (!authorization.ok) return authorization.response;
   try {
-    const user = await getActiveUser();
-    if (!user) return apiError(401, "未登录或账号不可用");
-    const year = parseStatisticYear(request.nextUrl.searchParams.get("year"));
-    if (year === null) return apiError(422, "请提供有效的 year 赛年参数");
-    return apiSuccess(await getDashboardSummary(year, user.role));
+    return apiSuccess(await getStatisticsSummary(parseStatisticsQuery(request.nextUrl.searchParams), authorization.user));
   } catch (error) {
-    console.error("看板汇总接口错误：", error);
-    return apiError(500, "获取看板汇总失败");
+    console.error("统计看板接口错误：", error instanceof Error ? error.message : error);
+    return apiError(500, "获取统计看板失败");
   }
 }
