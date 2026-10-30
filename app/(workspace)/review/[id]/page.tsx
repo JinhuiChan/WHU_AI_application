@@ -5,6 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { getActiveUser } from "@/lib/auth.server";
 import { formatDateTime, memberRoleLabels, registrationStatusLabels } from "@/lib/presentation";
 import { getReviewDetail } from "@/lib/review";
+import { currentSealedFileId } from "@/lib/sealed";
 
 export const metadata: Metadata = { title: "审核项目详情" };
 export const dynamic = "force-dynamic";
@@ -35,6 +36,7 @@ export default async function ReviewDetailPage({ params }: { params: { id: strin
   }
   const project = await getReviewDetail(params.id);
   if (!project) notFound();
+  const currentFileId = currentSealedFileId(project.sealedFiles);
 
   return (
     <div className="space-y-6">
@@ -133,10 +135,17 @@ export default async function ReviewDetailPage({ params }: { params: { id: strin
         {project.sealedFiles.length ? (
           <div className="divide-y divide-slate-100">
             {project.sealedFiles.map((file) => (
-              <div key={file.id} className="py-3 first:pt-0 last:pb-0">
-                <div className="flex flex-wrap items-center gap-2"><span className="font-medium text-slate-900">{file.fileName}</span><span className="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-600">v{file.versionNo}</span>{file.isFinal ? <span className="rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700">最终版</span> : null}</div>
-                <p className="mt-1 break-all text-xs text-slate-500">{file.filePath} · {file.mimeType} · {(file.sizeBytes / 1024).toFixed(1)} KB</p>
-                <p className="mt-1 text-xs text-slate-500">{file.uploaderName} 上传于 {formatDateTime(file.uploadedAt)} · 审查：{file.reviewResult}{file.reviewNote ? ` · ${file.reviewNote}` : ""}</p>
+              <div key={file.id} className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-medium text-slate-900">{file.fileName}</span>
+                    <span className="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-600">第 {file.versionNo} 版</span>
+                    {file.id === currentFileId ? <span className="rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700">当前最终版</span> : null}
+                  </div>
+                  <p className="mt-1 text-xs text-slate-500">{file.mimeType} · {(file.sizeBytes / 1024).toFixed(1)} KB · {file.uploaderName} 上传于 {formatDateTime(file.uploadedAt)}</p>
+                  <p className="mt-1 text-xs text-slate-500">审查：{file.reviewResult}{file.reviewNote ? ` · ${file.reviewNote}` : ""}</p>
+                </div>
+                <a href={`/api/sealed/download?fileId=${encodeURIComponent(file.id)}`} className="shrink-0 rounded-md border border-blue-300 px-3 py-2 text-center text-sm text-blue-700 hover:bg-blue-50">下载此版本</a>
               </div>
             ))}
           </div>

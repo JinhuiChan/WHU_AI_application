@@ -188,7 +188,7 @@ export function parseReviewQuery(params: URLSearchParams): ReviewFilters {
   };
 }
 
-export async function getReviewList(filters: ReviewFilters): Promise<ReviewListPage> {
+export function buildReviewWhere(filters: Partial<ReviewFilters>): Prisma.ProjectWhereInput {
   const where: Prisma.ProjectWhereInput = { deletedAt: null };
   if (filters.competitionId) where.competitionId = filters.competitionId;
   if (filters.stage) where.stage = filters.stage;
@@ -206,7 +206,11 @@ export async function getReviewList(filters: ReviewFilters): Promise<ReviewListP
       { teamMembers: { some: { personNo: { contains: filters.q } } } },
     ];
   }
+  return where;
+}
 
+export async function getReviewList(filters: ReviewFilters): Promise<ReviewListPage> {
+  const where = buildReviewWhere(filters);
   const [labels, [projects, total]] = await Promise.all([
     loadLabelMaps(),
     prisma.$transaction([

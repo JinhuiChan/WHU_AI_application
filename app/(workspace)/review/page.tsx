@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Pagination } from "@/components/data/pagination";
+import { PackageDownload } from "@/components/review/package-download";
 import { ReviewFilters } from "@/components/review/review-filters";
 import type { ReviewFilterValues } from "@/components/review/review-filters";
 import { ReviewWorkbench } from "@/components/review/review-workbench";
@@ -50,9 +51,12 @@ export default async function ReviewPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-xl font-semibold text-slate-900">报名审核</h1>
-        <p className="mt-1 text-sm text-slate-500">学院审核通过后进入校级终审；红色行表示存在未确认指导关系。</p>
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <div>
+          <h1 className="text-xl font-semibold text-slate-900">报名审核</h1>
+          <p className="mt-1 text-sm text-slate-500">学院审核通过后进入校级终审；红色行表示存在未确认指导关系。</p>
+        </div>
+        <PackageDownload filters={values} />
       </div>
       <ReviewFilters options={options} values={values} />
       <ReviewWorkbench data={data} />
