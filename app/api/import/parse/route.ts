@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { apiError, apiSuccess } from "@/lib/api";
 import { requireApiAdmin } from "@/lib/auth.server";
-import { getImportFile, ImportFileError, validateImportFile } from "@/lib/import";
+import { getImportFile, ImportFileError, parseImportFile } from "@/lib/import";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,17 +17,13 @@ export async function POST(request: NextRequest) {
     } catch {
       return apiError(422, "请以 multipart/form-data 上传文件");
     }
-    const file = getImportFile(formData);
-    const report = await validateImportFile(file);
-    if (report.invalidRows) {
-      return apiError(422, `校验完成：${report.invalidRows} 行存在错误`, report);
-    }
-    return apiSuccess(report, "全部行校验通过");
+    const result = await parseImportFile(getImportFile(formData));
+    return apiSuccess(result, `识别出 ${result.columns.length} 列，自动匹配 ${Object.keys(result.suggestedMapping).length} 个系统字段`);
   } catch (error) {
     if (error instanceof ImportFileError) {
       return apiError(422, error.message);
     }
-    console.error("导入校验接口错误：", error);
-    return apiError(500, "校验导入文件失败");
+    console.error("导入解析接口错误：", error);
+    return apiError(500, "解析导入文件失败");
   }
 }
