@@ -24,11 +24,19 @@ export const formExportFields = [
 
 type Cell = string | number;
 
-function masked(value: string | null) {
-  return value ? maskTail(decryptField(value)) : "";
+type RegistrationFormOptions = {
+  full: boolean;
+  exporterName: string;
+  exportedAt: Date;
+};
+
+function sensitive(value: string | null, full: boolean) {
+  if (!value) return "";
+  const plain = decryptField(value);
+  return full ? plain : maskTail(plain);
 }
 
-export async function createRegistrationForm(projectId: string, watermarkNo: string) {
+export async function createRegistrationForm(projectId: string, watermarkNo: string, options: RegistrationFormOptions) {
   const project = await prisma.project.findFirst({
     where: { id: projectId, deletedAt: null },
     include: {
@@ -70,6 +78,13 @@ export async function createRegistrationForm(projectId: string, watermarkNo: str
   const titleRow = rows.length;
   rows.push([`${project.competition?.name ?? "科创赛事"}报名表`]);
   merges.push({ s: { r: titleRow, c: 0 }, e: { r: titleRow, c: 11 } });
+  const watermarkText = `水印：${project.name}｜${options.exporterName}｜${options.exportedAt.toISOString()}｜${watermarkNo}`;
+  if (options.full) {
+    const visibleWatermarkRow = rows.length;
+    rows.push([watermarkText]);
+    merges.push({ s: { r: visibleWatermarkRow, c: 0 }, e: { r: visibleWatermarkRow, c: 11 } });
+  }
+  const signatureRow = rows.length;
   fields(
     ["学生负责人签字", ""],
     ["指导老师签字", ""],
@@ -117,7 +132,12 @@ export async function createRegistrationForm(projectId: string, watermarkNo: str
 
   section("四、奖金领款人");
   fields(["领款人姓名", payee?.name ?? ""], ["领款人学号", payee?.personNo ?? ""], ["已绑定财务平台", bank?.boundFinancePlatform ? "是" : "否"], ["学习/工作单位", bank?.organization ?? ""]);
-  fields(["联系电话", bank?.phone ?? payee?.phone ?? ""], ["身份证号（脱敏）", bank?.boundFinancePlatform ? "" : masked(bank?.idCardEncrypted ?? null)], ["银行卡号（脱敏）", bank?.boundFinancePlatform ? "" : masked(bank?.bankCardEncrypted ?? null)], ["开户行", bank?.bankName ?? ""]);
+  fields(
+    ["联系电话", bank?.phone ?? payee?.phone ?? ""],
+    [options.full ? "身份证号" : "身份证号（脱敏）", bank?.boundFinancePlatform ? "" : sensitive(bank?.idCardEncrypted ?? null, options.full)],
+    [options.full ? "银行卡号" : "银行卡号（脱敏）", bank?.boundFinancePlatform ? "" : sensitive(bank?.bankCardEncrypted ?? null, options.full)],
+    ["开户行", bank?.bankName ?? ""],
+  );
   fields(["开户人", bank?.accountName ?? ""]);
 
   const watermarkRow = rows.length;
@@ -127,9 +147,17 @@ export async function createRegistrationForm(projectId: string, watermarkNo: str
   const worksheet = XLSX.utils.aoa_to_sheet(rows);
   worksheet["!merges"] = merges;
   worksheet["!cols"] = [12, 22, 18, 20, 22, 22, 12, 14, 14, 14, 20, 26].map((wch) => ({ wch }));
-  worksheet["!rows"] = rows.map((_, index) => index === titleRow ? { hpt: 28 } : index === titleRow + 1 ? { hpt: 24 } : index === titleRow + 2 ? { hpt: 42 } : { hpt: 22 });
+  worksheet["!rows"] = rows.map((_, index) => index === titleRow ? { hpt: 28 } : index === signatureRow ? { hpt: 24 } : index === signatureRow + 1 ? { hpt: 42 } : { hpt: 22 });
   const workbook = XLSX.utils.book_new();
+  if (options.full) {
+    workbook.Props = {
+      Title: `${project.name}报名表（学院核验）`,
+      Subject: watermarkText,
+      Author: options.exporterName,
+      CreatedDate: options.exportedAt,
+    };
+  }
   XLSX.utils.book_append_sheet(workbook, worksheet, "报名表");
   const output = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" }) as Buffer;
-  return { output, fileName: `${project.name}_报名表.xlsx` };
+  return { output, fileName: `${project.name}_报名表_${options.full ? "学院核验" : "脱敏留存"}.xlsx` };
 }

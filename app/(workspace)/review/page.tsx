@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Pagination } from "@/components/data/pagination";
+import { DatasetExport } from "@/components/export/dataset-export";
 import { PackageDownload } from "@/components/review/package-download";
 import { ReviewFilters } from "@/components/review/review-filters";
 import type { ReviewFilterValues } from "@/components/review/review-filters";
@@ -59,6 +60,7 @@ export default async function ReviewPage({ searchParams }: PageProps) {
         <PackageDownload filters={values} />
       </div>
       <ReviewFilters options={options} values={values} />
+      <DatasetExport scope="all" filters={values} buttonLabel="导出数据表" />
       <ReviewWorkbench data={data} />
       <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
         <Pagination basePath="/review" query={values} total={data.total} page={data.page} pageSize={data.pageSize} />

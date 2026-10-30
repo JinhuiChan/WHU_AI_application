@@ -155,12 +155,16 @@ build 已由 AI 在 2026-10-30 执行成功（Middleware 32.3 kB，无错误）�
 - 提交：`e5fda82 stage-4.1: sealed files and form export`
 - 下一步：等待 4.2 指令，不提前实现数据表自定义导出
 
-## 阶段 4.2：完整报名表与自定义数据表导出（进行中）
-- 修正 `/api/export/form`：`full=0` 默认脱敏；`full=1` 输出完整身份证与银行卡号，仅项目负责人/第二三负责人/管理员可用，其他成员返回 403
-- `full=1` 报名表带「项目名+导出人+时间+导出编号」水印，`ExportRecord.includeSensitive=true`；学生详情提供交学院核验与脱敏留存两个入口
-- 字段目录集中于 `lib/export-fields.ts`，包含 key、中文列名和敏感标记，页面与接口共用
-- `GET/POST /api/export/dataset` 支持 `scope=mine|all`、赛事/阶段/学院/状态筛选和有序 `fields[]`；`all` 仅管理员，输出首行中文表头的 xlsx
-- 身份证与银行卡列默认脱敏；仅管理员在 `scope=all` 且 `confirmSensitive=1` 时可导出完整敏感列，并写 `ExportRecord`
-- 学生可导出本队数据表，字段勾选与上下移调序且至少保留项目名称、状态；管理员可勾选 27 字段并调序，导出当前筛选结果
-- 单次最多 5000 行，超限提示缩小筛选；不改 schema、不碰 `/apply`，不做 Word/PDF 导入
-- 验收：权限、水印、敏感信息、字段顺序、GET/POST 一致性、真实 xlsx 解析与 5000 行边界；`tsc --noEmit` 和 `build` 通过后提交 `stage-4.2: custom dataset export`
+## 阶段 4.2：完整报名表与自定义数据表导出（已完成）
+- `/api/export/form` 支持 `full=0|1`，默认脱敏；`full=1` 输出完整身份证与银行卡号，仅项目负责人/第二三负责人/管理员可用，其他成员返回 403
+- `full=1` 报名表带「项目名+导出人+时间+导出编号」可见水印与文档属性，`ExportRecord.includeSensitive=true`；学生详情提供交学院核验与脱敏留存两个入口
+- 字段目录集中于 `lib/export-fields.ts`：27 个标准字段加身份证、银行卡两个敏感字段，定义 key、中文列名与敏感标记，页面和接口共用
+- `GET/POST /api/export/dataset` 支持 `scope=mine|all`、当前审核筛选与有序 `fields[]`；`all` 仅管理员，xlsx 第一行为中文表头、第二行起为数据，列序与请求一致
+- 学生数据表仅含本人参与项目，UI 至少保留项目名称、状态；管理员可勾选 27 字段并上下移调序，单次超过 5000 行返回缩小筛选提示
+- 敏感列默认脱敏；仅管理员在 `scope=all` 且 `confirmSensitive=1` 时可导出所选完整敏感列，并在导出信息页记录水印与二次确认状态
+- `ExportRecord` 覆盖：`GET /api/export/form`（FORM，含 full 与敏感标记）、`GET/POST /api/export/dataset`（DATASET，含字段顺序/行数/范围/确认状态）、`POST /api/export/package`（PACKAGE）、`GET /api/sealed/download`（FORM，单版本下载）
+- 真实验收：负责人/第二三负责人/管理员 full 权限、普通队员与教师 full=1 拦截、完整与脱敏内容、水印、GET/POST 列序、mine 数据隔离、管理员敏感确认及导出记录均通过
+- 验证：`npx.cmd tsc --noEmit` 与 `npm.cmd run build` 通过；5000 行限制已实现，收尾时按指令停止额外大数据自测
+- 未改 schema、未碰 `/apply`、未做 Word/PDF 导入；`.stage42-verify.ts` 已删除，无 4.2 上传文件或未跟踪测试残留
+- 提交：`stage-4.2: custom dataset export`
+- 下一步：等待后续阶段指令

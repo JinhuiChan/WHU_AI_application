@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { DatasetExport } from "@/components/export/dataset-export";
 import { SealedPanel } from "@/components/sealed/sealed-panel";
 import { getMyProject } from "@/lib/apply";
 import { getActiveUser } from "@/lib/auth.server";
 import { formatDateTime, projectStatusLabels } from "@/lib/presentation";
-import { currentSealedFileId, listSealedFiles } from "@/lib/sealed";
+import { canExportFullForm, currentSealedFileId, listSealedFiles } from "@/lib/sealed";
 
 export const metadata: Metadata = { title: "项目详情" };
 export const dynamic = "force-dynamic";
@@ -25,6 +26,7 @@ export default async function MyProjectPage({ params }: PageProps) {
   const form = project.formInput;
   const sealedFiles = await listSealedFiles(params.id);
   const currentFileId = currentSealedFileId(sealedFiles);
+  const canExportSensitive = await canExportFullForm(params.id, user);
 
   return (
     <div className="space-y-5">
@@ -92,7 +94,8 @@ export default async function MyProjectPage({ params }: PageProps) {
         {project.work ? <dl className="mt-4 grid gap-4 md:grid-cols-3"><Item label="作品形式" value={project.work.formLabel} /><Item label="作品类别" value={project.work.categoryLabel} /><Item label="作品组别" value={project.work.groupLabel} /><Item label="作品文件" value={project.work.fileName} /><Item label="作品外链" value={project.work.externalUrl} /><Item label="PPT 文件" value={project.work.pptFileName} /></dl> : <p className="mt-3 text-sm text-slate-500">暂无作品信息</p>}
       </section>
 
-      <SealedPanel projectId={params.id} files={sealedFiles} currentFileId={currentFileId} />
+      <SealedPanel projectId={params.id} files={sealedFiles} currentFileId={currentFileId} canExportSensitive={canExportSensitive} />
+      <DatasetExport scope="mine" buttonLabel="导出我的数据表" />
       <Link href="/my" className="inline-block text-sm text-blue-600 hover:underline">返回我的项目</Link>
     </div>
   );

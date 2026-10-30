@@ -59,6 +59,18 @@ export async function canAccessProject(projectId: string, user: AuthUser) {
   return Boolean(await prisma.project.findFirst({ where, select: { id: true } }));
 }
 
+export async function canExportFullForm(projectId: string, user: AuthUser) {
+  if (user.role !== "ADMIN" && user.role !== "STUDENT") return false;
+  const where: Prisma.ProjectWhereInput = { id: projectId, deletedAt: null };
+  if (user.role === "STUDENT") {
+    where.OR = [
+      { ownerId: user.id },
+      { teamMembers: { some: { userId: user.id, leftAt: null, role: { in: ["LEADER", "SECOND_LEADER", "THIRD_LEADER"] } } } },
+    ];
+  }
+  return Boolean(await prisma.project.findFirst({ where, select: { id: true } }));
+}
+
 export async function getSealedFileForDownload(fileId: string, user: AuthUser) {
   const file = await prisma.sealedFile.findUnique({ where: { id: fileId } });
   if (!file || !(await canAccessProject(file.projectId, user))) return null;

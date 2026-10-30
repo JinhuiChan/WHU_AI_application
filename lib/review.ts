@@ -233,6 +233,26 @@ export async function getReviewList(filters: ReviewFilters): Promise<ReviewListP
   };
 }
 
+export async function listReviewItemsForExport(
+  filters: Partial<ReviewFilters>,
+  take: number,
+  additionalWhere?: Prisma.ProjectWhereInput,
+): Promise<ReviewListItem[]> {
+  const where: Prisma.ProjectWhereInput = additionalWhere
+    ? { AND: [buildReviewWhere(filters), additionalWhere] }
+    : buildReviewWhere(filters);
+  const [labels, projects] = await Promise.all([
+    loadLabelMaps(),
+    prisma.project.findMany({
+      where,
+      include: reviewListInclude,
+      orderBy: [{ submittedAt: "desc" }, { updatedAt: "desc" }],
+      take,
+    }),
+  ]);
+  return projects.map((project) => mapReviewListItem(project, labels));
+}
+
 export async function listReviewFilterOptions(): Promise<ReviewFilterOptions> {
   const [competitions, colleges, tracks] = await Promise.all([
     prisma.competition.findMany({

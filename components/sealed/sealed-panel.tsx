@@ -17,7 +17,7 @@ function reviewLabel(value: string) {
   return value;
 }
 
-export function SealedPanel({ projectId, files, currentFileId }: { projectId: string; files: SealedFileView[]; currentFileId: string | null }) {
+export function SealedPanel({ projectId, files, currentFileId, canExportSensitive }: { projectId: string; files: SealedFileView[]; currentFileId: string | null; canExportSensitive: boolean }) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [pending, setPending] = useState(false);
@@ -32,7 +32,14 @@ export function SealedPanel({ projectId, files, currentFileId }: { projectId: st
           <h2 className="text-base font-semibold text-slate-900">报名表与盖章件</h2>
           <p className="mt-1 text-xs text-slate-500">下载后打印签字盖章；上传新版本会替换当前最终版，旧版本保留。</p>
         </div>
-        <a href={`/api/export/form?projectId=${encodeURIComponent(projectId)}`} className="rounded-md border border-blue-300 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50">下载报名表</a>
+        <div className="flex flex-wrap gap-2">
+          {canExportSensitive ? (
+            <a href={`/api/export/form?projectId=${encodeURIComponent(projectId)}&full=1`} className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">下载报名表（交学院核验）</a>
+          ) : (
+            <button type="button" disabled title="仅项目负责人、第二/第三负责人或管理员可下载完整报名表" className="rounded-md bg-slate-200 px-4 py-2 text-sm text-slate-500">下载报名表（交学院核验）</button>
+          )}
+          <a href={`/api/export/form?projectId=${encodeURIComponent(projectId)}&full=0`} className="rounded-md border border-blue-300 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50">下载报名表（脱敏留存）</a>
+        </div>
       </div>
 
       <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-4">
