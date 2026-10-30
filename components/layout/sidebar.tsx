@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  FilePlus2,
   FileText,
   FolderKanban,
   LayoutDashboard,

@@ -114,3 +114,14 @@ build 已由 AI 在 2026-10-30 执行成功（Middleware 32.3 kB，无错误）�
 - `/apply` 已接入草稿、提交和已有项目编辑；成员、老师、作品、领款人嵌套写入，未改 schema 或 `lib/crypto.ts`
 - 验证：`npx.cmd tsc --noEmit`、`npm.cmd run build` 通过；真实草稿→提交→列表/详情、密文、脱敏、成员访问和跨学生读写拦截均通过
 - 端到端测试项目已清理；未做审核、导出
+
+## 阶段 3.1：管理员赛事管理（已完成）
+- 新增管理员接口：新建/编辑赛事、上传/删除附件、upsert 校赛报名窗口；全部 `requireApiAdmin` 且写 AuditLog
+- 上传校验扩展名、MIME、文件头和 20MB 上限；文件保存至 `public/uploads/competitions/<id>/`，目录已加入 `.gitignore`
+- 新增公开附件读取路由，解决生产模式下运行时新增 public 文件无法下载的问题；下载无需登录，管理写接口仍仅管理员
+- 赛事详情新增管理员编辑抽屉、附件上传/删除、报名设置；列表新增管理员新建赛事入口
+- 学生端 `enabled=false` 时显示“报名未开放”；未修改 schema、`lib/crypto.ts`、学生端 `/apply` 或 `/my`
+- 验证：`tsc` 与 `build` 通过；真实 PDF 上传/删除、无登录下载、学生管理写 403、关闭/开放窗口均通过；已执行 `db:push` 同步既有附件模型
+- 实测落盘：`public/uploads/competitions/d717b357-366d-48c8-bd12-12e769dc7801/f8375123-ad73-4977-a9c1-18842ec9fe45-stage31-upload.pdf`
+- 实测窗口：`competitionId=d717b357-366d-48c8-bd12-12e769dc7801`，`stage=SCHOOL`，`startAt=2026-10-30T08:56:24.858Z`，`endAt=2026-11-29T09:56:24.996Z`，`enabled=true`
+- 构建附带修复：移除 `components/layout/sidebar.tsx` 未使用的 `FilePlus2` 导入

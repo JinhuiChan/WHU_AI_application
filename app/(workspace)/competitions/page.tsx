@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { CompetitionCreate } from "@/components/admin/competition-create";
 import { Pagination } from "@/components/data/pagination";
 import { getActiveUser } from "@/lib/auth.server";
 import { getCompetitionPage, listCompetitionYears } from "@/lib/competitions";
@@ -44,6 +45,7 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
               : "按赛年、等级和关键词查找赛事，进入详情查看获奖名单。"}
           </p>
         </div>
+        {user.role === "ADMIN" ? <CompetitionCreate /> : null}
         {user.role === "STUDENT" ? (
           <div className="flex items-center gap-2">
             <Link href="/my" className="rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">

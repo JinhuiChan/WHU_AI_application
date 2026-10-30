@@ -45,3 +45,6 @@ next-env.d.ts
 # 数据库备份
 *.bak
 prisma/dev.db.v1.bak
+
+# 本地上传文件
+public/uploads/

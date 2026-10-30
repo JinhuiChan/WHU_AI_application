@@ -28,7 +28,7 @@ function isAdminApiPath(pathname: string) {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  if (pathname === "/api/auth/login" || pathname === "/api/auth/register") {
+  if (pathname === "/api/auth/login" || pathname === "/api/auth/register" || pathname.startsWith("/uploads/")) {
     return NextResponse.next();
   }
 
