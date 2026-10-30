@@ -19,7 +19,13 @@
 | 4.1 | 盖章闭环：报名表 xlsx（签字位/公章位）、上传版本化、最终版回退、管理员批量打包 zip | `e5fda82` |
 | 4.2 | 自定义数据表导出：字段勾选与调序、`full` 参数（脱敏 vs 完整件）、4 个导出接口均写 ExportRecord | `23e8fe2` |
 | 5.1 | 统计看板：byCollege/byTrack/byStage/byAward，学生 scope=mine 隔离，数字与查库一致 | `8c1e5e1` |
-| 5.2 | 变更申请（轻量版） | 待做 |
+| 5.2a | 变更申请后端：3 个接口 + `CHANGE_WHITELIST` 字段白名单（禁止夹带 status/score） | `09ee8db` |
+| 5.2b | 变更申请前端：学生申请面板（7 类型动态字段）+ 管理员 `/review/changes` 审批页 | `23147cf` |
+| 5.4 | 老师端 `/teacher`：我指导的项目 + 确认/拒绝指导关系（理由入 AuditLog） | `cda97a0` |
+| 6.1 | 重写 README.md 与 DEMO.md（10 分钟演示脚本 + 评委问答准备） | `92bda9a` |
+| 5.3a | 导入中心：上传（xlsx/docx/pdf）+ 字段映射 | 待做 |
+| 5.3b | 导入入库 + 逐行校验报告 | 待做 |
+| 5.5 | 奖项录入与变更留痕 | 待做 |
 
 ## 关键决定（勿擅自更改）
 
@@ -56,6 +62,11 @@
 
 ## 下一步
 
-**5.2 变更申请（轻量版）**：接口 `POST /api/change/request`、`POST /api/change/review`、`GET /api/change/list`；`ChangeRequest` 表已就绪，**不需要改 schema**。
+**5.3a 导入中心（上传 + 字段映射，先不做入库）**
 
-安全红线：`newValues` 必须走白名单映射，禁止直接 spread 进 `prisma.update`（否则可夹带 status/score 改状态）。
+- 页面：重写 `/import`（当前是 V1 获奖导入，已过时）
+- 接口：`POST /api/import/parse`（上传 + 解析表头 + 预览）、`POST /api/import/mapping`（保存映射方案到 `ImportBatch.mappingJson`，不改 schema）
+- 解析：xlsx 走 xlsx 库，docx 走 mammoth，pdf 走 pdf-parse；解析结果必须落成"待人工确认"
+- 测试文件：`public/samples/二课导出数据样例.xlsx`（27 列，仿真数据）
+- 安全红线：`newValues` 类任意 JSON 必须走白名单，禁止直接 spread 进 `prisma.update`
+- 之后：5.3b 入库与校验报告 → 5.5 奖项录入 → 二期（OCR / AI 问答 / 国创对接 / 统一认证）
