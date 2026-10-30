@@ -41,3 +41,7 @@ prisma/dev.db-journal
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# 数据库备份
+*.bak
+prisma/dev.db.v1.bak
