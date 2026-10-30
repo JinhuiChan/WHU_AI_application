@@ -17,10 +17,10 @@ const navigation = [
   { href: "/dashboard", label: "看板", icon: LayoutDashboard },
   { href: "/competitions", label: "赛事", icon: Trophy },
   { href: "/projects", label: "项目", icon: FolderKanban },
-  { href: "/import", label: "导入", icon: Upload },
 ];
 
 const administration = [
+  { href: "/import", label: "数据导入", icon: Upload },
   { href: "/admin/users", label: "用户管理", icon: Users },
   { href: "/admin/logs", label: "审计日志", icon: FileText },
 ];
