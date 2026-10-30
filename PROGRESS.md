@@ -140,3 +140,12 @@ build 已由 AI 在 2026-10-30 执行成功（Middleware 32.3 kB，无错误）�
 - 数据库验收：成功操作的状态同步、驳回级别/理由、Review 与 AuditLog 数量一致；失败项未写 Review 且状态未变；临时项目、赛事、赛道与脚本均已清理
 - 提交：`bb571b7 stage-3.2: review workbench`
 - 下一步：等待后续阶段指令，不提前实现晋级流转、奖项或看板
+
+## 阶段 4.1：盖章件上传与最终版闭环（进行中）
+- 学生项目详情提供报名表 xlsx 下载；包含基本信息、指导老师、团队成员、领款人，以及留空的三个签字位和公章位
+- 本队任一学生成员可上传 PDF/JPG/PNG 盖章件，单文件不超过 20MB；校验扩展名、MIME 与文件头，UUID 重命名，版本递增且旧版保留
+- 以最后上传且 `reviewResult != REJECTED` 的盖章件为当前最终版；学生与管理员可查看版本并下载，每次导出/下载写 `ExportRecord`
+- 接口：`POST /api/sealed/upload`、`GET /api/sealed/download`、`GET /api/export/form`、`POST /api/export/package`
+- 管理员按当前审核筛选结果打包 zip，单次不超过 100 个项目且文件总量不超过 500MB；条目按 `赛事_阶段_学院_项目名_队长_第N版.pdf` 命名
+- 运行时上传目录纳入 `.gitignore`；不改 schema、不改 `lib/crypto.ts`、不碰 `/apply`，不做 4.2 数据表自定义导出
+- 验收：真实上传/替换/下载、跨项目权限、文件头与大小校验、xlsx 内容、zip 解压及限额验证；`tsc --noEmit` 与 `build` 通过后提交 `stage-4.1: sealed files and form export`
