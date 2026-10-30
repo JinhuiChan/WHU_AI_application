@@ -37,8 +37,12 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
     <div className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900">赛事管理</h1>
-          <p className="mt-1 text-sm text-slate-500">按赛年、等级和关键词查找赛事，进入详情查看获奖名单。</p>
+          <h1 className="text-xl font-semibold text-slate-900">{user.role === "STUDENT" ? "可报名赛事" : "赛事管理"}</h1>
+          <p className="mt-1 text-sm text-slate-500">
+            {user.role === "STUDENT"
+              ? "点进赛事查看报名通知与参赛规程，确认赛道与组别后再报名。"
+              : "按赛年、等级和关键词查找赛事，进入详情查看获奖名单。"}
+          </p>
         </div>
         {user.role === "STUDENT" ? (
           <div className="flex items-center gap-2">

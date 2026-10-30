@@ -18,14 +18,18 @@ function trackTree(tracks: FlatTrack[], parentId: string | null = null): ApplyOp
     .map((track) => ({ ...track, children: trackTree(tracks, track.id) }));
 }
 
-type PageProps = { searchParams?: { projectId?: string | string[] } };
+type PageProps = { searchParams?: { projectId?: string | string[]; competitionId?: string | string[] } };
+
+function firstParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
 
 export default async function ApplyPage({ searchParams }: PageProps) {
   const user = await getActiveUser();
   if (!user) redirect("/login");
   if (user.role !== "STUDENT") redirect("/dashboard");
-  const rawProjectId = searchParams?.projectId;
-  const projectId = Array.isArray(rawProjectId) ? rawProjectId[0] : rawProjectId;
+  const projectId = firstParam(searchParams?.projectId);
+  const competitionId = firstParam(searchParams?.competitionId);
 
   const [student, competitions, ethnicities, educationStages, workForms, groups, categories] = await Promise.all([
     prisma.user.findFirst({
@@ -48,6 +52,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
       },
     }),
     prisma.competition.findMany({
+      where: competitionId ? { id: competitionId } : undefined,
       select: {
         id: true,
         name: true,
@@ -92,7 +97,13 @@ export default async function ApplyPage({ searchParams }: PageProps) {
         <h1 className="text-xl font-semibold text-slate-900">项目报名</h1>
         <p className="mt-1 text-sm text-blue-900">当前学生：{student.studentNo ?? "未绑定学号"} · {student.name}</p>
       </header>
-      <ApplyForm student={student} options={options} projectId={projectId} initialValue={existing?.formInput} />
+      <ApplyForm
+        student={student}
+        options={options}
+        projectId={projectId}
+        initialValue={existing?.formInput}
+        lockedCompetitionId={competitionId}
+      />
     </div>
   );
 }

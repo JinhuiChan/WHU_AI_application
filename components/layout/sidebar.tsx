@@ -23,7 +23,7 @@ const adminNavigation = [
 
 const studentNavigation = [
   { href: "/dashboard", label: "看板", icon: LayoutDashboard },
-  { href: "/apply", label: "我要报名", icon: FilePlus2 },
+  { href: "/competitions", label: "赛事与报名", icon: Trophy },
   { href: "/my", label: "我的项目", icon: FolderKanban },
 ];
 

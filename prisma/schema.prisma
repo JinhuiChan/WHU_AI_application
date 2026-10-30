@@ -181,6 +181,7 @@ model User {
   collegeChangeRequests ChangeRequest[]     @relation("ChangeRequestCollegeReviewer")
   schoolChangeRequests  ChangeRequest[]     @relation("ChangeRequestSchoolReviewer")
   timeWindows           TimeWindow[]        @relation("TimeWindowConfigurator")
+  competitionAttachments CompetitionAttachment[] @relation("AttachmentUploader")
   exportRecords         ExportRecord[]      @relation("ExportRecordExporter")
   sensitiveAccessLogs   SensitiveAccessLog[] @relation("SensitiveAccessUser")
   awards                Award[]             @relation("AwardCreator")
@@ -206,6 +207,7 @@ model Competition {
   updatedAt    DateTime         @default(now()) @updatedAt
   tracks       Track[]
   projects     Project[]
+  attachments  CompetitionAttachment[]
   timeWindows  TimeWindow[]
   importBatches ImportBatch[]
   formTemplates FormTemplate[]
@@ -461,6 +463,24 @@ model ChangeRequest {
   changeLogs         ChangeLog[]
 
   @@index([projectId, status, createdAt])
+}
+
+/// 赛事附件：通知、规程、模板等，供学生在报名前查阅
+model CompetitionAttachment {
+  id            String      @id @default(uuid())
+  competitionId String
+  title         String
+  kind          String      @default("NOTICE")
+  fileName      String
+  filePath      String
+  fileSize      Int?
+  uploadedBy    String
+  sortOrder     Int         @default(0)
+  createdAt     DateTime    @default(now())
+  competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  uploader      User        @relation("AttachmentUploader", fields: [uploadedBy], references: [id], onDelete: Restrict)
+
+  @@index([competitionId, kind, sortOrder])
 }
 
 model TimeWindow {

@@ -51,6 +51,7 @@ type ApplyFormProps = {
   options: ApplyOptions;
   projectId?: string;
   initialValue?: ProjectFormInput;
+  lockedCompetitionId?: string;
 };
 
 function emptyPayee(bound: boolean): PayeeInput {
@@ -165,10 +166,15 @@ function validateForm(form: ProjectFormInput, options: ApplyOptions): string[] {
   return errors;
 }
 
-export function ApplyForm({ student, options, projectId, initialValue }: ApplyFormProps) {
+export function ApplyForm({ student, options, projectId, initialValue, lockedCompetitionId }: ApplyFormProps) {
   const router = useRouter();
   const [resolvedOptions, setResolvedOptions] = useState(options);
-  const [form, setForm] = useState<ProjectFormInput>(() => initialValue ?? initialForm(student, options));
+  const [form, setForm] = useState<ProjectFormInput>(() =>
+    initialValue ?? {
+      ...initialForm(student, options),
+      ...(lockedCompetitionId ? { competitionId: lockedCompetitionId } : {}),
+    },
+  );
   const [validationVisible, setValidationVisible] = useState(false);
   const [pendingAction, setPendingAction] = useState<"draft" | "submit" | null>(null);
   const [requestError, setRequestError] = useState("");

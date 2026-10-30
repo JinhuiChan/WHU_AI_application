@@ -66,6 +66,7 @@ export async function getCompetitionDetail(id: string, role: Role): Promise<Comp
       seriesId: true,
       year: true,
       organizer: true,
+      description: true,
       createdAt: true,
       awardRecords: {
         where: { ...awardWhereForRole(role), project: { deletedAt: null } },
@@ -118,6 +119,7 @@ export async function getCompetitionDetail(id: string, role: Role): Promise<Comp
     seriesId: competition.seriesId,
     year: competition.year,
     organizer: competition.organizer,
+    description: competition.description,
     createdAt: competition.createdAt.toISOString(),
     awards: competition.awardRecords.map((award) => ({
       id: award.id,

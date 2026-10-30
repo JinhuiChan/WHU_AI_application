@@ -196,6 +196,30 @@ async function main() {
       ]),
     });
 
+    // 赛事附件：学生报名前可查阅的通知与规程
+    await prisma.competitionAttachment.createMany({
+      data: [
+        {
+          competitionId: competition.id,
+          title: `${spec.shortName}报名通知`,
+          kind: "NOTICE",
+          fileName: "赛事报名通知.txt",
+          filePath: "/samples/赛事报名通知.txt",
+          uploadedBy: admin.id,
+          sortOrder: 1,
+        },
+        {
+          competitionId: competition.id,
+          title: `${spec.shortName}参赛规程`,
+          kind: "RULE",
+          fileName: "参赛规程与组别说明.txt",
+          filePath: "/samples/参赛规程与组别说明.txt",
+          uploadedBy: admin.id,
+          sortOrder: 2,
+        },
+      ],
+    });
+
     const trackIds = [domesticTrack.id, overseasTrack.id, redTrack.id, industryTrack.id, domesticTrack.id, redTrack.id];
     const template = await prisma.formTemplate.create({
       data: {
@@ -584,6 +608,7 @@ async function main() {
     Award: await prisma.award.count(),
     AwardHistory: await prisma.awardHistory.count(),
     DictOption: await prisma.dictOption.count(),
+    CompetitionAttachment: await prisma.competitionAttachment.count(),
     FormTemplate: await prisma.formTemplate.count(),
     AuditLog: await prisma.auditLog.count(),
     DataSource: await prisma.dataSource.count(),
@@ -598,7 +623,7 @@ async function main() {
     TeamMember: 54, Teacher: 18, PayeeBank: 18, Work: 18, SealedFile: 18,
     Review: 23, ChangeLog: 1, ChangeRequest: 1, TimeWindow: 3, ImportBatch: 1,
     ExportRecord: 1, SensitiveAccessLog: 1, Award: 2, AwardHistory: 2,
-    DictOption: dictionarySeeds.length + trackDictionaryCount, FormTemplate: 3, AuditLog: 1, DataSource: 1,
+    DictOption: dictionarySeeds.length + trackDictionaryCount, CompetitionAttachment: 6, FormTemplate: 3, AuditLog: 1, DataSource: 1,
     KbDocument: 1, KbChunk: 2, AwardRecord: 0, MemberSnapshot: 0, Anomaly: 0,
   };
   for (const [label, expectedCount] of Object.entries(expected)) {

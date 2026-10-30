@@ -43,6 +43,7 @@ export type CompetitionAward = {
 };
 
 export type CompetitionDetail = CompetitionListItem & {
+  description: string | null;
   awards: CompetitionAward[];
 };
 
