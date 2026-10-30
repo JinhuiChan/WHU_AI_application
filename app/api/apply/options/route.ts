@@ -1,5 +1,5 @@
 import { apiError, apiSuccess } from "@/lib/api";
-import { requireApiUser } from "@/lib/auth.server";
+import { requireApiRoles } from "@/lib/auth.server";
 import { listOptions } from "@/lib/dict";
 import { prisma } from "@/lib/prisma";
 
@@ -20,7 +20,7 @@ function trackTree(tracks: FlatTrack[], parentId: string | null = null): TrackNo
 }
 
 export async function GET() {
-  const authorization = await requireApiUser();
+  const authorization = await requireApiRoles(["STUDENT"]);
   if (!authorization.ok) return authorization.response;
   try {
     const [competitions, ethnicities, educationStages, workForms, groups, categories] = await Promise.all([

@@ -1,12 +1,12 @@
 import type { NextRequest } from "next/server";
 import { apiSuccess } from "@/lib/api";
-import { requireApiUser } from "@/lib/auth.server";
+import { requireApiRoles } from "@/lib/auth.server";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
-  const authorization = await requireApiUser();
+  const authorization = await requireApiRoles(["STUDENT", "TEACHER"]);
   if (!authorization.ok) return authorization.response;
   const keyword = request.nextUrl.searchParams.get("keyword")?.trim() ?? "";
   if (!keyword) return apiSuccess([], "查询成功");
