@@ -30,3 +30,24 @@
 ## 涓嬩竴姝ワ紙鍙仛杩欎竴鏉★紝鍋氬畬鍋滀笅锛?
 寰 0.4锛氭妸 `rankings` 鏀逛负"宸插苟鍏ョ湅鏉?鍗犱綅锛宍anomalies` / `assistant` / `check` 鏀逛负"鍔熻兘鏆傛湭寮€鏀?鍗犱綅锛?*椤甸潰鏂囦欢淇濈暀銆佸彧鏀瑰唴瀹?*锛夛紝骞惰皟鏁?`components/layout/sidebar.tsx` 涓嬬嚎杩?4 涓叆鍙ｃ€?**涓嶈缁х画 0.5銆?*
 
+
+## 阶段 1（代码已写，待 AI review + build 验证）
+
+### Lead 已写（均通过 tsc --noEmit）
+- `lib/auth.ts`：角色校验扩展到 5 种（ADMIN/USER/STUDENT/TEACHER/FINANCE），新增 `isRole`
+- `lib/auth.server.ts`：新增 `requireApiRoles` / `requireApiStudent` / `requireApiTeacher`
+- `middleware.ts`：按路由段守卫（/admin、/settings、/review、/import 仅 ADMIN；/apply、/my 仅 STUDENT；/teacher 仅 TEACHER；FINANCE 只读）
+- `app/api/auth/register/route.ts`：学生注册（学号 6–20 位、手机号、密码≥6、查重、写审计）
+- `app/register/page.tsx`：注册页
+- `app/login/page.tsx`：加注册入口
+- `lib/presentation.ts`：新增 `roleLabels`
+
+### 待验证
+- `npm.cmd run build`（Lead 沙箱禁止 fork，无法执行）
+- 三种角色登录与越权拦截的真机验证
+
+### 下一步（AI 执行）
+1. review 上述 7 个文件，输出问题清单（最多 5 条，按严重度排序），**先不改代码**
+2. 执行 `npm.cmd run build`
+3. 若 build 失败，只修阻断项（最多改 3 个文件），修完再 build 一次
+4. 汇报后停下

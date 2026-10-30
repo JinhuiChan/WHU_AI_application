@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { LoginForm } from "@/components/auth/login-form";
 
 export const metadata: Metadata = {
@@ -19,7 +20,15 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-10">
-      <LoginForm callbackUrl={callbackUrl} />
+      <div className="w-full max-w-md space-y-4">
+        <LoginForm callbackUrl={callbackUrl} />
+        <p className="text-center text-sm text-slate-500">
+          还没有账号？
+          <Link className="ml-1 text-blue-600 hover:underline" href="/register">
+            学生注册
+          </Link>
+        </p>
+      </div>
     </main>
   );
 }

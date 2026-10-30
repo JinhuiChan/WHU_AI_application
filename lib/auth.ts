@@ -4,6 +4,13 @@ import { SignJWT, jwtVerify } from "jose";
 export const SESSION_COOKIE = "kesai_session";
 export const SESSION_MAX_AGE = 60 * 60 * 8;
 
+/** 与 prisma schema 的 Role 枚举保持一致 */
+export const ROLE_VALUES = ["ADMIN", "USER", "STUDENT", "TEACHER", "FINANCE"] as const;
+
+export function isRole(value: unknown): value is Role {
+  return typeof value === "string" && (ROLE_VALUES as readonly string[]).includes(value);
+}
+
 export type AuthUser = {
   id: string;
   phone: string;
@@ -44,7 +51,7 @@ export async function verifySession(token: string): Promise<SessionPayload | nul
       typeof sub !== "string" ||
       typeof phone !== "string" ||
       typeof name !== "string" ||
-      (role !== "ADMIN" && role !== "USER")
+      !isRole(role)
     ) {
       return null;
     }

@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import type { Role } from "@prisma/client";
 import { apiError } from "@/lib/api";
 import { SESSION_COOKIE, verifySession } from "@/lib/auth";
 import type { AuthUser } from "@/lib/auth";
@@ -42,4 +43,23 @@ export async function requireApiAdmin(): Promise<ApiUserResult> {
     return { ok: false, response: apiError(403, "无权限执行此操作") };
   }
   return authorization;
+}
+
+/** 允许的角色白名单，ADMIN 始终放行 */
+export async function requireApiRoles(roles: Role[]): Promise<ApiUserResult> {
+  const authorization = await requireApiUser();
+  if (!authorization.ok) return authorization;
+  const { role } = authorization.user;
+  if (role !== "ADMIN" && !roles.includes(role)) {
+    return { ok: false, response: apiError(403, "无权限执行此操作") };
+  }
+  return authorization;
+}
+
+export function requireApiStudent() {
+  return requireApiRoles(["STUDENT"]);
+}
+
+export function requireApiTeacher() {
+  return requireApiRoles(["TEACHER"]);
 }

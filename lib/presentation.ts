@@ -7,6 +7,7 @@ import type {
   EvidenceType,
   MemberRole,
   ProjectStatus,
+  Role,
 } from "@prisma/client";
 
 export const competitionLevelLabels: Record<CompetitionLevel, string> = {
@@ -52,6 +53,14 @@ export const memberRoleLabels: Record<MemberRole, string> = {
   THIRD_LEADER: "第三负责人",
   MEMBER: "成员",
   TEACHER: "指导教师",
+};
+
+export const roleLabels: Record<Role, string> = {
+  ADMIN: "系统管理员",
+  USER: "普通用户",
+  STUDENT: "学生",
+  TEACHER: "指导教师",
+  FINANCE: "财务/审计",
 };
 
 export const aliasTypeLabels: Record<AliasType, string> = {
