@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
+import { Prisma } from "@prisma/client";
 import { apiError, apiSuccess } from "@/lib/api";
 import { writeAuditLog } from "@/lib/audit";
 import { prisma } from "@/lib/prisma";
@@ -52,31 +53,40 @@ export async function POST(request: NextRequest) {
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const user = await prisma.user.create({
-      data: {
-        studentNo,
-        phone,
-        name,
-        passwordHash,
-        role: "STUDENT",
-        college: readString(payload, "college") || null,
-        trainingUnit: readString(payload, "trainingUnit") || null,
-        major: readString(payload, "major") || null,
-        grade: readString(payload, "grade") || null,
-      },
-      select: { id: true, studentNo: true, name: true, phone: true, role: true },
-    });
-
-    await writeAuditLog({
-      actorId: user.id,
-      action: "STUDENT_REGISTERED",
-      targetType: "User",
-      targetId: user.id,
-      detail: { studentNo: user.studentNo ?? "" },
+    const user = await prisma.$transaction(async (tx) => {
+      const created = await tx.user.create({
+        data: {
+          studentNo,
+          phone,
+          name,
+          passwordHash,
+          role: "STUDENT",
+          college: readString(payload, "college") || null,
+          trainingUnit: readString(payload, "trainingUnit") || null,
+          major: readString(payload, "major") || null,
+          grade: readString(payload, "grade") || null,
+        },
+        select: { id: true, studentNo: true, name: true, phone: true, role: true },
+      });
+      await writeAuditLog(
+        {
+          actorId: created.id,
+          action: "STUDENT_REGISTERED",
+          targetType: "User",
+          targetId: created.id,
+          detail: { studentNo: created.studentNo ?? "" },
+        },
+        tx,
+      );
+      return created;
     });
 
     return apiSuccess(user, "注册成功", 201);
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      const target = JSON.stringify(error.meta?.target ?? "");
+      return apiError(409, target.includes("phone") ? "该手机号已注册" : "该学号已注册");
+    }
     console.error("学生注册失败：", error);
     return apiError(500, "注册失败，请稍后重试");
   }

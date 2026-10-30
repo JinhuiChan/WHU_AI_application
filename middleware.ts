@@ -74,14 +74,14 @@ export async function middleware(request: NextRequest) {
     return pathname.startsWith("/api/") ? apiError(403, "无权限访问管理接口") : denyPage("无权限访问该页面");
   }
 
-  // 学生侧：仅 STUDENT（ADMIN 可代看）
-  if (inPrefix(pathname, ["/apply", "/my"]) && !(role === "STUDENT" || isAdmin)) {
-    return denyPage("该页面仅参赛学生可访问");
+  // 学生侧：仅 STUDENT（ADMIN 可代看/代操作）
+  if (inPrefix(pathname, ["/apply", "/my", "/api/apply", "/api/my"]) && !(role === "STUDENT" || isAdmin)) {
+    return pathname.startsWith("/api/") ? apiError(403, "该接口仅参赛学生可调用") : denyPage("该页面仅参赛学生可访问");
   }
 
   // 教师侧：仅 TEACHER（ADMIN 可代看）
-  if (inPrefix(pathname, ["/teacher"]) && !(role === "TEACHER" || isAdmin)) {
-    return denyPage("该页面仅指导教师可访问");
+  if (inPrefix(pathname, ["/teacher", "/api/teacher"]) && !(role === "TEACHER" || isAdmin)) {
+    return pathname.startsWith("/api/") ? apiError(403, "该接口仅指导教师可调用") : denyPage("该页面仅指导教师可访问");
   }
 
   // 只读角色（财务/审计）不得执行写操作
