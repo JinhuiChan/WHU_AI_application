@@ -155,9 +155,11 @@ export type ImportParseResult = {
   fileType: ImportFileType;
   columns: string[];
   previewRows: string[][];
+  previewRowNumbers: number[];
   suggestedMapping: ImportMapping;
   requiresConfirm: boolean;
   totalRows: number;
+  sourceKey: string;
 };
 
 export type ImportMappingSaveInput = {
@@ -166,8 +168,24 @@ export type ImportMappingSaveInput = {
   fileName: string;
   totalRows: number;
   mapping: ImportMapping;
+  sourceKey: string;
+  confirmed: boolean;
 };
 
 export type ImportMappingSaveResult = {
   batchId: string;
+};
+
+export type ImportFailure = {
+  rowNo: number;
+  field: string;
+  reason: string;
+};
+
+export type ImportCommitResult = {
+  projectCount: number;
+  continuationCount: number;
+  success: number;
+  failed: number;
+  failures: ImportFailure[];
 };

@@ -48,3 +48,4 @@ prisma/dev.db.v1.bak
 
 # 本地上传文件
 public/uploads/
+/storage/imports/
