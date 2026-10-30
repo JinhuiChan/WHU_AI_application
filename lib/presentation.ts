@@ -18,6 +18,14 @@ export const competitionLevelLabels: Record<CompetitionLevel, string> = {
 export const projectStatusLabels: Record<ProjectStatus, string> = {
   ACTIVE: "进行中",
   WITHDRAWN: "已退出",
+  DRAFT: "草稿",
+  PENDING: "待审核",
+  COLLEGE_REVIEW: "学院审核中",
+  SCHOOL_FINAL: "校内终审",
+  REJECTED: "驳回",
+  PROVINCE_ADVANCED: "已晋级省赛",
+  NATIONAL_ADVANCED: "已晋级国赛",
+  FINISHED: "已结束",
 };
 
 export const awardLevelLabels: Record<AwardLevel, string> = {
@@ -26,6 +34,9 @@ export const awardLevelLabels: Record<AwardLevel, string> = {
   B: "B",
   C: "C",
   EXCELLENT: "优秀奖",
+  GOLD: "金奖",
+  SILVER: "银奖",
+  BRONZE: "铜奖",
 };
 
 export const awardStatusLabels: Record<AwardStatus, string> = {
@@ -37,6 +48,8 @@ export const awardStatusLabels: Record<AwardStatus, string> = {
 
 export const memberRoleLabels: Record<MemberRole, string> = {
   LEADER: "负责人",
+  SECOND_LEADER: "第二负责人",
+  THIRD_LEADER: "第三负责人",
   MEMBER: "成员",
   TEACHER: "指导教师",
 };

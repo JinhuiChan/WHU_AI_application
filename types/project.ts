@@ -43,7 +43,7 @@ export type ProjectAliasItem = {
 
 export type ProjectMember = {
   id: string;
-  personNo: string;
+  personNo: string | null;
   name: string;
   role: MemberRole;
   joinedAt: string;

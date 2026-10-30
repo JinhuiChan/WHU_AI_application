@@ -12,6 +12,9 @@ export const awardScoreWeights: Record<AwardLevel, number> = {
   B: 1,
   C: 0.8,
   EXCELLENT: 0.5,
+  GOLD: 1.0,
+  SILVER: 0.8,
+  BRONZE: 0.6,
 };
 
 export function formatScore(score: number) {
