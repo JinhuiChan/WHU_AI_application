@@ -86,7 +86,12 @@ build 已由 AI 在 2026-10-30 执行成功（Middleware 32.3 kB，无错误）�
 - 密文格式 `v1:<iv>:<tag>:<data>`，4 段；解密失败不返回原文 ✓
 - **Lead 加固**：`maskTail` 原实现对长度 ≤ keep 的值原样返回（短值等于没脱敏），已改为整串遮蔽
 
-## 阶段 2（进行中）：2.2 报名表单 UI（待做）
-- 页面 `app/(workspace)/apply`、组件 `components/apply/*`
-- 只读接口：`/api/lookup/student`、`/api/lookup/teacher`、`/api/apply/options`
+## 阶段 2（进行中）：2.2 报名表单 UI（已完成）
+- 新增 `app/(workspace)/apply/page.tsx`：服务端读取当前学生、赛事赛道树与字典；学号和姓名固定展示
+- 新增 `components/apply/` 6 个组件：17 项基本信息、老师/成员双入口弹窗、上限与排序、唯一领款人、作品与 PPT 占位、前端校验
+- 新增只读接口：`/api/lookup/student`、`/api/lookup/teacher`、`/api/apply/options`；学生查不到返回 404，老师查不到返回空数组
+- 全部表单数据均为客户端状态；提交按钮禁用并显示“提交功能开发中”，无保存、上传或 Prisma 写入
+- 验证：`npx.cmd tsc --noEmit` 通过；`npm.cmd run build` 通过（21 个静态页生成步骤完成）
+- 真实请求：学生登录后 `/apply` 正常；选项含 3 赛事及国内/海外层级；学生查询 200/404、老师查询命中/空数组均通过
+- 未做：`/my`、提交逻辑、schema 变更；等待下一阶段指令
 - 不做提交/保存，不做 prisma 写入
