@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { DatasetExport } from "@/components/export/dataset-export";
+import { ChangeRequestPanel } from "@/components/change/change-request-panel";
 import { SealedPanel } from "@/components/sealed/sealed-panel";
 import { getMyProject } from "@/lib/apply";
 import { getActiveUser } from "@/lib/auth.server";
+import { getChangeRequestPanel } from "@/lib/change";
 import { formatDateTime, projectStatusLabels } from "@/lib/presentation";
 import { canExportFullForm, currentSealedFileId, listSealedFiles } from "@/lib/sealed";
 
@@ -27,6 +29,7 @@ export default async function MyProjectPage({ params }: PageProps) {
   const sealedFiles = await listSealedFiles(params.id);
   const currentFileId = currentSealedFileId(sealedFiles);
   const canExportSensitive = await canExportFullForm(params.id, user);
+  const changePanel = await getChangeRequestPanel(params.id, user.id);
 
   return (
     <div className="space-y-5">
@@ -95,6 +98,7 @@ export default async function MyProjectPage({ params }: PageProps) {
       </section>
 
       <SealedPanel projectId={params.id} files={sealedFiles} currentFileId={currentFileId} canExportSensitive={canExportSensitive} />
+      {changePanel ? <ChangeRequestPanel projectId={params.id} data={changePanel} /> : null}
       <DatasetExport scope="mine" buttonLabel="导出我的数据表" />
       <Link href="/my" className="inline-block text-sm text-blue-600 hover:underline">返回我的项目</Link>
     </div>

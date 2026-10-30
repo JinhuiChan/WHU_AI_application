@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Pagination } from "@/components/data/pagination";
 import { DatasetExport } from "@/components/export/dataset-export";
@@ -57,6 +58,9 @@ export default async function ReviewPage({ searchParams }: PageProps) {
           <h1 className="text-xl font-semibold text-slate-900">报名审核</h1>
           <p className="mt-1 text-sm text-slate-500">学院审核通过后进入校级终审；红色行表示存在未确认指导关系。</p>
         </div>
+        <Link href="/review/changes" className="rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+          变更申请
+        </Link>
         <PackageDownload filters={values} />
       </div>
       <ReviewFilters options={options} values={values} />
