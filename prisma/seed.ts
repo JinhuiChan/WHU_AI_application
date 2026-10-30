@@ -454,6 +454,10 @@ async function main() {
   ];
   await prisma.dictOption.createMany({ data: dictionarySeeds });
 
+  // 按赛道挂载的组别/类别数量（3 个赛事 × 每赛事 35 条）
+  const trackDictionaryCount = await prisma.dictOption.count({ where: { NOT: { trackId: null } } });
+  expectCount("按赛道的组别/类别", trackDictionaryCount, 105);
+
   const firstProject = required(projects[0], "首个项目缺失");
   const secondProject = required(projects[1], "第二个项目缺失");
   await prisma.changeLog.create({
@@ -594,7 +598,7 @@ async function main() {
     TeamMember: 54, Teacher: 18, PayeeBank: 18, Work: 18, SealedFile: 18,
     Review: 23, ChangeLog: 1, ChangeRequest: 1, TimeWindow: 3, ImportBatch: 1,
     ExportRecord: 1, SensitiveAccessLog: 1, Award: 2, AwardHistory: 2,
-    DictOption: dictionarySeeds.length, FormTemplate: 3, AuditLog: 1, DataSource: 1,
+    DictOption: dictionarySeeds.length + trackDictionaryCount, FormTemplate: 3, AuditLog: 1, DataSource: 1,
     KbDocument: 1, KbChunk: 2, AwardRecord: 0, MemberSnapshot: 0, Anomaly: 0,
   };
   for (const [label, expectedCount] of Object.entries(expected)) {
