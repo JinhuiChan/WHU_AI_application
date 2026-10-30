@@ -59,6 +59,90 @@ export const importSystemFields = [
     required: false,
     aliases: ["奖金领款人", "领款人姓名"],
   },
+  {
+    key: "applicationUnit",
+    label: "申报单位",
+    required: false,
+    aliases: ["报送单位"],
+  },
+  {
+    key: "trainingUnit",
+    label: "培养单位",
+    required: false,
+    aliases: ["所属单位", "培养单位（全称）"],
+  },
+  {
+    key: "grade",
+    label: "年级",
+    required: false,
+    aliases: ["入学年级"],
+  },
+  {
+    key: "enrollmentYear",
+    label: "入学年份",
+    required: false,
+    aliases: ["入学年", "入学时间"],
+  },
+  {
+    key: "graduationYear",
+    label: "毕业年份",
+    required: false,
+    aliases: ["毕业年", "毕业时间"],
+  },
+  {
+    key: "educationStage",
+    label: "培养阶段",
+    required: false,
+    aliases: ["学历层次", "学历", "层次"],
+  },
+  {
+    key: "gender",
+    label: "性别",
+    required: false,
+    aliases: [],
+  },
+  {
+    key: "ethnicity",
+    label: "民族",
+    required: false,
+    aliases: ["民族（x族）"],
+  },
+  {
+    key: "phone",
+    label: "手机号",
+    required: false,
+    aliases: ["申报者手机号", "申请人手机号", "联系电话", "申报者电话"],
+  },
+  {
+    key: "email",
+    label: "邮箱",
+    required: false,
+    aliases: ["申报者邮箱", "邮箱地址", "电子邮箱"],
+  },
+  {
+    key: "workForm",
+    label: "作品形式",
+    required: false,
+    aliases: [],
+  },
+  {
+    key: "workCategory",
+    label: "作品类别",
+    required: false,
+    aliases: [],
+  },
+  {
+    key: "workGroup",
+    label: "作品组别",
+    required: false,
+    aliases: [],
+  },
+  {
+    key: "status",
+    label: "状态",
+    required: false,
+    aliases: ["审核状态", "当前状态"],
+  },
 ] as const;
 
 export type ImportSystemFieldKey = (typeof importSystemFields)[number]["key"];
