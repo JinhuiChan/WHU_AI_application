@@ -279,6 +279,17 @@ export async function submitProject(userId: string, input: ProjectFormInput, pro
       select: { kind: true, name: true },
     });
     if (!track) throw new ApplyError(422, "赛事与赛道不匹配");
+
+    // 报名窗口必须由服务端校验：前端隐藏按钮不算数，学生可手输 URL 绕过
+    const now = new Date();
+    const applyWindow = await transaction.timeWindow.findFirst({
+      where: { competitionId: input.competitionId, stage: "SCHOOL", enabled: true },
+      orderBy: { startAt: "desc" },
+    });
+    if (!applyWindow) throw new ApplyError(403, "该赛事尚未开放报名");
+    if (now < applyWindow.startAt) throw new ApplyError(403, "报名尚未开始");
+    if (now > applyWindow.endAt) throw new ApplyError(403, "报名已截止");
+
     validateSubmission(input, track);
     const id = await saveDraft(transaction, userId, input, projectId);
     const [previous, submissionCount] = await Promise.all([
