@@ -22,7 +22,8 @@ parts[3] = `${data.slice(0, middle)}${replacement}${data.slice(middle + 1)}`;
 assert.throws(() => decryptField(parts.join(":")), /密文解密失败/);
 console.log("[PASS] 用例三：篡改密文中间一段后解密按预期抛错");
 
-assert.equal(maskTail("6217001234567890"), "************7890");
-console.log("[PASS] 用例四：maskTail 输出 ************7890");
+// 使用明显无效的占位号码，避免仓库中出现形似真实银行卡的字符串
+assert.equal(maskTail("1111222233334444"), "************4444");
+console.log("[PASS] 用例四：maskTail 输出 ************4444");
 
 console.log("全部 4 项加密自测通过。");
