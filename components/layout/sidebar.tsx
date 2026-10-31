@@ -42,6 +42,7 @@ function navigationFor(role: Role) {
 const administration = [
   { href: "/review", label: "报名审核", icon: ClipboardCheck },
   { href: "/import", label: "数据导入", icon: Upload },
+  { href: "/admin/awards", label: "奖项录入", icon: Trophy },
   { href: "/admin/users", label: "用户管理", icon: Users },
   { href: "/admin/logs", label: "审计日志", icon: FileText },
 ];
