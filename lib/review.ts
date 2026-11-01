@@ -378,6 +378,21 @@ function nextStatus(level: ReviewLevel, result: ReviewResult): RegistrationStatu
   return level === "COLLEGE" ? "COLLEGE_REVIEW" : "SCHOOL_FINAL";
 }
 
+/** 审核通过的前置硬门槛：必须有指导老师，且全部已确认（CONFIRMED）。 */
+async function assertTeachersConfirmed(transaction: Prisma.TransactionClient, projectId: string) {
+  const teachers = await transaction.teacher.findMany({
+    where: { projectId },
+    select: { name: true, confirmStatus: true },
+  });
+  if (teachers.length === 0) {
+    throw new ReviewError(422, "该项目还没有指导老师，不能审核通过；请先添加指导老师并完成确认");
+  }
+  const pending = teachers.filter((teacher) => teacher.confirmStatus !== "CONFIRMED").map((teacher) => teacher.name);
+  if (pending.length > 0) {
+    throw new ReviewError(422, `指导老师尚未确认指导关系：${pending.join("、")}；请等待确认后再审核通过`);
+  }
+}
+
 export async function reviewProject(input: {
   projectId: string;
   level: ReviewLevel;
@@ -399,6 +414,8 @@ export async function reviewProject(input: {
     if (project.reviewStatus !== expected || project.status !== expected) {
       throw new ReviewError(422, invalidStateMessage(input.level, project.reviewStatus));
     }
+
+    if (input.result === "APPROVED") await assertTeachersConfirmed(transaction, project.id);
 
     const updated = await transaction.project.updateMany({
       where: { id: project.id, status: expected, reviewStatus: expected, deletedAt: null },

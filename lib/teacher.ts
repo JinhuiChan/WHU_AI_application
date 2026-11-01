@@ -95,9 +95,13 @@ export async function confirmTeacher(input: {
         { staffNo: null, name: me.name },
       ],
     },
-    select: { id: true, projectId: true, confirmStatus: true },
+    select: { id: true, projectId: true, confirmStatus: true, project: { select: { status: true, name: true } } },
   });
   if (!teacher) throw new TeacherError(404, "指导记录不存在或无权操作");
+
+  if (teacher.project.status === "REJECTED" || teacher.project.status === "WITHDRAWN") {
+    throw new TeacherError(409, `项目「${teacher.project.name}」已${teacher.project.status === "REJECTED" ? "被驳回" : "撤回"}，指导关系确认已冻结`);
+  }
 
   const now = new Date();
   const nextStatus = input.action === "confirm" ? "CONFIRMED" : "REJECTED";
