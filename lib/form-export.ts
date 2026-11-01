@@ -51,7 +51,6 @@ export async function createRegistrationForm(projectId: string, watermarkNo: str
   });
   if (!project) return null;
   const labels = await loadScopedLabels();
-  const label = (map: Record<string, string>, value: string | null | undefined) => value ? map[value] ?? value : "";
   const leader = project.teamMembers.find((member) => member.role === "LEADER") ?? project.teamMembers[0];
   const payee = project.payeeMember ?? project.teamMembers.find((member) => member.isPayee);
   const bank = payee?.payeeBank;
