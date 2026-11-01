@@ -1,22 +1,13 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ApplyForm } from "@/components/apply/apply-form";
-import type { ApplyOptions } from "@/components/apply/apply-form";
 import { getMyProject } from "@/lib/apply";
+import { buildApplyOptions } from "@/lib/apply-options";
 import { getActiveUser } from "@/lib/auth.server";
-import { listOptions } from "@/lib/dict";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = { title: "项目报名" };
 export const dynamic = "force-dynamic";
-
-type FlatTrack = { id: string; parentId: string | null; name: string; kind: string };
-
-function trackTree(tracks: FlatTrack[], parentId: string | null = null): ApplyOptions["competitions"][number]["tracks"] {
-  return tracks
-    .filter((track) => track.parentId === parentId)
-    .map((track) => ({ ...track, children: trackTree(tracks, track.id) }));
-}
 
 type PageProps = { searchParams?: { projectId?: string | string[]; competitionId?: string | string[] } };
 
@@ -31,7 +22,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
   const projectId = firstParam(searchParams?.projectId);
   const competitionId = firstParam(searchParams?.competitionId);
 
-  const [student, competitions, ethnicities, educationStages, workForms, groups, categories] = await Promise.all([
+  const [student, options] = await Promise.all([
     prisma.user.findFirst({
       where: { id: user.id, role: "STUDENT", deletedAt: null },
       select: {
@@ -51,45 +42,12 @@ export default async function ApplyPage({ searchParams }: PageProps) {
         boundFinancePlatform: true,
       },
     }),
-    prisma.competition.findMany({
-      where: competitionId ? { id: competitionId } : undefined,
-      select: {
-        id: true,
-        name: true,
-        year: true,
-        tracks: {
-          where: { enabled: true },
-          select: { id: true, parentId: true, name: true, kind: true },
-          orderBy: { sortOrder: "asc" },
-        },
-      },
-      orderBy: [{ year: "desc" }, { name: "asc" }],
-    }),
-    listOptions("ETHNICITY"),
-    listOptions("EDUCATION_STAGE"),
-    listOptions("WORK_FORM"),
-    listOptions("GROUP"),
-    listOptions("CATEGORY"),
+    // 与 /api/apply/options 共用同一实现：组别/类别只取「当前赛道」挂载的字典
+    buildApplyOptions(competitionId || undefined),
   ]);
   if (!student) redirect("/login");
   const existing = projectId ? await getMyProject(projectId, user.id) : null;
   if (projectId && !existing) redirect("/my");
-  const labels = (items: Array<{ value: string; label: string }>) => items.map(({ value, label }) => ({ value, label }));
-  const options: ApplyOptions = {
-    competitions: competitions.map((competition) => ({
-      id: competition.id,
-      name: competition.name,
-      year: competition.year,
-      tracks: trackTree(competition.tracks),
-    })),
-    dictionaries: {
-      ethnicities: labels(ethnicities),
-      educationStages: labels(educationStages),
-      workForms: labels(workForms),
-      groups: labels(groups),
-      categories: labels(categories),
-    },
-  };
 
   return (
     <div className="space-y-5">

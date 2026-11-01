@@ -1,7 +1,7 @@
-import { Prisma } from "@prisma/client";
+﻿import { Prisma } from "@prisma/client";
 import type { MemberInput, PayeeInput, ProjectFormInput, TeacherInput } from "@/types/apply";
 import { decryptField, encryptField, maskTail } from "@/lib/crypto";
-import { getLabelMap } from "@/lib/dict";
+import { globalLabel, loadScopedLabels, trackLabel } from "@/lib/dict-labels";
 import { prisma } from "@/lib/prisma";
 
 export class ApplyError extends Error {
@@ -412,14 +412,8 @@ export async function getMyProject(projectId: string, userId: string) {
     },
   });
   if (!project) return null;
-  const [educationStages, ethnicities, workForms, groups, categories] = await Promise.all([
-    getLabelMap("EDUCATION_STAGE"),
-    getLabelMap("ETHNICITY"),
-    getLabelMap("WORK_FORM"),
-    getLabelMap("GROUP"),
-    getLabelMap("CATEGORY"),
-  ]);
-  const label = (map: Record<string, string>, value: string | null) => value ? map[value] ?? value : "";
+  // 组别/类别必须按项目赛道解析：DictOption.value 跨赛道会重号（见 lib/dict-labels.ts）
+  const labels = await loadScopedLabels();
   const leader = project.teamMembers.find((member) => member.role === "LEADER") ?? project.teamMembers[0];
   if (!leader) return null;
   const memberInput = (member: (typeof project.teamMembers)[number]): MemberInput => ({
@@ -500,8 +494,8 @@ export async function getMyProject(projectId: string, userId: string) {
     const { payeeBank, ...rest } = member;
     return {
       ...rest,
-      educationStageLabel: label(educationStages, member.educationStage),
-      ethnicityLabel: label(ethnicities, member.ethnicity),
+      educationStageLabel: globalLabel(labels, "EDUCATION_STAGE", member.educationStage),
+      ethnicityLabel: globalLabel(labels, "ETHNICITY", member.ethnicity),
       payeeBank: bankView(payeeBank),
     };
   };
@@ -513,8 +507,8 @@ export async function getMyProject(projectId: string, userId: string) {
     stage: project.stage,
     competitionName: project.competition?.name ?? "未设置赛事",
     trackName: project.track?.name ?? "未设置赛道",
-    groupLabel: label(groups, project.groupName),
-    categoryLabel: label(categories, project.categoryName),
+    groupLabel: trackLabel(labels, "GROUP", project.groupName, project.trackId),
+    categoryLabel: trackLabel(labels, "CATEGORY", project.categoryName, project.trackId),
     applicationUnit: project.applicationUnit,
     trainingUnit: project.trainingUnit,
     propositionName: project.propositionName,
@@ -529,9 +523,9 @@ export async function getMyProject(projectId: string, userId: string) {
     teachers: project.teachers,
     work: project.work ? {
       ...project.work,
-      formLabel: label(workForms, project.work.form),
-      categoryLabel: label(categories, project.work.category),
-      groupLabel: label(groups, project.work.groupName),
+      formLabel: globalLabel(labels, "WORK_FORM", project.work.form),
+      categoryLabel: trackLabel(labels, "CATEGORY", project.work.category, project.trackId),
+      groupLabel: trackLabel(labels, "GROUP", project.work.groupName, project.trackId),
     } : null,
     formInput,
   };

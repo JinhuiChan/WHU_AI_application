@@ -2,6 +2,19 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-01 全流程测试修复（分支 `fix/2026-11-01-test-findings`）
+
+测试方式：清空演示数据 → 重建账号 → 按 DEMO 8 环节走查（界面 + 接口 + 数据库三方核对）。
+完整问题清单与方案见工作区 `测试问题与修复方案-2026-11-01.md`。
+
+### B1 字典链路（已完成，未动 schema）
+- 根因：`DictOption.value` 按赛道内序号生成（C1..Cn/G1..Gn），跨赛道重号；`listOptions` 不按 trackId 过滤；`getLabelMap` 用 `Object.fromEntries` 后写覆盖 → 组别/类别在详情、27 列、导出里随机张冠李戴。
+- 新增 `lib/dict-labels.ts`：`loadScopedLabels / trackLabel / globalLabel`，赛道级字段一律按项目 `trackId` 解析，查不到再回退全局。
+- 新增 `lib/apply-options.ts`：服务端首屏与 `/api/apply/options` 共用同一套赛道树构造，杜绝两份字典逻辑漂移；全局字典只返回 `trackId IS NULL` 的项。
+- 改造 `lib/review.ts`、`lib/apply.ts`、`lib/form-export.ts`、`app/(workspace)/apply/page.tsx`、`app/(workspace)/competitions/[id]/page.tsx` 的 label 解析与字典读取。
+- 复验：27 列/详情页/报名表导出均显示「本科生创意组 · 人工智能+」「公益组 · 现代农业」；报名选项按赛道下发；赛事主页按赛道展示组别/类别。
+- 结论：**不需要改写库里的 code**——按赛道解析即可消除错乱；后续 B2 在后台新建字典时再用全局唯一 code。
+
 ## 已完成阶段
 
 | 阶段 | 内容 | 提交 |

@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+﻿import { Prisma } from "@prisma/client";
 import type {
   ProjectStage,
   RegistrationStatus,
@@ -6,7 +6,8 @@ import type {
   ReviewResult,
 } from "@prisma/client";
 import { writeAuditLog } from "@/lib/audit";
-import { getLabelMap } from "@/lib/dict";
+import { globalLabel, loadScopedLabels, trackLabel } from "@/lib/dict-labels";
+import type { ScopedLabels } from "@/lib/dict-labels";
 import { optionalText, pageParams } from "@/lib/list-query";
 import { registrationStatusLabels } from "@/lib/presentation";
 import { prisma } from "@/lib/prisma";
@@ -65,41 +66,25 @@ const reviewDetailInclude = {
 
 type ReviewListProject = Prisma.ProjectGetPayload<{ include: typeof reviewListInclude }>;
 
-type LabelMaps = {
-  educationStages: Record<string, string>;
-  ethnicities: Record<string, string>;
-  workForms: Record<string, string>;
-  groups: Record<string, string>;
-  categories: Record<string, string>;
-};
+type LabelMaps = ScopedLabels;
 
 async function loadLabelMaps(): Promise<LabelMaps> {
-  const [educationStages, ethnicities, workForms, groups, categories] = await Promise.all([
-    getLabelMap("EDUCATION_STAGE"),
-    getLabelMap("ETHNICITY"),
-    getLabelMap("WORK_FORM"),
-    getLabelMap("GROUP"),
-    getLabelMap("CATEGORY"),
-  ]);
-  return { educationStages, ethnicities, workForms, groups, categories };
-}
-
-function label(map: Record<string, string>, value: string | null | undefined) {
-  return value ? map[value] ?? value : "";
+  return loadScopedLabels();
 }
 
 function mapReviewListItem(project: ReviewListProject, labels: LabelMaps): ReviewListItem {
   const leader = project.teamMembers.find((member) => member.role === "LEADER") ?? project.teamMembers[0];
   const payee = project.payeeMember ?? project.teamMembers.find((member) => member.isPayee);
-  const groupName = label(labels.groups, project.groupName);
-  const categoryName = label(labels.categories, project.categoryName);
+  const groupName = trackLabel(labels, "GROUP", project.groupName, project.trackId);
+  const categoryName = trackLabel(labels, "CATEGORY", project.categoryName, project.trackId);
   const trackName = project.track?.name ?? "未设置赛道";
   const trackDisplay = [project.track?.name, groupName, categoryName].filter(Boolean).join(" / ") || trackName;
-  const educationStage = label(
-    labels.educationStages,
+  const educationStage = globalLabel(
+    labels,
+    "EDUCATION_STAGE",
     leader?.educationStage || project.owner?.educationStage,
   );
-  const ethnicity = label(labels.ethnicities, leader?.ethnicity || project.owner?.ethnicity);
+  const ethnicity = globalLabel(labels, "ETHNICITY", leader?.ethnicity || project.owner?.ethnicity);
   const applicantName = leader?.name ?? project.owner?.name ?? "";
 
   return {
@@ -127,9 +112,9 @@ function mapReviewListItem(project: ReviewListProject, labels: LabelMaps): Revie
     payeeName: payee?.name ?? "",
     projectName: project.name,
     workName: project.work?.fileName || project.work?.externalUrl || "",
-    workForm: label(labels.workForms, project.work?.form),
-    workCategory: label(labels.categories, project.work?.category),
-    workGroup: label(labels.groups, project.work?.groupName),
+    workForm: globalLabel(labels, "WORK_FORM", project.work?.form),
+    workCategory: trackLabel(labels, "CATEGORY", project.work?.category, project.trackId),
+    workGroup: trackLabel(labels, "GROUP", project.work?.groupName, project.trackId),
     applicantName,
     phone: leader?.phone || project.owner?.phone || "",
     email: leader?.email || project.owner?.email || "",
@@ -149,11 +134,11 @@ function mapReviewListItem(project: ReviewListProject, labels: LabelMaps): Revie
       member.isInternal ? "是" : "否",
       member.name,
       member.personNo ?? "",
-      label(labels.educationStages, member.educationStage),
+      globalLabel(labels, "EDUCATION_STAGE", member.educationStage),
       member.trainingUnit,
       member.major,
       member.gender,
-      label(labels.ethnicities, member.ethnicity),
+      globalLabel(labels, "ETHNICITY", member.ethnicity),
       member.phone ?? "",
       member.email ?? "",
     ].join(",")).join("\n"),
@@ -307,11 +292,11 @@ export async function getReviewDetail(projectId: string): Promise<ReviewDetail |
       name: member.name,
       role: member.role,
       school: member.school,
-      educationStage: label(labels.educationStages, member.educationStage),
+      educationStage: globalLabel(labels, "EDUCATION_STAGE", member.educationStage),
       trainingUnit: member.trainingUnit,
       major: member.major,
       gender: member.gender,
-      ethnicity: label(labels.ethnicities, member.ethnicity),
+      ethnicity: globalLabel(labels, "ETHNICITY", member.ethnicity),
       enrollmentYear: member.enrollmentYear,
       graduationYear: member.graduationYear,
       phone: member.phone,
@@ -322,9 +307,9 @@ export async function getReviewDetail(projectId: string): Promise<ReviewDetail |
       fileName: project.work.fileName,
       fileUrl: project.work.fileUrl,
       externalUrl: project.work.externalUrl,
-      form: label(labels.workForms, project.work.form),
-      category: label(labels.categories, project.work.category),
-      groupName: label(labels.groups, project.work.groupName),
+      form: globalLabel(labels, "WORK_FORM", project.work.form),
+      category: trackLabel(labels, "CATEGORY", project.work.category, project.trackId),
+      groupName: trackLabel(labels, "GROUP", project.work.groupName, project.trackId),
       pptFileName: project.work.pptFileName,
       pptFileUrl: project.work.pptFileUrl,
     } : null,
