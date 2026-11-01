@@ -6,6 +6,7 @@ import { useState } from "react";
 type FormState = {
   identity: "STUDENT" | "TEACHER" | "ADMIN";
   staffNo: string;
+  email: string;
   studentNo: string;
   name: string;
   phone: string;
@@ -16,6 +17,7 @@ type FormState = {
 const initialState: FormState = {
   identity: "STUDENT",
   staffNo: "",
+  email: "",
   studentNo: "",
   name: "",
   phone: "",
@@ -48,6 +50,7 @@ export default function RegisterPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           identity: form.identity,
+          email: form.email,
           staffNo: form.staffNo,
           studentNo: form.studentNo,
           name: form.name,
@@ -127,6 +130,18 @@ export default function RegisterPage() {
             value={form.name}
             onChange={(event) => update("name", event.target.value)}
             placeholder="与学籍一致"
+            required
+          />
+        </label>
+
+        <label className="block text-sm text-slate-700">
+          邮箱
+          <input
+            className={fieldClass}
+            type="email"
+            value={form.email}
+            onChange={(event) => update("email", event.target.value)}
+            placeholder="用于接收审核与通知，例如 xxx@whu.edu.cn"
             required
           />
         </label>

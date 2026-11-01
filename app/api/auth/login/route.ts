@@ -18,6 +18,8 @@ export async function POST(request: NextRequest) {
   }
   const phone = "phone" in body ? body.phone : undefined;
   const password = "password" in body ? body.password : undefined;
+  const identityInput = "identity" in body ? body.identity : undefined;
+  const identity = identityInput === "STUDENT" || identityInput === "TEACHER" || identityInput === "ADMIN" ? identityInput : null;
   if (typeof phone !== "string" || typeof password !== "string") {
     return apiError(422, "请输入手机号和密码");
   }
@@ -44,7 +46,12 @@ export async function POST(request: NextRequest) {
     }
 
     const roles = [...new Set([user.role, ...user.extraRoles.map((item) => item.role)])];
-    const token = await signSession({ id: user.id, phone: user.phone, name: user.name, role: user.role, roles });
+    // 登录时选择身份：必须是该账号真实拥有的身份，否则拒绝；选定身份即主角色
+    if (identity && !roles.includes(identity)) {
+      return apiError(403, `该账号没有「${identity === "ADMIN" ? "管理员" : identity === "TEACHER" ? "指导老师" : "学生"}」身份，请选择正确的身份`);
+    }
+    const primaryRole = identity ?? user.role;
+    const token = await signSession({ id: user.id, phone: user.phone, name: user.name, role: primaryRole, roles });
     await writeAuditLog({
       actorId: user.id,
       action: "LOGIN",
@@ -53,7 +60,7 @@ export async function POST(request: NextRequest) {
       detail: { method: "手机号密码登录" },
     });
     const response = apiSuccess(
-      { user: { id: user.id, phone: user.phone, name: user.name, role: user.role, roles } },
+      { user: { id: user.id, phone: user.phone, name: user.name, role: primaryRole, roles } },
       "登录成功",
     );
     response.cookies.set(SESSION_COOKIE, token, {

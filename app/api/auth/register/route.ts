@@ -32,6 +32,7 @@ export async function POST(request: NextRequest) {
   const identityRaw = readString(payload, "identity");
   const identity = identityRaw || "STUDENT";
   const staffNo = readString(payload, "staffNo");
+  const email = readString(payload, "email");
   if (!["STUDENT", "TEACHER", "ADMIN"].includes(identity)) return apiError(422, "身份类型不正确");
 
   if (identity === "STUDENT" && !STUDENT_NO_PATTERN.test(studentNo)) {
@@ -42,6 +43,9 @@ export async function POST(request: NextRequest) {
   }
   if (name.length < 2 || name.length > 20) {
     return apiError(422, "姓名应为 2–20 个字符");
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return apiError(422, "请填写正确的邮箱");
   }
   if (!PHONE_PATTERN.test(phone)) {
     return apiError(422, "请输入正确的手机号");
@@ -75,6 +79,7 @@ export async function POST(request: NextRequest) {
           passwordHash,
           role: identity as "STUDENT" | "TEACHER" | "ADMIN",
           staffNo: identity === "TEACHER" ? staffNo : null,
+          email,
           approvalStatus: identity === "ADMIN" ? "PENDING" : "APPROVED",
           college: readString(payload, "college") || null,
           trainingUnit: readString(payload, "trainingUnit") || null,
