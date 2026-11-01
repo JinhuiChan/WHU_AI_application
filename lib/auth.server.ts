@@ -13,15 +13,36 @@ export async function getSessionUser() {
   return verifySession(token);
 }
 
+function mergeRoles(primary: Role, extra: Role[]): Role[] {
+  return [...new Set<Role>([primary, ...extra])];
+}
+
 export async function getActiveUser(): Promise<AuthUser | null> {
   const session = await getSessionUser();
   if (!session) {
     return null;
   }
-  return prisma.user.findFirst({
+  const user = await prisma.user.findFirst({
     where: { id: session.sub, deletedAt: null },
-    select: { id: true, phone: true, name: true, role: true },
+    select: {
+      id: true,
+      phone: true,
+      name: true,
+      role: true,
+      approvalStatus: true,
+      extraRoles: { select: { role: true } },
+    },
   });
+  if (!user) return null;
+  // 未通过审核的账号（管理员注册默认 PENDING）不建立可用会话
+  if (user.approvalStatus !== "APPROVED") return null;
+  return {
+    id: user.id,
+    phone: user.phone,
+    name: user.name,
+    role: user.role,
+    roles: mergeRoles(user.role, user.extraRoles.map((item) => item.role)),
+  };
 }
 
 type ApiUserResult =
@@ -39,18 +60,18 @@ export async function requireApiUser(): Promise<ApiUserResult> {
 export async function requireApiAdmin(): Promise<ApiUserResult> {
   const authorization = await requireApiUser();
   if (!authorization.ok) return authorization;
-  if (authorization.user.role !== "ADMIN") {
+  if (!authorization.user.roles.includes("ADMIN")) {
     return { ok: false, response: apiError(403, "无权限执行此操作") };
   }
   return authorization;
 }
 
-/** 允许的角色白名单，ADMIN 始终放行 */
+/** 允许的角色白名单（角色集合判断），ADMIN 始终放行 */
 export async function requireApiRoles(roles: Role[]): Promise<ApiUserResult> {
   const authorization = await requireApiUser();
   if (!authorization.ok) return authorization;
-  const { role } = authorization.user;
-  if (role !== "ADMIN" && !roles.includes(role)) {
+  const set = authorization.user.roles;
+  if (!set.includes("ADMIN") && !roles.some((role) => set.includes(role))) {
     return { ok: false, response: apiError(403, "无权限执行此操作") };
   }
   return authorization;

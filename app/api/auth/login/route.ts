@@ -29,12 +29,22 @@ export async function POST(request: NextRequest) {
   try {
     const user = await prisma.user.findFirst({
       where: { phone: normalizedPhone, deletedAt: null },
+      include: { extraRoles: { select: { role: true } } },
     });
     if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
       return apiError(401, "手机号或密码错误");
     }
 
-    const token = await signSession(user);
+    // 管理员注册默认 PENDING，必须先由管理员审核通过才能登录
+    if (user.approvalStatus === "PENDING") {
+      return apiError(403, "账号待管理员审核，审核通过后才能登录");
+    }
+    if (user.approvalStatus === "REJECTED") {
+      return apiError(403, "账号注册申请未通过审核，请联系管理员");
+    }
+
+    const roles = [...new Set([user.role, ...user.extraRoles.map((item) => item.role)])];
+    const token = await signSession({ id: user.id, phone: user.phone, name: user.name, role: user.role, roles });
     await writeAuditLog({
       actorId: user.id,
       action: "LOGIN",
@@ -43,7 +53,7 @@ export async function POST(request: NextRequest) {
       detail: { method: "手机号密码登录" },
     });
     const response = apiSuccess(
-      { user: { id: user.id, phone: user.phone, name: user.name, role: user.role } },
+      { user: { id: user.id, phone: user.phone, name: user.name, role: user.role, roles } },
       "登录成功",
     );
     response.cookies.set(SESSION_COOKIE, token, {
