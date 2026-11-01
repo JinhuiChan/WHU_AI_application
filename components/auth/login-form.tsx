@@ -17,12 +17,6 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function fillAccount(account: string) {
-    setPhone(account);
-    setPassword("123456");
-    setError("");
-  }
-
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
@@ -104,15 +98,6 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
         </button>
       </form>
 
-      <div className="mt-6 rounded-lg bg-slate-50 p-4 text-xs leading-6 text-slate-600">
-        <p className="font-medium text-slate-700">测试账号（密码均为 123456）</p>
-        <button type="button" onClick={() => fillAccount("13800000001")} className="block text-left hover:text-blue-600">
-          管理员：13800000001
-        </button>
-        <button type="button" onClick={() => fillAccount("13800000002")} className="block text-left hover:text-blue-600">
-          普通用户：13800000002
-        </button>
-      </div>
     </div>
   );
 }
