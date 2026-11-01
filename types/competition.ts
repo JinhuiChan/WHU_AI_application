@@ -4,7 +4,16 @@ import type {
   CompetitionLevel,
   DataSourceType,
   EvidenceType,
+  RegistrationStatus,
 } from "@prisma/client";
+
+export type CompetitionRegistration = {
+  windowStartAt: string | null;
+  windowEndAt: string | null;
+  windowOpen: boolean;
+  projectId: string | null;
+  projectStatus: RegistrationStatus | null;
+};
 
 export type CompetitionListItem = {
   id: string;
@@ -14,6 +23,7 @@ export type CompetitionListItem = {
   year: number;
   organizer: string | null;
   createdAt: string;
+  registration?: CompetitionRegistration;
 };
 
 export type AwardSource = {

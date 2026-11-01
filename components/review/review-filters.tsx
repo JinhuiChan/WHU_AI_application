@@ -29,6 +29,7 @@ export type ReviewFilterValues = {
   trackId: string;
   q: string;
   pageSize: string;
+  tab: string;
 };
 
 export function ReviewFilters({ options, values }: { options: ReviewFilterOptions; values: ReviewFilterValues }) {
@@ -36,6 +37,7 @@ export function ReviewFilters({ options, values }: { options: ReviewFilterOption
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
       <form action="/review" method="get" className="flex flex-wrap items-end gap-3">
+        {values.tab ? <input type="hidden" name="tab" value={values.tab} /> : null}
         <label className="text-xs text-slate-500">
           <span className="mb-1 block">赛事</span>
           <select name="competitionId" defaultValue={values.competitionId} className="h-10 min-w-48 rounded-md border border-slate-300 bg-white px-3 text-sm">

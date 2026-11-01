@@ -6,9 +6,18 @@ import { Pagination } from "@/components/data/pagination";
 import { getActiveUser } from "@/lib/auth.server";
 import { getCompetitionPage, listCompetitionYears } from "@/lib/competitions";
 import { firstParam, optionalCompetitionLevel, optionalText, optionalYear, pageParams } from "@/lib/list-query";
-import { competitionLevelLabels } from "@/lib/presentation";
+import { competitionLevelLabels, formatDateTime, registrationStatusLabels } from "@/lib/presentation";
 
 export const metadata: Metadata = { title: "赛事" };
+
+function registrationTone(status: string) {
+  if (status === "REJECTED") return "bg-red-50 text-red-700";
+  if (status === "DRAFT") return "bg-slate-100 text-slate-600";
+  if (status === "SCHOOL_FINAL" || status === "PROVINCE_ADVANCED" || status === "NATIONAL_ADVANCED") {
+    return "bg-emerald-50 text-emerald-700";
+  }
+  return "bg-amber-50 text-amber-700";
+}
 
 type PageProps = {
   searchParams?: Record<string, string | string[] | undefined>;
@@ -24,15 +33,19 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
   const rawPageSize = firstParam(searchParams?.pageSize);
   const { page, pageSize } = pageParams(firstParam(searchParams?.page), rawPageSize);
   const [data, years] = await Promise.all([
-    getCompetitionPage({
-      year: optionalYear(year),
-      level: optionalCompetitionLevel(level),
-      q: optionalText(q),
-      page,
-      pageSize,
-    }),
+    getCompetitionPage(
+      {
+        year: optionalYear(year),
+        level: optionalCompetitionLevel(level),
+        q: optionalText(q),
+        page,
+        pageSize,
+      },
+      { studentId: user.role === "STUDENT" ? user.id : undefined },
+    ),
     listCompetitionYears(),
   ]);
+  const isStudent = user.role === "STUDENT";
 
   return (
     <div className="space-y-5">
@@ -75,7 +88,7 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
           </label>
           <label className="min-w-52 flex-1 text-xs text-slate-500">
             <span className="mb-1 block">关键词</span>
-            <input name="q" type="search" defaultValue={q} placeholder="赛事名称、主办方或系列标识" className="h-10 w-full rounded-md border border-slate-300 px-3 text-sm outline-none focus:border-blue-600" />
+            <input name="q" type="search" defaultValue={q} placeholder={isStudent ? "赛事名称或主办方" : "赛事名称、主办方或系列标识"} className="h-10 w-full rounded-md border border-slate-300 px-3 text-sm outline-none focus:border-blue-600" />
           </label>
           <label className="text-xs text-slate-500">
             <span className="mb-1 block">每页条数</span>
@@ -96,8 +109,17 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
                 <th className="px-4 py-3 font-medium">赛年</th>
                 <th className="px-4 py-3 font-medium">赛事名称</th>
                 <th className="px-4 py-3 font-medium">等级</th>
-                <th className="px-4 py-3 font-medium">系列标识</th>
-                <th className="px-4 py-3 font-medium">主办方</th>
+                {isStudent ? (
+                  <>
+                    <th className="px-4 py-3 font-medium">报名截止</th>
+                    <th className="px-4 py-3 font-medium">我的报名</th>
+                  </>
+                ) : (
+                  <>
+                    <th className="px-4 py-3 font-medium">系列标识</th>
+                    <th className="px-4 py-3 font-medium">主办方</th>
+                  </>
+                )}
                 <th className="px-4 py-3 font-medium">操作</th>
               </tr>
             </thead>
@@ -111,9 +133,47 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
                   <td className="px-4 py-4">
                     <span className="rounded-full bg-blue-50 px-2 py-1 text-xs text-blue-700">{competitionLevelLabels[competition.level]}</span>
                   </td>
-                  <td className="px-4 py-4 text-xs text-slate-500">{competition.seriesId}</td>
-                  <td className="px-4 py-4">{competition.organizer ?? "—"}</td>
-                  <td className="px-4 py-4"><Link href={`/competitions/${competition.id}`} className="text-blue-600 hover:underline">查看详情</Link></td>
+                  {isStudent ? (
+                    <>
+                      <td className="px-4 py-4 text-xs text-slate-600">
+                        {competition.registration?.windowEndAt ? (
+                          <span className="flex flex-wrap items-center gap-2">
+                            {formatDateTime(competition.registration.windowEndAt)}
+                            {competition.registration.windowOpen ? (
+                              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] text-emerald-700">报名中</span>
+                            ) : (
+                              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] text-slate-500">已关闭</span>
+                            )}
+                          </span>
+                        ) : (
+                          <span className="text-slate-400">未设置报名窗口</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-4 text-xs">
+                        {competition.registration?.projectStatus ? (
+                          <span className={`rounded-full px-2 py-0.5 ${registrationTone(competition.registration.projectStatus)}`}>
+                            {registrationStatusLabels[competition.registration.projectStatus]}
+                          </span>
+                        ) : (
+                          <span className="text-slate-400">未报名</span>
+                        )}
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <td className="px-4 py-4 text-xs text-slate-500">{competition.seriesId}</td>
+                      <td className="px-4 py-4">{competition.organizer ?? "—"}</td>
+                    </>
+                  )}
+                  <td className="whitespace-nowrap px-4 py-4">
+                    <Link href={`/competitions/${competition.id}`} className="text-blue-600 hover:underline">查看详情</Link>
+                    {isStudent && competition.registration?.windowOpen && !competition.registration.projectId ? (
+                      <Link href={`/apply?competitionId=${competition.id}`} className="ml-3 text-blue-600 hover:underline">立即报名</Link>
+                    ) : null}
+                    {isStudent && competition.registration?.projectStatus ? (
+                      <Link href="/my" className="ml-3 text-slate-500 hover:underline">我的项目</Link>
+                    ) : null}
+                  </td>
                 </tr>
               ))}
               {data.list.length === 0 ? (

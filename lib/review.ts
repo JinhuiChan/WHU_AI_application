@@ -1,4 +1,4 @@
-﻿import { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import type {
   ProjectStage,
   RegistrationStatus,
@@ -19,6 +19,7 @@ import type {
   ReviewListItem,
   ReviewListPage,
   ReviewOperationResult,
+  ReviewTab,
 } from "@/types/review";
 
 const reviewListInclude = {
@@ -161,6 +162,8 @@ export function parseReviewQuery(params: URLSearchParams): ReviewFilters {
   const { page, pageSize } = pageParams(params.get("page") ?? undefined, params.get("pageSize") ?? undefined);
   const stage = params.get("stage");
   const status = params.get("status");
+  const tab = params.get("tab");
+  const parsedTab: ReviewTab | undefined = tab === "pending" || tab === "reviewed" || tab === "all" ? tab : undefined;
   return {
     competitionId: optionalText(params.get("competitionId") ?? undefined),
     stage: isProjectStage(stage) ? stage : undefined,
@@ -168,9 +171,37 @@ export function parseReviewQuery(params: URLSearchParams): ReviewFilters {
     status: isRegistrationStatus(status) ? status : undefined,
     trackId: optionalText(params.get("trackId") ?? undefined),
     q: optionalText(params.get("q") ?? undefined),
+    tab: parsedTab,
     page,
     pageSize,
   };
+}
+
+const pendingStatuses: RegistrationStatus[] = ["PENDING", "COLLEGE_REVIEW"];
+const reviewedStatuses: RegistrationStatus[] = [
+  "SCHOOL_FINAL",
+  "REJECTED",
+  "PROVINCE_ADVANCED",
+  "NATIONAL_ADVANCED",
+  "WITHDRAWN",
+];
+
+export async function getReviewTabCounts() {
+  const groups = await prisma.project.groupBy({
+    by: ["reviewStatus"],
+    where: { deletedAt: null },
+    _count: { _all: true },
+  });
+  let pending = 0;
+  let reviewed = 0;
+  let total = 0;
+  for (const group of groups) {
+    const count = group._count._all;
+    total += count;
+    if (pendingStatuses.includes(group.reviewStatus)) pending += count;
+    else if (reviewedStatuses.includes(group.reviewStatus)) reviewed += count;
+  }
+  return { pending, reviewed, total };
 }
 
 export function buildReviewWhere(filters: Partial<ReviewFilters>): Prisma.ProjectWhereInput {
@@ -179,6 +210,8 @@ export function buildReviewWhere(filters: Partial<ReviewFilters>): Prisma.Projec
   if (filters.stage) where.stage = filters.stage;
   if (filters.college) where.college = filters.college;
   if (filters.status) where.reviewStatus = filters.status;
+  else if (filters.tab === "pending") where.reviewStatus = { in: pendingStatuses };
+  else if (filters.tab === "reviewed") where.reviewStatus = { in: reviewedStatuses };
   if (filters.trackId) where.trackId = filters.trackId;
   if (filters.q) {
     where.OR = [
