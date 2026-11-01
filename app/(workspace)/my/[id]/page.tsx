@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { DatasetExport } from "@/components/export/dataset-export";
+import { BreadcrumbTitle } from "@/components/layout/breadcrumbs";
 import { ChangeRequestPanel } from "@/components/change/change-request-panel";
 import { SealedPanel } from "@/components/sealed/sealed-panel";
 import { getMyProject } from "@/lib/apply";
@@ -33,6 +34,7 @@ export default async function MyProjectPage({ params }: PageProps) {
 
   return (
     <div className="space-y-5">
+      <BreadcrumbTitle label={project.name} />
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div><h1 className="text-xl font-semibold text-slate-900">{project.name}</h1><p className="mt-1 text-sm text-slate-500">{project.competitionName} / {project.trackName}</p></div>
         <div className="flex items-center gap-3">

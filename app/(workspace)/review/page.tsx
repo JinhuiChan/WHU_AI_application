@@ -8,6 +8,7 @@ import { ReviewFilters } from "@/components/review/review-filters";
 import type { ReviewFilterValues } from "@/components/review/review-filters";
 import { ReviewWorkbench } from "@/components/review/review-workbench";
 import { getActiveUser } from "@/lib/auth.server";
+import { countPendingChangeRequests } from "@/lib/change";
 import { firstParam } from "@/lib/list-query";
 import { getReviewList, getReviewTabCounts, listReviewFilterOptions, parseReviewQuery } from "@/lib/review";
 import type { ReviewTab } from "@/types/review";
@@ -49,10 +50,11 @@ export default async function ReviewPage({ searchParams }: PageProps) {
   }
   const page = firstParam(searchParams?.page);
   if (page) params.set("page", page);
-  const [data, options, tabCounts] = await Promise.all([
+  const [data, options, tabCounts, pendingChanges] = await Promise.all([
     getReviewList(parseReviewQuery(params)),
     listReviewFilterOptions(),
     getReviewTabCounts(),
+    countPendingChangeRequests(),
   ]);
   values.pageSize = String(data.pageSize);
 
@@ -83,6 +85,11 @@ export default async function ReviewPage({ searchParams }: PageProps) {
         </div>
         <Link href="/review/changes" className="rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
           变更申请
+          {pendingChanges > 0 ? (
+            <span className="ml-2 rounded-full bg-red-600 px-2 py-0.5 text-xs font-medium text-white" title={`待审批变更申请 ${pendingChanges} 条`}>
+              {pendingChanges}
+            </span>
+          ) : null}
         </Link>
         <PackageDownload filters={exportFilters} />
       </div>

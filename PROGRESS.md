@@ -47,8 +47,12 @@
   - 学生 `/competitions` 表头改「报名截止 / 我的报名」，去系列标识列；截止取 SCHOOL 窗口（与 `submitProject` 口径一致，`startAt` 最新），补报名中/已关闭与状态徽标、立即报名/我的项目入口；管理员表不变。
   - `/review` 顶部 tab「待审核 N / 已审核 / 全部」，默认待审核；待审核=PENDING+COLLEGE_REVIEW，已审核=SCHOOL_FINAL/REJECTED/PROVINCE_ADVANCED/NATIONAL_ADVANCED/WITHDRAWN（DRAFT 只计入全部）；tab 计数为全局值。
   - 口径决定：**导出/打包不受 tab 影响**（tab 仅列表视图），否则默认待审核时导出会 422 无项目。
-- ⬜ 待做：变更申请红点、详情页面包屑、导出「提交时间」格式化、打包失败清单、
-  B6（SensitiveAccessLog 落库 / 导出二次确认 / 领款人开关口径）
+- ✅ B5-A2（`fix(ui): B5-A2`）：
+  - 变更申请待办：`lib/pending.ts` 并发统计「待审核项目 + 待审批变更」；侧栏「报名审核」右侧红底数字（仅 ADMIN 查库）；`/review` 的「变更申请」按钮带角标；`/review/changes` 默认「待审批」，状态下拉加「待审批（学院/校级）/全部状态」，翻页保留状态。
+  - 面包屑：路由表补 `/my`、`/apply`、`/teacher`、`/review`、`/review/changes`、`/admin/awards`；详情页统一「首页 > 栏目 > 真实名称」，由页面挂 `<BreadcrumbTitle label={名称}/>`（客户端共享状态，卸载即清空，不引入 Provider）。
+  - 时间格式：报名表 xlsx 与数据表「提交时间」统一走 `formatDateTime`（水印里的 ISO 保留作溯源）；数据表「导出信息」页导出时间同样格式化。
+  - 打包：zip 内附 `跳过的项目.txt`（UTF-8 BOM + CRLF，逐条「项目名（学院）：未上传最终版盖章件」）；`X-Skipped-Count` 与 ExportRecord 新增 `skippedNames`。
+- ⬜ 待做：B6（SensitiveAccessLog 落库 / 导出敏感字段二次确认 / 领款人开关口径）
 
 ## 已完成阶段
 

@@ -4,7 +4,7 @@ import type { AuthUser } from "@/lib/auth";
 import { decryptField, maskTail } from "@/lib/crypto";
 import { datasetFieldMap } from "@/lib/export-fields";
 import type { DatasetFieldKey } from "@/lib/export-fields";
-import { registrationStatusLabels } from "@/lib/presentation";
+import { registrationStatusLabels, formatDateTime } from "@/lib/presentation";
 import { prisma } from "@/lib/prisma";
 import { listReviewItemsForExport } from "@/lib/review";
 import type { ReviewFilters, ReviewListItem } from "@/types/review";
@@ -32,6 +32,7 @@ function sensitiveValue(value: string | null | undefined, full: boolean) {
 
 function standardValue(item: ReviewListItem, field: Exclude<DatasetFieldKey, "idCard" | "bankCard">) {
   if (field === "status") return registrationStatusLabels[item.status];
+  if (field === "submittedAt") return item.submittedAt ? formatDateTime(item.submittedAt) : "";
   return item[field] ?? "";
 }
 
@@ -91,7 +92,7 @@ export async function createDatasetExport(query: DatasetExportQuery, user: AuthU
   const infoRows: (string | number)[][] = [
     ["导出编号", watermarkNo],
     ["导出人", user.name],
-    ["导出时间", exportedAt.toISOString()],
+    ["导出时间", formatDateTime(exportedAt.toISOString())],
     ["数据范围", query.scope === "all" ? "全校" : "本人参与项目"],
     ["数据行数", rows.length],
     ["敏感字段", includeSensitive ? "完整（已二次确认）" : "脱敏"],

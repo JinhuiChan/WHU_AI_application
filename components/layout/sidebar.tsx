@@ -52,9 +52,11 @@ const administration = [
   { href: "/admin/logs", label: "审计日志", icon: FileText },
 ];
 
-export function Sidebar({ roles }: { roles: Role[] }) {
+export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: number; changes: number } }) {
   const pathname = usePathname();
   const navigation = navigationFor(roles);
+  const pendingTodo = badges ? badges.review + badges.changes : 0;
+  const pendingTitle = badges ? `待审核项目 ${badges.review} 个 · 待审批变更 ${badges.changes} 条` : undefined;
   const mobileNavigation = [
     ...navigation.slice(0, 4),
     ...(roles.includes("ADMIN") ? [{ href: "/admin/users", label: "管理", icon: Settings }] : []),
@@ -109,6 +111,14 @@ export function Sidebar({ roles }: { roles: Role[] }) {
                   >
                     <Icon size={18} aria-hidden="true" />
                     {item.label}
+                    {item.href === "/review" && pendingTodo > 0 ? (
+                      <span
+                        title={pendingTitle}
+                        className="ml-auto rounded-full bg-red-600 px-1.5 text-[10px] font-medium leading-4 text-white"
+                      >
+                        {pendingTodo}
+                      </span>
+                    ) : null}
                   </Link>
                 );
               })}

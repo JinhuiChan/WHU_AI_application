@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { CompetitionManagement } from "@/components/admin/competition-management";
 import { TrackEditor } from "@/components/admin/track-editor";
+import { BreadcrumbTitle } from "@/components/layout/breadcrumbs";
 import { getActiveUser } from "@/lib/auth.server";
 import { getCompetitionDetail } from "@/lib/competitions";
 import { loadScopedLabels } from "@/lib/dict-labels";
@@ -64,6 +65,7 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
 
   return (
     <div className="space-y-5">
+      <BreadcrumbTitle label={competition.name} />
       <div>
         <Link href="/competitions" className="text-sm text-blue-600 hover:underline">返回赛事列表</Link>
         <div className="mt-3 flex flex-wrap items-center gap-3">

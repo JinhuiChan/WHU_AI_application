@@ -32,17 +32,18 @@ export async function POST(request: NextRequest) {
       filters: {
         ...Object.fromEntries(params),
         projectCount: prepared.projectCount,
-        skippedProjects: prepared.skippedProjects,
+        skippedProjects: prepared.skipped.length,
+        skippedNames: prepared.skipped.map((item) => item.projectName),
         totalBytes: prepared.totalBytes,
       },
     });
-    return new NextResponse(createPackageStream(prepared.entries), {
+    return new NextResponse(createPackageStream(prepared.entries, prepared.skipped), {
       headers: {
         "Content-Type": "application/zip",
         "Content-Disposition": attachmentDisposition(fileName, "sealed-package.zip"),
         "Cache-Control": "no-store",
         "X-Packaged-Count": String(prepared.entries.length),
-        "X-Skipped-Count": String(prepared.skippedProjects),
+        "X-Skipped-Count": String(prepared.skipped.length),
       },
     });
   } catch (error) {

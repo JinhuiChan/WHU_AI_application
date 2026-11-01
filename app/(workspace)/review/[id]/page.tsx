@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { BreadcrumbTitle } from "@/components/layout/breadcrumbs";
 import { getActiveUser } from "@/lib/auth.server";
 import { formatDateTime, memberRoleLabels, registrationStatusLabels } from "@/lib/presentation";
 import { getReviewDetail } from "@/lib/review";
@@ -40,6 +41,7 @@ export default async function ReviewDetailPage({ params }: { params: { id: strin
 
   return (
     <div className="space-y-6">
+      <BreadcrumbTitle label={project.projectName} />
       <div>
         <Link href="/review" className="text-sm text-blue-600 hover:underline">返回审核列表</Link>
         <div className="mt-3 flex flex-wrap items-center gap-3">

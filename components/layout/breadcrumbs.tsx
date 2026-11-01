@@ -2,32 +2,74 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useSyncExternalStore } from "react";
 import { ChevronRight } from "lucide-react";
 
 const pageNames: Record<string, string> = {
   "/dashboard": "看板",
   "/competitions": "赛事",
   "/projects": "项目",
+  "/my": "我的项目",
+  "/apply": "报名表",
+  "/teacher": "指导项目",
+  "/review": "报名审核",
+  "/review/changes": "变更申请",
   "/import": "数据导入",
   "/anomalies": "异常核实",
   "/assistant": "AI 助手",
   "/check": "材料检查",
   "/rankings": "学院排行",
   "/admin/users": "用户管理",
+  "/admin/awards": "奖项录入",
   "/admin/logs": "审计日志",
 };
 
+const detailSections: { prefix: string; parent: { href: string; label: string }; current: string }[] = [
+  { prefix: "/competitions/", parent: { href: "/competitions", label: "赛事" }, current: "赛事详情" },
+  { prefix: "/projects/", parent: { href: "/projects", label: "项目" }, current: "项目全貌" },
+  { prefix: "/my/", parent: { href: "/my", label: "我的项目" }, current: "项目详情" },
+  { prefix: "/review/", parent: { href: "/review", label: "报名审核" }, current: "审核项目详情" },
+];
+
+// 详情页用真实名称覆盖「XX详情」：客户端共享状态，BreadcrumbTitle 挂载写入、卸载清空
+let detailTitle: string | null = null;
+const titleSubscribers = new Set<() => void>();
+
+function subscribeTitle(onChange: () => void) {
+  titleSubscribers.add(onChange);
+  return () => {
+    titleSubscribers.delete(onChange);
+  };
+}
+
+function getTitleSnapshot() {
+  return detailTitle;
+}
+
+function writeDetailTitle(value: string | null) {
+  if (detailTitle === value) return;
+  detailTitle = value;
+  for (const onChange of titleSubscribers) onChange();
+}
+
+export function BreadcrumbTitle({ label }: { label: string }) {
+  useEffect(() => {
+    writeDetailTitle(label);
+    return () => {
+      if (detailTitle === label) writeDetailTitle(null);
+    };
+  }, [label]);
+  return null;
+}
+
 export function Breadcrumbs() {
-  const pathname = usePathname();
-  const detail = pathname.startsWith("/competitions/")
-    ? { href: "/competitions", label: "赛事", current: "赛事详情" }
-    : pathname.startsWith("/projects/")
-      ? { href: "/projects", label: "项目", current: "项目全貌" }
-      : null;
-  const current = pageNames[pathname] ?? detail?.current ?? "页面详情";
+  const pathname = usePathname() ?? "";
+  const override = useSyncExternalStore(subscribeTitle, getTitleSnapshot, () => null);
+  const detail = detailSections.find((item) => pathname.startsWith(item.prefix));
+  const current = override ?? pageNames[pathname] ?? detail?.current ?? "页面详情";
   const parent: { label: string; href?: string } | null = pathname.startsWith("/admin")
     ? { label: "管理" }
-    : detail;
+    : detail?.parent ?? null;
 
   return (
     <nav aria-label="面包屑" className="min-w-0">
