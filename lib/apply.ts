@@ -487,9 +487,14 @@ export async function getMyProject(projectId: string, userId: string) {
     },
   };
   const now = new Date();
-  const canEdit = project.competition?.timeWindows.some((window) => (
+  // 只有负责人（第 1/2/3 负责人）在报名窗口内可编辑；普通成员只读
+  const writableRoles = ["LEADER", "SECOND_LEADER", "THIRD_LEADER"];
+  const myMembership = project.teamMembers.find((member) => member.userId === userId);
+  const canWrite = project.ownerId === userId || (myMembership ? writableRoles.includes(myMembership.role) : false);
+  const windowOpen = project.competition?.timeWindows.some((window) => (
     window.stage === project.stage && window.enabled && window.startAt <= now && window.endAt >= now
   )) ?? false;
+  const canEdit = canWrite && windowOpen;
   const memberView = (member: (typeof project.teamMembers)[number]) => {
     const { payeeBank, ...rest } = member;
     return {

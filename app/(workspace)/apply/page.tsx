@@ -45,6 +45,8 @@ export default async function ApplyPage({ searchParams }: PageProps) {
 
   const existing = projectId ? await getMyProject(projectId, user.id) : null;
   if (projectId && !existing) redirect("/my");
+  // 普通成员（非负责人）不能编辑，直接回我的项目
+  if (projectId && existing && !existing.canEdit) redirect("/my");
 
   // 报名必须在赛事内进行：优先用 URL 上的 competitionId，编辑时取项目所属赛事；
   // 两者都没有（例如直接访问 /apply）就回赛事列表，避免把所有赛事混在一个下拉里。
