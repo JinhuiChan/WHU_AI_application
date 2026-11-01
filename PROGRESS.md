@@ -15,6 +15,14 @@
 - 复验：27 列/详情页/报名表导出均显示「本科生创意组 · 人工智能+」「公益组 · 现代农业」；报名选项按赛道下发；赛事主页按赛道展示组别/类别。
 - 结论：**不需要改写库里的 code**——按赛道解析即可消除错乱；后续 B2 在后台新建字典时再用全局唯一 code。
 
+### B2 赛道可配置 + 报名入口/赛事隔离（已完成，未动 schema）
+- 新增 `lib/admin-tracks.ts`：赛道增删改查 + 组别/类别覆盖保存。
+  - 保存策略：已存在标签保留 `value`（历史项目不动）、新增标签分配下一个 `G/C` 序号、移除的标签只 `enabled=false`（不物理删）。
+  - 删除赛道：先删该赛道 DictOption（否则 `onDelete: SetNull` 会洗成全局字典）；有子赛道或有项目引用时返回 409。
+- 新增接口：`GET/POST /api/admin/competitions/[id]/tracks`、`PATCH/DELETE /api/admin/tracks/[id]`、`PUT /api/admin/tracks/[id]/options`，均写 AuditLog。
+- 新增 `components/admin/track-editor.tsx`，挂到赛事详情页「赛道与组别」（管理员可编辑，学生仍只读）。
+- P0-4：删除赛事列表页「我要报名」；`/apply` 必须带 `competitionId`（编辑时取项目所属赛事），否则 307 回 `/competitions`；`/api/apply/options` 支持 `?competitionId=`，客户端请求同步带参，避免锁死后被全量选项覆盖。
+
 ## 已完成阶段
 
 | 阶段 | 内容 | 提交 |

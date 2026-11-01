@@ -22,32 +22,36 @@ export default async function ApplyPage({ searchParams }: PageProps) {
   const projectId = firstParam(searchParams?.projectId);
   const competitionId = firstParam(searchParams?.competitionId);
 
-  const [student, options] = await Promise.all([
-    prisma.user.findFirst({
-      where: { id: user.id, role: "STUDENT", deletedAt: null },
-      select: {
-        studentNo: true,
-        name: true,
-        college: true,
-        trainingUnit: true,
-        major: true,
-        grade: true,
-        gender: true,
-        ethnicity: true,
-        educationStage: true,
-        enrollmentYear: true,
-        graduationYear: true,
-        phone: true,
-        email: true,
-        boundFinancePlatform: true,
-      },
-    }),
-    // 与 /api/apply/options 共用同一实现：组别/类别只取「当前赛道」挂载的字典
-    buildApplyOptions(competitionId || undefined),
-  ]);
+  const student = await prisma.user.findFirst({
+    where: { id: user.id, role: "STUDENT", deletedAt: null },
+    select: {
+      studentNo: true,
+      name: true,
+      college: true,
+      trainingUnit: true,
+      major: true,
+      grade: true,
+      gender: true,
+      ethnicity: true,
+      educationStage: true,
+      enrollmentYear: true,
+      graduationYear: true,
+      phone: true,
+      email: true,
+      boundFinancePlatform: true,
+    },
+  });
   if (!student) redirect("/login");
+
   const existing = projectId ? await getMyProject(projectId, user.id) : null;
   if (projectId && !existing) redirect("/my");
+
+  // 报名必须在赛事内进行：优先用 URL 上的 competitionId，编辑时取项目所属赛事；
+  // 两者都没有（例如直接访问 /apply）就回赛事列表，避免把所有赛事混在一个下拉里。
+  const lockedCompetitionId = competitionId || existing?.formInput.competitionId || "";
+  if (!lockedCompetitionId) redirect("/competitions");
+
+  const options = await buildApplyOptions(lockedCompetitionId);
 
   return (
     <div className="space-y-5">
@@ -60,7 +64,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
         options={options}
         projectId={projectId}
         initialValue={existing?.formInput}
-        lockedCompetitionId={competitionId}
+        lockedCompetitionId={lockedCompetitionId}
       />
     </div>
   );

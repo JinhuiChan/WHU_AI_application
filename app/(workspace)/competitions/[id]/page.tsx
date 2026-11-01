@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { CompetitionManagement } from "@/components/admin/competition-management";
+import { TrackEditor } from "@/components/admin/track-editor";
 import { getActiveUser } from "@/lib/auth.server";
 import { getCompetitionDetail } from "@/lib/competitions";
 import { loadScopedLabels } from "@/lib/dict-labels";
@@ -132,6 +133,9 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
 
       <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-sm font-semibold text-slate-900">赛道与组别</h2>
+        {user.role === "ADMIN" ? <TrackEditor competitionId={competition.id} /> : null}
+        {user.role === "ADMIN" ? null : (
+        <>
         {topTracks.length ? (
           <div className="space-y-3">
             {topTracks.map((track) => (
@@ -153,6 +157,8 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
           </div>
         ) : (
           <p className="text-sm text-slate-500">尚未配置赛道</p>
+        )}
+        </>
         )}
       </section>
 

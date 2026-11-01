@@ -184,14 +184,14 @@ export function ApplyForm({ student, options, projectId, initialValue, lockedCom
     let active = true;
     async function loadOptions() {
       try {
-        const response = await fetch("/api/apply/options", { method: "GET" });
+        const response = await fetch(lockedCompetitionId ? `/api/apply/options?competitionId=${encodeURIComponent(lockedCompetitionId)}` : "/api/apply/options", { method: "GET" });
         const result = await response.json() as { code: number; data: ApplyOptions };
         if (active && response.ok && result.code === 0) setResolvedOptions(result.data);
       } catch {}
     }
     void loadOptions();
     return () => { active = false; };
-  }, [options]);
+  }, [options, lockedCompetitionId]);
 
   function updateBasic(patch: Partial<ProjectFormInput>) {
     setForm((current) => ({ ...current, ...patch }));
