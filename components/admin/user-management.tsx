@@ -6,7 +6,7 @@ import type { Role } from "@prisma/client";
 import type { ApiResponse } from "@/types/api";
 import type { ManagedUser } from "@/types/user";
 
-type UserAction = { action: "APPROVE" } | { action: "UPDATE_ROLE"; role: Role };
+type UserAction = { action: "APPROVE" } | { action: "REJECT" } | { action: "UPDATE_ROLE"; role: Role; roles: Role[] };
 
 function roleDrafts(users: ManagedUser[]): Record<string, Role> {
   return Object.fromEntries(users.map((user) => [user.id, user.role] as const));
@@ -90,20 +90,23 @@ export function UserManagement({
                       disabled={pending || isCurrentUser}
                       onChange={(event) => {
                         const role = event.target.value;
-                        if (role === "ADMIN" || role === "USER") {
+                        if (role === "ADMIN" || role === "STUDENT" || role === "TEACHER" || role === "USER") {
                           setDraftRoles((current) => ({ ...current, [user.id]: role }));
                         }
                       }}
                       className="h-9 rounded-md border border-slate-300 bg-white px-2 text-xs disabled:bg-slate-100"
                     >
                       <option value="ADMIN">管理员</option>
+                      <option value="STUDENT">学生</option>
+                      <option value="TEACHER">指导教师</option>
                       <option value="USER">普通用户</option>
                     </select>
                   </td>
                   <td className="px-4 py-4">
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs ${user.approvedAt ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"}`}>
-                      {user.approvedAt ? "已审核" : "待审核"}
+                    <span className={`inline-flex rounded-full px-2 py-1 text-xs ${user.approvalStatus === "APPROVED" ? "bg-green-50 text-green-700" : user.approvalStatus === "REJECTED" ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-700"}`}>
+                      {user.approvalStatus === "APPROVED" ? "已审核" : user.approvalStatus === "REJECTED" ? "已驳回" : "待审核"}
                     </span>
+                    <div className="mt-1 text-xs text-slate-500">{user.roles.map((item) => (item === "ADMIN" ? "管理员" : item === "STUDENT" ? "学生" : item === "TEACHER" ? "指导教师" : "普通用户")).join(" + ")}</div>
                   </td>
                   <td className="px-4 py-4 text-xs text-slate-500">
                     {user.approvedBy ? <div>{user.approvedBy}</div> : "—"}
@@ -114,16 +117,24 @@ export function UserManagement({
                     <div className="flex gap-2">
                       <button
                         type="button"
-                        disabled={pending || Boolean(user.approvedAt)}
+                        disabled={pending || user.approvalStatus === "APPROVED"}
                         onClick={() => updateUser(user.id, { action: "APPROVE" })}
                         className="rounded-md border border-slate-300 px-3 py-2 text-xs hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        {user.approvedAt ? "已审核" : "审核通过"}
+                        {user.approvalStatus === "APPROVED" ? "已审核" : "审核通过"}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={pending || isCurrentUser || user.approvalStatus === "REJECTED"}
+                        onClick={() => updateUser(user.id, { action: "REJECT" })}
+                        className="rounded-md border border-red-200 px-3 py-2 text-xs text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        驳回
                       </button>
                       <button
                         type="button"
                         disabled={pending || isCurrentUser || draftRole === user.role}
-                        onClick={() => updateUser(user.id, { action: "UPDATE_ROLE", role: draftRole })}
+                        onClick={() => updateUser(user.id, { action: "UPDATE_ROLE", role: draftRole, roles: [...new Set<Role>([draftRole, ...user.roles])] })}
                         className="rounded-md bg-blue-600 px-3 py-2 text-xs text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {pending ? "处理中…" : "保存角色"}

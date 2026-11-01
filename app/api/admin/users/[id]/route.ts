@@ -45,7 +45,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
       await prisma.$transaction(async (transaction) => {
         await transaction.user.update({
           where: { id: target.id },
-          data: { approvalStatus: "APPROVED", approvedAt: new Date(), approvedBy: authorization.user.id },
+          data: { approvalStatus: "APPROVED", approvedAt: new Date(), approvedBy: authorization.user.name },
         });
         await writeAuditLog({
           actorId: authorization.user.id,
@@ -63,7 +63,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
       await prisma.$transaction(async (transaction) => {
         await transaction.user.update({
           where: { id: target.id },
-          data: { approvalStatus: "REJECTED", approvedAt: new Date(), approvedBy: authorization.user.id },
+          data: { approvalStatus: "REJECTED", approvedAt: new Date(), approvedBy: authorization.user.name },
         });
         await writeAuditLog({
           actorId: authorization.user.id,

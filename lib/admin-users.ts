@@ -4,12 +4,18 @@ import type { ManagedUser } from "@/types/user";
 export async function listManagedUsers(): Promise<ManagedUser[]> {
   const users = await prisma.user.findMany({
     where: { deletedAt: null },
-    orderBy: [{ createdAt: "asc" }, { phone: "asc" }],
+    // 待审核的排最前面，方便管理员先处理注册申请
+    orderBy: [{ approvalStatus: "asc" }, { createdAt: "asc" }],
+
     select: {
       id: true,
       phone: true,
       name: true,
       role: true,
+      approvalStatus: true,
+      approvedAt: true,
+      approvedBy: true,
+      extraRoles: { select: { role: true } },
       externalId: true,
       createdAt: true,
     },
@@ -39,8 +45,10 @@ export async function listManagedUsers(): Promise<ManagedUser[]> {
     return {
       ...user,
       createdAt: user.createdAt.toISOString(),
-      approvedAt: approval?.createdAt.toISOString() ?? null,
-      approvedBy: approval?.actor.name ?? null,
+      approvedAt: user.approvedAt?.toISOString() ?? approval?.createdAt.toISOString() ?? null,
+      approvedBy: user.approvedBy ?? approval?.actor.name ?? null,
+      approvalStatus: user.approvalStatus,
+      roles: [...new Set<import("@prisma/client").Role>([user.role, ...user.extraRoles.map((item) => item.role)])],
     };
   });
 }
