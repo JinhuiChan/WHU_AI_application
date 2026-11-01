@@ -6,6 +6,7 @@ import { datasetFieldMap } from "@/lib/export-fields";
 import type { DatasetFieldKey } from "@/lib/export-fields";
 import { registrationStatusLabels, formatDateTime } from "@/lib/presentation";
 import { prisma } from "@/lib/prisma";
+import { logSensitiveAccessMany } from "@/lib/sensitive-access";
 import { listReviewItemsForExport } from "@/lib/review";
 import type { ReviewFilters, ReviewListItem } from "@/types/review";
 
@@ -79,6 +80,21 @@ export async function createDatasetExport(query: DatasetExportQuery, user: AuthU
     }
     return standardValue(item, field);
   }));
+  if (includeSensitive) {
+    // 含完整敏感字段的数据表：按项目逐条留痕
+    await logSensitiveAccessMany(
+      items
+        .filter((item) => sensitiveByProject.has(item.id))
+        .map((item) => ({
+          userId: user.id,
+          projectId: item.id,
+          resourceType: "DATASET",
+          resourceId: watermarkNo,
+          fieldNames: ["idCard", "bankCard"],
+          reason: "导出数据表（含敏感字段）",
+        })),
+    );
+  }
   const worksheet = XLSX.utils.aoa_to_sheet([
     query.fields.map((field) => datasetFieldMap[field].label),
     ...rows,

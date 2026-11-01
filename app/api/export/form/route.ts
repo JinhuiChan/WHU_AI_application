@@ -5,6 +5,7 @@ import { attachmentDisposition } from "@/lib/download";
 import { newExportWatermarkNo, writeExportRecord } from "@/lib/export-record";
 import { createRegistrationForm, formExportFields } from "@/lib/form-export";
 import { canAccessProject, canExportFullForm } from "@/lib/sealed";
+import { logSensitiveAccess } from "@/lib/sensitive-access";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -39,6 +40,17 @@ export async function GET(request: NextRequest) {
       filters: { projectId, full },
       watermarkNo,
     });
+    if (full) {
+      // 完整件含身份证/银行卡号：逐次留痕
+      await logSensitiveAccess({
+        userId: authorization.user.id,
+        projectId,
+        resourceType: "REGISTRATION_FORM",
+        resourceId: watermarkNo,
+        fieldNames: ["idCard", "bankCard"],
+        reason: "导出完整报名表（交学院核验）",
+      });
+    }
     return new NextResponse(new Uint8Array(form.output), {
       headers: {
         "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

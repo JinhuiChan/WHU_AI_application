@@ -52,7 +52,11 @@
   - 面包屑：路由表补 `/my`、`/apply`、`/teacher`、`/review`、`/review/changes`、`/admin/awards`；详情页统一「首页 > 栏目 > 真实名称」，由页面挂 `<BreadcrumbTitle label={名称}/>`（客户端共享状态，卸载即清空，不引入 Provider）。
   - 时间格式：报名表 xlsx 与数据表「提交时间」统一走 `formatDateTime`（水印里的 ISO 保留作溯源）；数据表「导出信息」页导出时间同样格式化。
   - 打包：zip 内附 `跳过的项目.txt`（UTF-8 BOM + CRLF，逐条「项目名（学院）：未上传最终版盖章件」）；`X-Skipped-Count` 与 ExportRecord 新增 `skippedNames`。
-- ⬜ 待做：B6（SensitiveAccessLog 落库 / 导出敏感字段二次确认 / 领款人开关口径）
+- ✅ B6（`fix(security): B6`）：
+  - SensitiveAccessLog 落库（新增 `lib/sensitive-access.ts`）：完整报名表导出写 `REGISTRATION_FORM`（含导出编号、项目、`idCard,bankCard`、原因）；含敏感字段的数据表导出写 `DATASET`（按项目逐条、同一导出编号）。详情页/27 列目前只显示脱敏值，没有「查看完整证件」入口，故仅两条导出路径留痕。
+  - 完整报名表下载改为先弹黄色确认条（含完整身份证/银行卡号、带水印并留痕），确认后才请求 `/api/export/form?full=1`；数据表导出保留敏感字段二次确认勾选（不勾则脱敏）。
+  - 领款人口径（C 兜底）：全队都没勾选时**服务端默认负责人为领款人**（`resolvePayeeState`）；前端关闭最后一个开关时保持负责人勾选并提示；校验由「必须且只能 1 人」改为「最多 1 人 + 兜底」，草稿保存与提交同一口径。
+- ⬜ 未做（测试清单余项）：P1-7 老师检索带出职称、P1-8 培养/申报单位字典、P2-3 队长导完整件（PRD 允许，需拍板）、P2-7 作品/PPT 真实上传、P2-8 `/my/<id>` 首访 404 复验。
 
 ## 已完成阶段
 
