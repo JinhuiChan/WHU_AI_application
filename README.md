@@ -25,25 +25,36 @@
 
 ## 三、快速开始
 
+> 所有命令都在**仓库根目录**执行（`package.json`、`prisma/` 与 `app/` 同级）；`app/` 只是 Next.js 的源码目录，**不要 `cd app`**。
+
 ```powershell
-cd app
-npm install
-npm.cmd run db:generate     # 生成 Prisma 客户端
-npm.cmd run db:push         # 建表
-npm.cmd run db:seed         # 灌演示数据
-npm.cmd run dev             # http://localhost:3000
+# 1) 安装依赖（Windows 下必须用 npm.cmd / npx.cmd，PowerShell 执行策略会拦截 npm.ps1）
+npm.cmd install
+
+# 2) 首次启动：创建环境变量文件（已有 .env 则跳过；切勿覆盖，密钥变了会读不出已加密数据）
+Copy-Item .env.example .env
+#    .env 必须放在仓库根目录（不是 app/.env）：JWT_SECRET 改成足够长的随机串，
+#    FIELD_ENCRYPTION_KEY 必须是 64 位 hex（生成：node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"）。
+
+# 3) 初始化数据库：生成 Prisma 客户端 → 建表 → 灌演示数据
+npm.cmd run db:generate
+npm.cmd run db:push
+npx.cmd tsx --env-file=.env prisma/seed.ts   # 灌种子数据用这条；npm.cmd run db:seed 不会加载 .env，会报 DATABASE_URL 缺失
+
+# 4) 启动开发服务器
+npm.cmd run dev                              # 浏览器打开 http://localhost:3000
 ```
 
-> Windows 下用 `npm.cmd` / `npx.cmd`，避免 PowerShell 执行策略拦截 `npm.ps1`。
-> 首次启动前请确认 `app/.env` 存在，且包含 `DATABASE_URL`、`JWT_SECRET`、`FIELD_ENCRYPTION_KEY`（64 位 hex）。
+> 踩坑提示：`npm install` 写成不带 `.cmd` 的 `npm` 会报“禁止运行脚本”；缺少 `.env` 时 `db:push` 会报 `Environment variable not found: DATABASE_URL`。
+> 数据库文件为 `prisma/dev.db`，与 `.env` 一样已被 `.gitignore` 忽略，不入库。
 
 ## 四、测试账号
 
-| 角色 | 手机号 | 密码 | 说明 |
-|---|---|---|---|
-| 管理员 | 13800000001 | 123456 | 赛事管理、报名审核、变更审批、导出、看板 |
-| 学生（负责人） | 13800010001 | 123456 | 报名、我的项目、上传盖章件、发起变更 |
-| 指导教师 | 13800000201 | 123456 | 确认指导关系 |
+| 角色      | 手机号         | 密码     | 说明                   |
+| ------- | ----------- | ------ | -------------------- |
+| 管理员     | 13800000001 | 123456 | 赛事管理、报名审核、变更审批、导出、看板 |
+| 学生（负责人） | 13800010001 | 123456 | 报名、我的项目、上传盖章件、发起变更   |
+| 指导教师    | 13800000201 | 123456 | 确认指导关系               |
 
 学生也可在 `/register` 自助注册（学号 + 手机号）。
 
@@ -78,7 +89,7 @@ npm.cmd run dev             # http://localhost:3000
 清 `.next` 缓存后重启：`Remove-Item -Recurse -Force .next`。
 
 **Q：数据库想重置？**
-`npm.cmd run db:push --force-reset` 后 `npm.cmd run db:seed`（会清空所有数据）。
+先 `npm.cmd run db:push --force-reset`，再用 `npx.cmd tsx --env-file=.env prisma/seed.ts` 重灌演示数据（会清空所有数据）。
 
 **Q：端口被占用？**
 `npm.cmd run dev -- -p 3001`。
