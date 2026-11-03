@@ -30,20 +30,25 @@
 > 所有命令都在**仓库根目录**执行（`package.json`、`prisma/` 与 `app/` 同级）；`app/` 只是 Next.js 的源码目录，**不要 `cd app`**。
 
 ```powershell
-# 1) 安装依赖（Windows 下必须用 npm.cmd / npx.cmd，PowerShell 执行策略会拦截 npm.ps1）
-npm.cmd install
+# 1) 克隆并进入项目（package.json 在仓库根目录，不要再 cd app）
+git clone https://github.com/JinhuiChan/WHU_AI_application.git
+cd WHU_AI_application
 
-# 2) 一键初始化：缺 .env 自动复制、建表、空库自动灌演示数据（已有数据不会清库）
+# 2) 一键初始化：首次自动 npm install、生成 .env、生成 Prisma Client、建表、空库灌演示数据
 npm.cmd run setup
 
-# 3) 启动开发服务器（3000 被占用会自动用 3001，以终端输出为准）
+# 3) 启动开发服务器（浏览器打开终端提示的地址；3000 被占用会自动用 3001）
 npm.cmd run dev
 ```
 
-> `npm run setup` 需要 Node.js ≥ 20.6（内部用 tsx 加载 .env）；`.env` 生成在仓库根目录，`FIELD_ENCRYPTION_KEY` 一旦录入真实数据不可更换。
-> 手动初始化等价命令：`Copy-Item .env.example .env` → `npm.cmd run db:push` → `npm.cmd run db:seed`。
+> 需要 Node.js ≥ 20.6；`npm run setup` 可重复执行：`node_modules` 已存在就不重装，数据库有数据就不 seed（不会清库）。
+> 手动初始化等价命令：`Copy-Item .env.example .env` → `npm.cmd run db:generate` → `npm.cmd run db:push` → `npm.cmd run db:seed`。
 > 重置数据：`npm.cmd run db:push --force-reset` 后 `npm.cmd run db:seed`（会清空所有数据）。
 > 踩坑提示：Windows 下必须用 `npm.cmd` / `npx.cmd`；数据库文件 `prisma/dev.db` 与 `.env` 均已被 `.gitignore` 忽略，不入库。
+
+> **文件都在项目文件夹内，测完删整个文件夹即可**：
+> `node_modules/`（依赖）、`.env`（配置）、`prisma/dev.db`（测试数据库）、`.next/`（编译缓存）、`public/uploads/`（上传件）。
+> 删除步骤：`Ctrl+C` 停服务 → 关闭终端 → 删除 `WHU_AI_application` 整个文件夹；不影响其他项目。想再省点磁盘可加 `npm cache clean --force`。
 
 > **如果 clone 到的是还没有 `npm run setup` 的旧版本**（会报 `Missing script: "setup"`），先按下述等价命令初始化；之后 `git pull` 到最新版即可改用 `npm run setup`：
 >
