@@ -2,7 +2,7 @@
 
 > 面向校级赛事管理部门：把科创赛事的**报名、审核、变更、盖章归档、导出、统计**收在一个系统里，替代第二课堂的赛事报名环节。
 
-> **新同学先看**：[上手运行与账号清单](docs/上手运行与账号清单.md)（克隆 / 环境变量 / 建表 / 初始化 / 启动步骤 + 全部演示账号，密码统一 123456）。
+> **新同学先看**：[上手运行与账号清单](docs/上手运行与账号清单.md)（三步运行 / 演示账号 / 21 条测试示例）。
 
 ## 一、这个系统解决什么
 
@@ -27,24 +27,31 @@
 
 ## 三、快速开始
 
+> 所有命令都在**仓库根目录**执行（`package.json`、`prisma/` 与 `app/` 同级）；`app/` 只是 Next.js 的源码目录，**不要 `cd app`**。
+
 ```powershell
-git clone https://github.com/JinhuiChan/WHU_AI_application.git
-cd WHU_AI_application
-npm install
-npm run setup      # 自动生成 .env、建表；空库自动灌演示数据
-npm run dev        # http://localhost:3000
+# 1) 安装依赖（Windows 下必须用 npm.cmd / npx.cmd，PowerShell 执行策略会拦截 npm.ps1）
+npm.cmd install
+
+# 2) 一键初始化：缺 .env 自动复制、建表、空库自动灌演示数据（已有数据不会清库）
+npm.cmd run setup
+
+# 3) 启动开发服务器（3000 被占用会自动用 3001，以终端输出为准）
+npm.cmd run dev
 ```
 
-> 只需要 Node.js ≥ 20；`.env` 由 `npm run setup` 从 `.env.example` 自动生成（本地占位密钥，生产再换）。
-> Windows 下若 `npm` 被 PowerShell 执行策略拦截，改用 `npm.cmd`。
+> `npm run setup` 需要 Node.js ≥ 20.6（内部用 tsx 加载 .env）；`.env` 生成在仓库根目录，`FIELD_ENCRYPTION_KEY` 一旦录入真实数据不可更换。
+> 手动初始化等价命令：`Copy-Item .env.example .env` → `npm.cmd run db:push` → `npm.cmd run db:seed`。
+> 重置数据：`npm.cmd run db:push --force-reset` 后 `npm.cmd run db:seed`（会清空所有数据）。
+> 踩坑提示：Windows 下必须用 `npm.cmd` / `npx.cmd`；数据库文件 `prisma/dev.db` 与 `.env` 均已被 `.gitignore` 忽略，不入库。
 
 ## 四、测试账号
 
-| 角色 | 手机号 | 密码 | 说明 |
-|---|---|---|---|
-| 管理员 | 13800000001 | 123456 | 赛事管理、报名审核、变更审批、导出、看板 |
-| 学生（负责人） | 13800010001 | 123456 | 报名、我的项目、上传盖章件、发起变更 |
-| 指导教师 | 13800000201 | 123456 | 确认指导关系 |
+| 角色      | 手机号         | 密码     | 说明                   |
+| ------- | ----------- | ------ | -------------------- |
+| 管理员     | 13800000001 | 123456 | 赛事管理、报名审核、变更审批、导出、看板 |
+| 学生（负责人） | 13800010001 | 123456 | 报名、我的项目、上传盖章件、发起变更   |
+| 指导教师    | 13800000201 | 123456 | 确认指导关系               |
 
 学生也可在 `/register` 自助注册（学号 + 手机号）。
 
@@ -79,7 +86,7 @@ npm run dev        # http://localhost:3000
 清 `.next` 缓存后重启：`Remove-Item -Recurse -Force .next`。
 
 **Q：数据库想重置？**
-`npm.cmd run db:push --force-reset` 后 `npm.cmd run db:seed`（会清空所有数据）。
+先 `npm.cmd run db:push --force-reset`，再 `npm.cmd run db:seed` 重灌演示数据（会清空所有数据）。
 
 **Q：端口被占用？**
 `npm.cmd run dev -- -p 3001`。
