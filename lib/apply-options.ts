@@ -26,6 +26,8 @@ export type ApplyOptionPayload = {
     workForms: DictionaryItem[];
     groups: DictionaryItem[];
     categories: DictionaryItem[];
+    /** 培养单位 / 申报单位候选：全局字典 ∪ 现有档案与历史项目里的单位（去重保序） */
+    units: string[];
   };
 };
 
@@ -81,7 +83,19 @@ function trackTree(
 
 /** 只读选择：给定 competitionId 时只返回该赛事（报名入口锁定赛事用）。 */
 export async function buildApplyOptions(competitionId?: string): Promise<ApplyOptionPayload> {
-  const [competitions, ethnicities, educationStages, workForms, dictionaryOptions] = await Promise.all([
+  const [
+    competitions,
+    ethnicities,
+    educationStages,
+    workForms,
+    dictionaryOptions,
+    trainingUnits,
+    applicationUnits,
+    userColleges,
+    userTrainingUnits,
+    projectApplicationUnits,
+    projectTrainingUnits,
+  ] = await Promise.all([
     prisma.competition.findMany({
       where: competitionId ? { id: competitionId } : undefined,
       select: {
@@ -104,7 +118,21 @@ export async function buildApplyOptions(competitionId?: string): Promise<ApplyOp
       select: { type: true, trackId: true, value: true, label: true },
       orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
     }),
+    listOptions("TRAINING_UNIT", { trackId: null }),
+    listOptions("APPLICATION_UNIT", { trackId: null }),
+    prisma.user.groupBy({ by: ["college"], where: { deletedAt: null }, orderBy: { college: "asc" } }),
+    prisma.user.groupBy({ by: ["trainingUnit"], where: { deletedAt: null }, orderBy: { trainingUnit: "asc" } }),
+    prisma.project.groupBy({ by: ["applicationUnit"], where: { deletedAt: null }, orderBy: { applicationUnit: "asc" } }),
+    prisma.project.groupBy({ by: ["trainingUnit"], where: { deletedAt: null }, orderBy: { trainingUnit: "asc" } }),
   ]);
+  const units = [...new Set([
+    ...trainingUnits.map((item) => item.label),
+    ...applicationUnits.map((item) => item.label),
+    ...userColleges.map((item) => item.college),
+    ...userTrainingUnits.map((item) => item.trainingUnit),
+    ...projectApplicationUnits.map((item) => item.applicationUnit),
+    ...projectTrainingUnits.map((item) => item.trainingUnit),
+  ].map((item) => (item ?? "").trim()).filter(Boolean))];
   return {
     competitions: competitions.map((competition) => ({
       id: competition.id,
@@ -118,6 +146,7 @@ export async function buildApplyOptions(competitionId?: string): Promise<ApplyOp
       workForms: toItems(workForms),
       groups: globalOptions(dictionaryOptions, "GROUP", "TRACK_GROUP"),
       categories: globalOptions(dictionaryOptions, "CATEGORY", "TRACK_CATEGORY"),
+      units,
     },
   };
 }

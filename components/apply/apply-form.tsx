@@ -43,6 +43,7 @@ export type ApplyOptions = {
     workForms: DictionaryItem[];
     groups: DictionaryItem[];
     categories: DictionaryItem[];
+    units: string[];
   };
 };
 
