@@ -12,6 +12,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "setup": "node scripts/setup.mjs",
     "db:generate": "prisma generate",
     "db:push": "prisma db push --skip-generate",
     "db:seed": "tsx prisma/seed.ts"

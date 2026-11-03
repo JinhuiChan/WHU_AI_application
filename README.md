@@ -28,16 +28,15 @@
 ## 三、快速开始
 
 ```powershell
-cd app
+git clone https://github.com/JinhuiChan/WHU_AI_application.git
+cd WHU_AI_application
 npm install
-npm.cmd run db:generate     # 生成 Prisma 客户端
-npm.cmd run db:push         # 建表
-npm.cmd run db:seed         # 灌演示数据
-npm.cmd run dev             # http://localhost:3000
+npm run setup      # 自动生成 .env、建表；空库自动灌演示数据
+npm run dev        # http://localhost:3000
 ```
 
-> Windows 下用 `npm.cmd` / `npx.cmd`，避免 PowerShell 执行策略拦截 `npm.ps1`。
-> 首次启动前请确认 `app/.env` 存在，且包含 `DATABASE_URL`、`JWT_SECRET`、`FIELD_ENCRYPTION_KEY`（64 位 hex）。
+> 只需要 Node.js ≥ 20；`.env` 由 `npm run setup` 从 `.env.example` 自动生成（本地占位密钥，生产再换）。
+> Windows 下若 `npm` 被 PowerShell 执行策略拦截，改用 `npm.cmd`。
 
 ## 四、测试账号
 
