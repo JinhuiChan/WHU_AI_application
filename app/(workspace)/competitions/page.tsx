@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CompetitionCreate } from "@/components/admin/competition-create";
+import { CompetitionDeleteButton } from "@/components/admin/competition-delete-button";
 import { Pagination } from "@/components/data/pagination";
 import { getActiveUser } from "@/lib/auth.server";
 import { getCompetitionPage, listCompetitionYears } from "@/lib/competitions";
@@ -172,6 +173,11 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
                     ) : null}
                     {isStudent && competition.registration?.projectStatus ? (
                       <Link href="/my" className="ml-3 text-slate-500 hover:underline">我的项目</Link>
+                    ) : null}
+                    {user.role === "ADMIN" ? (
+                      <span className="ml-3 inline-block align-middle">
+                        <CompetitionDeleteButton competitionId={competition.id} competitionName={competition.name} label="删除" />
+                      </span>
                     ) : null}
                   </td>
                 </tr>

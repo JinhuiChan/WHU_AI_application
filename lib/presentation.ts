@@ -121,6 +121,7 @@ export const auditActionLabels: Record<string, string> = {
   USER_REJECTED: "驳回注册申请",
   COMPETITION_CREATED: "新建赛事",
   COMPETITION_UPDATED: "编辑赛事",
+  COMPETITION_DELETED: "删除赛事",
   COMPETITION_WINDOW_UPDATED: "修改报名窗口",
   COMPETITION_ATTACHMENT_UPLOADED: "上传赛事文件",
   COMPETITION_ATTACHMENT_DELETED: "删除赛事文件",

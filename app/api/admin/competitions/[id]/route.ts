@@ -7,6 +7,48 @@ import { prisma } from "@/lib/prisma";
 
 type Context = { params: { id: string } };
 
+export async function DELETE(_request: NextRequest, { params }: Context) {
+  const authorization = await requireApiAdmin();
+  if (!authorization.ok) return authorization.response;
+  try {
+    const competition = await prisma.competition.findUnique({
+      where: { id: params.id },
+      select: { id: true, name: true, year: true, _count: { select: { projects: true, awardRecords: true } } },
+    });
+    if (!competition) return apiError(404, "赛事不存在");
+    // 有项目/奖项的赛事不允许物理删除，避免项目被 SetNull 甩成无赛事孤儿
+    if (competition._count.projects > 0) {
+      return apiError(409, `该赛事已有 ${competition._count.projects} 个项目报名，不能删除`);
+    }
+    if (competition._count.awardRecords > 0) {
+      return apiError(409, "该赛事已有奖项记录，不能删除");
+    }
+    await prisma.$transaction(async (transaction) => {
+      const tracks = await transaction.track.findMany({ where: { competitionId: params.id }, select: { id: true } });
+      if (tracks.length) {
+        // 先删赛道级字典，否则 onDelete: SetNull 会把赛道字典洗成全局字典（同 B2 删除赛道的处置）
+        await transaction.dictOption.deleteMany({ where: { trackId: { in: tracks.map((track) => track.id) } } });
+      }
+      await transaction.competition.delete({ where: { id: params.id } });
+      await writeAuditLog({
+        actorId: authorization.user.id,
+        action: "COMPETITION_DELETED",
+        targetType: "Competition",
+        targetId: params.id,
+        detail: { name: competition.name, year: competition.year, tracks: tracks.length },
+      }, transaction);
+    });
+    return apiSuccess({ id: params.id }, "赛事已删除");
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") return apiError(404, "赛事不存在");
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2003") {
+      return apiError(409, "该赛事仍有关联数据（奖项/评审等），不能删除");
+    }
+    console.error("删除赛事失败：", error instanceof Error ? error.message : error);
+    return apiError(500, "删除赛事失败");
+  }
+}
+
 export async function PATCH(request: NextRequest, { params }: Context) {
   const authorization = await requireApiAdmin();
   if (!authorization.ok) return authorization.response;

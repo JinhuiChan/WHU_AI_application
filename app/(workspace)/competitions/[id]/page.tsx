@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { CompetitionDeleteButton } from "@/components/admin/competition-delete-button";
 import { CompetitionManagement } from "@/components/admin/competition-management";
 import { TrackEditor } from "@/components/admin/track-editor";
 import { BreadcrumbTitle } from "@/components/layout/breadcrumbs";
@@ -80,6 +81,16 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
           attachments={attachments}
           initialWindow={applyWindow ? { startAt: applyWindow.startAt.toISOString(), endAt: applyWindow.endAt.toISOString(), enabled: applyWindow.enabled } : null}
         />
+      ) : null}
+
+      {user.role === "ADMIN" ? (
+        <section className="rounded-lg border border-red-200 bg-white p-5 shadow-sm">
+          <h2 className="text-sm font-semibold text-red-700">危险操作</h2>
+          <p className="mt-1 text-xs text-slate-500">误建的赛事可在这里删除；已有项目报名或奖项记录的赛事不允许删除（接口会拦截）。</p>
+          <div className="mt-3">
+            <CompetitionDeleteButton competitionId={competition.id} competitionName={competition.name} redirectTo="/competitions" />
+          </div>
+        </section>
       ) : null}
 
       <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
