@@ -29,38 +29,43 @@
 
 > 所有命令都在**仓库根目录**执行（`package.json`、`prisma/` 与 `app/` 同级）；`app/` 只是 Next.js 的源码目录，**不要 `cd app`**。
 
-```powershell
-# 1) 克隆并进入项目（package.json 在仓库根目录，不要再 cd app）
-git clone https://github.com/JinhuiChan/WHU_AI_application.git
-cd WHU_AI_application
+### 第一次打开（初始化，整套只做一次）
 
-# 2) 一键初始化：首次自动 npm install、生成 .env、生成 Prisma Client、建表、空库灌演示数据
+```powershell
+# 1) 一键初始化：首次自动 npm install → 生成 .env → 生成 Prisma Client → 建表 → 空库灌演示数据
 npm.cmd run setup
 
-# 3) 启动开发服务器（浏览器打开终端提示的地址；3000 被占用会自动用 3001）
-npm.cmd run dev
+# 2) 启动（以后每次打开都从这一步开始）
+npm.cmd run dev                              # 浏览器打开 http://localhost:3000
 ```
 
-> 需要 Node.js ≥ 20.6；`npm run setup` 可重复执行：`node_modules` 已存在就不重装，数据库有数据就不 seed（不会清库）。
-> 手动初始化等价命令：`Copy-Item .env.example .env` → `npm.cmd run db:generate` → `npm.cmd run db:push` → `npm.cmd run db:seed`。
-> 重置数据：`npm.cmd run db:push --force-reset` 后 `npm.cmd run db:seed`（会清空所有数据）。
-> 踩坑提示：Windows 下必须用 `npm.cmd` / `npx.cmd`；数据库文件 `prisma/dev.db` 与 `.env` 均已被 `.gitignore` 忽略，不入库。
+> `npm run setup` 可重复执行：`node_modules` 已存在就不重装，数据库有数据就不 seed（不会清库）；需要 Node.js ≥ 20.6。
+> 手动初始化（等价，可选）：`npm.cmd install` → `Copy-Item .env.example .env` → `npm.cmd run db:generate` → `npm.cmd run db:push` → `npm.cmd run db:seed`。
+> `FIELD_ENCRYPTION_KEY` 一旦录入真实身份证/银行卡就不要再换，否则历史密文解不开。
 
-> **文件都在项目文件夹内，测完删整个文件夹即可**：
-> `node_modules/`（依赖）、`.env`（配置）、`prisma/dev.db`（测试数据库）、`.next/`（编译缓存）、`public/uploads/`（上传件）。
-> 删除步骤：`Ctrl+C` 停服务 → 关闭终端 → 删除 `WHU_AI_application` 整个文件夹；不影响其他项目。想再省点磁盘可加 `npm cache clean --force`。
+### 以后每次打开（日常，只要两行）
 
-> **如果 clone 到的是还没有 `npm run setup` 的旧版本**（会报 `Missing script: "setup"`），先按下述等价命令初始化；之后 `git pull` 到最新版即可改用 `npm run setup`：
->
-> ```powershell
-> Copy-Item .env.example .env
-> npm.cmd run db:generate
-> npm.cmd run db:push
-> npx.cmd tsx --env-file=.env prisma/seed.ts
-> npm.cmd run dev
-> ```
->
-> 若 npm 提示 install-scripts 被拦截、随后 `prisma` / `tsx` 报找不到程序，执行 `npm.cmd rebuild` 后重试。
+```powershell
+cd "<仓库根目录>"   # 例如 C:\Users\你\Desktop\WHU_AI_application
+npm.cmd run dev                             # 浏览器打开 http://localhost:3000
+```
+
+- 改代码自动热更新，不用重启；`Ctrl+C` 或关掉终端即停止服务。
+- `node_modules`、`.env`、`prisma/dev.db` 都在本地且不入库，**重启电脑/重启服务都不会丢**，不需要重跑上面的初始化命令。
+
+### 常用操作速查
+
+| 场景 | 命令 |
+|---|---|
+| 日常启动 | `cd <仓库根目录>` 后 `npm.cmd run dev` |
+| 停止 / 重启服务 | `Ctrl+C` 停止；再执行 `npm.cmd run dev` |
+| 端口 3000 被占用 | `npm.cmd run dev -- -p 3001` |
+| 拉队友的新代码 | `git pull`；`package.json` / `package-lock.json` 有变化时补 `npm.cmd install`；`prisma/schema.prisma` 有变化时补 `npm.cmd run db:generate` + `npm.cmd run db:push` |
+| 演示数据乱了想重置 | `npm.cmd run db:push --force-reset`，再 `npm.cmd run db:seed`（会清空数据） |
+| 改完代码页面没变化 | `Remove-Item -Recurse -Force .next`，再 `npm.cmd run dev` |
+
+> 踩坑提示：`npm install` 写成不带 `.cmd` 的 `npm` 会报“禁止运行脚本”；缺少 `.env` 时 `db:push` 会报 `Environment variable not found: DATABASE_URL`。
+> 数据库文件为 `prisma/dev.db`，与 `.env` 一样已被 `.gitignore` 忽略，不入库。
 
 ## 四、测试账号
 
@@ -103,7 +108,7 @@ npm.cmd run dev
 清 `.next` 缓存后重启：`Remove-Item -Recurse -Force .next`。
 
 **Q：数据库想重置？**
-先 `npm.cmd run db:push --force-reset`，再 `npm.cmd run db:seed` 重灌演示数据（会清空所有数据）。
+见上面「常用操作速查」：`npm.cmd run db:push --force-reset` 后 `npx.cmd tsx --env-file=.env prisma/seed.ts`（会清空所有数据）。
 
 **Q：端口被占用？**
 `npm.cmd run dev -- -p 3001`。
