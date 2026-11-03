@@ -45,6 +45,18 @@ npm.cmd run dev
 > 重置数据：`npm.cmd run db:push --force-reset` 后 `npm.cmd run db:seed`（会清空所有数据）。
 > 踩坑提示：Windows 下必须用 `npm.cmd` / `npx.cmd`；数据库文件 `prisma/dev.db` 与 `.env` 均已被 `.gitignore` 忽略，不入库。
 
+> **如果 clone 到的是还没有 `npm run setup` 的旧版本**（会报 `Missing script: "setup"`），先按下述等价命令初始化；之后 `git pull` 到最新版即可改用 `npm run setup`：
+>
+> ```powershell
+> Copy-Item .env.example .env
+> npm.cmd run db:generate
+> npm.cmd run db:push
+> npx.cmd tsx --env-file=.env prisma/seed.ts
+> npm.cmd run dev
+> ```
+>
+> 若 npm 提示 install-scripts 被拦截、随后 `prisma` / `tsx` 报找不到程序，执行 `npm.cmd rebuild` 后重试。
+
 ## 四、测试账号
 
 | 角色      | 手机号         | 密码     | 说明                   |
