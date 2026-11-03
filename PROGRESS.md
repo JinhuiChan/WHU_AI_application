@@ -2,6 +2,13 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-03 发布记录
+
+- 隐私扫描（当前跟踪树 + 本地全部提交历史）：**无** `.env`、`prisma/dev.db`、`public/uploads/`、私钥、API Key；仅 `.env.example` 占位示例、`scripts/crypto-selftest.ts` 假密钥与测试账号（138…/123456）。`docs/` 内也只有演示账号与字段说明。
+- 已合并远程 `jinhui/main`（含 `483f136 chore: scrub placeholder secrets` 与文档相关提交），合并后 `tsc --noEmit`、`next lint` 通过。
+- 已推送 `longjunwwk/WHU_AI_application` 的 `main`：`54599c0..f661637`（本地分支 `fix/2026-11-01-test-findings` 的 17 个修复提交 + 1 个合并提交）。
+- **未推送到 `JinhuiChan/WHU_AI_application`**：本机 SSH key 属于 `longjunwwk`，对该仓库无写权限（read 可用）。需 JinhuiChan 加协作者，或用网页从 `longjunwwk/main` 发 PR 合入。
+
 ## 2026-11-01 全流程测试修复（分支 `fix/2026-11-01-test-findings`）
 
 测试方式：清空演示数据 → 重建账号 → 按 DEMO 8 环节走查（界面 + 接口 + 数据库三方核对）。
