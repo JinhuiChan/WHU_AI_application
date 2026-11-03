@@ -4,6 +4,9 @@ import Link from "next/link";
 import { useState } from "react";
 
 type FormState = {
+  identity: "STUDENT" | "TEACHER" | "ADMIN";
+  staffNo: string;
+  email: string;
   studentNo: string;
   name: string;
   phone: string;
@@ -12,6 +15,9 @@ type FormState = {
 };
 
 const initialState: FormState = {
+  identity: "STUDENT",
+  staffNo: "",
+  email: "",
   studentNo: "",
   name: "",
   phone: "",
@@ -43,6 +49,9 @@ export default function RegisterPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          identity: form.identity,
+          email: form.email,
+          staffNo: form.staffNo,
           studentNo: form.studentNo,
           name: form.name,
           phone: form.phone,
@@ -54,7 +63,7 @@ export default function RegisterPage() {
         setError(result.message || "注册失败");
         return;
       }
-      window.location.href = "/login?registered=1";
+      window.location.href = form.identity === "ADMIN" ? "/login?pending=1" : "/login?registered=1";
     } catch {
       setError("网络异常，请稍后重试");
     } finally {
@@ -72,21 +81,47 @@ export default function RegisterPage() {
         className="w-full max-w-md space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
       >
         <div>
-          <h1 className="text-xl font-semibold text-slate-900">学生注册</h1>
-          <p className="mt-1 text-sm text-slate-500">使用学号与手机号注册，后续可绑定统一身份认证。</p>
+          <h1 className="text-xl font-semibold text-slate-900">账号注册</h1>
+          <p className="mt-1 text-sm text-slate-500">学生、老师注册后可直接登录；管理员账号需管理员审核通过后才能登录。</p>
         </div>
 
         <label className="block text-sm text-slate-700">
-          学号
-          <input
+          身份
+          <select
             className={fieldClass}
-            value={form.studentNo}
-            onChange={(event) => update("studentNo", event.target.value)}
-            placeholder="例如 2023102201846"
-            inputMode="numeric"
-            required
-          />
+            value={form.identity}
+            onChange={(event) => update("identity", event.target.value as FormState["identity"])}
+          >
+            <option value="STUDENT">学生</option>
+            <option value="TEACHER">指导老师</option>
+            <option value="ADMIN">管理员（需审核）</option>
+          </select>
         </label>
+
+        {form.identity === "TEACHER" ? (
+          <label className="block text-sm text-slate-700">
+            教工号
+            <input
+              className={fieldClass}
+              value={form.staffNo}
+              onChange={(event) => update("staffNo", event.target.value)}
+              placeholder="例如 T2027001"
+              required
+            />
+          </label>
+        ) : form.identity === "STUDENT" ? (
+          <label className="block text-sm text-slate-700">
+            学号
+            <input
+              className={fieldClass}
+              value={form.studentNo}
+              onChange={(event) => update("studentNo", event.target.value)}
+              placeholder="例如 2023102201846"
+              inputMode="numeric"
+              required
+            />
+          </label>
+        ) : null}
 
         <label className="block text-sm text-slate-700">
           姓名
@@ -95,6 +130,18 @@ export default function RegisterPage() {
             value={form.name}
             onChange={(event) => update("name", event.target.value)}
             placeholder="与学籍一致"
+            required
+          />
+        </label>
+
+        <label className="block text-sm text-slate-700">
+          邮箱
+          <input
+            className={fieldClass}
+            type="email"
+            value={form.email}
+            onChange={(event) => update("email", event.target.value)}
+            placeholder="用于接收审核与通知，例如 xxx@whu.edu.cn"
             required
           />
         </label>

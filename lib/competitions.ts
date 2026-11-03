@@ -7,6 +7,7 @@ import type {
   CompetitionDetail,
   CompetitionFilters,
   CompetitionListItem,
+  CompetitionRegistration,
 } from "@/types/competition";
 
 export async function listCompetitionYears() {
@@ -14,7 +15,10 @@ export async function listCompetitionYears() {
   return years.map((item) => item.year);
 }
 
-export async function getCompetitionPage(filters: CompetitionFilters): Promise<Paginated<CompetitionListItem>> {
+export async function getCompetitionPage(
+  filters: CompetitionFilters,
+  options?: { studentId?: string },
+): Promise<Paginated<CompetitionListItem>> {
   const where: Prisma.CompetitionWhereInput = {};
   if (filters.year) where.year = filters.year;
   if (filters.level) where.level = filters.level;
@@ -40,16 +44,68 @@ export async function getCompetitionPage(filters: CompetitionFilters): Promise<P
         year: true,
         organizer: true,
         createdAt: true,
+        timeWindows: {
+          where: { enabled: true },
+          select: { stage: true, startAt: true, endAt: true },
+        },
       },
     }),
     prisma.competition.count({ where }),
   ]);
 
+  // 学生视角：附上「报名截止 / 我的报名状态」，避免列表只露系列标识
+  const studentId = options?.studentId;
+  const now = new Date();
+  const myProjects = studentId && competitions.length
+    ? await prisma.project.findMany({
+        where: {
+          competitionId: { in: competitions.map((item) => item.id) },
+          deletedAt: null,
+          OR: [
+            { ownerId: studentId },
+            { teamMembers: { some: { userId: studentId, leftAt: null } } },
+          ],
+        },
+        select: { id: true, competitionId: true, reviewStatus: true, updatedAt: true },
+        orderBy: { updatedAt: "desc" },
+      })
+    : [];
+  const myProjectByCompetition = new Map<string, { id: string; reviewStatus: CompetitionRegistration["projectStatus"] }>();
+  for (const project of myProjects) {
+    if (project.competitionId && !myProjectByCompetition.has(project.competitionId)) {
+      myProjectByCompetition.set(project.competitionId, { id: project.id, reviewStatus: project.reviewStatus });
+    }
+  }
+
   return {
-    list: competitions.map((competition) => ({
-      ...competition,
-      createdAt: competition.createdAt.toISOString(),
-    })),
+    list: competitions.map((competition) => {
+      const schoolWindow = competition.timeWindows
+        .filter((window) => window.stage === "SCHOOL")
+        .sort((left, right) => right.startAt.getTime() - left.startAt.getTime())[0];
+      const deadlineWindow = schoolWindow ?? competition.timeWindows
+        .slice()
+        .sort((left, right) => right.endAt.getTime() - left.endAt.getTime())[0];
+      const mine = myProjectByCompetition.get(competition.id);
+      const registration: CompetitionRegistration | undefined = studentId
+        ? {
+            windowStartAt: deadlineWindow?.startAt.toISOString() ?? null,
+            windowEndAt: deadlineWindow?.endAt.toISOString() ?? null,
+            windowOpen: Boolean(deadlineWindow && deadlineWindow.startAt <= now && now <= deadlineWindow.endAt),
+            projectId: mine?.id ?? null,
+            projectStatus: mine?.reviewStatus ?? null,
+          }
+        : undefined;
+      return {
+        id: competition.id,
+        name: competition.name,
+        level: competition.level,
+        seriesId: competition.seriesId,
+        year: competition.year,
+        organizer: competition.organizer,
+        createdAt: competition.createdAt.toISOString(),
+        registration,
+      };
+    }),
     total,
     page: filters.page,
     pageSize: filters.pageSize,

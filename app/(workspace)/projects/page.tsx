@@ -18,6 +18,7 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
   if (!user) redirect("/login");
 
   const year = firstParam(searchParams?.year);
+  const competitionId = firstParam(searchParams?.competitionId);
   const college = firstParam(searchParams?.college);
   const level = firstParam(searchParams?.level);
   const q = firstParam(searchParams?.q);
@@ -26,6 +27,7 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
   const [data, options] = await Promise.all([
     getProjectPage(
       {
+        competitionId: optionalText(competitionId),
         year: optionalYear(year),
         college: optionalText(college),
         level: optionalAwardLevel(level),
@@ -49,6 +51,13 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
       <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
         <form action="/projects" method="get" className="flex flex-wrap items-end gap-3">
           {awarded ? <input type="hidden" name="awarded" value="1" /> : null}
+          <label className="text-xs text-slate-500">
+            <span className="mb-1 block">赛事</span>
+            <select name="competitionId" defaultValue={competitionId} className="h-10 min-w-52 rounded-md border border-slate-300 bg-white px-3 text-sm">
+              <option value="">全部赛事</option>
+              {options.competitions.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+            </select>
+          </label>
           <label className="text-xs text-slate-500">
             <span className="mb-1 block">赛年</span>
             <select name="year" defaultValue={year} className="h-10 min-w-28 rounded-md border border-slate-300 bg-white px-3 text-sm">
@@ -87,10 +96,11 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
 
       <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[1050px] text-left text-sm">
+          <table className="w-full min-w-[1180px] text-left text-sm">
             <thead className="bg-slate-50 text-xs text-slate-500">
               <tr>
                 <th className="px-4 py-3 font-medium">项目</th>
+                <th className="px-4 py-3 font-medium">赛事</th>
                 <th className="px-4 py-3 font-medium">赛年</th>
                 <th className="px-4 py-3 font-medium">学院</th>
                 <th className="px-4 py-3 font-medium">状态</th>
@@ -104,6 +114,7 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
                   <td className="max-w-md px-4 py-4 font-medium text-slate-900">
                     <Link href={`/projects/${project.id}`} className="hover:text-blue-600">{project.name}</Link>
                   </td>
+                  <td className="px-4 py-4 text-xs text-slate-500">{project.competition?.name ?? "—"}</td>
                   <td className="px-4 py-4">{project.year}</td>
                   <td className="px-4 py-4">{project.college}</td>
                   <td className="px-4 py-4">{projectStatusLabels[project.status]}</td>
@@ -123,12 +134,12 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
                 </tr>
               ))}
               {data.list.length === 0 ? (
-                <tr><td colSpan={6} className="px-4 py-12 text-center text-slate-500">暂无符合条件的项目</td></tr>
+                <tr><td colSpan={7} className="px-4 py-12 text-center text-slate-500">暂无符合条件的项目</td></tr>
               ) : null}
             </tbody>
           </table>
         </div>
-        <Pagination basePath="/projects" query={{ year, college, level, awarded: awarded ? "1" : "", q, pageSize: String(pageSize) }} total={data.total} page={data.page} pageSize={data.pageSize} />
+        <Pagination basePath="/projects" query={{ competitionId, year, college, level, awarded: awarded ? "1" : "", q, pageSize: String(pageSize) }} total={data.total} page={data.page} pageSize={data.pageSize} />
       </section>
     </div>
   );

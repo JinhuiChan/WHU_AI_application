@@ -35,6 +35,8 @@ function emptyTeacher(isInternal: boolean): TeacherInput {
   };
 }
 
+type FieldKey = "staffNo" | "name" | "phone" | "school" | "unit" | "title";
+
 export function TeacherSection({ teachers, onChange }: TeacherSectionProps) {
   const [modal, setModal] = useState<"internal" | "external" | null>(null);
   const [draft, setDraft] = useState<TeacherInput>(emptyTeacher(true));
@@ -42,6 +44,12 @@ export function TeacherSection({ teachers, onChange }: TeacherSectionProps) {
   const [results, setResults] = useState<TeacherResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<FieldKey, string>>>({});
+
+  function updateDraft(patch: Partial<TeacherInput>) {
+    setDraft((current) => ({ ...current, ...patch }));
+    setFieldErrors({});
+  }
 
   function openModal(isInternal: boolean) {
     if (teachers.length >= 8) {
@@ -49,6 +57,7 @@ export function TeacherSection({ teachers, onChange }: TeacherSectionProps) {
       return;
     }
     setError("");
+    setFieldErrors({});
     setKeyword("");
     setResults([]);
     setDraft(emptyTeacher(isInternal));
@@ -75,12 +84,17 @@ export function TeacherSection({ teachers, onChange }: TeacherSectionProps) {
   }
 
   function addTeacher() {
-    if (!draft.name.trim() || !draft.phone.trim() || !draft.school.trim() || !draft.unit.trim() || !draft.title.trim()) {
-      setError("请完整填写姓名、手机号、学校/公司、单位/部门和职称/职务");
-      return;
-    }
-    if (draft.isInternal && !draft.staffNo?.trim()) {
-      setError("校内老师须填写工号");
+    const next: Partial<Record<FieldKey, string>> = {};
+    if (modal === "internal" && !draft.staffNo?.trim()) next.staffNo = "校内老师须填写工号";
+    if (!draft.name.trim()) next.name = "请填写姓名";
+    if (!draft.phone.trim()) next.phone = "请填写手机号";
+    else if (!/^1\d{10}$/.test(draft.phone.trim())) next.phone = "手机号须为 11 位";
+    if (!draft.school.trim()) next.school = "请填写所在院校/公司";
+    if (!draft.unit.trim()) next.unit = "请填写所在单位/部门";
+    if (!draft.title.trim()) next.title = modal === "internal" ? "请填写职称" : "请填写职务";
+    setFieldErrors(next);
+    if (Object.keys(next).length) {
+      setError("请完善标红的必填项");
       return;
     }
     if (teachers.length >= 8) {
@@ -90,6 +104,7 @@ export function TeacherSection({ teachers, onChange }: TeacherSectionProps) {
     onChange([...teachers, draft]);
     setModal(null);
     setError("");
+    setFieldErrors({});
   }
 
   return (
@@ -138,21 +153,24 @@ export function TeacherSection({ teachers, onChange }: TeacherSectionProps) {
                   <button
                     type="button"
                     key={teacher.staffNo ?? teacher.name}
-                    onClick={() => setDraft({ isInternal: true, staffNo: teacher.staffNo, name: teacher.name, gender: teacher.gender ?? "", phone: teacher.phone, school: "武汉大学", unit: teacher.unit, title: teacher.title, email: teacher.email ?? "" })}
+                    onClick={() => {
+                      setDraft({ isInternal: true, staffNo: teacher.staffNo, name: teacher.name, gender: teacher.gender ?? "", phone: teacher.phone, school: "武汉大学", unit: teacher.unit, title: teacher.title, email: teacher.email ?? "" });
+                      setFieldErrors({});
+                    }}
                     className="block w-full rounded bg-white px-3 py-2 text-left text-sm hover:bg-blue-50"
-                  >{teacher.staffNo} · {teacher.name} · {teacher.unit}</button>
-                ))}</div> : <p className="mt-2 text-xs text-slate-500">检索后选择老师，也可继续校正信息。</p>}
+                  >{teacher.staffNo} · {teacher.name} · {teacher.unit} · {teacher.title || "职称未登记"}</button>
+                ))}</div> : <p className="mt-2 text-xs text-slate-500">检索后选择老师，也可继续校正信息；检索结果没有职称时请手填。</p>}
               </div>
             ) : null}
             <div className="mt-4 grid gap-3 md:grid-cols-2">
-              {modal === "internal" ? <label className="text-xs text-slate-600">工号<input className={fieldClass} value={draft.staffNo ?? ""} onChange={(event) => setDraft({ ...draft, staffNo: event.target.value })} required /></label> : null}
-              <label className="text-xs text-slate-600">姓名<input className={fieldClass} value={draft.name} onChange={(event) => setDraft({ ...draft, name: event.target.value })} required /></label>
-              <label className="text-xs text-slate-600">性别<select className={fieldClass} value={draft.gender} onChange={(event) => setDraft({ ...draft, gender: event.target.value })}><option value="">请选择</option><option value="男">男</option><option value="女">女</option></select></label>
-              <label className="text-xs text-slate-600">手机号<input type="tel" className={fieldClass} value={draft.phone} onChange={(event) => setDraft({ ...draft, phone: event.target.value })} required /></label>
-              <label className="text-xs text-slate-600">所在院校/公司<input className={fieldClass} value={draft.school} onChange={(event) => setDraft({ ...draft, school: event.target.value })} disabled={modal === "internal"} required /></label>
-              <label className="text-xs text-slate-600">所在单位/部门<input className={fieldClass} value={draft.unit} onChange={(event) => setDraft({ ...draft, unit: event.target.value })} required /></label>
-              <label className="text-xs text-slate-600">{modal === "internal" ? "职称" : "职务"}<input className={fieldClass} value={draft.title} onChange={(event) => setDraft({ ...draft, title: event.target.value })} required /></label>
-              <label className="text-xs text-slate-600">邮箱<input type="email" className={fieldClass} value={draft.email} onChange={(event) => setDraft({ ...draft, email: event.target.value })} /></label>
+              {modal === "internal" ? <label className="text-xs text-slate-600">工号<input className={`${fieldClass}${fieldErrors.staffNo ? " border-red-500" : ""}`} value={draft.staffNo ?? ""} onChange={(event) => updateDraft({ staffNo: event.target.value })} required />{fieldErrors.staffNo ? <span className="mt-1 block text-xs text-red-600">{fieldErrors.staffNo}</span> : null}</label> : null}
+              <label className="text-xs text-slate-600">姓名<input className={`${fieldClass}${fieldErrors.name ? " border-red-500" : ""}`} value={draft.name} onChange={(event) => updateDraft({ name: event.target.value })} required />{fieldErrors.name ? <span className="mt-1 block text-xs text-red-600">{fieldErrors.name}</span> : null}</label>
+              <label className="text-xs text-slate-600">性别<select className={fieldClass} value={draft.gender} onChange={(event) => updateDraft({ gender: event.target.value })}><option value="">请选择</option><option value="男">男</option><option value="女">女</option></select></label>
+              <label className="text-xs text-slate-600">手机号<input type="tel" className={`${fieldClass}${fieldErrors.phone ? " border-red-500" : ""}`} value={draft.phone} onChange={(event) => updateDraft({ phone: event.target.value })} required />{fieldErrors.phone ? <span className="mt-1 block text-xs text-red-600">{fieldErrors.phone}</span> : null}</label>
+              <label className="text-xs text-slate-600">所在院校/公司<input className={`${fieldClass}${fieldErrors.school ? " border-red-500" : ""}`} value={draft.school} onChange={(event) => updateDraft({ school: event.target.value })} disabled={modal === "internal"} required />{fieldErrors.school ? <span className="mt-1 block text-xs text-red-600">{fieldErrors.school}</span> : null}</label>
+              <label className="text-xs text-slate-600">所在单位/部门<input className={`${fieldClass}${fieldErrors.unit ? " border-red-500" : ""}`} value={draft.unit} onChange={(event) => updateDraft({ unit: event.target.value })} required />{fieldErrors.unit ? <span className="mt-1 block text-xs text-red-600">{fieldErrors.unit}</span> : null}</label>
+              <label className="text-xs text-slate-600">{modal === "internal" ? "职称" : "职务"}<input className={`${fieldClass}${fieldErrors.title ? " border-red-500" : ""}`} value={draft.title} onChange={(event) => updateDraft({ title: event.target.value })} required />{fieldErrors.title ? <span className="mt-1 block text-xs text-red-600">{fieldErrors.title}</span> : null}</label>
+              <label className="text-xs text-slate-600">邮箱<input type="email" className={fieldClass} value={draft.email} onChange={(event) => updateDraft({ email: event.target.value })} /></label>
             </div>
             {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
             <div className="mt-5 flex justify-end gap-2">

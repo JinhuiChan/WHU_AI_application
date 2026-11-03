@@ -25,7 +25,14 @@ function leafTracks(tracks: TrackNode[], prefix: string[] = []): Array<{ id: str
 }
 
 export function BasicInfoCard({ student, value, competitions, dictionaries, onChange, onPayeeToggle }: BasicInfoCardProps) {
-  const units = [...new Set([value.trainingUnit, value.applicationUnit, student.trainingUnit, student.college].filter((item): item is string => Boolean(item)))];
+  // 培养/申报单位：全局字典（官网院系清单）∪ 现有档案与历史项目 ∪ 当前值，可下拉可手填
+  const units = [...new Set([
+    ...(dictionaries.units ?? []),
+    value.trainingUnit,
+    value.applicationUnit,
+    student.trainingUnit,
+    student.college,
+  ].filter((item): item is string => Boolean(item && item.trim())))];
   const trackValue = value.competitionId && value.trackId ? `${value.competitionId}:${value.trackId}` : "";
   const selectedTrack = competitions.flatMap((competition) => leafTracks(competition.tracks)).find((item) => item.id === value.trackId)?.track;
   const groups = selectedTrack?.groups ?? dictionaries.groups;
@@ -34,6 +41,9 @@ export function BasicInfoCard({ student, value, competitions, dictionaries, onCh
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
       <h2 className="text-base font-semibold text-slate-900">项目基本信息</h2>
+      <datalist id="unit-options">
+        {units.map((unit) => <option key={unit} value={unit} />)}
+      </datalist>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <label className="text-xs text-slate-600">负责人学号
           <input className={fieldClass} value={value.leaderStudentNo || "未绑定学号"} disabled />
@@ -56,10 +66,7 @@ export function BasicInfoCard({ student, value, competitions, dictionaries, onCh
           </select>
         </label>
         <label className="text-xs text-slate-600">培养单位
-          <select className={fieldClass} value={value.trainingUnit} onChange={(event) => onChange({ trainingUnit: event.target.value })} required>
-            <option value="">请选择</option>
-            {units.map((unit) => <option key={unit} value={unit}>{unit}</option>)}
-          </select>
+          <input className={fieldClass} list="unit-options" value={value.trainingUnit} onChange={(event) => onChange({ trainingUnit: event.target.value })} placeholder="可下拉选择，也可直接填写" required />
         </label>
         <label className="text-xs text-slate-600">项目赛道
           <select
@@ -104,10 +111,7 @@ export function BasicInfoCard({ student, value, competitions, dictionaries, onCh
           </>
         ) : null}
         <label className="text-xs text-slate-600">申报单位
-          <select className={fieldClass} value={value.applicationUnit} onChange={(event) => onChange({ applicationUnit: event.target.value })} required>
-            <option value="">请选择</option>
-            {units.map((unit) => <option key={unit} value={unit}>{unit}</option>)}
-          </select>
+          <input className={fieldClass} list="unit-options" value={value.applicationUnit} onChange={(event) => onChange({ applicationUnit: event.target.value })} placeholder="可下拉选择，也可直接填写" required />
         </label>
         <label className="text-xs text-slate-600">民族
           <select className={fieldClass} value={value.ethnicity} onChange={(event) => onChange({ ethnicity: event.target.value })} required>

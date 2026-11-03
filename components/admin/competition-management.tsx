@@ -23,6 +23,7 @@ function localInput(value: string | undefined) {
 export function CompetitionManagement({ competition, attachments, initialWindow }: Props) {
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
+  const titleRef = useRef<HTMLInputElement>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [edit, setEdit] = useState({ name: competition.name, organizer: competition.organizer ?? "", description: competition.description ?? "" });
   const [windowForm, setWindowForm] = useState({
@@ -106,9 +107,9 @@ export function CompetitionManagement({ competition, attachments, initialWindow 
             }
           }}
         >
-          <label className="text-xs text-slate-600">标题<input name="title" className={fieldClass} required maxLength={120} /></label>
+          <label className="text-xs text-slate-600">标题<input name="title" ref={titleRef} className={fieldClass} required maxLength={120} placeholder="选择文件后自动填入文件名，可修改" /></label>
           <label className="text-xs text-slate-600">类型<select name="kind" className={fieldClass} defaultValue="NOTICE"><option value="NOTICE">通知</option><option value="RULE">规程</option><option value="TEMPLATE">模板</option></select></label>
-          <label className="text-xs text-slate-600">文件<input ref={fileRef} name="file" type="file" required accept=".pdf,.docx,.doc,.xlsx,.jpg,.jpeg,.png,.txt" className="mt-1 block w-full text-sm file:mr-2 file:rounded file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:text-blue-700" /></label>
+          <label className="text-xs text-slate-600">文件<input ref={fileRef} name="file" type="file" required accept=".pdf,.docx,.doc,.xlsx,.jpg,.jpeg,.png,.txt" onChange={(event) => { const picked = event.target.files?.[0]; if (picked && titleRef.current && !titleRef.current.value.trim()) { titleRef.current.value = picked.name.replace(/\.[^.]+$/, ""); } }} className="mt-1 block w-full text-sm file:mr-2 file:rounded file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:text-blue-700" /></label>
           <button type="submit" disabled={pending === "upload"} className="h-10 rounded-md bg-blue-600 px-4 text-sm text-white disabled:opacity-60">{pending === "upload" ? "上传中…" : "上传文件"}</button>
         </form>
         <ul className="mt-4 divide-y divide-slate-100">

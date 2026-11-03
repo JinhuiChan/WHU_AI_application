@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { CompetitionDeleteButton } from "@/components/admin/competition-delete-button";
 import { CompetitionManagement } from "@/components/admin/competition-management";
+import { TrackEditor } from "@/components/admin/track-editor";
+import { BreadcrumbTitle } from "@/components/layout/breadcrumbs";
 import { getActiveUser } from "@/lib/auth.server";
 import { getCompetitionDetail } from "@/lib/competitions";
-import { listOptions } from "@/lib/dict";
+import { loadScopedLabels } from "@/lib/dict-labels";
 import { prisma } from "@/lib/prisma";
 import { awardLevelLabels, awardStatusLabels, competitionLevelLabels, dataSourceTypeLabels, formatDate, formatDateTime } from "@/lib/presentation";
 
@@ -21,7 +24,7 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
   const competition = await getCompetitionDetail(params.id, user.role);
   if (!competition) notFound();
 
-  const [attachments, windows, tracks, groups, categories] = await Promise.all([
+  const [attachments, windows, tracks] = await Promise.all([
     prisma.competitionAttachment.findMany({
       where: { competitionId: params.id },
       orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
@@ -35,9 +38,15 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
       select: { id: true, parentId: true, name: true, kind: true },
       orderBy: { sortOrder: "asc" },
     }),
-    listOptions("GROUP"),
-    listOptions("CATEGORY"),
   ]);
+
+  const labels = await loadScopedLabels();
+  const optionLabels = (trackId: string, kind: "GROUP" | "CATEGORY") => {
+    const scoped = labels.byTrack[trackId]?.[kind] ?? {};
+    const source = Object.keys(scoped).length ? scoped : (labels.global[kind] ?? {});
+    const values = Object.values(source);
+    return values.length ? values.join(" · ") : "未配置";
+  };
 
   const now = new Date();
   const applyWindow = windows.find((item) => item.stage === "SCHOOL") ?? windows[0];
@@ -57,6 +66,7 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
 
   return (
     <div className="space-y-5">
+      <BreadcrumbTitle label={competition.name} />
       <div>
         <Link href="/competitions" className="text-sm text-blue-600 hover:underline">返回赛事列表</Link>
         <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -71,6 +81,16 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
           attachments={attachments}
           initialWindow={applyWindow ? { startAt: applyWindow.startAt.toISOString(), endAt: applyWindow.endAt.toISOString(), enabled: applyWindow.enabled } : null}
         />
+      ) : null}
+
+      {user.role === "ADMIN" ? (
+        <section className="rounded-lg border border-red-200 bg-white p-5 shadow-sm">
+          <h2 className="text-sm font-semibold text-red-700">危险操作</h2>
+          <p className="mt-1 text-xs text-slate-500">误建的赛事可在这里删除；已有项目报名或奖项记录的赛事不允许删除（接口会拦截）。</p>
+          <div className="mt-3">
+            <CompetitionDeleteButton competitionId={competition.id} competitionName={competition.name} redirectTo="/competitions" />
+          </div>
+        </section>
       ) : null}
 
       <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
@@ -126,27 +146,32 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
 
       <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-sm font-semibold text-slate-900">赛道与组别</h2>
+        {user.role === "ADMIN" ? <TrackEditor competitionId={competition.id} /> : null}
+        {user.role === "ADMIN" ? null : (
+        <>
         {topTracks.length ? (
           <div className="space-y-3">
             {topTracks.map((track) => (
               <div key={track.id} className="rounded-md border border-slate-100 bg-slate-50 px-3 py-2">
                 <p className="text-sm font-medium text-slate-900">{track.name}</p>
                 {childrenOf(track.id).length ? (
+                  childrenOf(track.id).map((child) => (
+                    <p key={child.id} className="mt-1 text-xs text-slate-600">
+                      {child.name} · 组别：{optionLabels(child.id, "GROUP")} · 类别：{optionLabels(child.id, "CATEGORY")}
+                    </p>
+                  ))
+                ) : (
                   <p className="mt-1 text-xs text-slate-600">
-                    分支：{childrenOf(track.id).map((child) => child.name).join(" · ")}
+                    组别：{optionLabels(track.id, "GROUP")} · 类别：{optionLabels(track.id, "CATEGORY")}
                   </p>
-                ) : null}
+                )}
               </div>
             ))}
-            <p className="text-xs text-slate-500">
-              可选项别：{groups.length ? groups.map((item) => item.label).join(" · ") : "未配置"}
-            </p>
-            <p className="text-xs text-slate-500">
-              可选类别：{categories.length ? categories.map((item) => item.label).join(" · ") : "未配置"}
-            </p>
           </div>
         ) : (
           <p className="text-sm text-slate-500">尚未配置赛道</p>
+        )}
+        </>
         )}
       </section>
 

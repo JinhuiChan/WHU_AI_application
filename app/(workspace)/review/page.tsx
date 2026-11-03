@@ -8,8 +8,10 @@ import { ReviewFilters } from "@/components/review/review-filters";
 import type { ReviewFilterValues } from "@/components/review/review-filters";
 import { ReviewWorkbench } from "@/components/review/review-workbench";
 import { getActiveUser } from "@/lib/auth.server";
+import { countPendingChangeRequests } from "@/lib/change";
 import { firstParam } from "@/lib/list-query";
-import { getReviewList, listReviewFilterOptions, parseReviewQuery } from "@/lib/review";
+import { getReviewList, getReviewTabCounts, listReviewFilterOptions, parseReviewQuery } from "@/lib/review";
+import type { ReviewTab } from "@/types/review";
 
 export const metadata: Metadata = { title: "报名审核" };
 export const dynamic = "force-dynamic";
@@ -30,6 +32,8 @@ export default async function ReviewPage({ searchParams }: PageProps) {
     );
   }
 
+  const rawTab = firstParam(searchParams?.tab);
+  const tab: ReviewTab = rawTab === "reviewed" || rawTab === "all" ? rawTab : "pending";
   const values: ReviewFilterValues = {
     competitionId: firstParam(searchParams?.competitionId),
     stage: firstParam(searchParams?.stage),
@@ -38,6 +42,7 @@ export default async function ReviewPage({ searchParams }: PageProps) {
     trackId: firstParam(searchParams?.trackId),
     q: firstParam(searchParams?.q),
     pageSize: firstParam(searchParams?.pageSize),
+    tab,
   };
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(values)) {
@@ -45,11 +50,31 @@ export default async function ReviewPage({ searchParams }: PageProps) {
   }
   const page = firstParam(searchParams?.page);
   if (page) params.set("page", page);
-  const [data, options] = await Promise.all([
+  const [data, options, tabCounts, pendingChanges] = await Promise.all([
     getReviewList(parseReviewQuery(params)),
     listReviewFilterOptions(),
+    getReviewTabCounts(),
+    countPendingChangeRequests(),
   ]);
   values.pageSize = String(data.pageSize);
+
+  function tabHref(key: ReviewTab) {
+    const next = new URLSearchParams();
+    for (const [name, value] of Object.entries(values)) {
+      if (!value || name === "tab" || name === "status") continue;
+      next.set(name, value);
+    }
+    next.set("tab", key);
+    return `/review?${next.toString()}`;
+  }
+
+  const tabs: { key: ReviewTab; label: string }[] = [
+    { key: "pending", label: `待审核 ${tabCounts.pending}` },
+    { key: "reviewed", label: `已审核 ${tabCounts.reviewed}` },
+    { key: "all", label: `全部 ${tabCounts.total}` },
+  ];
+  // 导出/打包不受 tab 影响：tab 只是列表视图，避免默认「待审核」时导出 0 行
+  const exportFilters = { ...values, tab: "" };
 
   return (
     <div className="space-y-5">
@@ -60,11 +85,36 @@ export default async function ReviewPage({ searchParams }: PageProps) {
         </div>
         <Link href="/review/changes" className="rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
           变更申请
+          {pendingChanges > 0 ? (
+            <span className="ml-2 rounded-full bg-red-600 px-2 py-0.5 text-xs font-medium text-white" title={`待审批变更申请 ${pendingChanges} 条`}>
+              {pendingChanges}
+            </span>
+          ) : null}
         </Link>
-        <PackageDownload filters={values} />
+        <PackageDownload filters={exportFilters} />
       </div>
+      <div className="flex flex-wrap items-center gap-2">
+        {tabs.map((item) => (
+          <Link
+            key={item.key}
+            href={tabHref(item.key)}
+            aria-current={tab === item.key ? "page" : undefined}
+            className={`h-10 rounded-md px-4 text-sm leading-10 ${tab === item.key ? "bg-blue-600 font-medium text-white" : "border border-slate-300 bg-white text-slate-600 hover:bg-slate-50"}`}
+          >
+            {item.label}
+          </Link>
+        ))}
+        <span className="text-xs text-slate-400">默认只看待审核；状态下拉可精确到某一状态</span>
+      </div>
+      {tab === "pending" && data.total === 0 ? (
+        <p className="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          当前没有待审核项目，可切换到
+          <Link href={tabHref("reviewed")} className="mx-1 underline">已审核</Link>或
+          <Link href={tabHref("all")} className="mx-1 underline">全部</Link>查看。
+        </p>
+      ) : null}
       <ReviewFilters options={options} values={values} />
-      <DatasetExport scope="all" filters={values} buttonLabel="导出数据表" />
+      <DatasetExport scope="all" filters={exportFilters} buttonLabel="导出数据表" />
       <ReviewWorkbench data={data} />
       <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
         <Pagination basePath="/review" query={values} total={data.total} page={data.page} pageSize={data.pageSize} />

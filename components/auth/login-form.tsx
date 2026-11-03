@@ -14,14 +14,9 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
   const router = useRouter();
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [identity, setIdentity] = useState<"STUDENT" | "TEACHER" | "ADMIN">("STUDENT");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  function fillAccount(account: string) {
-    setPhone(account);
-    setPassword("123456");
-    setError("");
-  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -31,7 +26,7 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, password }),
+        body: JSON.stringify({ phone, password, identity }),
       });
       const result = (await response.json()) as ApiResponse<LoginData>;
       if (!response.ok || result.code !== 0) {
@@ -57,6 +52,21 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
       </div>
 
       <form className="space-y-5" onSubmit={handleSubmit}>
+        <div>
+          <label htmlFor="identity" className="mb-2 block text-sm font-medium text-slate-700">身份</label>
+          <select
+            id="identity"
+            name="identity"
+            className="h-11 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none focus:border-blue-500"
+            value={identity}
+            onChange={(event) => setIdentity(event.target.value as "STUDENT" | "TEACHER" | "ADMIN")}
+          >
+            <option value="STUDENT">学生</option>
+            <option value="TEACHER">指导老师</option>
+            <option value="ADMIN">管理员</option>
+          </select>
+          <p className="mt-1 text-xs text-slate-500">多身份账号：以所选身份进入，身份不对会被拒绝</p>
+        </div>
         <div>
           <label htmlFor="phone" className="mb-2 block text-sm font-medium text-slate-700">
             手机号
@@ -104,15 +114,6 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
         </button>
       </form>
 
-      <div className="mt-6 rounded-lg bg-slate-50 p-4 text-xs leading-6 text-slate-600">
-        <p className="font-medium text-slate-700">测试账号（密码均为 123456）</p>
-        <button type="button" onClick={() => fillAccount("13800000001")} className="block text-left hover:text-blue-600">
-          管理员：13800000001
-        </button>
-        <button type="button" onClick={() => fillAccount("13800000002")} className="block text-left hover:text-blue-600">
-          普通用户：13800000002
-        </button>
-      </div>
     </div>
   );
 }

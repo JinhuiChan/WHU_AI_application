@@ -28,6 +28,7 @@ export type ProjectAward = {
 export type ProjectListItem = {
   id: string;
   name: string;
+  competition: { id: string; name: string } | null;
   college: string;
   year: number;
   status: ProjectStatus;
@@ -75,6 +76,7 @@ export type ProjectDetail = ProjectListItem & {
 };
 
 export type ProjectFilters = {
+  competitionId?: string;
   year?: number;
   college?: string;
   level?: AwardLevel;

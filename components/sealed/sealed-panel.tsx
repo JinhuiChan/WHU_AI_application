@@ -23,6 +23,7 @@ export function SealedPanel({ projectId, files, currentFileId, canExportSensitiv
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [confirmFull, setConfirmFull] = useState(false);
   const currentFile = files.find((file) => file.id === currentFileId) ?? null;
 
   return (
@@ -34,7 +35,15 @@ export function SealedPanel({ projectId, files, currentFileId, canExportSensitiv
         </div>
         <div className="flex flex-wrap gap-2">
           {canExportSensitive ? (
-            <a href={`/api/export/form?projectId=${encodeURIComponent(projectId)}&full=1`} className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">下载报名表（交学院核验）</a>
+            confirmFull ? (
+              <div className="flex flex-wrap items-center gap-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                <span>将下载含完整身份证号、银行卡号的报名表（带水印，系统留痕）。确认继续？</span>
+                <a href={`/api/export/form?projectId=${encodeURIComponent(projectId)}&full=1`} className="rounded bg-amber-600 px-3 py-1 font-medium text-white hover:bg-amber-700">确认下载</a>
+                <button type="button" onClick={() => setConfirmFull(false)} className="rounded border border-amber-300 px-3 py-1 text-amber-800 hover:bg-amber-100">取消</button>
+              </div>
+            ) : (
+              <button type="button" onClick={() => setConfirmFull(true)} className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">下载报名表（交学院核验）</button>
+            )
           ) : (
             <button type="button" disabled title="仅项目负责人、第二/第三负责人或管理员可下载完整报名表" className="rounded-md bg-slate-200 px-4 py-2 text-sm text-slate-500">下载报名表（交学院核验）</button>
           )}

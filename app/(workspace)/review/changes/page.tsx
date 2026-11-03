@@ -15,7 +15,13 @@ type PageProps = {
   searchParams?: Record<string, string | string[] | undefined>;
 };
 
-const STATUS_OPTIONS: ChangeRequestStatus[] = ["PENDING_COLLEGE", "PENDING_SCHOOL", "APPROVED", "REJECTED", "CANCELLED"];
+const STATUS_OPTIONS: { value: string; label: string }[] = [
+  { value: "PENDING", label: "待审批（学院/校级）" },
+  ...(["PENDING_COLLEGE", "PENDING_SCHOOL", "APPROVED", "REJECTED", "CANCELLED"] as ChangeRequestStatus[]).map((value) => ({
+    value,
+    label: CHANGE_STATUS_LABELS[value],
+  })),
+];
 
 function first(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
@@ -27,10 +33,13 @@ export default async function ChangeReviewPage({ searchParams }: PageProps) {
   if (user.role !== "ADMIN") redirect("/dashboard");
 
   const params = new URLSearchParams();
-  const status = first(searchParams?.status);
+  const rawStatus = first(searchParams?.status);
+  // 默认只看待审批；status=ALL 表示全状态
+  const status = rawStatus === "ALL" ? "" : rawStatus || "PENDING";
   const page = first(searchParams?.page);
   if (status) params.set("status", status);
   if (page) params.set("page", page);
+  const statusQuery = status || "ALL";
 
   const result = await listChangeRequests(user, parseChangeListQuery(params));
   const totalPages = Math.max(1, Math.ceil(result.total / result.pageSize));
@@ -40,7 +49,7 @@ export default async function ChangeReviewPage({ searchParams }: PageProps) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold text-slate-900">变更申请</h1>
-          <p className="mt-1 text-sm text-slate-500">学生提交的变更申请，按类型走学院审核或学院 + 校级两级审核。</p>
+          <p className="mt-1 text-sm text-slate-500">学生提交的变更申请，按类型走学院审核或学院 + 校级两级审核；默认只列待审批。</p>
         </div>
         <Link href="/review" className="rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
           返回报名审核
@@ -50,10 +59,10 @@ export default async function ChangeReviewPage({ searchParams }: PageProps) {
       <form action="/review/changes" method="get" className="flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
         <label className="text-xs text-slate-500">
           <span className="mb-1 block">状态</span>
-          <select name="status" defaultValue={status ?? ""} className="h-10 min-w-40 rounded-md border border-slate-300 bg-white px-3 text-sm">
-            <option value="">全部状态</option>
+          <select name="status" defaultValue={status || "ALL"} className="h-10 min-w-40 rounded-md border border-slate-300 bg-white px-3 text-sm">
+            <option value="ALL">全部状态</option>
             {STATUS_OPTIONS.map((item) => (
-              <option key={item} value={item}>{CHANGE_STATUS_LABELS[item]}</option>
+              <option key={item.value} value={item.value}>{item.label}</option>
             ))}
           </select>
         </label>
@@ -108,7 +117,7 @@ export default async function ChangeReviewPage({ searchParams }: PageProps) {
                 </tr>
               ))}
               {result.list.length === 0 ? (
-                <tr><td colSpan={8} className="px-4 py-12 text-center text-slate-500">暂无变更申请</td></tr>
+                <tr><td colSpan={8} className="px-4 py-12 text-center text-slate-500">当前筛选下暂无变更申请{status === "PENDING" ? "（可切换「全部状态」查看历史）" : ""}</td></tr>
               ) : null}
             </tbody>
           </table>
@@ -117,10 +126,10 @@ export default async function ChangeReviewPage({ searchParams }: PageProps) {
           <span>共 {result.total} 条，第 {result.page} / {totalPages} 页</span>
           <div className="flex gap-2">
             {result.page > 1 ? (
-              <Link href={`/review/changes?page=${result.page - 1}${status ? `&status=${status}` : ""}`} className="rounded-md border border-slate-300 px-3 py-1 hover:bg-slate-50">上一页</Link>
+              <Link href={`/review/changes?page=${result.page - 1}&status=${statusQuery}`} className="rounded-md border border-slate-300 px-3 py-1 hover:bg-slate-50">上一页</Link>
             ) : null}
             {result.page < totalPages ? (
-              <Link href={`/review/changes?page=${result.page + 1}${status ? `&status=${status}` : ""}`} className="rounded-md border border-slate-300 px-3 py-1 hover:bg-slate-50">下一页</Link>
+              <Link href={`/review/changes?page=${result.page + 1}&status=${statusQuery}`} className="rounded-md border border-slate-300 px-3 py-1 hover:bg-slate-50">下一页</Link>
             ) : null}
           </div>
         </div>

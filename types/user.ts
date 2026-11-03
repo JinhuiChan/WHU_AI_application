@@ -9,4 +9,6 @@ export type ManagedUser = {
   createdAt: string;
   approvedAt: string | null;
   approvedBy: string | null;
+  approvalStatus: "PENDING" | "APPROVED" | "REJECTED";
+  roles: Role[];
 };

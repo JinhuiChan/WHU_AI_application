@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { BreadcrumbTitle } from "@/components/layout/breadcrumbs";
 import { MemberTimeline } from "@/components/projects/member-timeline";
 import { getActiveUser } from "@/lib/auth.server";
 import { aliasTypeLabels, awardLevelLabels, awardStatusLabels, evidenceTypeLabels, formatDate, formatDateTime, memberRoleLabels, projectStatusLabels } from "@/lib/presentation";
@@ -20,6 +21,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
 
   return (
     <div className="space-y-6">
+      <BreadcrumbTitle label={project.name} />
       <div>
         <Link href="/projects" className="text-sm text-blue-600 hover:underline">返回项目列表</Link>
         <div className="mt-3 flex flex-wrap items-center gap-3">

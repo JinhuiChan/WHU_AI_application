@@ -29,12 +29,23 @@ export async function POST(request: NextRequest) {
   const name = readString(payload, "name");
   const phone = readString(payload, "phone");
   const password = readString(payload, "password");
+  const identityRaw = readString(payload, "identity");
+  const identity = identityRaw || "STUDENT";
+  const staffNo = readString(payload, "staffNo");
+  const email = readString(payload, "email");
+  if (!["STUDENT", "TEACHER", "ADMIN"].includes(identity)) return apiError(422, "身份类型不正确");
 
-  if (!STUDENT_NO_PATTERN.test(studentNo)) {
+  if (identity === "STUDENT" && !STUDENT_NO_PATTERN.test(studentNo)) {
     return apiError(422, "学号应为 6–20 位数字");
+  }
+  if (identity === "TEACHER" && !/^[A-Za-z]\d{4,15}$/.test(staffNo)) {
+    return apiError(422, "教工号应以字母开头、后接 4–15 位数字，如 T2027001");
   }
   if (name.length < 2 || name.length > 20) {
     return apiError(422, "姓名应为 2–20 个字符");
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return apiError(422, "请填写正确的邮箱");
   }
   if (!PHONE_PATTERN.test(phone)) {
     return apiError(422, "请输入正确的手机号");
@@ -45,11 +56,17 @@ export async function POST(request: NextRequest) {
 
   try {
     const existing = await prisma.user.findFirst({
-      where: { OR: [{ phone }, { studentNo }] },
+      where: {
+        OR: [
+          { phone },
+          ...(identity === "STUDENT" && studentNo ? [{ studentNo }] : []),
+          ...(identity === "TEACHER" && staffNo ? [{ staffNo }] : []),
+        ],
+      },
       select: { phone: true, studentNo: true },
     });
     if (existing) {
-      return apiError(409, existing.phone === phone ? "该手机号已注册" : "该学号已注册");
+      return apiError(409, existing.phone === phone ? "该手机号已注册" : "该学号/教工号已注册");
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
@@ -60,7 +77,10 @@ export async function POST(request: NextRequest) {
           phone,
           name,
           passwordHash,
-          role: "STUDENT",
+          role: identity as "STUDENT" | "TEACHER" | "ADMIN",
+          staffNo: identity === "TEACHER" ? staffNo : null,
+          email,
+          approvalStatus: identity === "ADMIN" ? "PENDING" : "APPROVED",
           college: readString(payload, "college") || null,
           trainingUnit: readString(payload, "trainingUnit") || null,
           major: readString(payload, "major") || null,
@@ -71,23 +91,23 @@ export async function POST(request: NextRequest) {
       await writeAuditLog(
         {
           actorId: created.id,
-          action: "STUDENT_REGISTERED",
+          action: identity === "ADMIN" ? "ADMIN_REGISTER_PENDING" : "STUDENT_REGISTERED",
           targetType: "User",
           targetId: created.id,
-          detail: { studentNo: created.studentNo ?? "" },
+          detail: { identity, studentNo: created.studentNo ?? "", staffNo },
         },
         tx,
       );
       return created;
     });
 
-    return apiSuccess(user, "注册成功", 201);
+    return apiSuccess(user, identity === "ADMIN" ? "注册申请已提交，待管理员审核通过后可登录" : "注册成功，可直接登录", 201);
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
       const target = JSON.stringify(error.meta?.target ?? "");
       return apiError(409, target.includes("phone") ? "该手机号已注册" : "该学号已注册");
     }
-    console.error("学生注册失败：", error);
+    console.error("注册失败：", error);
     return apiError(500, "注册失败，请稍后重试");
   }
 }

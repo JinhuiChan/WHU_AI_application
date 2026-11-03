@@ -25,19 +25,27 @@ export async function GET(request: NextRequest) {
       college: true,
       trainingUnit: true,
       email: true,
-      teacherProfiles: { take: 1, select: { unit: true, title: true } },
+      teacherProfiles: { take: 6, orderBy: { updatedAt: "desc" }, select: { unit: true, title: true } },
     },
     orderBy: { name: "asc" },
     take: 10,
   });
-  return apiSuccess(teachers.map((teacher) => ({
-    staffNo: teacher.staffNo,
-    name: teacher.name,
-    gender: teacher.gender,
-    phone: teacher.phone,
-    school: "武汉大学",
-    unit: teacher.teacherProfiles[0]?.unit ?? teacher.trainingUnit ?? teacher.college ?? "",
-    title: teacher.teacherProfiles[0]?.title ?? "",
-    email: teacher.email,
-  })), "查询成功");
+  return apiSuccess(teachers.map((teacher) => {
+    // 职称/单位取历史指导记录里「最近的非空值」；从未提交过项目的老师没有历史，需手填
+    const unit = teacher.teacherProfiles.find((item) => item.unit.trim())?.unit.trim()
+      || teacher.trainingUnit
+      || teacher.college
+      || "";
+    const title = teacher.teacherProfiles.find((item) => item.title?.trim())?.title?.trim() ?? "";
+    return {
+      staffNo: teacher.staffNo,
+      name: teacher.name,
+      gender: teacher.gender,
+      phone: teacher.phone,
+      school: "武汉大学",
+      unit,
+      title,
+      email: teacher.email,
+    };
+  }), "查询成功");
 }

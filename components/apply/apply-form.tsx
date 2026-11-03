@@ -43,6 +43,7 @@ export type ApplyOptions = {
     workForms: DictionaryItem[];
     groups: DictionaryItem[];
     categories: DictionaryItem[];
+    units: string[];
   };
 };
 
@@ -153,7 +154,8 @@ function validateForm(form: ProjectFormInput, options: ApplyOptions): string[] {
   if (form.teachers.length > 8) errors.push("指导老师不能超过 8 名");
   if (form.members.length > 14) errors.push("团队成员不能超过 14 名");
   const payeeCount = Number(form.isPayee) + form.members.filter((member) => member.isPayee).length;
-  if (payeeCount !== 1) errors.push("全队必须且只能有一名奖金领款人");
+  // 0 人时服务端会兜底负责人，这里只拦多人
+  if (payeeCount > 1) errors.push("全队只能有一名奖金领款人");
   if (form.isPayee) errors.push(...validatePayee(form.payee, "负责人"));
   form.members.forEach((member, index) => {
     if (member.isPayee) errors.push(...validatePayee(member.payee, `成员 ${index + 1}`));
@@ -178,20 +180,21 @@ export function ApplyForm({ student, options, projectId, initialValue, lockedCom
   const [validationVisible, setValidationVisible] = useState(false);
   const [pendingAction, setPendingAction] = useState<"draft" | "submit" | null>(null);
   const [requestError, setRequestError] = useState("");
+  const [payeeHint, setPayeeHint] = useState("");
   const errors = validateForm(form, resolvedOptions);
 
   useEffect(() => {
     let active = true;
     async function loadOptions() {
       try {
-        const response = await fetch("/api/apply/options", { method: "GET" });
+        const response = await fetch(lockedCompetitionId ? `/api/apply/options?competitionId=${encodeURIComponent(lockedCompetitionId)}` : "/api/apply/options", { method: "GET" });
         const result = await response.json() as { code: number; data: ApplyOptions };
         if (active && response.ok && result.code === 0) setResolvedOptions(result.data);
       } catch {}
     }
     void loadOptions();
     return () => { active = false; };
-  }, [options]);
+  }, [options, lockedCompetitionId]);
 
   function updateBasic(patch: Partial<ProjectFormInput>) {
     setForm((current) => ({ ...current, ...patch }));
@@ -218,22 +221,30 @@ export function ApplyForm({ student, options, projectId, initialValue, lockedCom
   }
 
   function toggleLeaderPayee(checked: boolean) {
-    setForm((current) => ({
-      ...current,
+    if (!checked && !form.members.some((member) => member.isPayee)) {
+      setPayeeHint("全队需有一名奖金领款人：负责人保持为领款人。如需更换，请先勾选某位成员。");
+      return;
+    }
+    setPayeeHint("");
+    setForm({
+      ...form,
       isPayee: checked,
-      members: current.members.map((member) => ({ ...member, isPayee: checked ? false : member.isPayee })),
-    }));
+      members: form.members.map((member) => ({ ...member, isPayee: checked ? false : member.isPayee })),
+    });
   }
 
   function toggleMemberPayee(index: number, checked: boolean) {
-    setForm((current) => ({
-      ...current,
-      isPayee: checked ? false : current.isPayee,
-      members: current.members.map((member, itemIndex) => ({
-        ...member,
-        isPayee: itemIndex === index ? checked : checked ? false : member.isPayee,
-      })),
+    const members = form.members.map((member, itemIndex) => ({
+      ...member,
+      isPayee: itemIndex === index ? checked : checked ? false : member.isPayee,
     }));
+    if (!form.isPayee && !members.some((member) => member.isPayee)) {
+      setPayeeHint("全队需有一名奖金领款人：已自动把负责人勾选为领款人。");
+      setForm({ ...form, isPayee: true, members });
+      return;
+    }
+    setPayeeHint("");
+    setForm({ ...form, isPayee: checked ? false : form.isPayee, members });
   }
 
   async function persist(action: "draft" | "submit") {
@@ -267,6 +278,7 @@ export function ApplyForm({ student, options, projectId, initialValue, lockedCom
   return (
     <div className="space-y-5" onBlur={() => setValidationVisible(true)}>
       <BasicInfoCard student={student} value={form} competitions={resolvedOptions.competitions} dictionaries={resolvedOptions.dictionaries} onChange={updateBasic} onPayeeToggle={toggleLeaderPayee} />
+      {payeeHint ? <p role="status" className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">{payeeHint}</p> : null}
       <TeacherSection teachers={form.teachers} onChange={(teachers: TeacherInput[]) => updateBasic({ teachers })} />
       <MemberSection
         members={form.members.map((member) => ({

@@ -1,7 +1,8 @@
 import * as XLSX from "xlsx";
 import type { ProjectStage } from "@prisma/client";
 import { decryptField, maskTail } from "@/lib/crypto";
-import { getLabelMap } from "@/lib/dict";
+import { globalLabel, loadScopedLabels, trackLabel } from "@/lib/dict-labels";
+import { formatDateTime } from "@/lib/presentation";
 import { prisma } from "@/lib/prisma";
 
 const stageLabels: Record<ProjectStage, string> = {
@@ -50,14 +51,7 @@ export async function createRegistrationForm(projectId: string, watermarkNo: str
     },
   });
   if (!project) return null;
-  const [educationStages, ethnicities, workForms, groups, categories] = await Promise.all([
-    getLabelMap("EDUCATION_STAGE"),
-    getLabelMap("ETHNICITY"),
-    getLabelMap("WORK_FORM"),
-    getLabelMap("GROUP"),
-    getLabelMap("CATEGORY"),
-  ]);
-  const label = (map: Record<string, string>, value: string | null | undefined) => value ? map[value] ?? value : "";
+  const labels = await loadScopedLabels();
   const leader = project.teamMembers.find((member) => member.role === "LEADER") ?? project.teamMembers[0];
   const payee = project.payeeMember ?? project.teamMembers.find((member) => member.isPayee);
   const bank = payee?.payeeBank;
@@ -95,12 +89,12 @@ export async function createRegistrationForm(projectId: string, watermarkNo: str
 
   section("一、基本信息");
   fields(["赛事名称", project.competition?.name ?? ""], ["赛年", project.year], ["阶段", stageLabels[project.stage]], ["批次", project.batchName ?? ""]);
-  fields(["项目名称", project.name], ["赛道", project.track?.name ?? ""], ["项目组别", label(groups, project.groupName)], ["项目类别", label(categories, project.categoryName)]);
+  fields(["项目名称", project.name], ["赛道", project.track?.name ?? ""], ["项目组别", trackLabel(labels, "GROUP", project.groupName, project.trackId)], ["项目类别", trackLabel(labels, "CATEGORY", project.categoryName, project.trackId)]);
   fields(["申报单位", project.applicationUnit], ["培养单位", project.trainingUnit], ["命题名称", project.propositionName ?? ""], ["命题企业", project.propositionCompany ?? ""]);
   fields(["负责人学号", leader?.personNo ?? project.owner?.studentNo ?? ""], ["负责人姓名", leader?.name ?? project.owner?.name ?? ""], ["年级", project.owner?.grade ?? ""], ["专业", leader?.major ?? project.owner?.major ?? ""]);
-  fields(["性别", leader?.gender || project.owner?.gender || ""], ["民族", label(ethnicities, leader?.ethnicity || project.owner?.ethnicity)], ["培养阶段", label(educationStages, leader?.educationStage || project.owner?.educationStage)], ["入学年份", leader?.enrollmentYear ?? project.owner?.enrollmentYear ?? ""]);
-  fields(["毕业年份", leader?.graduationYear ?? project.owner?.graduationYear ?? ""], ["手机号", leader?.phone || project.owner?.phone || ""], ["邮箱", leader?.email || project.owner?.email || ""], ["提交时间", project.submittedAt?.toISOString() ?? ""]);
-  fields(["作品形式", label(workForms, project.work?.form)], ["作品类别", label(categories, project.work?.category)], ["作品组别", label(groups, project.work?.groupName)], ["作品文件/外链", project.work?.fileName || project.work?.externalUrl || ""]);
+  fields(["性别", leader?.gender || project.owner?.gender || ""], ["民族", globalLabel(labels, "ETHNICITY", leader?.ethnicity || project.owner?.ethnicity)], ["培养阶段", globalLabel(labels, "EDUCATION_STAGE", leader?.educationStage || project.owner?.educationStage)], ["入学年份", leader?.enrollmentYear ?? project.owner?.enrollmentYear ?? ""]);
+  fields(["毕业年份", leader?.graduationYear ?? project.owner?.graduationYear ?? ""], ["手机号", leader?.phone || project.owner?.phone || ""], ["邮箱", leader?.email || project.owner?.email || ""], ["提交时间", project.submittedAt ? formatDateTime(project.submittedAt.toISOString()) : ""]);
+  fields(["作品形式", globalLabel(labels, "WORK_FORM", project.work?.form)], ["作品类别", trackLabel(labels, "CATEGORY", project.work?.category, project.trackId)], ["作品组别", trackLabel(labels, "GROUP", project.work?.groupName, project.trackId)], ["作品文件/外链", project.work?.fileName || project.work?.externalUrl || ""]);
   fields(["备注", project.remark ?? ""]);
 
   section("二、指导老师");
@@ -117,11 +111,11 @@ export async function createRegistrationForm(projectId: string, watermarkNo: str
       member.isInternal ? "是" : "否",
       member.name,
       member.personNo ?? "",
-      label(educationStages, member.educationStage),
+      globalLabel(labels, "EDUCATION_STAGE", member.educationStage),
       member.trainingUnit,
       member.major,
       member.gender,
-      label(ethnicities, member.ethnicity),
+      globalLabel(labels, "ETHNICITY", member.ethnicity),
       member.enrollmentYear ?? "",
       member.graduationYear ?? "",
       member.phone ?? "",

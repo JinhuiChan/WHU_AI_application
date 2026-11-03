@@ -50,6 +50,8 @@ export type ReviewListItem = {
 
 export type ReviewListPage = Paginated<ReviewListItem>;
 
+export type ReviewTab = "pending" | "reviewed" | "all";
+
 export type ReviewFilters = {
   competitionId?: string;
   stage?: ProjectStage;
@@ -57,6 +59,7 @@ export type ReviewFilters = {
   status?: RegistrationStatus;
   trackId?: string;
   q?: string;
+  tab?: ReviewTab;
   page: number;
   pageSize: number;
 };

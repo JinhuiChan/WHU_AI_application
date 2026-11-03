@@ -6,7 +6,8 @@ import type {
   ReviewResult,
 } from "@prisma/client";
 import { writeAuditLog } from "@/lib/audit";
-import { getLabelMap } from "@/lib/dict";
+import { globalLabel, loadScopedLabels, trackLabel } from "@/lib/dict-labels";
+import type { ScopedLabels } from "@/lib/dict-labels";
 import { optionalText, pageParams } from "@/lib/list-query";
 import { registrationStatusLabels } from "@/lib/presentation";
 import { prisma } from "@/lib/prisma";
@@ -18,6 +19,7 @@ import type {
   ReviewListItem,
   ReviewListPage,
   ReviewOperationResult,
+  ReviewTab,
 } from "@/types/review";
 
 const reviewListInclude = {
@@ -65,41 +67,25 @@ const reviewDetailInclude = {
 
 type ReviewListProject = Prisma.ProjectGetPayload<{ include: typeof reviewListInclude }>;
 
-type LabelMaps = {
-  educationStages: Record<string, string>;
-  ethnicities: Record<string, string>;
-  workForms: Record<string, string>;
-  groups: Record<string, string>;
-  categories: Record<string, string>;
-};
+type LabelMaps = ScopedLabels;
 
 async function loadLabelMaps(): Promise<LabelMaps> {
-  const [educationStages, ethnicities, workForms, groups, categories] = await Promise.all([
-    getLabelMap("EDUCATION_STAGE"),
-    getLabelMap("ETHNICITY"),
-    getLabelMap("WORK_FORM"),
-    getLabelMap("GROUP"),
-    getLabelMap("CATEGORY"),
-  ]);
-  return { educationStages, ethnicities, workForms, groups, categories };
-}
-
-function label(map: Record<string, string>, value: string | null | undefined) {
-  return value ? map[value] ?? value : "";
+  return loadScopedLabels();
 }
 
 function mapReviewListItem(project: ReviewListProject, labels: LabelMaps): ReviewListItem {
   const leader = project.teamMembers.find((member) => member.role === "LEADER") ?? project.teamMembers[0];
   const payee = project.payeeMember ?? project.teamMembers.find((member) => member.isPayee);
-  const groupName = label(labels.groups, project.groupName);
-  const categoryName = label(labels.categories, project.categoryName);
+  const groupName = trackLabel(labels, "GROUP", project.groupName, project.trackId);
+  const categoryName = trackLabel(labels, "CATEGORY", project.categoryName, project.trackId);
   const trackName = project.track?.name ?? "未设置赛道";
   const trackDisplay = [project.track?.name, groupName, categoryName].filter(Boolean).join(" / ") || trackName;
-  const educationStage = label(
-    labels.educationStages,
+  const educationStage = globalLabel(
+    labels,
+    "EDUCATION_STAGE",
     leader?.educationStage || project.owner?.educationStage,
   );
-  const ethnicity = label(labels.ethnicities, leader?.ethnicity || project.owner?.ethnicity);
+  const ethnicity = globalLabel(labels, "ETHNICITY", leader?.ethnicity || project.owner?.ethnicity);
   const applicantName = leader?.name ?? project.owner?.name ?? "";
 
   return {
@@ -127,9 +113,9 @@ function mapReviewListItem(project: ReviewListProject, labels: LabelMaps): Revie
     payeeName: payee?.name ?? "",
     projectName: project.name,
     workName: project.work?.fileName || project.work?.externalUrl || "",
-    workForm: label(labels.workForms, project.work?.form),
-    workCategory: label(labels.categories, project.work?.category),
-    workGroup: label(labels.groups, project.work?.groupName),
+    workForm: globalLabel(labels, "WORK_FORM", project.work?.form),
+    workCategory: trackLabel(labels, "CATEGORY", project.work?.category, project.trackId),
+    workGroup: trackLabel(labels, "GROUP", project.work?.groupName, project.trackId),
     applicantName,
     phone: leader?.phone || project.owner?.phone || "",
     email: leader?.email || project.owner?.email || "",
@@ -149,11 +135,11 @@ function mapReviewListItem(project: ReviewListProject, labels: LabelMaps): Revie
       member.isInternal ? "是" : "否",
       member.name,
       member.personNo ?? "",
-      label(labels.educationStages, member.educationStage),
+      globalLabel(labels, "EDUCATION_STAGE", member.educationStage),
       member.trainingUnit,
       member.major,
       member.gender,
-      label(labels.ethnicities, member.ethnicity),
+      globalLabel(labels, "ETHNICITY", member.ethnicity),
       member.phone ?? "",
       member.email ?? "",
     ].join(",")).join("\n"),
@@ -176,6 +162,8 @@ export function parseReviewQuery(params: URLSearchParams): ReviewFilters {
   const { page, pageSize } = pageParams(params.get("page") ?? undefined, params.get("pageSize") ?? undefined);
   const stage = params.get("stage");
   const status = params.get("status");
+  const tab = params.get("tab");
+  const parsedTab: ReviewTab | undefined = tab === "pending" || tab === "reviewed" || tab === "all" ? tab : undefined;
   return {
     competitionId: optionalText(params.get("competitionId") ?? undefined),
     stage: isProjectStage(stage) ? stage : undefined,
@@ -183,9 +171,37 @@ export function parseReviewQuery(params: URLSearchParams): ReviewFilters {
     status: isRegistrationStatus(status) ? status : undefined,
     trackId: optionalText(params.get("trackId") ?? undefined),
     q: optionalText(params.get("q") ?? undefined),
+    tab: parsedTab,
     page,
     pageSize,
   };
+}
+
+const pendingStatuses: RegistrationStatus[] = ["PENDING", "COLLEGE_REVIEW"];
+const reviewedStatuses: RegistrationStatus[] = [
+  "SCHOOL_FINAL",
+  "REJECTED",
+  "PROVINCE_ADVANCED",
+  "NATIONAL_ADVANCED",
+  "WITHDRAWN",
+];
+
+export async function getReviewTabCounts() {
+  const groups = await prisma.project.groupBy({
+    by: ["reviewStatus"],
+    where: { deletedAt: null },
+    _count: { _all: true },
+  });
+  let pending = 0;
+  let reviewed = 0;
+  let total = 0;
+  for (const group of groups) {
+    const count = group._count._all;
+    total += count;
+    if (pendingStatuses.includes(group.reviewStatus)) pending += count;
+    else if (reviewedStatuses.includes(group.reviewStatus)) reviewed += count;
+  }
+  return { pending, reviewed, total };
 }
 
 export function buildReviewWhere(filters: Partial<ReviewFilters>): Prisma.ProjectWhereInput {
@@ -194,6 +210,8 @@ export function buildReviewWhere(filters: Partial<ReviewFilters>): Prisma.Projec
   if (filters.stage) where.stage = filters.stage;
   if (filters.college) where.college = filters.college;
   if (filters.status) where.reviewStatus = filters.status;
+  else if (filters.tab === "pending") where.reviewStatus = { in: pendingStatuses };
+  else if (filters.tab === "reviewed") where.reviewStatus = { in: reviewedStatuses };
   if (filters.trackId) where.trackId = filters.trackId;
   if (filters.q) {
     where.OR = [
@@ -307,11 +325,11 @@ export async function getReviewDetail(projectId: string): Promise<ReviewDetail |
       name: member.name,
       role: member.role,
       school: member.school,
-      educationStage: label(labels.educationStages, member.educationStage),
+      educationStage: globalLabel(labels, "EDUCATION_STAGE", member.educationStage),
       trainingUnit: member.trainingUnit,
       major: member.major,
       gender: member.gender,
-      ethnicity: label(labels.ethnicities, member.ethnicity),
+      ethnicity: globalLabel(labels, "ETHNICITY", member.ethnicity),
       enrollmentYear: member.enrollmentYear,
       graduationYear: member.graduationYear,
       phone: member.phone,
@@ -322,9 +340,9 @@ export async function getReviewDetail(projectId: string): Promise<ReviewDetail |
       fileName: project.work.fileName,
       fileUrl: project.work.fileUrl,
       externalUrl: project.work.externalUrl,
-      form: label(labels.workForms, project.work.form),
-      category: label(labels.categories, project.work.category),
-      groupName: label(labels.groups, project.work.groupName),
+      form: globalLabel(labels, "WORK_FORM", project.work.form),
+      category: trackLabel(labels, "CATEGORY", project.work.category, project.trackId),
+      groupName: trackLabel(labels, "GROUP", project.work.groupName, project.trackId),
       pptFileName: project.work.pptFileName,
       pptFileUrl: project.work.pptFileUrl,
     } : null,
@@ -393,6 +411,21 @@ function nextStatus(level: ReviewLevel, result: ReviewResult): RegistrationStatu
   return level === "COLLEGE" ? "COLLEGE_REVIEW" : "SCHOOL_FINAL";
 }
 
+/** 审核通过的前置硬门槛：必须有指导老师，且全部已确认（CONFIRMED）。 */
+async function assertTeachersConfirmed(transaction: Prisma.TransactionClient, projectId: string) {
+  const teachers = await transaction.teacher.findMany({
+    where: { projectId },
+    select: { name: true, confirmStatus: true },
+  });
+  if (teachers.length === 0) {
+    throw new ReviewError(422, "该项目还没有指导老师，不能审核通过；请先添加指导老师并完成确认");
+  }
+  const pending = teachers.filter((teacher) => teacher.confirmStatus !== "CONFIRMED").map((teacher) => teacher.name);
+  if (pending.length > 0) {
+    throw new ReviewError(422, `指导老师尚未确认指导关系：${pending.join("、")}；请等待确认后再审核通过`);
+  }
+}
+
 export async function reviewProject(input: {
   projectId: string;
   level: ReviewLevel;
@@ -414,6 +447,8 @@ export async function reviewProject(input: {
     if (project.reviewStatus !== expected || project.status !== expected) {
       throw new ReviewError(422, invalidStateMessage(input.level, project.reviewStatus));
     }
+
+    if (input.result === "APPROVED") await assertTeachersConfirmed(transaction, project.id);
 
     const updated = await transaction.project.updateMany({
       where: { id: project.id, status: expected, reviewStatus: expected, deletedAt: null },

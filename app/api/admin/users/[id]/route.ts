@@ -42,21 +42,50 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
       if (existingApproval) {
         return apiError(409, "该用户已审核");
       }
-      await writeAuditLog({
-        actorId: authorization.user.id,
-        action: "USER_APPROVED",
-        targetType: "User",
-        targetId: target.id,
-        detail: { result: "审核通过" },
+      await prisma.$transaction(async (transaction) => {
+        await transaction.user.update({
+          where: { id: target.id },
+          data: { approvalStatus: "APPROVED", approvedAt: new Date(), approvedBy: authorization.user.name },
+        });
+        await writeAuditLog({
+          actorId: authorization.user.id,
+          action: "USER_APPROVED",
+          targetType: "User",
+          targetId: target.id,
+          detail: { result: "审核通过" },
+        }, transaction);
       });
       return apiSuccess(await listManagedUsers(), "审核通过");
     }
 
+    if (action === "REJECT") {
+      if (target.id === authorization.user.id) return apiError(409, "不能驳回当前登录账号");
+      await prisma.$transaction(async (transaction) => {
+        await transaction.user.update({
+          where: { id: target.id },
+          data: { approvalStatus: "REJECTED", approvedAt: new Date(), approvedBy: authorization.user.name },
+        });
+        await writeAuditLog({
+          actorId: authorization.user.id,
+          action: "USER_REJECTED",
+          targetType: "User",
+          targetId: target.id,
+          detail: { result: "审核驳回" },
+        }, transaction);
+      });
+      return apiSuccess(await listManagedUsers(), "已驳回该注册申请");
+    }
+
     if (action === "UPDATE_ROLE") {
       const role = "role" in body ? body.role : undefined;
-      if (role !== "ADMIN" && role !== "USER") {
-        return apiError(422, "角色仅支持 ADMIN 或 USER");
+      if (role !== "ADMIN" && role !== "STUDENT" && role !== "TEACHER" && role !== "USER") {
+        return apiError(422, "角色仅支持 ADMIN / STUDENT / TEACHER / USER");
       }
+      const rolesInput = "roles" in body ? (body as Record<string, unknown>).roles : undefined;
+      const rawRoles: unknown[] = Array.isArray(rolesInput) ? rolesInput : [role];
+      const allowed = new Set(["ADMIN", "STUDENT", "TEACHER", "USER"]);
+      const extraRoles = [...new Set(rawRoles.filter((item): item is string => typeof item === "string" && allowed.has(item)))];
+      if (!extraRoles.length) extraRoles.push(role as string);
       if (target.id === authorization.user.id) {
         return apiError(409, "不能修改当前登录账号的角色");
       }
@@ -65,13 +94,17 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
       }
       await prisma.$transaction(async (transaction) => {
         await transaction.user.update({ where: { id: target.id }, data: { role } });
+        // 主角色之外的附加身份写进 UserRoleLink（支持老师+管理员 / 学生+管理员）
+        await transaction.userRoleLink.deleteMany({ where: { userId: target.id } });
+        const extra = extraRoles.filter((item) => item !== role).map((item) => ({ userId: target.id, role: item as "ADMIN" | "STUDENT" | "TEACHER" | "USER", grant: "ADMIN_GRANT" }));
+        if (extra.length) await transaction.userRoleLink.createMany({ data: extra });
         await writeAuditLog(
           {
             actorId: authorization.user.id,
             action: "USER_ROLE_UPDATED",
             targetType: "User",
             targetId: target.id,
-            detail: { previousRole: target.role, nextRole: role },
+            detail: { previousRole: target.role, nextRole: role, extraRoles },
           },
           transaction,
         );

@@ -2,6 +2,80 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-03 发布记录
+
+- 隐私扫描（当前跟踪树 + 本地全部提交历史）：**无** `.env`、`prisma/dev.db`、`public/uploads/`、私钥、API Key；仅 `.env.example` 占位示例、`scripts/crypto-selftest.ts` 假密钥与测试账号（138…/123456）。`docs/` 内也只有演示账号与字段说明。
+- 已合并远程 `jinhui/main`（含 `483f136 chore: scrub placeholder secrets` 与文档相关提交），合并后 `tsc --noEmit`、`next lint` 通过。
+- 已推送 `longjunwwk/WHU_AI_application` 的 `main`：`54599c0..f661637`（本地分支 `fix/2026-11-01-test-findings` 的 17 个修复提交 + 1 个合并提交）。
+- **未推送到 `JinhuiChan/WHU_AI_application`**：本机 SSH key 属于 `longjunwwk`，对该仓库无写权限（read 可用）。需 JinhuiChan 加协作者，或用网页从 `longjunwwk/main` 发 PR 合入。
+
+## 2026-11-01 全流程测试修复（分支 `fix/2026-11-01-test-findings`）
+
+测试方式：清空演示数据 → 重建账号 → 按 DEMO 8 环节走查（界面 + 接口 + 数据库三方核对）。
+完整问题清单与方案见工作区 `测试问题与修复方案-2026-11-01.md`。
+
+### B1 字典链路（已完成，未动 schema）
+- 根因：`DictOption.value` 按赛道内序号生成（C1..Cn/G1..Gn），跨赛道重号；`listOptions` 不按 trackId 过滤；`getLabelMap` 用 `Object.fromEntries` 后写覆盖 → 组别/类别在详情、27 列、导出里随机张冠李戴。
+- 新增 `lib/dict-labels.ts`：`loadScopedLabels / trackLabel / globalLabel`，赛道级字段一律按项目 `trackId` 解析，查不到再回退全局。
+- 新增 `lib/apply-options.ts`：服务端首屏与 `/api/apply/options` 共用同一套赛道树构造，杜绝两份字典逻辑漂移；全局字典只返回 `trackId IS NULL` 的项。
+- 改造 `lib/review.ts`、`lib/apply.ts`、`lib/form-export.ts`、`app/(workspace)/apply/page.tsx`、`app/(workspace)/competitions/[id]/page.tsx` 的 label 解析与字典读取。
+- 复验：27 列/详情页/报名表导出均显示「本科生创意组 · 人工智能+」「公益组 · 现代农业」；报名选项按赛道下发；赛事主页按赛道展示组别/类别。
+- 结论：**不需要改写库里的 code**——按赛道解析即可消除错乱；后续 B2 在后台新建字典时再用全局唯一 code。
+
+### B2 赛道可配置 + 报名入口/赛事隔离（已完成，未动 schema）
+- 新增 `lib/admin-tracks.ts`：赛道增删改查 + 组别/类别覆盖保存。
+  - 保存策略：已存在标签保留 `value`（历史项目不动）、新增标签分配下一个 `G/C` 序号、移除的标签只 `enabled=false`（不物理删）。
+  - 删除赛道：先删该赛道 DictOption（否则 `onDelete: SetNull` 会洗成全局字典）；有子赛道或有项目引用时返回 409。
+- 新增接口：`GET/POST /api/admin/competitions/[id]/tracks`、`PATCH/DELETE /api/admin/tracks/[id]`、`PUT /api/admin/tracks/[id]/options`，均写 AuditLog。
+- 新增 `components/admin/track-editor.tsx`，挂到赛事详情页「赛道与组别」（管理员可编辑，学生仍只读）。
+- P0-4：删除赛事列表页「我要报名」；`/apply` 必须带 `competitionId`（编辑时取项目所属赛事），否则 307 回 `/competitions`；`/api/apply/options` 支持 `?competitionId=`，客户端请求同步带参，避免锁死后被全量选项覆盖。
+
+### B3 审核前置门槛 + 驳回冻结老师确认（已完成，未动 schema）
+- `lib/review.ts` 新增 `assertTeachersConfirmed`：审核**通过**（学院/校级）前必须"有指导老师且全部 `CONFIRMED`"，否则 422 并列出未确认老师姓名；驳回不受限；批量审核复用同一函数，逐条失败不整体回滚。
+- `lib/teacher.ts`：项目处于 `REJECTED`/`WITHDRAWN` 时，老师确认/拒绝一律 409「指导关系确认已冻结」。
+- 验收（临时开窗→造 3 条项目→删净→恢复窗口）：
+  - 无老师 → 422「该项目还没有指导老师…」
+  - 有老师未确认 → 422「指导老师尚未确认指导关系：刘敏…」
+  - 老师确认后学院/校级两次通过均 200
+  - 驳回后老师再确认 → 409「项目已驳回，指导关系确认已冻结」
+
+### B4 角色体系（schema + 后端 + 前端，已 build）
+- schema：`UserRoleLink`（userId+role）、`User.approvalStatus/approvedAt/approvedBy`、`Competition.publishStatus`
+- 会话 token 带 `roles[]`（旧 token 自动回退单角色）；守卫/middleware/侧栏按角色集合
+- 登录校验审核状态；注册支持 学生/老师（教工号）/管理员（PENDING）
+- 用户管理：角色可选中学生/指导教师、状态读字段、新增「驳回」、保存角色同步多身份
+- 注意：`approvedBy` 存的是**操作人姓名**（便于列表直显）
+
+### B5 体验修复（进行中）
+- ✅ 登录页测试账号框删除；上传赛事文件标题默认填文件名；审计动作 25 条中文化
+- ✅ 负责人（1/2/3）才能在窗口内编辑，成员只读（服务端 307 兜底）
+- ✅ B5-A1（`fix(ui): B5-A1`）：
+  - `/projects` 新增「赛事」筛选与「赛事」列；筛选选项只列有项目的赛事，分页保留 `competitionId`。
+  - 学生 `/competitions` 表头改「报名截止 / 我的报名」，去系列标识列；截止取 SCHOOL 窗口（与 `submitProject` 口径一致，`startAt` 最新），补报名中/已关闭与状态徽标、立即报名/我的项目入口；管理员表不变。
+  - `/review` 顶部 tab「待审核 N / 已审核 / 全部」，默认待审核；待审核=PENDING+COLLEGE_REVIEW，已审核=SCHOOL_FINAL/REJECTED/PROVINCE_ADVANCED/NATIONAL_ADVANCED/WITHDRAWN（DRAFT 只计入全部）；tab 计数为全局值。
+  - 口径决定：**导出/打包不受 tab 影响**（tab 仅列表视图），否则默认待审核时导出会 422 无项目。
+- ✅ B5-A2（`fix(ui): B5-A2`）：
+  - 变更申请待办：`lib/pending.ts` 并发统计「待审核项目 + 待审批变更」；侧栏「报名审核」右侧红底数字（仅 ADMIN 查库）；`/review` 的「变更申请」按钮带角标；`/review/changes` 默认「待审批」，状态下拉加「待审批（学院/校级）/全部状态」，翻页保留状态。
+  - 面包屑：路由表补 `/my`、`/apply`、`/teacher`、`/review`、`/review/changes`、`/admin/awards`；详情页统一「首页 > 栏目 > 真实名称」，由页面挂 `<BreadcrumbTitle label={名称}/>`（客户端共享状态，卸载即清空，不引入 Provider）。
+  - 时间格式：报名表 xlsx 与数据表「提交时间」统一走 `formatDateTime`（水印里的 ISO 保留作溯源）；数据表「导出信息」页导出时间同样格式化。
+  - 打包：zip 内附 `跳过的项目.txt`（UTF-8 BOM + CRLF，逐条「项目名（学院）：未上传最终版盖章件」）；`X-Skipped-Count` 与 ExportRecord 新增 `skippedNames`。
+- ✅ B6（`fix(security): B6`）：
+  - SensitiveAccessLog 落库（新增 `lib/sensitive-access.ts`）：完整报名表导出写 `REGISTRATION_FORM`（含导出编号、项目、`idCard,bankCard`、原因）；含敏感字段的数据表导出写 `DATASET`（按项目逐条、同一导出编号）。详情页/27 列目前只显示脱敏值，没有「查看完整证件」入口，故仅两条导出路径留痕。
+  - 完整报名表下载改为先弹黄色确认条（含完整身份证/银行卡号、带水印并留痕），确认后才请求 `/api/export/form?full=1`；数据表导出保留敏感字段二次确认勾选（不勾则脱敏）。
+  - 领款人口径（C 兜底）：全队都没勾选时**服务端默认负责人为领款人**（`resolvePayeeState`）；前端关闭最后一个开关时保持负责人勾选并提示；校验由「必须且只能 1 人」改为「最多 1 人 + 兜底」，草稿保存与提交同一口径。
+- ✅ P1-7 / P1-8（`fix(apply): P1-7/P1-8`）：
+  - 单位字典：按武大官网「院系设置」（`https://www.whu.edu.cn/jgsz/yxsz.htm`，7 学部）写入 `TRAINING_UNIT`/`APPLICATION_UNIT` 各 43 条（trackId 空）。写库前备份 `tmp/db-backup-2026-11-03T08-44-03-before-units.db`（dev.db 未进 git）。
+  - `buildApplyOptions` 新增 `dictionaries.units` = 字典 ∪ 用户档案(college/trainingUnit) ∪ 历史项目(申报/培养单位)，去重保序；培养单位/申报单位改为 datalist「可下拉可手填」，旧值「机械与动力学院」等仍可选。
+  - 老师检索：`/api/lookup/teacher` 改为取历史指导记录中「最近非空」的 unit/title（原来只取最新一条，最新为空就带不出）；结果行显示「职称未登记」。
+  - 添加老师弹窗改逐字段红框校验（工号/姓名/手机号 11 位/学校/单位/职称），替换原来一句笼统提示。
+  - 已知限制：无教师人事档案表，从未提交过项目的老师检索不出职称，只能手填；彻底解决需加 `User.title` 或档案表（schema 变更，需单独批准）。
+- ✅ 赛事删除（`fix(admin): 误建赛事可删除`）：
+  - 新增 `DELETE /api/admin/competitions/[id]`（仅管理员）：有项目报名或奖项记录 → 409 拒绝；否则事务内先删该赛事赛道级字典（防 `SetNull` 洗成全局字典）→ 删赛事（赛道/报名窗口/赛事文件级联）→ 写 `COMPETITION_DELETED` 审计（`presentation.ts` 已补中文）。
+  - 列表行「删除」+ 赛事详情「危险操作」卡各加红色二次确认按钮（`components/admin/competition-delete-button.tsx`）。
+  - **dev 实测**：误建赛事「122」已由管理员点删除（审计 `9e126d0b`，tracks 0，列表由 2 条变 1 条）；对「中国国际大学生创新大赛」删除 → 409「该赛事已有 2 个项目报名，不能删除」；自测创建+删除 `794ef8ac` 成功且已清理。
+  - 未做：有项目赛事的「下架/撤回」隐藏（用 `publishStatus=WITHDRAWN` + 列表过滤），需要时再做。
+- ⬜ 未做（测试清单余项）：P2-3 队长导完整件（PRD 允许，需拍板）、P2-7 作品/PPT 真实上传、P2-8 `/my/<id>` 首访 404 复验。
+
 ## 已完成阶段
 
 | 阶段 | 内容 | 提交 |

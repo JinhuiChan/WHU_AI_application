@@ -1,5 +1,7 @@
 "use client";
 
+import { roleLabels } from "@/lib/presentation";
+
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronDown, LogOut, UserRound } from "lucide-react";
@@ -54,7 +56,7 @@ export function UserMenu({ user }: { user: AuthUser }) {
         </span>
         <span className="hidden text-left sm:block">
           <span className="block font-medium text-slate-800">{user.name}</span>
-          <span className="block text-xs text-slate-500">{user.role === "ADMIN" ? "管理员" : "普通用户"}</span>
+          <span className="block text-xs text-slate-500">{roleLabels[user.role] ?? "普通用户"}</span>
         </span>
         <ChevronDown size={15} className="text-slate-400" aria-hidden="true" />
       </button>

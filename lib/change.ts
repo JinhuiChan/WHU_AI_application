@@ -288,14 +288,23 @@ function positiveInteger(value: string | null, fallback: number, maximum?: numbe
 
 export function parseChangeListQuery(params: URLSearchParams) {
   const status = params.get("status");
-  if (status && !Object.values(ChangeRequestStatus).includes(status as ChangeRequestStatus)) throw new ChangeError(422, "变更申请状态不正确");
+  // "PENDING" 是列表页「待审批」视图（学院待审 + 校级待审），不是真实枚举值
+  const pendingOnly = status === "PENDING";
+  if (status && !pendingOnly && !Object.values(ChangeRequestStatus).includes(status as ChangeRequestStatus)) throw new ChangeError(422, "变更申请状态不正确");
   const projectId = params.get("projectId")?.trim() || undefined;
   return {
-    status: status ? status as ChangeRequestStatus : undefined,
+    status: status && !pendingOnly ? status as ChangeRequestStatus : undefined,
+    pendingOnly,
     projectId,
     page: positiveInteger(params.get("page"), 1),
     pageSize: positiveInteger(params.get("pageSize"), 10, 50),
   };
+}
+
+const pendingChangeStatuses: ChangeRequestStatus[] = ["PENDING_COLLEGE", "PENDING_SCHOOL"];
+
+export async function countPendingChangeRequests() {
+  return prisma.changeRequest.count({ where: { status: { in: pendingChangeStatuses } } });
 }
 
 export async function listChangeRequests(
@@ -305,7 +314,9 @@ export async function listChangeRequests(
   if (user.role !== "ADMIN" && user.role !== "STUDENT") throw new ChangeError(403, "无权限查看变更申请");
   const where: Prisma.ChangeRequestWhereInput = {
     ...(user.role === "STUDENT" ? { applicantId: user.id } : {}),
-    ...(query.status ? { status: query.status } : {}),
+    ...(query.pendingOnly
+      ? { status: { in: pendingChangeStatuses } }
+      : query.status ? { status: query.status } : {}),
     ...(query.projectId ? { projectId: query.projectId } : {}),
   };
   const [total, requests] = await Promise.all([

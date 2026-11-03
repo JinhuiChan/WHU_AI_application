@@ -28,6 +28,26 @@ export type PackageEntry = {
   uploadedAt: Date;
 };
 
+export type SkippedProject = {
+  projectName: string;
+  college: string;
+  reason: string;
+};
+
+const skippedListFileName = "跳过的项目.txt";
+
+function skippedListText(skipped: SkippedProject[]) {
+  const lines = [
+    "盖章件打包 - 未打包项目清单",
+    `共 ${skipped.length} 个项目未打包：`,
+    "",
+    ...skipped.map((item, index) => `${index + 1}. ${item.projectName}（${item.college}）：${item.reason}`),
+    "",
+  ];
+  // Windows 记事本友好：UTF-8 BOM + CRLF
+  return `\uFEFF${lines.join("\r\n")}`;
+}
+
 function safePart(value: string | null | undefined, fallback: string) {
   const normalized = (value ?? "").replace(/[<>:"/\\|?*\x00-\x1f]/g, "_").trim();
   return (normalized || fallback).slice(0, 100);
@@ -68,13 +88,17 @@ export async function prepareSealedPackage(filters: Partial<ReviewFilters>) {
   });
 
   const entries: PackageEntry[] = [];
+  const skipped: SkippedProject[] = [];
   const usedNames = new Set<string>();
   let totalBytes = 0;
-  let skippedProjects = 0;
   for (const project of projects) {
     const file = project.sealedFiles[0];
     if (!file) {
-      skippedProjects += 1;
+      skipped.push({
+        projectName: project.name.replace(/\s+/g, " ").trim(),
+        college: project.college,
+        reason: "未上传最终版盖章件",
+      });
       continue;
     }
     const diskPath = resolveSealedFilePath(file.filePath);
@@ -108,14 +132,15 @@ export async function prepareSealedPackage(filters: Partial<ReviewFilters>) {
     });
   }
   if (!entries.length) throw new PackageError(422, "当前筛选结果没有可打包的最终版盖章件");
-  return { entries, projectCount, skippedProjects, totalBytes };
+  return { entries, projectCount, skipped, totalBytes };
 }
 
-export function createPackageStream(entries: PackageEntry[]) {
+export function createPackageStream(entries: PackageEntry[], skipped: SkippedProject[] = []) {
   const zip = new JSZip();
   for (const entry of entries) {
     zip.file(entry.entryName, createReadStream(entry.diskPath), { binary: true, date: entry.uploadedAt });
   }
+  if (skipped.length) zip.file(skippedListFileName, skippedListText(skipped));
   const stream = zip.generateNodeStream({ type: "nodebuffer", streamFiles: true, compression: "STORE" });
   return Readable.toWeb(stream as Readable) as ReadableStream<Uint8Array>;
 }

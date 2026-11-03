@@ -57,8 +57,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const role = session.role;
-  const isAdmin = role === "ADMIN";
+  const roles = session.roles;
+  const isAdmin = roles.includes("ADMIN");
 
   // 管理类路由与接口：仅 ADMIN
   if (isAdminApiPath(pathname) && !isAdmin) {
@@ -75,17 +75,17 @@ export async function middleware(request: NextRequest) {
   }
 
   // 学生侧：仅 STUDENT（ADMIN 可代看/代操作）
-  if (inPrefix(pathname, ["/apply", "/my", "/api/apply", "/api/my"]) && !(role === "STUDENT" || isAdmin)) {
+  if (inPrefix(pathname, ["/apply", "/my", "/api/apply", "/api/my"]) && !(roles.includes("STUDENT") || isAdmin)) {
     return pathname.startsWith("/api/") ? apiError(403, "该接口仅参赛学生可调用") : denyPage("该页面仅参赛学生可访问");
   }
 
   // 教师侧：仅 TEACHER（ADMIN 可代看）
-  if (inPrefix(pathname, ["/teacher", "/api/teacher"]) && !(role === "TEACHER" || isAdmin)) {
+  if (inPrefix(pathname, ["/teacher", "/api/teacher"]) && !(roles.includes("TEACHER") || isAdmin)) {
     return pathname.startsWith("/api/") ? apiError(403, "该接口仅指导教师可调用") : denyPage("该页面仅指导教师可访问");
   }
 
   // 只读角色（财务/审计）不得执行写操作
-  if (role === "FINANCE" && pathname.startsWith("/api/") && writeMethods.has(request.method)) {
+  if (!isAdmin && roles.includes("FINANCE") && pathname.startsWith("/api/") && writeMethods.has(request.method)) {
     return apiError(403, "只读角色不可执行写操作");
   }
 

@@ -1,22 +1,13 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ApplyForm } from "@/components/apply/apply-form";
-import type { ApplyOptions } from "@/components/apply/apply-form";
 import { getMyProject } from "@/lib/apply";
+import { buildApplyOptions } from "@/lib/apply-options";
 import { getActiveUser } from "@/lib/auth.server";
-import { listOptions } from "@/lib/dict";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = { title: "项目报名" };
 export const dynamic = "force-dynamic";
-
-type FlatTrack = { id: string; parentId: string | null; name: string; kind: string };
-
-function trackTree(tracks: FlatTrack[], parentId: string | null = null): ApplyOptions["competitions"][number]["tracks"] {
-  return tracks
-    .filter((track) => track.parentId === parentId)
-    .map((track) => ({ ...track, children: trackTree(tracks, track.id) }));
-}
 
 type PageProps = { searchParams?: { projectId?: string | string[]; competitionId?: string | string[] } };
 
@@ -31,65 +22,38 @@ export default async function ApplyPage({ searchParams }: PageProps) {
   const projectId = firstParam(searchParams?.projectId);
   const competitionId = firstParam(searchParams?.competitionId);
 
-  const [student, competitions, ethnicities, educationStages, workForms, groups, categories] = await Promise.all([
-    prisma.user.findFirst({
-      where: { id: user.id, role: "STUDENT", deletedAt: null },
-      select: {
-        studentNo: true,
-        name: true,
-        college: true,
-        trainingUnit: true,
-        major: true,
-        grade: true,
-        gender: true,
-        ethnicity: true,
-        educationStage: true,
-        enrollmentYear: true,
-        graduationYear: true,
-        phone: true,
-        email: true,
-        boundFinancePlatform: true,
-      },
-    }),
-    prisma.competition.findMany({
-      where: competitionId ? { id: competitionId } : undefined,
-      select: {
-        id: true,
-        name: true,
-        year: true,
-        tracks: {
-          where: { enabled: true },
-          select: { id: true, parentId: true, name: true, kind: true },
-          orderBy: { sortOrder: "asc" },
-        },
-      },
-      orderBy: [{ year: "desc" }, { name: "asc" }],
-    }),
-    listOptions("ETHNICITY"),
-    listOptions("EDUCATION_STAGE"),
-    listOptions("WORK_FORM"),
-    listOptions("GROUP"),
-    listOptions("CATEGORY"),
-  ]);
+  const student = await prisma.user.findFirst({
+    where: { id: user.id, role: "STUDENT", deletedAt: null },
+    select: {
+      studentNo: true,
+      name: true,
+      college: true,
+      trainingUnit: true,
+      major: true,
+      grade: true,
+      gender: true,
+      ethnicity: true,
+      educationStage: true,
+      enrollmentYear: true,
+      graduationYear: true,
+      phone: true,
+      email: true,
+      boundFinancePlatform: true,
+    },
+  });
   if (!student) redirect("/login");
+
   const existing = projectId ? await getMyProject(projectId, user.id) : null;
   if (projectId && !existing) redirect("/my");
-  const labels = (items: Array<{ value: string; label: string }>) => items.map(({ value, label }) => ({ value, label }));
-  const options: ApplyOptions = {
-    competitions: competitions.map((competition) => ({
-      id: competition.id,
-      name: competition.name,
-      year: competition.year,
-      tracks: trackTree(competition.tracks),
-    })),
-    dictionaries: {
-      ethnicities: labels(ethnicities),
-      educationStages: labels(educationStages),
-      workForms: labels(workForms),
-      groups: labels(groups),
-      categories: labels(categories),
-    },
-  };
+  // 普通成员（非负责人）不能编辑，直接回我的项目
+  if (projectId && existing && !existing.canEdit) redirect("/my");
+
+  // 报名必须在赛事内进行：优先用 URL 上的 competitionId，编辑时取项目所属赛事；
+  // 两者都没有（例如直接访问 /apply）就回赛事列表，避免把所有赛事混在一个下拉里。
+  const lockedCompetitionId = competitionId || existing?.formInput.competitionId || "";
+  if (!lockedCompetitionId) redirect("/competitions");
+
+  const options = await buildApplyOptions(lockedCompetitionId);
 
   return (
     <div className="space-y-5">
@@ -102,7 +66,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
         options={options}
         projectId={projectId}
         initialValue={existing?.formInput}
-        lockedCompetitionId={competitionId}
+        lockedCompetitionId={lockedCompetitionId}
       />
     </div>
   );

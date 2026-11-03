@@ -32,11 +32,16 @@ const teacherNavigation = [
   { href: "/teacher", label: "指导项目", icon: UserCheck },
 ];
 
-function navigationFor(role: Role) {
-  if (role === "ADMIN") return adminNavigation;
-  if (role === "TEACHER") return teacherNavigation;
-  if (role === "STUDENT") return studentNavigation;
-  return [{ href: "/dashboard", label: "看板", icon: LayoutDashboard }];
+function navigationFor(roles: Role[]) {
+  const set = new Set(roles);
+  // 管理员导航已覆盖全部管理入口
+  if (set.has("ADMIN")) return adminNavigation;
+  const dashboard = [{ href: "/dashboard", label: "看板", icon: LayoutDashboard }];
+  const extra = [
+    ...(set.has("STUDENT") ? studentNavigation.filter((item) => item.href !== "/dashboard") : []),
+    ...(set.has("TEACHER") ? teacherNavigation.filter((item) => item.href !== "/dashboard") : []),
+  ];
+  return extra.length ? [...dashboard, ...extra] : dashboard;
 }
 
 const administration = [
@@ -47,12 +52,14 @@ const administration = [
   { href: "/admin/logs", label: "审计日志", icon: FileText },
 ];
 
-export function Sidebar({ role }: { role: Role }) {
+export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: number; changes: number } }) {
   const pathname = usePathname();
-  const navigation = navigationFor(role);
+  const navigation = navigationFor(roles);
+  const pendingTodo = badges ? badges.review + badges.changes : 0;
+  const pendingTitle = badges ? `待审核项目 ${badges.review} 个 · 待审批变更 ${badges.changes} 条` : undefined;
   const mobileNavigation = [
     ...navigation.slice(0, 4),
-    ...(role === "ADMIN" ? [{ href: "/admin/users", label: "管理", icon: Settings }] : []),
+    ...(roles.includes("ADMIN") ? [{ href: "/admin/users", label: "管理", icon: Settings }] : []),
   ];
 
   function isActive(href: string) {
@@ -87,7 +94,7 @@ export function Sidebar({ role }: { role: Role }) {
               </Link>
             );
           })}
-          {role === "ADMIN" ? (
+          {roles.includes("ADMIN") ? (
             <div className="pt-5">
               <p className="mb-2 px-3 text-xs font-medium text-slate-400">管理</p>
               {administration.map((item) => {
@@ -104,6 +111,14 @@ export function Sidebar({ role }: { role: Role }) {
                   >
                     <Icon size={18} aria-hidden="true" />
                     {item.label}
+                    {item.href === "/review" && pendingTodo > 0 ? (
+                      <span
+                        title={pendingTitle}
+                        className="ml-auto rounded-full bg-red-600 px-1.5 text-[10px] font-medium leading-4 text-white"
+                      >
+                        {pendingTodo}
+                      </span>
+                    ) : null}
                   </Link>
                 );
               })}

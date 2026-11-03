@@ -40,6 +40,7 @@ function mapProjectListItem(project: ProjectListResult): ProjectListItem {
   return {
     id: project.id,
     name: project.name,
+    competition: project.competition,
     college: project.college,
     year: project.year,
     status: project.status,
@@ -93,18 +94,25 @@ const awardSelection = {
 } satisfies Prisma.AwardRecordSelect;
 
 export async function listProjectFilterOptions() {
-  const [years, colleges] = await Promise.all([
+  const [years, colleges, competitions] = await Promise.all([
     prisma.project.groupBy({ by: ["year"], where: { deletedAt: null }, orderBy: { year: "desc" } }),
     prisma.project.groupBy({ by: ["college"], where: { deletedAt: null }, orderBy: { college: "asc" } }),
+    prisma.competition.findMany({
+      where: { projects: { some: { deletedAt: null } } },
+      select: { id: true, name: true },
+      orderBy: [{ year: "desc" }, { name: "asc" }],
+    }),
   ]);
   return {
     years: years.map((item) => item.year),
     colleges: colleges.map((item) => item.college),
+    competitions,
   };
 }
 
 export async function getProjectPage(filters: ProjectFilters, role: Role): Promise<Paginated<ProjectListItem>> {
   const where: Prisma.ProjectWhereInput = { deletedAt: null };
+  if (filters.competitionId) where.competitionId = filters.competitionId;
   if (filters.year) where.year = filters.year;
   if (filters.college) where.college = filters.college;
   if (filters.level) {
@@ -134,6 +142,7 @@ export async function getProjectPage(filters: ProjectFilters, role: Role): Promi
       select: {
         id: true,
         name: true,
+        competition: { select: { id: true, name: true } },
         college: true,
         year: true,
         status: true,
@@ -162,6 +171,7 @@ export async function getProjectDetail(id: string, role: Role): Promise<ProjectD
     select: {
       id: true,
       name: true,
+      competition: { select: { id: true, name: true } },
       college: true,
       year: true,
       status: true,

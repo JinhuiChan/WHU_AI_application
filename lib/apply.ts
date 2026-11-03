@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import type { MemberInput, PayeeInput, ProjectFormInput, TeacherInput } from "@/types/apply";
 import { decryptField, encryptField, maskTail } from "@/lib/crypto";
-import { getLabelMap } from "@/lib/dict";
+import { globalLabel, loadScopedLabels, trackLabel } from "@/lib/dict-labels";
 import { prisma } from "@/lib/prisma";
 
 export class ApplyError extends Error {
@@ -53,6 +53,13 @@ function validatePayee(payee: PayeeInput | undefined, owner: string) {
   }
 }
 
+// 领款人兜底：全队都没勾选时默认负责人为领款人（PRD 3.4：领款人原则上即项目负责人）
+function resolvePayeeState(input: ProjectFormInput) {
+  const memberPayeeCount = input.members.filter((member) => member.isPayee).length;
+  const leaderIsPayee = Boolean(input.isPayee) || memberPayeeCount === 0;
+  return { leaderIsPayee, memberPayeeCount };
+}
+
 function validateSubmission(input: ProjectFormInput, track: { kind: string; name: string }) {
   if (!Array.isArray(input.members) || !Array.isArray(input.teachers)) throw new ApplyError(422, "成员或老师数据格式不正确");
   if (input.members.length > 14) throw new ApplyError(422, "团队成员不能超过 14 名");
@@ -91,9 +98,9 @@ function validateSubmission(input: ProjectFormInput, track: { kind: string; name
     if (!input.propositionName?.trim() || !input.propositionCompany?.trim()) throw new ApplyError(422, "企业命题赛道须填写命题名称和命题企业");
   }
   if (!input.work?.fileName?.trim() && !input.work?.externalUrl?.trim()) throw new ApplyError(422, "请选择作品文件或填写作品外链");
-  const payeeCount = Number(input.isPayee) + input.members.filter((member) => member.isPayee).length;
-  if (payeeCount !== 1) throw new ApplyError(422, "全队必须且只能有一名奖金领款人");
-  if (input.isPayee) validatePayee(input.payee, "负责人");
+  const { leaderIsPayee, memberPayeeCount } = resolvePayeeState(input);
+  if (Number(leaderIsPayee) + memberPayeeCount !== 1) throw new ApplyError(422, "全队只能有一名奖金领款人");
+  if (leaderIsPayee) validatePayee(input.payee, "负责人");
   input.members.forEach((member, index) => {
     if (member.isPayee) validatePayee(member.payee, `成员 ${index + 1}`);
     const memberRequired = [member.name, member.school, member.educationStage, member.trainingUnit, member.major, member.gender, member.ethnicity, member.phone];
@@ -123,7 +130,7 @@ async function saveDraft(transaction: Transaction, userId: string, input: Projec
     projectId ? accessibleProject(transaction, projectId, userId) : Promise.resolve(null),
   ]);
   if (!track) throw new ApplyError(422, "赛事与赛道不匹配");
-
+  const { leaderIsPayee } = resolvePayeeState(input);
   const scalar = {
     name: input.name?.trim() || "未命名项目",
     college: input.applicationUnit?.trim() || input.trainingUnit?.trim() || "",
@@ -200,11 +207,11 @@ async function saveDraft(transaction: Transaction, userId: string, input: Projec
       email: nullable(input.email),
       remark: nullable(input.remark),
       sortOrder: 0,
-      isPayee: Boolean(input.isPayee),
+      isPayee: leaderIsPayee,
     },
   });
   await createBank(leader.id, input.payee);
-  let payeeMemberId = input.isPayee ? leader.id : null;
+  let payeeMemberId = leaderIsPayee ? leader.id : null;
 
   for (const [index, member] of input.members.entries()) {
     const created = await transaction.teamMember.create({
@@ -412,14 +419,8 @@ export async function getMyProject(projectId: string, userId: string) {
     },
   });
   if (!project) return null;
-  const [educationStages, ethnicities, workForms, groups, categories] = await Promise.all([
-    getLabelMap("EDUCATION_STAGE"),
-    getLabelMap("ETHNICITY"),
-    getLabelMap("WORK_FORM"),
-    getLabelMap("GROUP"),
-    getLabelMap("CATEGORY"),
-  ]);
-  const label = (map: Record<string, string>, value: string | null) => value ? map[value] ?? value : "";
+  // 组别/类别必须按项目赛道解析：DictOption.value 跨赛道会重号（见 lib/dict-labels.ts）
+  const labels = await loadScopedLabels();
   const leader = project.teamMembers.find((member) => member.role === "LEADER") ?? project.teamMembers[0];
   if (!leader) return null;
   const memberInput = (member: (typeof project.teamMembers)[number]): MemberInput => ({
@@ -493,15 +494,20 @@ export async function getMyProject(projectId: string, userId: string) {
     },
   };
   const now = new Date();
-  const canEdit = project.competition?.timeWindows.some((window) => (
+  // 只有负责人（第 1/2/3 负责人）在报名窗口内可编辑；普通成员只读
+  const writableRoles = ["LEADER", "SECOND_LEADER", "THIRD_LEADER"];
+  const myMembership = project.teamMembers.find((member) => member.userId === userId);
+  const canWrite = project.ownerId === userId || (myMembership ? writableRoles.includes(myMembership.role) : false);
+  const windowOpen = project.competition?.timeWindows.some((window) => (
     window.stage === project.stage && window.enabled && window.startAt <= now && window.endAt >= now
   )) ?? false;
+  const canEdit = canWrite && windowOpen;
   const memberView = (member: (typeof project.teamMembers)[number]) => {
     const { payeeBank, ...rest } = member;
     return {
       ...rest,
-      educationStageLabel: label(educationStages, member.educationStage),
-      ethnicityLabel: label(ethnicities, member.ethnicity),
+      educationStageLabel: globalLabel(labels, "EDUCATION_STAGE", member.educationStage),
+      ethnicityLabel: globalLabel(labels, "ETHNICITY", member.ethnicity),
       payeeBank: bankView(payeeBank),
     };
   };
@@ -513,8 +519,8 @@ export async function getMyProject(projectId: string, userId: string) {
     stage: project.stage,
     competitionName: project.competition?.name ?? "未设置赛事",
     trackName: project.track?.name ?? "未设置赛道",
-    groupLabel: label(groups, project.groupName),
-    categoryLabel: label(categories, project.categoryName),
+    groupLabel: trackLabel(labels, "GROUP", project.groupName, project.trackId),
+    categoryLabel: trackLabel(labels, "CATEGORY", project.categoryName, project.trackId),
     applicationUnit: project.applicationUnit,
     trainingUnit: project.trainingUnit,
     propositionName: project.propositionName,
@@ -529,9 +535,9 @@ export async function getMyProject(projectId: string, userId: string) {
     teachers: project.teachers,
     work: project.work ? {
       ...project.work,
-      formLabel: label(workForms, project.work.form),
-      categoryLabel: label(categories, project.work.category),
-      groupLabel: label(groups, project.work.groupName),
+      formLabel: globalLabel(labels, "WORK_FORM", project.work.form),
+      categoryLabel: trackLabel(labels, "CATEGORY", project.work.category, project.trackId),
+      groupLabel: trackLabel(labels, "GROUP", project.work.groupName, project.trackId),
     } : null,
     formInput,
   };

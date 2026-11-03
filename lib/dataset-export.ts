@@ -4,8 +4,9 @@ import type { AuthUser } from "@/lib/auth";
 import { decryptField, maskTail } from "@/lib/crypto";
 import { datasetFieldMap } from "@/lib/export-fields";
 import type { DatasetFieldKey } from "@/lib/export-fields";
-import { registrationStatusLabels } from "@/lib/presentation";
+import { registrationStatusLabels, formatDateTime } from "@/lib/presentation";
 import { prisma } from "@/lib/prisma";
+import { logSensitiveAccessMany } from "@/lib/sensitive-access";
 import { listReviewItemsForExport } from "@/lib/review";
 import type { ReviewFilters, ReviewListItem } from "@/types/review";
 
@@ -32,6 +33,7 @@ function sensitiveValue(value: string | null | undefined, full: boolean) {
 
 function standardValue(item: ReviewListItem, field: Exclude<DatasetFieldKey, "idCard" | "bankCard">) {
   if (field === "status") return registrationStatusLabels[item.status];
+  if (field === "submittedAt") return item.submittedAt ? formatDateTime(item.submittedAt) : "";
   return item[field] ?? "";
 }
 
@@ -78,6 +80,21 @@ export async function createDatasetExport(query: DatasetExportQuery, user: AuthU
     }
     return standardValue(item, field);
   }));
+  if (includeSensitive) {
+    // 含完整敏感字段的数据表：按项目逐条留痕
+    await logSensitiveAccessMany(
+      items
+        .filter((item) => sensitiveByProject.has(item.id))
+        .map((item) => ({
+          userId: user.id,
+          projectId: item.id,
+          resourceType: "DATASET",
+          resourceId: watermarkNo,
+          fieldNames: ["idCard", "bankCard"],
+          reason: "导出数据表（含敏感字段）",
+        })),
+    );
+  }
   const worksheet = XLSX.utils.aoa_to_sheet([
     query.fields.map((field) => datasetFieldMap[field].label),
     ...rows,
@@ -91,7 +108,7 @@ export async function createDatasetExport(query: DatasetExportQuery, user: AuthU
   const infoRows: (string | number)[][] = [
     ["导出编号", watermarkNo],
     ["导出人", user.name],
-    ["导出时间", exportedAt.toISOString()],
+    ["导出时间", formatDateTime(exportedAt.toISOString())],
     ["数据范围", query.scope === "all" ? "全校" : "本人参与项目"],
     ["数据行数", rows.length],
     ["敏感字段", includeSensitive ? "完整（已二次确认）" : "脱敏"],
