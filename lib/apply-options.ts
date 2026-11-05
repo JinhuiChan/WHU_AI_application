@@ -97,7 +97,7 @@ export async function buildApplyOptions(competitionId?: string): Promise<ApplyOp
     projectTrainingUnits,
   ] = await Promise.all([
     prisma.competition.findMany({
-      where: competitionId ? { id: competitionId } : undefined,
+      where: competitionId ? { id: competitionId } : { publishStatus: "PUBLISHED" },
       select: {
         id: true,
         name: true,

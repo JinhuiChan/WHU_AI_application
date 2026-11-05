@@ -6,8 +6,8 @@ import { CompetitionDeleteButton } from "@/components/admin/competition-delete-b
 import { Pagination } from "@/components/data/pagination";
 import { getActiveUser } from "@/lib/auth.server";
 import { getCompetitionPage, listCompetitionYears } from "@/lib/competitions";
-import { firstParam, optionalCompetitionLevel, optionalText, optionalYear, pageParams } from "@/lib/list-query";
-import { competitionLevelLabels, formatDateTime, registrationStatusLabels } from "@/lib/presentation";
+import { firstParam, optionalCompetitionLevel, optionalPublishStatus, optionalText, optionalYear, pageParams } from "@/lib/list-query";
+import { competitionLevelLabels, formatDateTime, publishStatusLabels, registrationStatusLabels } from "@/lib/presentation";
 
 export const metadata: Metadata = { title: "赛事" };
 
@@ -30,6 +30,7 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
 
   const year = firstParam(searchParams?.year);
   const level = firstParam(searchParams?.level);
+  const publishStatus = firstParam(searchParams?.publishStatus);
   const q = firstParam(searchParams?.q);
   const rawPageSize = firstParam(searchParams?.pageSize);
   const { page, pageSize } = pageParams(firstParam(searchParams?.page), rawPageSize);
@@ -38,11 +39,12 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
       {
         year: optionalYear(year),
         level: optionalCompetitionLevel(level),
+        publishStatus: user.role === "ADMIN" ? optionalPublishStatus(publishStatus) : undefined,
         q: optionalText(q),
         page,
         pageSize,
       },
-      { studentId: user.role === "STUDENT" ? user.id : undefined },
+      { studentId: user.role === "STUDENT" ? user.id : undefined, isAdmin: user.role === "ADMIN" },
     ),
     listCompetitionYears(),
   ]);
@@ -87,6 +89,17 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
               <option value="NATIONAL">国赛</option>
             </select>
           </label>
+          {user.role === "ADMIN" ? (
+            <label className="text-xs text-slate-500">
+              <span className="mb-1 block">发布状态</span>
+              <select name="publishStatus" defaultValue={publishStatus} className="h-10 min-w-28 rounded-md border border-slate-300 bg-white px-3 text-sm">
+                <option value="">全部状态</option>
+                <option value="DRAFT">草稿</option>
+                <option value="PUBLISHED">已发布</option>
+                <option value="WITHDRAWN">已下架</option>
+              </select>
+            </label>
+          ) : null}
           <label className="min-w-52 flex-1 text-xs text-slate-500">
             <span className="mb-1 block">关键词</span>
             <input name="q" type="search" defaultValue={q} placeholder={isStudent ? "赛事名称或主办方" : "赛事名称、主办方或系列标识"} className="h-10 w-full rounded-md border border-slate-300 px-3 text-sm outline-none focus:border-blue-600" />
@@ -117,6 +130,7 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
                   </>
                 ) : (
                   <>
+                    <th className="px-4 py-3 font-medium">发布状态</th>
                     <th className="px-4 py-3 font-medium">系列标识</th>
                     <th className="px-4 py-3 font-medium">主办方</th>
                   </>
@@ -162,6 +176,17 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
                     </>
                   ) : (
                     <>
+                      <td className="px-4 py-4">
+                        <span className={`rounded-full px-2 py-0.5 text-xs ${
+                          competition.publishStatus === "PUBLISHED"
+                            ? "bg-emerald-50 text-emerald-700"
+                            : competition.publishStatus === "WITHDRAWN"
+                              ? "bg-red-50 text-red-700"
+                              : "bg-slate-100 text-slate-600"
+                        }`}>
+                          {publishStatusLabels[competition.publishStatus]}
+                        </span>
+                      </td>
                       <td className="px-4 py-4 text-xs text-slate-500">{competition.seriesId}</td>
                       <td className="px-4 py-4">{competition.organizer ?? "—"}</td>
                     </>
@@ -183,12 +208,12 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
                 </tr>
               ))}
               {data.list.length === 0 ? (
-                <tr><td colSpan={6} className="px-4 py-12 text-center text-slate-500">暂无符合条件的赛事</td></tr>
+                <tr><td colSpan={isStudent ? 6 : 7} className="px-4 py-12 text-center text-slate-500">暂无符合条件的赛事</td></tr>
               ) : null}
             </tbody>
           </table>
         </div>
-        <Pagination basePath="/competitions" query={{ year, level, q, pageSize: String(pageSize) }} total={data.total} page={data.page} pageSize={data.pageSize} />
+        <Pagination basePath="/competitions" query={{ year, level, publishStatus, q, pageSize: String(pageSize) }} total={data.total} page={data.page} pageSize={data.pageSize} />
       </section>
     </div>
   );

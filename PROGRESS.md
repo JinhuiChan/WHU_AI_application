@@ -2,6 +2,17 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-06 赛事发布/下架 + 报名开关修复
+
+- 根因：管理员「报名设置」的复选框语义是 `勾选=开放报名`，但新建窗口默认不勾 → 保存后 `TimeWindow.enabled=false`，学生端恒显「报名未开放」；时间窗本身无误。
+- 报名开关：新建窗口默认 `enabled=true`；文案改为「开放报名（勾选后学生才可报名）」并加学生端状态提示。
+- 发布/下架：`Competition.publishStatus`（早已存在但全代码未使用）正式启用。
+  - 新建赛事默认 `DRAFT`；详情页新增「发布状态」区块 + 发布/下架按钮（下架二次确认）；发布前要求至少 1 个赛道。
+  - 新增 `POST /api/admin/competitions/[id]/publish`（action=PUBLISH/WITHDRAWN），审计 `COMPETITION_PUBLISHED` / `COMPETITION_WITHDRAWN`。
+  - 管理员列表新增「发布状态」列与状态筛选（`?publishStatus=`）。
+- 学生端不可绕过：列表只查 `PUBLISHED`；草稿/下架详情 404；`/apply?competitionId=` 重定向；`saveDraft`/`submitProject` 接口层校验 `publishStatus`（403）。
+- 复验：`tsc --noEmit`、`next lint`、`npm run build` 通过；HTTP 实测：草稿学生不可见 → 发布可见 → 设窗口显示「报名中」→ 下架隐藏且详情 404，测试赛事已删除。
+
 ## 2026-11-03 发布记录
 
 - 隐私扫描（当前跟踪树 + 本地全部提交历史）：**无** `.env`、`prisma/dev.db`、`public/uploads/`、私钥、API Key；仅 `.env.example` 占位示例、`scripts/crypto-selftest.ts` 假密钥与测试账号（138…/123456）。`docs/` 内也只有演示账号与字段说明。

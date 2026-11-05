@@ -17,11 +17,14 @@ export async function listCompetitionYears() {
 
 export async function getCompetitionPage(
   filters: CompetitionFilters,
-  options?: { studentId?: string },
+  options?: { studentId?: string; isAdmin?: boolean },
 ): Promise<Paginated<CompetitionListItem>> {
   const where: Prisma.CompetitionWhereInput = {};
   if (filters.year) where.year = filters.year;
   if (filters.level) where.level = filters.level;
+  // 学生端只可见「已发布」赛事；草稿与下架一律隐藏
+  if (!options?.isAdmin) where.publishStatus = "PUBLISHED";
+  else if (filters.publishStatus) where.publishStatus = filters.publishStatus;
   if (filters.q) {
     where.OR = [
       { name: { contains: filters.q } },
@@ -40,6 +43,7 @@ export async function getCompetitionPage(
         id: true,
         name: true,
         level: true,
+        publishStatus: true,
         seriesId: true,
         year: true,
         organizer: true,
@@ -99,6 +103,7 @@ export async function getCompetitionPage(
         id: competition.id,
         name: competition.name,
         level: competition.level,
+        publishStatus: competition.publishStatus,
         seriesId: competition.seriesId,
         year: competition.year,
         organizer: competition.organizer,
@@ -119,6 +124,7 @@ export async function getCompetitionDetail(id: string, role: Role): Promise<Comp
       id: true,
       name: true,
       level: true,
+      publishStatus: true,
       seriesId: true,
       year: true,
       organizer: true,
@@ -172,6 +178,7 @@ export async function getCompetitionDetail(id: string, role: Role): Promise<Comp
     id: competition.id,
     name: competition.name,
     level: competition.level,
+    publishStatus: competition.publishStatus,
     seriesId: competition.seriesId,
     year: competition.year,
     organizer: competition.organizer,
