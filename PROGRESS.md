@@ -12,6 +12,7 @@
   - 管理员列表新增「发布状态」列与状态筛选（`?publishStatus=`）。
 - 学生端不可绕过：列表只查 `PUBLISHED`；草稿/下架详情 404；`/apply?competitionId=` 重定向；`saveDraft`/`submitProject` 接口层校验 `publishStatus`（403）。
 - 复验：`tsc --noEmit`、`next lint`、`npm run build` 通过；HTTP 实测：草稿学生不可见 → 发布可见 → 设窗口显示「报名中」→ 下架隐藏且详情 404，测试赛事已删除。
+- 「发布状态」「危险操作」两个区块移到赛事详情页最底部（获奖名单之后），避免管理员误触。
 
 ## 2026-11-03 发布记录
 
