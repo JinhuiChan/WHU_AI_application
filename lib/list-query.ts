@@ -1,4 +1,4 @@
-import type { AwardLevel, CompetitionLevel } from "@prisma/client";
+import type { AwardLevel, CompetitionLevel, PublishStatus } from "@prisma/client";
 
 export function firstParam(value: string | string[] | undefined): string {
   return Array.isArray(value) ? value[0] ?? "" : value ?? "";
@@ -30,4 +30,8 @@ export function optionalCompetitionLevel(value?: string): CompetitionLevel | und
 
 export function optionalAwardLevel(value?: string): AwardLevel | undefined {
   return value === "S" || value === "A" || value === "B" || value === "C" || value === "EXCELLENT" ? value : undefined;
+}
+
+export function optionalPublishStatus(value?: string): PublishStatus | undefined {
+  return value === "DRAFT" || value === "PUBLISHED" || value === "WITHDRAWN" ? value : undefined;
 }

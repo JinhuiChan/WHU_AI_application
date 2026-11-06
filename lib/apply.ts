@@ -125,11 +125,15 @@ async function saveDraft(transaction: Transaction, userId: string, input: Projec
   const [track, existing] = await Promise.all([
     transaction.track.findFirst({
       where: { id: input.trackId, competitionId: input.competitionId, enabled: true },
-      select: { id: true, competition: { select: { year: true } } },
+      select: { id: true, competition: { select: { year: true, publishStatus: true } } },
     }),
     projectId ? accessibleProject(transaction, projectId, userId) : Promise.resolve(null),
   ]);
   if (!track) throw new ApplyError(422, "赛事与赛道不匹配");
+  // 新建项目必须基于已发布赛事；草稿/下架赛事不可报名
+  if (!existing && track.competition.publishStatus !== "PUBLISHED") {
+    throw new ApplyError(403, "该赛事尚未发布，暂不能报名");
+  }
   const { leaderIsPayee } = resolvePayeeState(input);
   const scalar = {
     name: input.name?.trim() || "未命名项目",
@@ -283,9 +287,10 @@ export async function submitProject(userId: string, input: ProjectFormInput, pro
   return prisma.$transaction(async (transaction) => {
     const track = await transaction.track.findFirst({
       where: { id: input.trackId, competitionId: input.competitionId, enabled: true },
-      select: { kind: true, name: true },
+      select: { kind: true, name: true, competition: { select: { publishStatus: true } } },
     });
     if (!track) throw new ApplyError(422, "赛事与赛道不匹配");
+    if (track.competition.publishStatus !== "PUBLISHED") throw new ApplyError(403, "该赛事尚未发布，暂不能报名");
 
     // 报名窗口必须由服务端校验：前端隐藏按钮不算数，学生可手输 URL 绕过
     const now = new Date();

@@ -4,6 +4,7 @@ import type {
   CompetitionLevel,
   DataSourceType,
   EvidenceType,
+  PublishStatus,
   RegistrationStatus,
 } from "@prisma/client";
 
@@ -19,6 +20,7 @@ export type CompetitionListItem = {
   id: string;
   name: string;
   level: CompetitionLevel;
+  publishStatus: PublishStatus;
   seriesId: string;
   year: number;
   organizer: string | null;
@@ -60,6 +62,7 @@ export type CompetitionDetail = CompetitionListItem & {
 export type CompetitionFilters = {
   year?: number;
   level?: CompetitionLevel;
+  publishStatus?: PublishStatus;
   q?: string;
   page: number;
   pageSize: number;

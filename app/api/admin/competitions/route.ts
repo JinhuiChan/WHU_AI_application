@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     if (level !== "SCHOOL" && level !== "PROVINCE" && level !== "NATIONAL") return apiError(422, "赛事等级不正确");
     const competition = await prisma.$transaction(async (transaction) => {
       const created = await transaction.competition.create({
-        data: { name, seriesId, year, level, organizer: organizer || null, description: description || null },
+        data: { name, seriesId, year, level, organizer: organizer || null, description: description || null, publishStatus: "DRAFT" },
       });
       await writeAuditLog({
         actorId: authorization.user.id,

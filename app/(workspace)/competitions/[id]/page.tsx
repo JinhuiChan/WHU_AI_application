@@ -3,13 +3,14 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { CompetitionDeleteButton } from "@/components/admin/competition-delete-button";
 import { CompetitionManagement } from "@/components/admin/competition-management";
+import { CompetitionPublishButton } from "@/components/admin/competition-publish-button";
 import { TrackEditor } from "@/components/admin/track-editor";
 import { BreadcrumbTitle } from "@/components/layout/breadcrumbs";
 import { getActiveUser } from "@/lib/auth.server";
 import { getCompetitionDetail } from "@/lib/competitions";
 import { loadScopedLabels } from "@/lib/dict-labels";
 import { prisma } from "@/lib/prisma";
-import { awardLevelLabels, awardStatusLabels, competitionLevelLabels, dataSourceTypeLabels, formatDate, formatDateTime } from "@/lib/presentation";
+import { awardLevelLabels, awardStatusLabels, competitionLevelLabels, dataSourceTypeLabels, formatDate, formatDateTime, publishStatusLabels } from "@/lib/presentation";
 
 export const metadata: Metadata = { title: "赛事详情" };
 export const dynamic = "force-dynamic";
@@ -23,6 +24,8 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
   if (!user) redirect("/login");
   const competition = await getCompetitionDetail(params.id, user.role);
   if (!competition) notFound();
+  // 草稿/已下架赛事仅管理员可见，学生直接访问按不存在处理
+  if (user.role !== "ADMIN" && competition.publishStatus !== "PUBLISHED") notFound();
 
   const [attachments, windows, tracks] = await Promise.all([
     prisma.competitionAttachment.findMany({
@@ -81,16 +84,6 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
           attachments={attachments}
           initialWindow={applyWindow ? { startAt: applyWindow.startAt.toISOString(), endAt: applyWindow.endAt.toISOString(), enabled: applyWindow.enabled } : null}
         />
-      ) : null}
-
-      {user.role === "ADMIN" ? (
-        <section className="rounded-lg border border-red-200 bg-white p-5 shadow-sm">
-          <h2 className="text-sm font-semibold text-red-700">危险操作</h2>
-          <p className="mt-1 text-xs text-slate-500">误建的赛事可在这里删除；已有项目报名或奖项记录的赛事不允许删除（接口会拦截）。</p>
-          <div className="mt-3">
-            <CompetitionDeleteButton competitionId={competition.id} competitionName={competition.name} redirectTo="/competitions" />
-          </div>
-        </section>
       ) : null}
 
       <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
@@ -248,6 +241,41 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
           </table>
         </div>
       </section>
+
+      {user.role === "ADMIN" ? (
+        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-sm font-semibold text-slate-900">发布状态</h2>
+              <p className="mt-1 text-xs text-slate-500">草稿与已下架赛事仅管理员可见；点「发布赛事」后学生端才会出现。</p>
+            </div>
+            <span
+              className={`rounded-full px-3 py-1 text-xs ${
+                competition.publishStatus === "PUBLISHED"
+                  ? "bg-emerald-50 text-emerald-700"
+                  : competition.publishStatus === "WITHDRAWN"
+                    ? "bg-red-50 text-red-700"
+                    : "bg-slate-100 text-slate-600"
+              }`}
+            >
+              {publishStatusLabels[competition.publishStatus]}
+            </span>
+          </div>
+          <div className="mt-3">
+            <CompetitionPublishButton competitionId={competition.id} status={competition.publishStatus} />
+          </div>
+        </section>
+      ) : null}
+
+      {user.role === "ADMIN" ? (
+        <section className="rounded-lg border border-red-200 bg-white p-5 shadow-sm">
+          <h2 className="text-sm font-semibold text-red-700">危险操作</h2>
+          <p className="mt-1 text-xs text-slate-500">误建的赛事可在这里删除；已有项目报名或奖项记录的赛事不允许删除（接口会拦截）。</p>
+          <div className="mt-3">
+            <CompetitionDeleteButton competitionId={competition.id} competitionName={competition.name} redirectTo="/competitions" />
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }

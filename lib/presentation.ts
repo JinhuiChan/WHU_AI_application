@@ -17,6 +17,12 @@ export const competitionLevelLabels: Record<CompetitionLevel, string> = {
   NATIONAL: "国赛",
 };
 
+export const publishStatusLabels: Record<string, string> = {
+  DRAFT: "草稿",
+  PUBLISHED: "已发布",
+  WITHDRAWN: "已下架",
+};
+
 export const projectStatusLabels: Record<ProjectStatus, string> = {
   ACTIVE: "进行中",
   WITHDRAWN: "已退出",
@@ -120,6 +126,8 @@ export const auditActionLabels: Record<string, string> = {
   ADMIN_REGISTER_PENDING: "管理员注册待审核",
   USER_REJECTED: "驳回注册申请",
   COMPETITION_CREATED: "新建赛事",
+  COMPETITION_PUBLISHED: "发布赛事",
+  COMPETITION_WITHDRAWN: "下架赛事",
   COMPETITION_UPDATED: "编辑赛事",
   COMPETITION_DELETED: "删除赛事",
   COMPETITION_WINDOW_UPDATED: "修改报名窗口",

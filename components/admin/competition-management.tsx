@@ -29,7 +29,7 @@ export function CompetitionManagement({ competition, attachments, initialWindow 
   const [windowForm, setWindowForm] = useState({
     startAt: localInput(initialWindow?.startAt),
     endAt: localInput(initialWindow?.endAt),
-    enabled: initialWindow?.enabled ?? false,
+    enabled: initialWindow?.enabled ?? true,
   });
   const [pending, setPending] = useState("");
   const [message, setMessage] = useState("");
@@ -85,9 +85,14 @@ export function CompetitionManagement({ competition, attachments, initialWindow 
         <div className="mt-4 grid items-end gap-3 md:grid-cols-4">
           <label className="text-xs text-slate-600">开始时间<input type="datetime-local" className={fieldClass} value={windowForm.startAt} onChange={(event) => setWindowForm({ ...windowForm, startAt: event.target.value })} /></label>
           <label className="text-xs text-slate-600">截止时间<input type="datetime-local" className={fieldClass} value={windowForm.endAt} onChange={(event) => setWindowForm({ ...windowForm, endAt: event.target.value })} /></label>
-          <label className="flex h-10 items-center gap-2 text-sm text-slate-700"><input type="checkbox" checked={windowForm.enabled} onChange={(event) => setWindowForm({ ...windowForm, enabled: event.target.checked })} className="h-4 w-4" />{windowForm.enabled ? "开放报名" : "关闭报名"}</label>
+          <label className="flex h-10 items-center gap-2 text-sm text-slate-700"><input type="checkbox" checked={windowForm.enabled} onChange={(event) => setWindowForm({ ...windowForm, enabled: event.target.checked })} className="h-4 w-4" />开放报名（勾选后学生才可报名）</label>
           <button type="button" disabled={pending === "window"} onClick={() => void saveWindow()} className="h-10 rounded-md bg-blue-600 px-4 text-sm text-white disabled:opacity-60">{pending === "window" ? "保存中…" : "保存报名设置"}</button>
         </div>
+        <p className="mt-2 text-xs text-slate-500">
+          {windowForm.enabled
+            ? "学生端状态：在下方时间段内会显示「报名中」并可提交（提前/延后以时间段为准）。"
+            : "学生端状态：会显示「报名未开放」——需要勾选「开放报名」并保存后学生才能报名。"}
+        </p>
       </section>
 
       <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">

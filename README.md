@@ -2,6 +2,8 @@
 
 > 面向校级赛事管理部门：把科创赛事的**报名、审核、变更、盖章归档、导出、统计**收在一个系统里，替代第二课堂的赛事报名环节。
 
+> **测试同学先看**：[演示账号与测试用例](docs/演示账号与测试用例.md)（31 个演示账号 + 21 条测试用例；运行步骤见下方快速开始）。
+
 ## 一、这个系统解决什么
 
 | 现在的痛点 | 系统里的对应能力 |
@@ -30,22 +32,16 @@
 ### 第一次打开（初始化，整套只做一次）
 
 ```powershell
-# 1) 安装依赖（Windows 下必须用 npm.cmd / npx.cmd，PowerShell 执行策略会拦截 npm.ps1）
-npm.cmd install
+# 1) 一键初始化：首次自动 npm install → 生成 .env → 生成 Prisma Client → 建表 → 空库灌演示数据
+npm.cmd run setup
 
-# 2) 创建本地环境变量文件（已有 .env 则跳过；切勿覆盖，密钥变了会读不出已加密数据）
-Copy-Item .env.example .env
-#    .env 必须放在仓库根目录（不是 app/.env）：JWT_SECRET 改成足够长的随机串，
-#    FIELD_ENCRYPTION_KEY 必须是 64 位 hex（生成：node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"）。
-
-# 3) 初始化数据库：生成 Prisma 客户端 → 建表 → 灌演示数据
-npm.cmd run db:generate
-npm.cmd run db:push
-npx.cmd tsx --env-file=.env prisma/seed.ts   # 灌种子数据用这条；npm.cmd run db:seed 不会加载 .env，会报 DATABASE_URL 缺失
-
-# 4) 启动（以后每次打开都从这一步开始）
+# 2) 启动（以后每次打开都从这一步开始）
 npm.cmd run dev                              # 浏览器打开 http://localhost:3000
 ```
+
+> `npm run setup` 可重复执行：`node_modules` 已存在就不重装，数据库有数据就不 seed（不会清库）；需要 Node.js ≥ 20.6。
+> 手动初始化（等价，可选）：`npm.cmd install` → `Copy-Item .env.example .env` → `npm.cmd run db:generate` → `npm.cmd run db:push` → `npm.cmd run db:seed`。
+> `FIELD_ENCRYPTION_KEY` 一旦录入真实身份证/银行卡就不要再换，否则历史密文解不开。
 
 ### 以后每次打开（日常，只要两行）
 
@@ -65,7 +61,7 @@ npm.cmd run dev                             # 浏览器打开 http://localhost:3
 | 停止 / 重启服务 | `Ctrl+C` 停止；再执行 `npm.cmd run dev` |
 | 端口 3000 被占用 | `npm.cmd run dev -- -p 3001` |
 | 拉队友的新代码 | `git pull`；`package.json` / `package-lock.json` 有变化时补 `npm.cmd install`；`prisma/schema.prisma` 有变化时补 `npm.cmd run db:generate` + `npm.cmd run db:push` |
-| 演示数据乱了想重置 | `npm.cmd run db:push --force-reset`，再 `npx.cmd tsx --env-file=.env prisma/seed.ts`（会清空数据） |
+| 演示数据乱了想重置 | `npm.cmd run db:push --force-reset`，再 `npm.cmd run db:seed`（会清空数据） |
 | 改完代码页面没变化 | `Remove-Item -Recurse -Force .next`，再 `npm.cmd run dev` |
 
 > 踩坑提示：`npm install` 写成不带 `.cmd` 的 `npm` 会报“禁止运行脚本”；缺少 `.env` 时 `db:push` 会报 `Environment variable not found: DATABASE_URL`。

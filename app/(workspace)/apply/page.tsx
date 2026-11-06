@@ -22,6 +22,15 @@ export default async function ApplyPage({ searchParams }: PageProps) {
   const projectId = firstParam(searchParams?.projectId);
   const competitionId = firstParam(searchParams?.competitionId);
 
+  // 草稿/已下架赛事不能新报名（编辑已有项目不受影响）
+  if (competitionId && !projectId) {
+    const competition = await prisma.competition.findUnique({
+      where: { id: competitionId },
+      select: { publishStatus: true },
+    });
+    if (!competition || competition.publishStatus !== "PUBLISHED") redirect("/competitions");
+  }
+
   const student = await prisma.user.findFirst({
     where: { id: user.id, role: "STUDENT", deletedAt: null },
     select: {

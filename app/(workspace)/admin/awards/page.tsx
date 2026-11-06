@@ -51,11 +51,29 @@ export default async function AdminAwardsPage({ searchParams }: PageProps) {
     }),
   ]);
 
+  const exportParams = new URLSearchParams();
+  if (filters.competitionId) exportParams.set("competitionId", filters.competitionId);
+  if (filters.college) exportParams.set("college", filters.college);
+  if (filters.level) exportParams.set("level", filters.level);
+  const exportQuery = exportParams.toString();
+  const exportHref = `/api/export/awards-list${exportQuery ? `?${exportQuery}` : ""}`;
+
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-xl font-semibold text-slate-900">奖项录入</h1>
-        <p className="mt-1 text-sm text-slate-500">为终审通过项目录入或调整奖项，每次新增和改级均保留历史与审计记录。</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-semibold text-slate-900">奖项录入</h1>
+          <p className="mt-1 text-sm text-slate-500">为终审通过项目录入或调整奖项，每次新增和改级均保留历史与审计记录。</p>
+        </div>
+        <div className="text-right">
+          <a
+            href={exportHref}
+            className="inline-flex h-10 items-center rounded-md bg-blue-600 px-5 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            导出获奖名单
+          </a>
+          <p className="mt-1 text-xs text-slate-500">按当前筛选导出，仅含已录奖项的项目</p>
+        </div>
       </div>
       <AwardWorkbench
         data={data}
