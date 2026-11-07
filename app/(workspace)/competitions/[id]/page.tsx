@@ -66,6 +66,10 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
 
   const topTracks = tracks.filter((track) => !track.parentId);
   const childrenOf = (id: string) => tracks.filter((track) => track.parentId === id);
+  // 宣传片在赛事简介页里播放，不作为「赛事文件」给学生下载
+  const documents = attachments.filter(
+    (file) => file.kind !== "VIDEO" && !/\.(mp4|webm|mov|m4v|ogv)$/i.test(file.fileName),
+  );
 
   return (
     <div className="space-y-6">
@@ -176,9 +180,9 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
         <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="mb-1 text-sm font-semibold text-slate-900">赛事文件</h2>
           <p className="mb-4 text-xs text-slate-500">报名前请先阅读通知与规程，确认所在赛道与组别。</p>
-          {attachments.length ? (
+          {documents.length ? (
             <ul className="divide-y divide-slate-100">
-              {attachments.map((file) => (
+              {documents.map((file) => (
                 <li key={file.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
                   <div>
                     <p className="text-sm text-slate-900">{file.title}</p>

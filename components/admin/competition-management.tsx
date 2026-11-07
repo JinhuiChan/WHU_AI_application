@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useRef, useState } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
 type Attachment = { id: string; title: string; kind: string; fileName: string; filePath: string };
@@ -13,6 +13,15 @@ type Props = {
 };
 
 const fieldClass = "mt-1 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-blue-600";
+
+// 宣传片识别：kind 标了 VIDEO，或文件名本身就是视频后缀（兼容历史数据）
+const VIDEO_FILE = /\.(mp4|webm|mov|m4v|ogv)$/i;
+const attachmentKindLabels: Record<string, string> = {
+  NOTICE: "通知",
+  RULE: "规程",
+  TEMPLATE: "模板",
+  VIDEO: "宣传片",
+};
 
 function localInput(value: string | undefined) {
   if (!value) return "";
@@ -35,6 +44,12 @@ export function CompetitionManagement({ competition, attachments, initialWindow 
   const [pending, setPending] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [videoHint, setVideoHint] = useState("");
+  const videoRef = useRef<HTMLInputElement>(null);
+  const videoTitleRef = useRef<HTMLInputElement>(null);
+
+  const video = attachments.find((file) => file.kind === "VIDEO" || VIDEO_FILE.test(file.fileName));
+  const documents = attachments.filter((file) => file.id !== video?.id);
 
   async function request(url: string, options: RequestInit, success: string) {
     setError("");
@@ -70,6 +85,40 @@ export function CompetitionManagement({ competition, attachments, initialWindow 
     setPending("");
   }
 
+  async function uploadVideo(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
+    form.set("kind", "VIDEO");
+    setError("");
+    setMessage("");
+    setVideoHint("");
+    setPending("video");
+    try {
+      const response = await fetch(`/api/admin/competitions/${competition.id}/attachments`, { method: "POST", body: form });
+      const result = (await response.json()) as { code: number; message: string };
+      if (!response.ok || result.code !== 0) {
+        // 接口的类型白名单还没放开视频时，给一句能照着做的提示，而不是把校验文案原样抛出来
+        if (response.status === 422 && /文件类型|仅支持|MIME/.test(result.message)) {
+          setVideoHint(
+            "接口暂未放开视频格式：需要把 VIDEO 加进附件上传的 kind 白名单，并把 mp4 / webm 加进扩展名与 MIME 白名单。接口放开后这个按钮直接可用，前端不需要再改。",
+          );
+        } else {
+          setError(result.message || "上传失败");
+        }
+        return;
+      }
+      setMessage("宣传片已上传，学生端赛事简介页会直接显示播放器");
+      formElement.reset();
+      if (videoRef.current) videoRef.current.value = "";
+      router.refresh();
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "上传失败");
+    } finally {
+      setPending("");
+    }
+  }
+
   return (
     <div className="space-y-6">
       <section className="rounded-lg border border-blue-200 bg-blue-50 p-5">
@@ -96,8 +145,102 @@ export function CompetitionManagement({ competition, attachments, initialWindow 
         </p>
       </section>
 
+      <section id="media" className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div>
+            <h2 className="text-sm font-semibold text-slate-900">宣传片与赛事解读</h2>
+            <p className="mt-1 text-xs text-slate-500">上传后会在赛事简介页的 16:9 播放位直接播放；没有视频时学生看到的是占位卡。</p>
+          </div>
+          <span
+            className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+              video ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"
+            }`}
+          >
+            {video ? "已上传" : "未上传"}
+          </span>
+        </div>
+
+        {video ? (
+          <div className="mt-4 space-y-3">
+            <video
+              className="w-full max-w-2xl rounded-xl border border-slate-200 bg-black"
+              controls
+              playsInline
+              preload="metadata"
+              src={video.filePath}
+            />
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-sm text-slate-900">{video.title}</p>
+                <p className="text-xs text-slate-500">{video.fileName}</p>
+              </div>
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                disabled={pending === `delete-${video.id}`}
+                onClick={async () => {
+                  if (!window.confirm(`确定删除宣传片「${video.title}」吗？学生端会变回占位卡。`)) return;
+                  setPending(`delete-${video.id}`);
+                  await request(
+                    `/api/admin/competitions/${competition.id}/attachments/${video.id}`,
+                    { method: "DELETE" },
+                    "宣传片已删除",
+                  );
+                  setPending("");
+                }}
+              >
+                删除宣传片
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <p className="mt-4 text-sm text-slate-500 inline-empty">还没有宣传片，学生端显示的是占位卡</p>
+        )}
+
+        <form
+          className="mt-4 grid items-end gap-3 rounded-lg bg-slate-50 p-4 md:grid-cols-[1fr_1fr_auto]"
+          onSubmit={uploadVideo}
+        >
+          <label className="text-sm text-slate-600">视频标题
+            <input
+              name="title"
+              ref={videoTitleRef}
+              className={fieldClass}
+              required
+              maxLength={120}
+              placeholder="选择文件后自动填入文件名，可修改"
+            />
+          </label>
+          <label className="text-sm text-slate-600">视频文件
+            <input
+              ref={videoRef}
+              name="file"
+              type="file"
+              required
+              accept="video/mp4,video/webm,video/quicktime"
+              onChange={(event) => {
+                const picked = event.target.files?.[0];
+                if (picked && videoTitleRef.current && !videoTitleRef.current.value.trim()) {
+                  videoTitleRef.current.value = picked.name.replace(/\.[^.]+$/, "");
+                }
+              }}
+              className="mt-1 block w-full text-sm file:mr-2 file:rounded file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:text-blue-700"
+            />
+          </label>
+          <Button type="submit" variant="default" size="sm" disabled={pending === "video"}>
+            {pending === "video" ? "上传中…" : "上传宣传片"}
+          </Button>
+        </form>
+        {videoHint ? (
+          <p role="status" className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-xs leading-6 text-amber-800">{videoHint}</p>
+        ) : null}
+        <p className="mt-2 text-xs text-slate-500">建议 mp4（H.264），单文件不超过 20MB；超过请先压缩再传。</p>
+      </section>
+
       <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="text-sm font-semibold text-slate-900">赛事文件</h2>
+        <p className="mt-1 text-xs text-slate-500">通知、规程、模板在这里上传；宣传片请用上面的独立入口，避免和文档混在一起。</p>
         <form
           className="mt-4 grid items-end gap-3 rounded-lg bg-slate-50 p-4 md:grid-cols-[1fr_160px_1fr_auto]"
           onSubmit={async (event) => {
@@ -119,9 +262,9 @@ export function CompetitionManagement({ competition, attachments, initialWindow 
           <Button type="submit" variant="default" size="sm" disabled={pending === "upload"}>{pending === "upload" ? "上传中…" : "上传文件"}</Button>
         </form>
         <ul className="mt-4 divide-y divide-slate-100">
-          {attachments.map((file) => (
+          {documents.map((file) => (
             <li key={file.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
-              <div><p className="text-sm text-slate-900">{file.title}</p><p className="text-xs text-slate-500">{file.kind} · {file.fileName}</p></div>
+              <div><p className="text-sm text-slate-900">{file.title}</p><p className="text-xs text-slate-500">{attachmentKindLabels[file.kind] ?? file.kind} · {file.fileName}</p></div>
               <div className="flex gap-2">
                 <a href={file.filePath} target="_blank" rel="noreferrer" className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-700">查看 / 下载</a>
                 <Button
@@ -140,7 +283,7 @@ export function CompetitionManagement({ competition, attachments, initialWindow 
             </li>
           ))}
         </ul>
-        {attachments.length === 0 ? <p className="mt-4 text-sm text-slate-500 inline-empty">暂无赛事文件</p> : null}
+        {documents.length === 0 ? <p className="mt-4 text-sm text-slate-500 inline-empty">暂无赛事文件</p> : null}
       </section>
 
       {editOpen ? (

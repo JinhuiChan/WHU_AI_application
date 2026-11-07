@@ -104,3 +104,11 @@
 - 简介文案：`components/competitions/competition-intro-data.ts` 按 `seriesId` 提供兜底介绍。**数据库 `Competition.description` 有值时优先用它**，为空才用兜底。文案只写赛事定位与流程，不写日期、名额、奖金等会变的规则，一律指向通知与规程。
 - 视频位是**预留接口而不是假播放器**：查 `CompetitionAttachment` 里 `kind === "VIDEO"` 或文件名以 `mp4/webm/mov/m4v/ogv` 结尾的记录，有就渲染 `<video controls>`，没有就渲染 16:9 占位卡。管理员以后按现有附件上传流程传视频，这里会自动变成播放器，不需要再改前端。
 - 详情页标题用 `BlurText`（`animateBy="letters"`，中文逐字），其余区块交给 `.page-enter` 的逐块渐入，不叠第二套入场动画。
+
+## 2026-11-07 宣传片上传（管理端入口 + 过渡脚本）
+
+- 管理端入口在 `/competitions/[id]` 新增区块「宣传片与赛事解读」（`id="media"`）：选视频 → 自动带出标题 → 上传；已上传时显示播放器与「删除宣传片」，删除走现有的附件 DELETE 接口，撤回后学生端自动回到占位卡。
+- 视频与文档分开：附件列表排除 `kind = VIDEO` 与视频后缀，避免把 mp4 当通知列出来；学生端赛事详情页的「赛事文件」同样排除，播放位只放在赛事简介页。
+- **接口现状**：附件上传接口只放行 `NOTICE / RULE / TEMPLATE` 与文档扩展名，视频一律 422。前端已捕获这种情况，把黄色提示换成「需要把 VIDEO 加进白名单」的可执行说明，不是一串校验报错。真正可用的上传必须后端改两处，清单见 `docs/配合后端-宣传片上传.md`。
+- 过渡方案（现在就能把视频放上线）：`node scripts/import-competition-video.mjs --competition <ID|系列标识|名称> --file <视频> --title "宣传片"`，脚本把文件复制到 `public/uploads/competitions/<赛事ID>/` 并写一条 `kind = VIDEO` 记录；`--remove` 撤回，`--list` 查看现有宣传片。脚本没有登录身份，**不写审计日志**，正式环境应优先用接口上传。
+- 学生端简介页的播放器与占位卡统一 `max-w-3xl`，避免大屏上播放器拉满整行、和占位卡的宽度不一致。

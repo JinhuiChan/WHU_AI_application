@@ -252,7 +252,13 @@ export default async function CompetitionIntroDetailPage({ params }: PageProps) 
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-base text-slate-900">宣传片与赛事解读</h2>
-          <span className="text-xs text-slate-500">视频素材接入位</span>
+          {user.role === "ADMIN" ? (
+            <Link href={`/competitions/${competition.id}#media`} className="text-xs font-medium text-blue-700 hover:underline">
+              管理宣传片
+            </Link>
+          ) : (
+            <span className="text-xs text-slate-500">视频素材接入位</span>
+          )}
         </div>
         <p className="mt-1 text-xs text-slate-500">
           上传的视频会在这里直接播放；没有素材时先占位，不显示空白播放器。
@@ -260,7 +266,7 @@ export default async function CompetitionIntroDetailPage({ params }: PageProps) 
         <div className="mt-4">
           {video ? (
             <video
-              className="w-full rounded-xl border border-slate-200 bg-black"
+              className="w-full max-w-3xl rounded-xl border border-slate-200 bg-black"
               controls
               playsInline
               preload="metadata"
@@ -290,6 +296,14 @@ export default async function CompetitionIntroDetailPage({ params }: PageProps) 
                 <p className="max-w-md text-xs leading-6 text-slate-500">
                   还没有上传视频。管理员上传后，这里会变成可播放的宣传片，也可以在下面配一段赛事解读。
                 </p>
+                {user.role === "ADMIN" ? (
+                  <Link
+                    href={`/competitions/${competition.id}#media`}
+                    className="mt-1 inline-flex h-9 items-center justify-center rounded-full border border-slate-300 bg-white px-4 text-xs font-medium text-slate-700 transition hover:bg-slate-50"
+                  >
+                    去上传宣传片
+                  </Link>
+                ) : null}
               </SpotlightCard>
             </div>
           )}
