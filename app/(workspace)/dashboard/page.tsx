@@ -89,16 +89,19 @@ export default async function DashboardPage({ searchParams }: PageProps) {
       />
 
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-        {cards.map((card) => (
-          <section
-            className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
-            key={card.label}
-          >
-            <h2 className="text-xs text-slate-500">{card.label}</h2>
-            <div className="mt-3 text-3xl font-semibold text-slate-900">{card.value}</div>
-            <p className="mt-3 text-xs text-slate-400">{card.note}</p>
-          </section>
-        ))}
+        {cards.map((card) => {
+          const isWarning = /待审核|异常|退回|待补|超期/.test(card.label);
+          return (
+            <section
+              className={`rounded-xl border border-slate-200 bg-white p-5 shadow-sm${isWarning ? " t-warn" : ""}`}
+              key={card.label}
+            >
+              <h2 className="text-xs text-slate-500">{card.label}</h2>
+              <div className={`mt-3 text-3xl font-semibold ${isWarning ? "t-warn-value" : "text-slate-900"}`}>{card.value}</div>
+              <p className="mt-3 text-xs text-slate-400">{card.note}</p>
+            </section>
+          );
+        })}
       </div>
 
       {scoped ? (

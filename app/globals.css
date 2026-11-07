@@ -100,3 +100,34 @@ body {
     animation: none;
   }
 }
+
+/* 全站文字层级：只作用于工作区（.page-enter 内），登录页与注册页不受影响。
+   用类名精确定位，避免把统计卡的 .text-xs 小标签误当成标题。 */
+.page-enter h1.text-xl {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.page-enter :is(h2, h3):not(.text-xs):not(.text-slate-500) {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.page-enter .text-3xl.font-semibold {
+  font-weight: 700;
+}
+
+/* 待办 / 异常数字标红：只按语义标签命中，克制使用，不与错误提示混用 */
+.page-enter .t-warn {
+  box-shadow: inset 3px 0 0 #dc2626;
+}
+
+.page-enter .t-warn h2 {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.page-enter .t-warn-value {
+  color: #dc2626;
+}
