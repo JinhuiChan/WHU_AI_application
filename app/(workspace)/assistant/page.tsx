@@ -43,7 +43,7 @@ export default async function AssistantPage({ searchParams }: { searchParams: { 
         <h1 className="text-xl font-semibold text-slate-900">赛事 AI 问答</h1>
         <p className="mt-2 text-sm text-slate-500">根据本场赛事资料回答问题，并提供可核对的出处。</p>
       </header>
-      {competition ? <AssistantWorkspace key={competition.id} competitionId={competition.id} competitions={competitions} admin={admin}>
+      {competition ? <AssistantWorkspace key={competition.id} competitionId={competition.id} competitions={competitions} admin={admin} viewer={{ id: user.id, role: user.role }}>
         {admin && <KnowledgePanel
           key={competition.id} competitionId={competition.id}
           attachments={attachments.map((item) => ({ ...item, isSample: item.filePath.startsWith("/samples/"), unavailableReason: knowledgeAttachmentIssue(item) }))}

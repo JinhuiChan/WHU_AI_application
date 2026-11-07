@@ -107,6 +107,11 @@ async function main() {
   await req("/api/assistant/ask", { cookie: student, body: { question: "截止时间？" }, status: 422 });
   assert.match((await req("/assistant?competitionId=" + a.id, { cookie: admin })).data, /管理本场赛事的问答资料/);
   assert.ok(!(await req("/assistant?competitionId=" + a.id, { cookie: student })).data.includes("管理本场赛事的问答资料"));
+  for (const competition of await db.competition.findMany({ where: { publishStatus: "PUBLISHED" } })) {
+    const html = (await req("/assistant?competitionId=" + competition.id, { cookie: student })).data;
+    assert.ok(!html.includes('id="knowledge"'), competition.name + " 不得包含资料管理");
+    assert.ok(!html.includes("上传新文件"), competition.name + " 不得包含上传入口");
+  }
   console.log("PASS 页面、登录和管理员权限");
   const adminHtml = (await req("/assistant?competitionId=" + a.id, { cookie: admin })).data;
   assert.ok(adminHtml.indexOf('id="knowledge"') < adminHtml.indexOf("测试问答"));
