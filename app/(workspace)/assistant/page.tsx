@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 export default async function AssistantPage({ searchParams }: { searchParams: { competitionId?: string } }) {
   const user = await getActiveUser();
   if (!user) redirect("/login");
-  const admin = user.roles.includes("ADMIN");
+  const admin = user.role === "ADMIN";
   const competitions = await prisma.competition.findMany({
     where: admin ? {} : { publishStatus: "PUBLISHED" },
     select: { id: true, name: true, year: true, publishStatus: true },

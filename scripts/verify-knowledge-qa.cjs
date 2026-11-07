@@ -128,6 +128,32 @@ async function main() {
   await db.competitionAttachment.delete({ where: { id: unsafeAttachment.id } });
   console.log("PASS 管理布局、赛事范围、演示附件白名单及新操作权限");
 
+  // 同一账号拥有多种身份时，当前选择学生也不能管理资料。
+  const adminUser = await db.user.findFirst({ where: { phone: "13800000001" } });
+  const linkExists = await db.userRoleLink.findUnique({ where: { userId_role: { userId: adminUser.id, role: "STUDENT" } } });
+  if (!linkExists) await db.userRoleLink.create({ data: { userId: adminUser.id, role: "STUDENT" } });
+  const studentIdentity = (await req("/api/auth/login", { body: { phone: "13800000001", password: "123456", identity: "STUDENT" } })).cookie;
+  const me = (await req("/api/auth/me", { cookie: studentIdentity })).data.user;
+  assert.equal(me.role, "STUDENT");
+  assert.ok(me.roles.includes("ADMIN"));
+  const studentView = (await req("/assistant?competitionId=" + a.id, { cookie: studentIdentity })).data;
+  for (const adminText of ["管理本场赛事的问答资料", "添加问答资料", "上传新文件", "测试问答"]) {
+    assert.ok(!studentView.includes(adminText), adminText);
+  }
+  assert.ok(studentView.includes("咨询赛事"));
+  const studentCompetition = (await req("/competitions/" + a.id, { cookie: studentIdentity })).data;
+  assert.ok(!studentCompetition.includes("管理问答资料"));
+  for (const action of ["preview", "publish", "view", "withdraw", "restore"]) {
+    await req(endpoint(a.id), { cookie: studentIdentity, body: { action, documentId: "missing" }, status: 403 });
+  }
+  await req("/api/admin/competitions/" + a.id + "/attachments", { cookie: studentIdentity, body: { title: "blocked" }, status: 403 });
+  await req("/api/admin/competitions/" + a.id + "/attachments/missing", { cookie: studentIdentity, method: "DELETE", status: 403 });
+  const adminIdentity = (await req("/api/auth/login", { body: { phone: "13800000001", password: "123456", identity: "ADMIN" } })).cookie;
+  assert.ok((await req("/assistant?competitionId=" + a.id, { cookie: adminIdentity })).data.includes("管理本场赛事的问答资料"));
+  if (!linkExists) await db.userRoleLink.delete({ where: { userId_role: { userId: adminUser.id, role: "STUDENT" } } });
+  if (!linkExists) await req("/api/auth/me", { cookie: studentIdentity, status: 401 });
+  console.log("PASS 多身份账号以学生登录无管理入口及权限，角色撤回后旧会话失效");
+
 
   const form = new FormData();
   form.set("title", "接口验收通知");

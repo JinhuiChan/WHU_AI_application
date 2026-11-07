@@ -9,7 +9,7 @@ import { prisma } from "@/lib/prisma";
 type Context = { params: { id: string; attachmentId: string } };
 
 export async function DELETE(_request: NextRequest, { params }: Context) {
-  const authorization = await requireApiAdmin();
+  const authorization = await requireApiAdmin({ activeIdentity: true });
   if (!authorization.ok) return authorization.response;
   try {
     const attachment = await prisma.competitionAttachment.findFirst({

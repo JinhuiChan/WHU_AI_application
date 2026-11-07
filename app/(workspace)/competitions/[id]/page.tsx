@@ -78,7 +78,7 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
           {competition.publishStatus === "PUBLISHED" && (
             <Link href={`/assistant?competitionId=${competition.id}`} className="text-sm text-blue-600 hover:underline">问这场比赛</Link>
           )}
-          {user.roles.includes("ADMIN") && (
+          {user.role === "ADMIN" && (
             <Link href={`/assistant?competitionId=${competition.id}#knowledge`} className="text-sm text-blue-600 hover:underline">管理问答资料</Link>
           )}
         </div>

@@ -9,7 +9,7 @@ import { prisma } from "@/lib/prisma";
 type Context = { params: { competitionId: string } };
 
 export async function POST(request: NextRequest, { params }: Context) {
-  const auth = await requireApiAdmin();
+  const auth = await requireApiAdmin({ activeIdentity: true });
   if (!auth.ok) return auth.response;
   const { competitionId } = params;
   try {

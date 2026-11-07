@@ -36,12 +36,15 @@ export async function getActiveUser(): Promise<AuthUser | null> {
   if (!user) return null;
   // 未通过审核的账号（管理员注册默认 PENDING）不建立可用会话
   if (user.approvalStatus !== "APPROVED") return null;
+  const roles = mergeRoles(user.role, user.extraRoles.map((item) => item.role));
+  // 当前身份来自登录选择；角色是否仍有效以数据库为准。
+  if (!roles.includes(session.role)) return null;
   return {
     id: user.id,
     phone: user.phone,
     name: user.name,
-    role: user.role,
-    roles: mergeRoles(user.role, user.extraRoles.map((item) => item.role)),
+    role: session.role,
+    roles,
   };
 }
 
@@ -57,10 +60,10 @@ export async function requireApiUser(): Promise<ApiUserResult> {
   return { ok: true, user };
 }
 
-export async function requireApiAdmin(): Promise<ApiUserResult> {
+export async function requireApiAdmin({ activeIdentity = false }: { activeIdentity?: boolean } = {}): Promise<ApiUserResult> {
   const authorization = await requireApiUser();
   if (!authorization.ok) return authorization;
-  if (!authorization.user.roles.includes("ADMIN")) {
+  if (!authorization.user.roles.includes("ADMIN") || (activeIdentity && authorization.user.role !== "ADMIN")) {
     return { ok: false, response: apiError(403, "无权限执行此操作") };
   }
   return authorization;

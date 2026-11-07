@@ -51,7 +51,7 @@ function safeFileName(value: string) {
 }
 
 export async function POST(request: NextRequest, { params }: Context) {
-  const authorization = await requireApiAdmin();
+  const authorization = await requireApiAdmin({ activeIdentity: true });
   if (!authorization.ok) return authorization.response;
   let diskPath = "";
   try {
