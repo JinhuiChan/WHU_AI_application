@@ -10,9 +10,11 @@ type Props = {
   /** 删除成功后跳转的地址；不传则只刷新当前页 */
   redirectTo?: string;
   label?: string;
+  /** 表格操作列里用：压到 h-8，与同行的胶囊按钮对齐 */
+  compact?: boolean;
 };
 
-export function CompetitionDeleteButton({ competitionId, competitionName, redirectTo, label = "删除赛事" }: Props) {
+export function CompetitionDeleteButton({ competitionId, competitionName, redirectTo, label = "删除赛事", compact = false }: Props) {
   const router = useRouter();
   const [confirming, setConfirming] = useState(false);
   const [pending, setPending] = useState(false);
@@ -44,7 +46,7 @@ export function CompetitionDeleteButton({ competitionId, competitionName, redire
         type="button"
         variant="outline"
         onClick={() => setConfirming(true)}
-        className="rounded-full border-red-200 text-xs text-red-600 hover:bg-red-50"
+        className={`rounded-full border-red-200 text-xs text-red-600 hover:bg-red-50${compact ? " h-8 px-3" : ""}`}
       >
         {label}
       </Button>

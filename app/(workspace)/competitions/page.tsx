@@ -197,18 +197,24 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
                     </>
                   )}
                   <td className="whitespace-nowrap px-4 py-4">
-                    <Link href={`/competitions/${competition.id}`} className="text-blue-600 hover:underline">查看详情</Link>
-                    {isStudent && competition.registration?.windowOpen && !competition.registration.projectId ? (
-                      <Link href={`/apply?competitionId=${competition.id}`} className="ml-3 text-blue-600 hover:underline">立即报名</Link>
-                    ) : null}
-                    {isStudent && competition.registration?.projectStatus ? (
-                      <Link href="/my" className="ml-3 text-slate-500 hover:underline">我的项目</Link>
-                    ) : null}
-                    {user.role === "ADMIN" ? (
-                      <span className="ml-3 inline-block align-middle">
-                        <CompetitionDeleteButton competitionId={competition.id} competitionName={competition.name} label="删除" />
-                      </span>
-                    ) : null}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Button asChild size="sm" variant="outline" className="h-8 px-3">
+                        <Link href={`/competitions/${competition.id}`}>查看详情</Link>
+                      </Button>
+                      {isStudent && competition.registration?.windowOpen && !competition.registration.projectId ? (
+                        <Button asChild size="sm" variant="default" className="h-8 px-3">
+                          <Link href={`/apply?competitionId=${competition.id}`}>立即报名</Link>
+                        </Button>
+                      ) : null}
+                      {isStudent && competition.registration?.projectStatus ? (
+                        <Button asChild size="sm" variant="ghost" className="h-8 px-3 text-slate-500 hover:bg-slate-100">
+                          <Link href="/my">我的项目</Link>
+                        </Button>
+                      ) : null}
+                      {user.role === "ADMIN" ? (
+                        <CompetitionDeleteButton compact competitionId={competition.id} competitionName={competition.name} label="删除" />
+                      ) : null}
+                    </div>
                   </td>
                 </tr>
               ))}
