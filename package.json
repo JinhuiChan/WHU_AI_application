@@ -15,7 +15,13 @@
     "setup": "node scripts/setup.mjs",
     "db:generate": "prisma generate",
     "db:push": "prisma db push --skip-generate",
-    "db:seed": "tsx --env-file=.env prisma/seed.ts"
+    "db:seed": "tsx --env-file=.env prisma/seed.ts",
+    "db:seed:accounts": "tsx --env-file=.env prisma/seed-demo-accounts.ts",
+    "demo:generate": "tsx --env-file=.env scripts/generate-demo-data.ts",
+    "demo:sync": "tsx --env-file=.env scripts/sync-demo-data.ts",
+    "demo:import": "tsx --env-file=.env scripts/import-demo-data.ts",
+    "demo:link": "tsx --env-file=.env scripts/link-demo-import.ts",
+    "demo:all": "npm run db:seed:accounts && npm run demo:generate && npm run demo:sync && npm run demo:import && npm run demo:link"
   },
   "prisma": {
     "seed": "tsx --env-file=.env prisma/seed.ts"

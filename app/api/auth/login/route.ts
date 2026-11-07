@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { apiError, apiSuccess } from "@/lib/api";
 import { writeAuditLog } from "@/lib/audit";
 import { SESSION_COOKIE, SESSION_MAX_AGE, signSession } from "@/lib/auth";
+import { claimHistoricalRecords, emptyClaimedRecords, hasClaimedRecords } from "@/lib/claim-records";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
@@ -50,6 +51,15 @@ export async function POST(request: NextRequest) {
     if (identity && !roles.includes(identity)) {
       return apiError(403, `该账号没有「${identity === "ADMIN" ? "管理员" : identity === "TEACHER" ? "指导老师" : "学生"}」身份，请选择正确的身份`);
     }
+    // 登录即认领历史报名：账号先于数据导入创建时，这里按学号/工号补绑（失败不阻断登录）
+    const claimed = await claimHistoricalRecords({
+      id: user.id,
+      studentNo: user.studentNo,
+      staffNo: user.staffNo,
+    }).catch((error: unknown) => {
+      console.error("历史报名自动关联失败：", error);
+      return emptyClaimedRecords;
+    });
     const primaryRole = identity ?? user.role;
     const token = await signSession({ id: user.id, phone: user.phone, name: user.name, role: primaryRole, roles });
     await writeAuditLog({
@@ -57,7 +67,10 @@ export async function POST(request: NextRequest) {
       action: "LOGIN",
       targetType: "User",
       targetId: user.id,
-      detail: { method: "手机号密码登录" },
+      detail: {
+        method: "手机号密码登录",
+        ...(hasClaimedRecords(claimed) ? { claimed } : {}),
+      },
     });
     const response = apiSuccess(
       { user: { id: user.id, phone: user.phone, name: user.name, role: primaryRole, roles } },

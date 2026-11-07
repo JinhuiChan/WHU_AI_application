@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { Prisma } from "@prisma/client";
 import { apiError, apiSuccess } from "@/lib/api";
 import { writeAuditLog } from "@/lib/audit";
+import { claimHistoricalRecords, hasClaimedRecords } from "@/lib/claim-records";
 import { prisma } from "@/lib/prisma";
 
 const STUDENT_NO_PATTERN = /^\d{6,20}$/;
@@ -86,15 +87,25 @@ export async function POST(request: NextRequest) {
           major: readString(payload, "major") || null,
           grade: readString(payload, "grade") || null,
         },
-        select: { id: true, studentNo: true, name: true, phone: true, role: true },
+        select: { id: true, studentNo: true, staffNo: true, name: true, phone: true, role: true },
       });
+      // 注册即认领历史报名：数据导入产生的成员/负责人/指导老师记录按学号/工号绑定到新账号
+      const claimed = await claimHistoricalRecords(
+        { id: created.id, studentNo: created.studentNo, staffNo: created.staffNo },
+        tx,
+      );
       await writeAuditLog(
         {
           actorId: created.id,
           action: identity === "ADMIN" ? "ADMIN_REGISTER_PENDING" : "STUDENT_REGISTERED",
           targetType: "User",
           targetId: created.id,
-          detail: { identity, studentNo: created.studentNo ?? "", staffNo },
+          detail: {
+            identity,
+            studentNo: created.studentNo ?? "",
+            staffNo,
+            ...(hasClaimedRecords(claimed) ? { claimed } : {}),
+          },
         },
         tx,
       );
