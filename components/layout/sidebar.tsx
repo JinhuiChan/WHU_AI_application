@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  Bot,
   ClipboardCheck,
   FileCheck,
   FileText,
@@ -45,6 +46,8 @@ function navigationFor(roles: Role[]) {
   ];
   return extra.length ? [...dashboard, ...extra] : dashboard;
 }
+
+const commonTools = [{ href: "/assistant", label: "AI 助手", icon: Bot }];
 
 const administration = [
   { href: "/review", label: "报名审核", icon: ClipboardCheck },
@@ -101,6 +104,26 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
               </Link>
             );
           })}
+          <div className="pt-5">
+            <p className="mb-2 px-3 text-xs font-medium text-slate-400">工具</p>
+            {commonTools.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
+                  className={`flex h-10 items-center gap-3 rounded-xl px-3 text-sm transition ${
+                    active ? "bg-blue-50 font-medium text-blue-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  }`}
+                >
+                  <Icon size={18} aria-hidden="true" />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
           {roles.includes("ADMIN") ? (
             <div className="pt-5">
               <p className="mb-2 px-3 text-xs font-medium text-slate-400">管理</p>
