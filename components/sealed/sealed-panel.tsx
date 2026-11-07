@@ -11,6 +11,13 @@ function fileSize(sizeBytes: number) {
   return sizeBytes >= 1024 * 1024 ? `${(sizeBytes / 1024 / 1024).toFixed(2)} MB` : `${(sizeBytes / 1024).toFixed(1)} KB`;
 }
 
+const maxSizeBytes = 20 * 1024 * 1024;
+const sealedExtensions = ["pdf", "jpg", "jpeg", "png"];
+
+function fileExtension(name: string) {
+  return name.toLowerCase().split(".").pop() ?? "";
+}
+
 function reviewLabel(value: string) {
   if (value === "APPROVED") return "已通过";
   if (value === "REJECTED") return "已驳回";
@@ -56,7 +63,7 @@ export function SealedPanel({ projectId, files, currentFileId, canExportSensitiv
         <h3 className="text-sm font-medium text-slate-800">当前最终版</h3>
         {currentFile ? (
           <div className="mt-2 flex flex-wrap items-center gap-3">
-            <span className="text-sm text-slate-700">第 {currentFile.versionNo} 版 · {currentFile.fileName}</span>
+            <span className="text-sm text-slate-700">第 {currentFile.versionNo} 版 · {currentFile.fileName} · {fileSize(currentFile.sizeBytes)}</span>
             <a href={`/api/sealed/download?fileId=${encodeURIComponent(currentFile.id)}`} className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700">下载最终版</a>
           </div>
         ) : <p className="mt-2 text-sm text-slate-500">尚未上传可用的盖章件</p>}
@@ -73,8 +80,13 @@ export function SealedPanel({ projectId, files, currentFileId, canExportSensitiv
             setError("请选择上传文件");
             return;
           }
-          if (input.files[0].size > 20 * 1024 * 1024) {
-            setError("文件不能超过 20MB");
+          const picked = input.files[0];
+          if (!sealedExtensions.includes(fileExtension(picked.name))) {
+            setError(`「${picked.name}」不是盖章件支持的格式。盖章件需要盖章后的 PDF 或扫描图片；Word、PPT 等源文件请先另存为 PDF 再上传。`);
+            return;
+          }
+          if (picked.size > maxSizeBytes) {
+            setError(`文件约 ${(picked.size / 1024 / 1024).toFixed(1)}MB，超过 20MB 上限。请压缩后再上传。`);
             return;
           }
           setPending(true);
@@ -99,11 +111,33 @@ export function SealedPanel({ projectId, files, currentFileId, canExportSensitiv
       >
         <label className="flex-1 text-sm text-slate-600">
           <span className="sr-only">上传盖章件</span>
-          <input name="file" type="file" required disabled={pending} accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" className="block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:text-slate-700 hover:file:bg-slate-200" />
+          <input
+            name="file"
+            type="file"
+            required
+            disabled={pending}
+            accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+            onChange={(event) => {
+              setError("");
+              setNotice("");
+              const picked = event.currentTarget.files?.[0];
+              if (!picked) return;
+              if (!sealedExtensions.includes(fileExtension(picked.name))) {
+                setError(`「${picked.name}」不是盖章件支持的格式。印章只认扫描件：请上传 PDF 或图片，Word/PPT 请先另存为 PDF。`);
+                event.currentTarget.value = "";
+                return;
+              }
+              if (picked.size > maxSizeBytes) {
+                setError(`文件约 ${(picked.size / 1024 / 1024).toFixed(1)}MB，超过 20MB 上限，压缩后再试。`);
+                event.currentTarget.value = "";
+              }
+            }}
+            className="block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:text-slate-700 hover:file:bg-slate-200"
+          />
         </label>
         <Button variant="default" size="default" type="submit" disabled={pending} >{pending ? "上传中…" : "上传盖章件"}</Button>
       </form>
-      <p className="mt-2 text-xs text-slate-400">支持 PDF/JPG/PNG，单文件不超过 20MB。</p>
+      <p className="mt-2 text-xs text-slate-400">支持 PDF/JPG/PNG，单文件不超过 20MB。盖章件必须是盖章后的扫描件或清晰照片；Word、PPT 源文件不具备印章效力，请先另存为 PDF 再上传。</p>
       {error ? <p role="alert" className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p> : null}
       {notice ? <p role="status" className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{notice}</p> : null}
 
