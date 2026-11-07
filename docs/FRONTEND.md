@@ -134,3 +134,12 @@
 - `CompetitionDeleteButton` 新增 `compact` 属性：只在表格操作列里压到 `h-8`，详情页仍用默认大小。不做成全局尺寸，避免影响其他调用点。
 - 为什么用 `Button asChild` 而不是手写 `Link` 类名：`cn()` 是 `twMerge`，外部 `className` 能正确覆盖 `size` 自带的高度与内边距；手写的话以后改按钮样式又要同步一遍。
 - **遗留不一致**：`/my`、`/projects`、`/review` 的操作列仍是文字链接。要统一时照这三档层级改，别每页各调一套。
+
+## 2026-11-07 「抬升」定为全站按钮统一交互
+
+- 用户从 8 种候选中选定 **1 抬升 Lift**。实现不新增 variant，而是写进 `buttonVariants` 的 base：`hover:-translate-y-0.5` + `hover:shadow-*`，`active:translate-y-0` 回落并 `scale-[0.97]`。所有变体、所有调用点自动生效，不需要逐个改页面。
+- 投影按变体给色，不统一用黑：主按钮 `shadow-blue-600/25`、描边 `shadow-slate-900/10`、危险 `shadow-red-600/15`。同色投影看起来像「按钮浮起来」，黑投影更像「卡片有脏边」。
+- `ghost` 显式抵消抬升（`hover:translate-y-0 hover:shadow-none`）：透明底浮起来只剩一圈脏阴影。`disabled` 同样抵消，避免禁用态还能浮。
+- 抬升用 `translate` 而不是 `margin`/`top`，不参与布局重排，表格里密集排列不会撑开行高、不会抖动。实测表格行内按钮 hover 后 `top 408 → 406`、`transform translateY(-2px)`，同行其他元素纹丝不动。
+- 主色可换：`/style-lab` 顶部新增「同一个抬升，换主色」区块，蓝／靛蓝／深墨／紫／墨绿五个色号并排。换色只需改 `bg-*`、`hover:bg-*`、`shadow-*/25` 三处，动效不用重写。**换全站主色则要替换散落各页的 `blue-*` 类名**，属于一次性全局替换 + 全页回归，不是改一个 token 的事。
+- 已知未处理：移动端点击后 `hover` 会残留（Tailwind 3 默认不给 `hover:` 包 `@media (hover: hover)`）。要彻底解决需在 `tailwind.config` 开 `future.hoverOnlyWhenSupported`，会改变全站 hover 行为，单独评估。

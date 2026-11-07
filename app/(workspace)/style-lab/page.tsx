@@ -64,6 +64,50 @@ function Demo({
   );
 }
 
+/**
+ * 抬升效果只跟「主色 + 投影色」有关，换色不用重写动效。
+ * 类名必须写全字面量，Tailwind 才会扫到（不能用模板字符串拼）。
+ */
+const SWATCHES = [
+  {
+    name: "蓝（现在）",
+    hex: "#2563eb",
+    dot: "bg-blue-600",
+    solid: "bg-blue-600 hover:bg-blue-700 hover:shadow-blue-600/25",
+    outline: "border-slate-300 text-slate-700 hover:border-blue-300 hover:text-blue-700",
+  },
+  {
+    name: "靛蓝",
+    hex: "#4f46e5",
+    dot: "bg-indigo-600",
+    solid: "bg-indigo-600 hover:bg-indigo-700 hover:shadow-indigo-600/25",
+    outline: "border-slate-300 text-slate-700 hover:border-indigo-300 hover:text-indigo-700",
+  },
+  {
+    name: "深墨",
+    hex: "#0f172a",
+    dot: "bg-slate-900",
+    solid: "bg-slate-900 hover:bg-slate-800 hover:shadow-slate-900/30",
+    outline: "border-slate-300 text-slate-700 hover:border-slate-400 hover:text-slate-900",
+  },
+  {
+    name: "紫",
+    hex: "#7c3aed",
+    dot: "bg-violet-600",
+    solid: "bg-violet-600 hover:bg-violet-700 hover:shadow-violet-600/25",
+    outline: "border-slate-300 text-slate-700 hover:border-violet-300 hover:text-violet-700",
+  },
+  {
+    name: "墨绿",
+    hex: "#059669",
+    dot: "bg-emerald-600",
+    solid: "bg-emerald-600 hover:bg-emerald-700 hover:shadow-emerald-600/25",
+    outline: "border-slate-300 text-slate-700 hover:border-emerald-300 hover:text-emerald-700",
+  },
+];
+
+const LIFT = "transition duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]";
+
 export default function StyleLabPage() {
   return (
     <div className="space-y-6">
@@ -79,6 +123,39 @@ export default function StyleLabPage() {
           全部为纯 CSS，无新增依赖
         </span>
       </div>
+
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="text-base text-slate-900">同一个抬升，换主色</h2>
+          <span className="text-xs text-slate-500">选中色号告诉我，我全站换</span>
+        </div>
+        <p className="mt-2 text-xs leading-6 text-slate-500">
+          动效完全一样，只有颜色和投影在变。深墨色投影更沉、紫和墨绿更跳，蓝色最不容易出错。
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          {SWATCHES.map((swatch) => (
+            <div key={swatch.name} className="rounded-lg bg-slate-50 p-3">
+              <div className="flex items-center gap-2">
+                <span className={`h-3 w-3 rounded-full ${swatch.dot}`} aria-hidden="true" />
+                <span className="text-xs font-semibold text-slate-900">{swatch.name}</span>
+              </div>
+              <p className="mt-0.5 font-mono text-[10px] text-slate-400">{swatch.hex}</p>
+              <button
+                type="button"
+                className={`mt-3 inline-flex h-9 w-full items-center justify-center rounded-full px-3 text-sm font-medium text-white shadow-sm hover:shadow-lg ${LIFT} ${swatch.solid}`}
+              >
+                立即报名
+              </button>
+              <button
+                type="button"
+                className={`mt-2 inline-flex h-9 w-full items-center justify-center rounded-full border bg-white px-3 text-sm font-medium shadow-sm hover:shadow-md ${LIFT} ${swatch.outline}`}
+              >
+                查看详情
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <Demo
         index={1}
