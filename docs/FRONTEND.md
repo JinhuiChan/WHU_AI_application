@@ -196,6 +196,7 @@
 - **编号是刻意保留的**：用户明确要求「内部编号可能也有用」，排查问题、跟后端对数都要靠它，只是降到副信息层。
 - 实现：页面里按 `targetType` 分组收集 id，只对 User / Project / Competition / Track / Teacher / CompetitionAttachment 六类做一次 `findMany`，其余类型（ImportBatch、Anomaly 等）只显示类型标签 + 编号。查不到的显示「未找到对应记录」，不假装成功。
 - 表里没有名称字段的类型（TimeWindow、MaterialCheck、Assistant）不查，避免为显示一个空值多打一次库。
+- 登录、改自己资料这类动作，对象就是操作人本人，姓名和手机号左边已经有了，这一列只显示「本人」+ 编号，不重复三行一样的信息。
 
 **奖项录入（`components/admin/award-workbench.tsx`）**
 

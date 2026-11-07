@@ -109,6 +109,9 @@ export default async function AuditLogsPage({ searchParams }: PageProps) {
             <tbody className="divide-y divide-slate-100">
               {data.list.map((log) => {
                 const target = lookup(log.targetType, log.targetId);
+                // 登录、改自己资料这类动作，对象就是操作人本人，左边已经显示了姓名和手机号，不必再说一遍
+                const onSelf =
+                  log.targetType === "User" && target?.name === log.actor.name && target?.note === log.actor.phone;
                 return (
                 <tr key={log.id} className="align-top text-slate-700">
                   <td className="whitespace-nowrap px-4 py-4 text-xs">{formatDateTime(log.createdAt)}</td>
@@ -126,9 +129,9 @@ export default async function AuditLogsPage({ searchParams }: PageProps) {
                       <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600">
                         {typeLabel(log.targetType)}
                       </span>
-                      <span className="text-slate-900">{target?.name ?? "未找到对应记录"}</span>
+                      <span className="text-slate-900">{target ? (onSelf ? "本人" : target.name) : "未找到对应记录"}</span>
                     </div>
-                    {target?.note ? <div className="mt-0.5 text-[11px] text-slate-500">{target.note}</div> : null}
+                    {target?.note && !onSelf ? <div className="mt-0.5 text-[11px] text-slate-500">{target.note}</div> : null}
                     <div className="mt-1 select-all break-all font-mono text-[10px] text-slate-400">{log.targetId}</div>
                   </td>
                   <td className="max-w-md px-4 py-4">
