@@ -71,3 +71,15 @@
   3. `focusin` / `focusout` 挂到 `root.parentElement`，并让焦点判定接受父级——卡片被包在 `<a>` 里时，官方原逻辑（只认卡片内部元素）会失效，键盘聚焦不亮。
 - 目前只用在 `/dashboard` 快捷入口的三张卡：`theme="light"`、`spotlightColor="#2563eb"`、`intensity=0.55`（浅色主题内部再乘 0.28，实际约 0.15）、`proximity=48`、`borderGlow=0.4`。统计卡、表格行、审核列表**不用**。
 - **更新该组件源码时请保留上面 3 处改动**，否则会退回「接管卡片外观 + 键盘不亮」的官方行为。
+
+## 2026-11-07 Stepper（数据导入步骤条）
+
+- `components/react-bits/StepperIndicator.tsx` 取自官方 `Components/Stepper/Stepper.tsx`，但**只抽了步骤指示条**，没有引入它自带的内容视口与页脚。
+- 为什么不整块套：官方内容视口是 `overflow-hidden`，会把导入预览里 `min-w-[1800px]` 的宽表裁掉；而且导入流程的三步各有自己的异步按钮（上传并解析 / 保存映射方案 / 入库），不是「上一步 / 下一步」。整块套等于改流程，只换零件风险最低。
+- 相对官方改了 **4 处**，更新源码时请保留：
+  1. 只保留指示条，`current` 由页面自己的 `step` 状态传入，组件不持有步骤状态、不渲染内容、不渲染页脚。
+  2. 主题变量映射到 `globals.css` 的语义 token（`--surface-muted` / `--border` / `--ink` / `--brand` / `--brand-soft`），不再用官方写死的灰阶。
+  3. 图标从 `@hugeicons/core-free-icons` 换成项目已有的 `lucide-react`（`Check`），**不新增依赖**。
+  4. 徽章语义调整：官方是「当前=描边、已完成=实心」，这里改成「当前=品牌实心白字、已完成=品牌浅底打勾」，因为中文后台里当前步骤需要最醒目。
+- 还修了官方一处行为：`ResizeObserver` 在 `observe()` 后必定回调一次，会把刚设好的 `transform` 过渡覆盖成 `opacity-only`，导致切换步骤变成瞬移。现在只在轨道宽度真的变化时才重算，切换保留 560ms 弹簧（实测采样 `4 → 61 → 220 → 367 → 400 → 391 → 374 → 370`，有弹性过冲）。
+- 目前只用在 `/import`：替换了原来手写的 `<ol>`，外层卡片（`rounded-xl border shadow-sm p-4`）保留，**默认不传 `onStepClick`**，所以步骤条只做展示、不可点击，与原 `<li>` 行为一致。窄屏（<640px）只显示数字徽章，标题仍保留在 `aria-label` 里供读屏使用。

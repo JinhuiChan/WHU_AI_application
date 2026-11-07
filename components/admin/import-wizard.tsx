@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import StepperIndicator from "@/components/react-bits/StepperIndicator";
 import Link from "next/link";
 import { useState } from "react";
 import type { ApiResponse } from "@/types/api";
@@ -203,21 +204,9 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
 
   return (
     <div className="space-y-6">
-      <ol className="grid grid-cols-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        {steps.map((label, index) => {
-          const number = index + 1;
-          const active = step === number;
-          const completed = step > number;
-          return (
-            <li key={label} className="flex items-center justify-center gap-2 text-xs md:text-sm">
-              <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-medium ${active || completed ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-500"}`}>
-                {number}
-              </span>
-              <span className={active ? "font-medium text-blue-700" : "text-slate-500"}>{label}</span>
-            </li>
-          );
-        })}
-      </ol>
+      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <StepperIndicator current={step} steps={steps} />
+      </div>
 
       {error ? <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
       {notice ? <div role="status" className="break-all rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">{notice}</div> : null}
