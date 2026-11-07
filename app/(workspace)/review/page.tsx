@@ -99,7 +99,7 @@ export default async function ReviewPage({ searchParams }: PageProps) {
             key={item.key}
             href={tabHref(item.key)}
             aria-current={tab === item.key ? "page" : undefined}
-            className={`h-10 rounded-md px-4 text-sm leading-10 ${tab === item.key ? "bg-blue-600 font-medium text-white" : "border border-slate-300 bg-white text-slate-600 hover:bg-slate-50"}`}
+            className={`h-10 rounded-lg px-4 text-sm leading-10 ${tab === item.key ? "bg-blue-600 font-medium text-white" : "border border-slate-300 bg-white text-slate-600 hover:bg-slate-50"}`}
           >
             {item.label}
           </Link>
@@ -107,7 +107,7 @@ export default async function ReviewPage({ searchParams }: PageProps) {
         <span className="text-xs text-slate-400">默认只看待审核；状态下拉可精确到某一状态</span>
       </div>
       {tab === "pending" && data.total === 0 ? (
-        <p className="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+        <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
           当前没有待审核项目，可切换到
           <Link href={tabHref("reviewed")} className="mx-1 underline">已审核</Link>或
           <Link href={tabHref("all")} className="mx-1 underline">全部</Link>查看。

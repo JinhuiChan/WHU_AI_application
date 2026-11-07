@@ -170,9 +170,9 @@ export function MemberSection({ members, dictionaries, onChange, onPayeeToggle }
               <span className="text-slate-600">{member.personNo || "无学号"}</span>
               <span className="text-slate-600">{member.trainingUnit}</span>
               <span className="flex gap-2">
-                <button type="button" aria-label="上移" disabled={index === 0} onClick={() => moveMember(index, -1)} className="rounded-lg border border-slate-300 px-2 py-1 text-slate-700 hover:bg-slate-50 disabled:opacity-40">↑</button>
-                <button type="button" aria-label="下移" disabled={index === members.length - 1} onClick={() => moveMember(index, 1)} className="rounded-lg border border-slate-300 px-2 py-1 text-slate-700 hover:bg-slate-50 disabled:opacity-40">↓</button>
-                <button type="button" onClick={() => onChange(members.filter((_, itemIndex) => itemIndex !== index).map((item, itemIndex) => ({ ...item, sortOrder: itemIndex })))} className="rounded-lg px-2 text-red-600 hover:bg-red-50">删除</button>
+                <Button variant="outline" size="default" type="button" aria-label="上移" disabled={index === 0} onClick={() => moveMember(index, -1)} >↑</Button>
+                <Button variant="outline" size="default" type="button" aria-label="下移" disabled={index === members.length - 1} onClick={() => moveMember(index, 1)} >↓</Button>
+                <Button variant="outline" size="default" type="button" onClick={() => onChange(members.filter((_, itemIndex) => itemIndex !== index).map((item, itemIndex) => ({ ...item, sortOrder: itemIndex })))} >删除</Button>
               </span>
             </div>
             <div className="mt-3 border-t border-slate-100 pt-3">

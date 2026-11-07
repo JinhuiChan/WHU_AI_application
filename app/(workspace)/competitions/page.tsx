@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -110,7 +111,7 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
               {[10, 20, 50].map((size) => <option key={size} value={size}>{size} 条</option>)}
             </select>
           </label>
-          <button type="submit" className="h-10 inline-flex h-11 items-center justify-center rounded-full bg-blue-600 px-5 text-sm font-medium text-white transition duration-[160ms] ease-out hover:bg-blue-700 active:scale-[0.97] active:bg-blue-800 motion-reduce:active:scale-100 h-10 px-4">筛选</button>
+          <Button variant="default" size="sm" type="submit" >筛选</Button>
           <Link href="/competitions" className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100 px-4">重置</Link>
         </form>
       </section>

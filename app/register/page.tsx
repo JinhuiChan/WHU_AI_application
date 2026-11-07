@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -72,13 +73,13 @@ export default function RegisterPage() {
   }
 
   const fieldClass =
-    "mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500";
+    "mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500";
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-10">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-md space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+        className="w-full max-w-md space-y-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
       >
         <div>
           <h1 className="text-xl font-semibold text-slate-900">账号注册</h1>
@@ -183,13 +184,12 @@ export default function RegisterPage() {
 
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
-        <button
+        <Button variant="default" size="default"
           type="submit"
           disabled={submitting}
-          className="w-full rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
-        >
+          className="w-full" >
           {submitting ? "注册中…" : "注册"}
-        </button>
+        </Button>
 
         <p className="text-center text-sm text-slate-500">
           已有账号？

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import type { ApiResponse } from "@/types/api";
@@ -11,13 +11,38 @@ type LoginData = {
   user: AuthUser;
 };
 
+type Identity = "STUDENT" | "TEACHER" | "ADMIN";
+
+const IDENTITY_STORAGE_KEY = "login.lastIdentity";
+
 export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
   const router = useRouter();
+  const phoneRef = useRef<HTMLInputElement>(null);
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [identity, setIdentity] = useState<"STUDENT" | "TEACHER" | "ADMIN">("STUDENT");
+  const [identity, setIdentity] = useState<Identity>("STUDENT");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem(IDENTITY_STORAGE_KEY);
+    if (saved === "STUDENT" || saved === "TEACHER" || saved === "ADMIN") {
+      setIdentity(saved);
+    }
+  }, []);
+
+  function handleIdentityChange(value: Identity) {
+    setIdentity(value);
+    window.localStorage.setItem(IDENTITY_STORAGE_KEY, value);
+  }
+
+  function clearAndRetry() {
+    setPhone("");
+    setPassword("");
+    setError("");
+    phoneRef.current?.focus();
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -44,16 +69,19 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
 
   const fieldClassName =
     "h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-100";
+  const passwordFieldClassName =
+    "h-11 w-full rounded-lg border border-slate-300 bg-white pl-3 pr-16 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-100";
 
   return (
-    <section className="w-full rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
-      <div className="mb-8 space-y-2 text-left">
-        <h1 className="text-2xl font-semibold text-slate-900">欢迎登录</h1>
-        <p className="text-sm text-slate-500">高校科创赛事综合管理服务平台</p>
+    <div className="w-full">
+      <div className="mb-8">
+        <p className="text-xs font-medium tracking-[0.18em] text-blue-600">Account login</p>
+        <h1 className="mt-2 text-2xl font-medium text-slate-900">登录赛事工作台</h1>
+        <p className="mt-2 text-sm text-slate-500">使用手机号与密码登录，身份需与账号匹配。</p>
       </div>
 
-      <form className="space-y-5" onSubmit={handleSubmit}>
-        <div className="grid gap-2 sm:grid-cols-[5rem_1fr] sm:items-center sm:gap-x-4">
+      <form className="space-y-4" onSubmit={handleSubmit}>
+        <div className="grid gap-2">
           <label className="text-sm font-medium text-slate-700" htmlFor="identity">
             身份
           </label>
@@ -61,65 +89,82 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
             className={fieldClassName}
             id="identity"
             name="identity"
-            onChange={(event) => setIdentity(event.target.value as "STUDENT" | "TEACHER" | "ADMIN")}
+            onChange={(event) => handleIdentityChange(event.target.value as Identity)}
             value={identity}
           >
             <option value="STUDENT">学生</option>
             <option value="TEACHER">指导老师</option>
             <option value="ADMIN">管理员</option>
           </select>
-          <p className="text-xs text-slate-500 sm:col-start-2">多身份账号：以所选身份进入，身份不对会被拒绝</p>
+          <p className="text-xs text-slate-500">多身份账号：以所选身份进入，身份不对会被拒绝</p>
         </div>
 
-        <div className="grid gap-2 sm:grid-cols-[5rem_1fr] sm:items-center sm:gap-x-4">
+        <div className="grid gap-2">
           <label className="text-sm font-medium text-slate-700" htmlFor="phone">
             手机号
           </label>
           <input
             autoComplete="username"
+            autoFocus
             className={fieldClassName}
             id="phone"
             inputMode="tel"
             name="phone"
             onChange={(event) => setPhone(event.target.value)}
             placeholder="请输入手机号"
+            ref={phoneRef}
             required
             type="tel"
             value={phone}
           />
         </div>
 
-        <div className="grid gap-2 sm:grid-cols-[5rem_1fr] sm:items-center sm:gap-x-4">
+        <div className="grid gap-2">
           <label className="text-sm font-medium text-slate-700" htmlFor="password">
             密码
           </label>
-          <input
-            autoComplete="current-password"
-            className={fieldClassName}
-            id="password"
-            name="password"
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="请输入密码"
-            required
-            type="password"
-            value={password}
-          />
-        </div>
-
-        {error ? (
-          <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600" role="alert">
-            {error}
-          </div>
-        ) : null}
-
-        <div className="grid sm:grid-cols-[5rem_1fr] sm:gap-x-4">
-          <div className="sm:col-start-2">
-            <Button className="w-full" disabled={loading} type="submit">
-              {loading ? "登录中…" : "登录"}
+          <div className="relative">
+            <input
+              autoComplete="current-password"
+              className={passwordFieldClassName}
+              id="password"
+              name="password"
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="请输入密码"
+              required
+              type={showPassword ? "text" : "password"}
+              value={password}
+            />
+            <Button
+              className="absolute right-1.5 top-1/2 h-8 -translate-y-1/2 px-3 text-xs"
+              onClick={() => setShowPassword((value) => !value)}
+              size="sm"
+              type="button"
+              variant="ghost"
+            >
+              {showPassword ? "隐藏" : "显示"}
             </Button>
           </div>
         </div>
+
+        {error ? (
+          <div className="space-y-2">
+            <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600" role="alert">
+              {error}
+            </div>
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+              <p className="text-xs text-slate-600">请检查身份、手机号与密码后重试</p>
+              <Button onClick={clearAndRetry} size="sm" type="button" variant="outline">
+                清空重输
+              </Button>
+            </div>
+          </div>
+        ) : null}
+
+        <Button className="w-full" disabled={loading} type="submit">
+          {loading ? "登录中…" : "登录"}
+        </Button>
       </form>
-    </section>
+    </div>
   );
 }

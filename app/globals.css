@@ -13,6 +13,28 @@ body {
   font-family: var(--font-geist-sans), "Microsoft YaHei", "PingFang SC", sans-serif;
 }
 
+@layer base {
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [role="button"]:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+  }
+}
+
+@keyframes login-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -20,5 +42,19 @@ body {
 
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .login-fade-up {
+    animation: login-fade-up 520ms ease-out both;
+  }
+
+  .font-rounded {
+    font-family: var(--font-geist-sans), "Yuanti SC", "YouYuan", "幼圆", "SimYou", "Microsoft YaHei", "PingFang SC", sans-serif;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-fade-up {
+    animation: none;
   }
 }

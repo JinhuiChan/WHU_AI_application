@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import type { ProjectFormInput } from "@/types/apply";
 import type { ApplyOptions } from "./apply-form";
 
@@ -58,9 +59,9 @@ export function WorkSection({ value, dictionaries, onChange }: WorkSectionProps)
         </label>
         <div className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
           <span className="text-sm font-medium text-slate-700">PPT 专区</span>
-          <button type="button" disabled className="flex h-10 w-full items-center justify-center rounded-lg border border-slate-300 bg-slate-100 px-3 text-sm text-slate-500">
+          <Button variant="outline" size="sm" type="button" disabled className="w-full" >
             PPT 上传功能开发中
-          </button>
+          </Button>
         </div>
       </div>
     </section>

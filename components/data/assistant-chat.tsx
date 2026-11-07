@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { FormEvent, useRef, useState } from "react";
 import { Bot, Send, UserRound } from "lucide-react";
 import type { ApiResponse } from "@/types/api";
@@ -64,18 +65,17 @@ export function AssistantChat() {
 
   return (
     <div className="space-y-5">
-      <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm md:p-5">
+      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
         <div className="mb-4 flex flex-wrap gap-2" aria-label="示例问题">
           {suggestions.map((item) => (
-            <button
+            <Button variant="outline" size="sm"
               key={item}
               type="button"
               disabled={pending}
               onClick={() => setQuestion(item)}
-              className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-left text-xs text-slate-600 hover:border-blue-300 hover:text-blue-700 disabled:opacity-50"
-            >
+              className="text-left" >
               {item}
-            </button>
+            </Button>
           ))}
         </div>
         <form onSubmit={submitQuestion}>
@@ -93,14 +93,13 @@ export function AssistantChat() {
           />
           <div className="mt-3 flex items-center justify-between gap-3">
             <span className="text-xs text-slate-400">最多 500 个字符，出处来自知识库元数据</span>
-            <button
+            <Button variant="default" size="sm"
               type="submit"
               disabled={pending || !question.trim()}
-              className="inline-flex h-10 shrink-0 items-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-            >
+              className="shrink-0 gap-2" >
               <Send size={16} aria-hidden="true" />
               {pending ? "检索中…" : "发送问题"}
-            </button>
+            </Button>
           </div>
         </form>
         {error ? <p role="alert" className="mt-3 text-sm text-red-600">{error}</p> : null}
@@ -121,7 +120,7 @@ export function AssistantChat() {
                   <p className="whitespace-pre-wrap">{exchange.question}</p>
                 </div>
               </div>
-              <article className="max-w-full rounded-lg border border-slate-200 bg-white p-4 shadow-sm md:max-w-[85%] md:p-5">
+              <article className="max-w-full rounded-xl border border-slate-200 bg-white p-4 shadow-sm md:max-w-[85%] md:p-5">
                 <div className="flex items-start gap-3">
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
                     <Bot size={18} aria-hidden="true" />
@@ -138,24 +137,24 @@ export function AssistantChat() {
                     </p>
                     <dl className="mt-3 grid gap-2 text-xs text-slate-600 sm:grid-cols-3">
                       <div>
-                        <dt className="text-slate-400">章节</dt>
+                        <dt className="text-sm text-slate-400">章节</dt>
                         <dd className="mt-1">{exchange.result.evidence.section}</dd>
                       </div>
                       <div>
-                        <dt className="text-slate-400">页码</dt>
+                        <dt className="text-sm text-slate-400">页码</dt>
                         <dd className="mt-1">
                           {exchange.result.evidence.page === null ? "未标注" : `第 ${exchange.result.evidence.page} 页`}
                         </dd>
                       </div>
                       <div>
-                        <dt className="text-slate-400">适用赛年</dt>
+                        <dt className="text-sm text-slate-400">适用赛年</dt>
                         <dd className="mt-1">{exchange.result.evidence.year}</dd>
                       </div>
                     </dl>
                   </div>
                 ) : null}
                 {exchange.result.handoff ? (
-                  <p className="mt-3 rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-700">
+                  <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700">
                     知识库未命中，已提供人工咨询渠道。
                   </p>
                 ) : null}

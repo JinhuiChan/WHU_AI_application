@@ -134,7 +134,7 @@ export function TeacherSection({ teachers, onChange }: TeacherSectionProps) {
             {teachers.map((teacher, index) => (
               <tr key={teacher.id ?? `${teacher.staffNo}-${index}`}>
                 <td className="px-3 py-3">{teacher.isInternal ? "校内" : "校外"}</td><td className="px-3 py-3">{teacher.name}</td><td className="px-3 py-3">{teacher.unit}</td><td className="px-3 py-3">{teacher.gender}</td><td className="px-3 py-3">{teacher.title}</td><td className="px-3 py-3">{teacher.phone}</td>
-                <td className="px-3 py-3"><button type="button" onClick={() => onChange(teachers.filter((_, itemIndex) => itemIndex !== index))} className="text-red-600 hover:underline">删除</button></td>
+                <td className="px-3 py-3"><Button variant="ghost" size="default" type="button" onClick={() => onChange(teachers.filter((_, itemIndex) => itemIndex !== index))} >删除</Button></td>
               </tr>
             ))}
             {teachers.length === 0 ? <tr><td colSpan={7} className="px-3 py-8 text-center text-slate-500">暂未添加指导老师</td></tr> : null}
@@ -158,15 +158,14 @@ export function TeacherSection({ teachers, onChange }: TeacherSectionProps) {
                   </div>
                 </label>
                 {results.length ? <div className="mt-2 space-y-1">{results.map((teacher) => (
-                  <button
+                  <Button variant="default" size="default"
                     type="button"
                     key={teacher.staffNo ?? teacher.name}
                     onClick={() => {
                       setDraft({ isInternal: true, staffNo: teacher.staffNo, name: teacher.name, gender: teacher.gender ?? "", phone: teacher.phone, school: "武汉大学", unit: teacher.unit, title: teacher.title, email: teacher.email ?? "" });
                       setFieldErrors({});
                     }}
-                    className="block w-full rounded bg-white px-3 py-2 text-left text-sm hover:bg-blue-50"
-                  >{teacher.staffNo} · {teacher.name} · {teacher.unit} · {teacher.title || "职称未登记"}</button>
+                    className="block w-full text-left" >{teacher.staffNo} · {teacher.name} · {teacher.unit} · {teacher.title || "职称未登记"}</Button>
                 ))}</div> : <p className="mt-2 text-xs text-slate-500">检索后选择老师，也可继续校正信息；检索结果没有职称时请手填。</p>}
               </div>
             ) : null}

@@ -68,7 +68,7 @@ export default async function AdminAwardsPage({ searchParams }: PageProps) {
         <div className="text-right">
           <a
             href={exportHref}
-            className="inline-flex h-10 items-center rounded-md bg-blue-600 px-5 text-sm font-medium text-white hover:bg-blue-700"
+            className="inline-flex h-10 items-center rounded-lg bg-blue-600 px-5 text-sm font-medium text-white hover:bg-blue-700"
           >
             导出获奖名单
           </a>

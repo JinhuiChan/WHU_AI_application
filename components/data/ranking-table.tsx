@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { Fragment, useState } from "react";
 import Link from "next/link";
 import { awardLevelLabels, competitionLevelLabels } from "@/lib/presentation";
@@ -16,7 +17,7 @@ export function RankingTable({ items }: { items: CollegeRanking[] }) {
   }
 
   return (
-    <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[900px] text-left text-sm">
           <thead className="bg-slate-50 text-xs text-slate-500">
@@ -46,9 +47,9 @@ export function RankingTable({ items }: { items: CollegeRanking[] }) {
                     <td className="px-4 py-4">{item.provinceCount}</td>
                     <td className="px-4 py-4">{item.schoolCount}</td>
                     <td className="px-4 py-4">
-                      <button type="button" aria-expanded={expanded} aria-controls={`ranking-${index}`} onClick={() => toggle(item.college)} className="rounded-md border border-slate-300 px-3 py-2 text-xs text-blue-600 hover:bg-blue-50">
+                      <Button variant="default" size="sm" type="button" aria-expanded={expanded} aria-controls={`ranking-${index}`} onClick={() => toggle(item.college)} >
                         {expanded ? "收起" : `展开（${item.awardCount}）`}
-                      </button>
+                      </Button>
                     </td>
                   </tr>
                   {expanded ? (

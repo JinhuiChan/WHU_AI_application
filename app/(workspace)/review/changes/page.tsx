@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -57,16 +58,16 @@ export default async function ChangeReviewPage({ searchParams }: PageProps) {
       </div>
 
       <form action="/review/changes" method="get" className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <label className="text-xs text-slate-500">
+        <label className="text-sm text-slate-500">
           <span className="mb-1 block">状态</span>
-          <select name="status" defaultValue={status || "ALL"} className="h-10 min-w-40 rounded-md border border-slate-300 bg-white px-3 text-sm">
+          <select name="status" defaultValue={status || "ALL"} className="h-10 min-w-40 rounded-lg border border-slate-300 bg-white px-3 text-sm">
             <option value="ALL">全部状态</option>
             {STATUS_OPTIONS.map((item) => (
               <option key={item.value} value={item.value}>{item.label}</option>
             ))}
           </select>
         </label>
-        <button type="submit" className="h-10 rounded-md bg-blue-600 px-4 text-sm font-medium text-white hover:bg-blue-700">筛选</button>
+        <Button variant="default" size="sm" type="submit" >筛选</Button>
         <Link href="/review/changes" className="h-10 inline-flex h-11 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">重置</Link>
       </form>
 
@@ -126,10 +127,10 @@ export default async function ChangeReviewPage({ searchParams }: PageProps) {
           <span>共 {result.total} 条，第 {result.page} / {totalPages} 页</span>
           <div className="flex gap-2">
             {result.page > 1 ? (
-              <Link href={`/review/changes?page=${result.page - 1}&status=${statusQuery}`} className="rounded-md border border-slate-300 px-3 py-1 hover:bg-slate-50">上一页</Link>
+              <Link href={`/review/changes?page=${result.page - 1}&status=${statusQuery}`} className="rounded-lg border border-slate-300 px-3 py-1 hover:bg-slate-50">上一页</Link>
             ) : null}
             {result.page < totalPages ? (
-              <Link href={`/review/changes?page=${result.page + 1}&status=${statusQuery}`} className="rounded-md border border-slate-300 px-3 py-1 hover:bg-slate-50">下一页</Link>
+              <Link href={`/review/changes?page=${result.page + 1}&status=${statusQuery}`} className="rounded-lg border border-slate-300 px-3 py-1 hover:bg-slate-50">下一页</Link>
             ) : null}
           </div>
         </div>

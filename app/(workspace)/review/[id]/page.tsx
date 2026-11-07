@@ -17,7 +17,7 @@ const resultLabels = { APPROVED: "通过", REJECTED: "驳回" } as const;
 const confirmLabels = { PENDING: "待确认", CONFIRMED: "已确认", REJECTED: "已拒绝" } as const;
 
 function Item({ label, value }: { label: string; value: ReactNode }) {
-  return <div><dt className="text-xs text-slate-500">{label}</dt><dd className="mt-1 break-words text-sm text-slate-900">{value === "" || value === null || value === undefined ? "—" : value}</dd></div>;
+  return <div><dt className="text-sm text-slate-500">{label}</dt><dd className="mt-1 break-words text-sm text-slate-900">{value === "" || value === null || value === undefined ? "—" : value}</dd></div>;
 }
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -147,7 +147,7 @@ export default async function ReviewDetailPage({ params }: { params: { id: strin
                   <p className="mt-1 text-xs text-slate-500">{file.mimeType} · {(file.sizeBytes / 1024).toFixed(1)} KB · {file.uploaderName} 上传于 {formatDateTime(file.uploadedAt)}</p>
                   <p className="mt-1 text-xs text-slate-500">审查：{file.reviewResult}{file.reviewNote ? ` · ${file.reviewNote}` : ""}</p>
                 </div>
-                <a href={`/api/sealed/download?fileId=${encodeURIComponent(file.id)}`} className="shrink-0 rounded-md border border-blue-300 px-3 py-2 text-center text-sm text-blue-700 hover:bg-blue-50">下载此版本</a>
+                <a href={`/api/sealed/download?fileId=${encodeURIComponent(file.id)}`} className="shrink-0 rounded-lg border border-blue-300 px-3 py-2 text-center text-sm text-blue-700 hover:bg-blue-50">下载此版本</a>
               </div>
             ))}
           </div>

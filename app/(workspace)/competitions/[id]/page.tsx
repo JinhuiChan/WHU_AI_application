@@ -89,11 +89,11 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
       <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-sm font-semibold text-slate-900">赛事信息</h2>
         <dl className="grid grid-cols-2 gap-4 text-sm md:grid-cols-5">
-          <div><dt className="text-xs text-slate-500">赛年</dt><dd className="mt-1 text-slate-900">{competition.year}</dd></div>
-          <div><dt className="text-xs text-slate-500">等级</dt><dd className="mt-1 text-slate-900">{competitionLevelLabels[competition.level]}</dd></div>
-          <div><dt className="text-xs text-slate-500">系列标识</dt><dd className="mt-1 break-all text-slate-900">{competition.seriesId}</dd></div>
-          <div><dt className="text-xs text-slate-500">主办方</dt><dd className="mt-1 text-slate-900">{competition.organizer ?? "—"}</dd></div>
-          <div><dt className="text-xs text-slate-500">创建时间</dt><dd className="mt-1 text-slate-900">{formatDate(competition.createdAt)}</dd></div>
+          <div><dt className="text-sm text-slate-500">赛年</dt><dd className="mt-1 text-slate-900">{competition.year}</dd></div>
+          <div><dt className="text-sm text-slate-500">等级</dt><dd className="mt-1 text-slate-900">{competitionLevelLabels[competition.level]}</dd></div>
+          <div><dt className="text-sm text-slate-500">系列标识</dt><dd className="mt-1 break-all text-slate-900">{competition.seriesId}</dd></div>
+          <div><dt className="text-sm text-slate-500">主办方</dt><dd className="mt-1 text-slate-900">{competition.organizer ?? "—"}</dd></div>
+          <div><dt className="text-sm text-slate-500">创建时间</dt><dd className="mt-1 text-slate-900">{formatDate(competition.createdAt)}</dd></div>
         </dl>
       </section>
 
@@ -108,11 +108,11 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
         <div className="mt-4 flex flex-wrap items-center gap-3">
           {user.role === "STUDENT" ? (
             applyOpen ? (
-              <Link href={`/apply?competitionId=${competition.id}`} className="rounded-md bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700">
+              <Link href={`/apply?competitionId=${competition.id}`} className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700">
                 我要报名
               </Link>
             ) : (
-              <span className="rounded-md bg-slate-100 px-5 py-2 text-sm text-slate-500">{applyWindow && !applyWindow.enabled ? "报名未开放" : "当前不在报名时间内"}</span>
+              <span className="rounded-lg bg-slate-100 px-5 py-2 text-sm text-slate-500">{applyWindow && !applyWindow.enabled ? "报名未开放" : "当前不在报名时间内"}</span>
             )
           ) : (
             <span className="text-sm text-slate-500">仅参赛学生可报名</span>
@@ -145,7 +145,7 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
         {topTracks.length ? (
           <div className="space-y-3">
             {topTracks.map((track) => (
-              <div key={track.id} className="rounded-md border border-slate-100 bg-slate-50 px-3 py-2">
+              <div key={track.id} className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2">
                 <p className="text-sm font-medium text-slate-900">{track.name}</p>
                 {childrenOf(track.id).length ? (
                   childrenOf(track.id).map((child) => (
@@ -180,7 +180,7 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
                     <p className="text-sm text-slate-900">{file.title}</p>
                     <p className="text-xs text-slate-500">{file.kind === "RULE" ? "规程" : file.kind === "TEMPLATE" ? "模板" : "通知"} · {file.fileName}</p>
                   </div>
-                  <a href={file.filePath} target="_blank" rel="noreferrer" className="rounded-md border border-slate-300 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50">
+                  <a href={file.filePath} target="_blank" rel="noreferrer" className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50">
                     查看 / 下载
                   </a>
                 </li>
@@ -268,7 +268,7 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
       ) : null}
 
       {user.role === "ADMIN" ? (
-        <section className="rounded-lg border border-red-200 bg-white p-5 shadow-sm">
+        <section className="rounded-xl border border-red-200 bg-white p-5 shadow-sm">
           <h2 className="text-sm font-semibold text-red-700">危险操作</h2>
           <p className="mt-1 text-xs text-slate-500">误建的赛事可在这里删除；已有项目报名或奖项记录的赛事不允许删除（接口会拦截）。</p>
           <div className="mt-3">

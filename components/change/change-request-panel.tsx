@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -19,7 +20,7 @@ type Props = {
 };
 
 const fieldClass =
-  "mt-1 h-9 w-full rounded-md border border-slate-300 bg-white px-2 text-sm outline-none focus:border-blue-600";
+  "mt-1 h-9 w-full rounded-lg border border-slate-300 bg-white px-2 text-sm outline-none focus:border-blue-600";
 
 // 每个变更类型允许填写的字段（与 lib/change.ts 白名单保持一致）
 const EDITABLE_FIELDS: Record<ChangeType, string[]> = {
@@ -136,7 +137,7 @@ export function ChangeRequestPanel({ projectId, data }: Props) {
 
       {data.canRequest ? (
         <div className="mt-4 grid gap-3 md:grid-cols-3">
-          <label className="text-xs text-slate-600">
+          <label className="text-sm text-slate-600">
             变更类型
             <select
               className={fieldClass}
@@ -155,7 +156,7 @@ export function ChangeRequestPanel({ projectId, data }: Props) {
           </label>
 
           {needsSelector ? (
-            <label className="text-xs text-slate-600">
+            <label className="text-sm text-slate-600">
               {SELECTOR_LABEL[type as ChangeType]}
               <select className={fieldClass} value={selector} onChange={(event) => onSelectorChange(event.target.value)}>
                 <option value="">请选择</option>
@@ -167,7 +168,7 @@ export function ChangeRequestPanel({ projectId, data }: Props) {
           ) : null}
 
           {type === "TRACK" ? (
-            <label className="text-xs text-slate-600">
+            <label className="text-sm text-slate-600">
               新赛道
               <select
                 className={fieldClass}
@@ -185,7 +186,7 @@ export function ChangeRequestPanel({ projectId, data }: Props) {
           {editableFields
             .filter((field) => !(type === "TRACK" && field === "trackId"))
             .map((field) => (
-              <label key={field} className="text-xs text-slate-600">
+              <label key={field} className="text-sm text-slate-600">
                 {CHANGE_FIELD_LABELS[field] ?? field}
                 <input
                   className={fieldClass}
@@ -196,10 +197,10 @@ export function ChangeRequestPanel({ projectId, data }: Props) {
               </label>
             ))}
 
-          <label className="text-xs text-slate-600 md:col-span-3">
+          <label className="text-sm text-slate-600 md:col-span-3">
             变更理由（必填，不超过 200 字）
             <textarea
-              className="mt-1 min-h-20 w-full rounded-md border border-slate-300 px-2 py-2 text-sm outline-none focus:border-blue-600"
+              className="mt-1 min-h-20 w-full rounded-lg border border-slate-300 px-2 py-2 text-sm outline-none focus:border-blue-600"
               value={reason}
               maxLength={200}
               onChange={(event) => setReason(event.target.value)}
@@ -209,14 +210,12 @@ export function ChangeRequestPanel({ projectId, data }: Props) {
           {error ? <p className="text-xs text-red-600 md:col-span-3">{error}</p> : null}
 
           <div className="md:col-span-3">
-            <button
+            <Button variant="default" size="default"
               type="button"
               onClick={submit}
-              disabled={submitting}
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
-            >
+              disabled={submitting} >
               {submitting ? "提交中…" : "提交变更申请"}
-            </button>
+            </Button>
           </div>
         </div>
       ) : null}

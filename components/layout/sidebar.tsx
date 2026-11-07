@@ -4,8 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   ClipboardCheck,
+  FileCheck,
   FileText,
   FolderKanban,
+  ShieldAlert,
   LayoutDashboard,
   Settings,
   Trophy,
@@ -47,6 +49,8 @@ function navigationFor(roles: Role[]) {
 const administration = [
   { href: "/review", label: "报名审核", icon: ClipboardCheck },
   { href: "/import", label: "数据导入", icon: Upload },
+  { href: "/anomalies", label: "异常核实", icon: ShieldAlert },
+  { href: "/check", label: "材料检查", icon: FileCheck },
   { href: "/admin/awards", label: "奖项录入", icon: Trophy },
   { href: "/admin/users", label: "用户管理", icon: Users },
   { href: "/admin/logs", label: "审计日志", icon: FileText },

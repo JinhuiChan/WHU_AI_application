@@ -34,17 +34,17 @@ export default async function ProjectDetailPage({ params }: PageProps) {
       <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-sm font-semibold text-slate-900">基本信息</h2>
         <dl className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
-          <div><dt className="text-xs text-slate-500">所属学院</dt><dd className="mt-1 text-slate-900">{project.college}</dd></div>
-          <div><dt className="text-xs text-slate-500">赛年</dt><dd className="mt-1 text-slate-900">{project.year}</dd></div>
-          <div><dt className="text-xs text-slate-500">项目状态</dt><dd className="mt-1 text-slate-900">{projectStatusLabels[project.status]}</dd></div>
-          <div><dt className="text-xs text-slate-500">创建时间</dt><dd className="mt-1 text-slate-900">{formatDate(project.createdAt)}</dd></div>
+          <div><dt className="text-sm text-slate-500">所属学院</dt><dd className="mt-1 text-slate-900">{project.college}</dd></div>
+          <div><dt className="text-sm text-slate-500">赛年</dt><dd className="mt-1 text-slate-900">{project.year}</dd></div>
+          <div><dt className="text-sm text-slate-500">项目状态</dt><dd className="mt-1 text-slate-900">{projectStatusLabels[project.status]}</dd></div>
+          <div><dt className="text-sm text-slate-500">创建时间</dt><dd className="mt-1 text-slate-900">{formatDate(project.createdAt)}</dd></div>
         </dl>
         <div className="mt-4 border-t border-slate-100 pt-4">
           <h3 className="text-xs text-slate-500">项目别名与编号</h3>
           {project.aliases.length ? (
             <div className="mt-2 flex flex-wrap gap-2">
               {project.aliases.map((alias) => (
-                <span key={alias.id} className="rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-600">
+                <span key={alias.id} className="rounded-lg bg-slate-100 px-2 py-1 text-xs text-slate-600">
                   {aliasTypeLabels[alias.aliasType]}：{alias.aliasValue}
                 </span>
               ))}

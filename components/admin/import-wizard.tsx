@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useState } from "react";
 import type { ApiResponse } from "@/types/api";
@@ -15,7 +16,7 @@ import {
 
 const steps = ["选择赛事并上传", "字段映射与预览", "入库报告"];
 const maxFileSize = 20 * 1024 * 1024;
-const fieldClass = "mt-1 h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm outline-none focus:border-blue-600";
+const fieldClass = "mt-1 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-blue-600";
 
 type CompetitionOption = {
   id: string;
@@ -255,18 +256,17 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
                 setFile(event.target.files?.[0] ?? null);
                 setError("");
               }}
-              className="mt-3 block w-full text-sm text-slate-600 file:mr-4 file:rounded-md file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:text-white hover:file:bg-blue-700"
+              className="mt-3 block w-full text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:text-white hover:file:bg-blue-700"
             />
             {file ? <p className="mt-3 text-xs text-slate-500">已选择：{file.name}（{(file.size / 1024 / 1024).toFixed(2)} MB）</p> : null}
           </div>
-          <button
+          <Button variant="default" size="sm"
             type="button"
             disabled={pending !== null || !file || !competitionId}
             onClick={parse}
-            className="mt-5 h-10 rounded-md bg-blue-600 px-5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-          >
+            className="mt-5" >
             {pending === "parse" ? "正在解析…" : "上传并解析"}
-          </button>
+          </Button>
         </section>
       ) : null}
 
@@ -278,7 +278,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
                 <h2 className="font-medium text-slate-900">确认字段映射</h2>
                 <p className="mt-1 text-sm text-slate-500">{parseResult.fileName} · {stage === "SCHOOL" ? "校赛" : "省赛"}，调整右侧文件列后预览会即时更新。</p>
               </div>
-              <button type="button" disabled={pending !== null} onClick={reset} className="h-9 shrink-0 rounded-md border border-slate-300 px-4 text-sm text-slate-600 hover:bg-slate-50">重新选择文件</button>
+              <Button variant="outline" size="sm" type="button" disabled={pending !== null} onClick={reset} className="shrink-0" >重新选择文件</Button>
             </div>
             <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
               <div className="rounded-lg bg-slate-50 p-4"><div className="text-xs text-slate-500">识别列数</div><div className="mt-1 text-2xl font-semibold text-slate-900">{parseResult.columns.length}</div></div>
@@ -318,7 +318,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
                           {field.required ? <span className="ml-2 rounded bg-red-50 px-1.5 py-0.5 text-xs font-normal text-red-600">必填</span> : <span className="ml-2 text-xs font-normal text-slate-400">可选</span>}
                         </td>
                         <td className="px-5 py-3">
-                          <select aria-label={`${field.label}对应的文件列`} value={selectedColumn} onChange={(event) => updateMapping(field.key, event.target.value)} disabled={pending !== null} className="h-10 w-full min-w-64 rounded-md border border-slate-300 bg-white px-3 text-sm outline-none focus:border-blue-600">
+                          <select aria-label={`${field.label}对应的文件列`} value={selectedColumn} onChange={(event) => updateMapping(field.key, event.target.value)} disabled={pending !== null} className="h-10 w-full min-w-64 rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-blue-600">
                             <option value="">不映射</option>
                             {parseResult.columns.map((column) => <option key={column} value={column}>{column}</option>)}
                           </select>
@@ -343,7 +343,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
               <table className="w-full min-w-[1800px] table-fixed text-left text-xs">
                 <thead className="bg-slate-50 text-slate-500">
                   <tr>
-                    <th className="w-16 px-3 py-3 font-medium">行号</th>
+                    <th className="sticky left-0 z-10 w-16 bg-slate-50 px-3 py-3 text-right font-medium">行号</th>
                     {importSystemFields.map((field) => <th key={field.key} className="w-44 px-3 py-3 font-medium">{field.label}{field.required ? " *" : ""}</th>)}
                   </tr>
                 </thead>
@@ -354,7 +354,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
                     );
                     return (
                       <tr key={parseResult.previewRowNumbers[rowIndex] ?? rowIndex + 2} className="align-top">
-                        <td className="px-3 py-3 text-slate-500">{parseResult.previewRowNumbers[rowIndex] ?? rowIndex + 2}</td>
+                        <td className="sticky left-0 z-10 bg-white px-3 py-3 text-right text-slate-500">{parseResult.previewRowNumbers[rowIndex] ?? rowIndex + 2}</td>
                         {importSystemFields.map((field) => {
                           const column = mapping[field.key];
                           const value = mappedValue(row, parseResult.columns, mapping, field.key);
@@ -376,9 +376,9 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
 
           <section className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
             <p className="text-sm leading-6 text-slate-500">保存仅写入 ImportBatch.mappingJson 与审计记录，不会创建或修改项目、成员、老师及奖项。</p>
-            <button type="button" disabled={pending !== null || Boolean(savedBatchId)} onClick={saveMapping} className="h-10 shrink-0 rounded-md bg-blue-600 px-5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">
+            <Button variant="default" size="sm" type="button" disabled={pending !== null || Boolean(savedBatchId)} onClick={saveMapping} className="shrink-0" >
               {pending === "save" ? "正在保存…" : savedBatchId ? "映射方案已保存" : "保存映射方案"}
-            </button>
+            </Button>
           </section>
         </>
       ) : null}
@@ -393,10 +393,10 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
                 将按映射结果识别项目和续行。同一批次只能入库一次；失败行会单独记录，不会导致已成功项目回滚。
               </div>
               <div className="mt-5 flex flex-wrap gap-3">
-                <button type="button" onClick={commit} disabled={pending !== null} className="h-10 rounded-md bg-blue-600 px-5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+                <Button variant="default" size="sm" type="button" onClick={commit} disabled={pending !== null} >
                   {pending === "commit" ? "正在入库…" : "开始入库"}
-                </button>
-                <button type="button" onClick={() => setStep(2)} disabled={pending !== null} className="h-10 rounded-md border border-slate-300 px-4 text-sm text-slate-600 hover:bg-slate-50">返回调整映射</button>
+                </Button>
+                <Button variant="outline" size="sm" type="button" onClick={() => setStep(2)} disabled={pending !== null} >返回调整映射</Button>
               </div>
             </div>
           ) : (
@@ -423,8 +423,8 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
               ) : null}
 
               <div className="mt-5 flex flex-wrap gap-3">
-                {commitResult.failed > 0 ? <a href={`/api/import/failed?batchId=${encodeURIComponent(savedBatchId)}`} className="inline-flex h-10 items-center rounded-md border border-red-200 bg-red-50 px-4 text-sm font-medium text-red-700 hover:bg-red-100">下载失败行</a> : null}
-                <Link href="/review" className="inline-flex h-10 items-center rounded-md bg-blue-600 px-4 text-sm font-medium text-white hover:bg-blue-700">前往审核工作台</Link>
+                {commitResult.failed > 0 ? <a href={`/api/import/failed?batchId=${encodeURIComponent(savedBatchId)}`} className="inline-flex h-10 items-center rounded-lg border border-red-200 bg-red-50 px-4 text-sm font-medium text-red-700 hover:bg-red-100">下载失败行</a> : null}
+                <Link href="/review" className="inline-flex h-10 items-center rounded-lg bg-blue-600 px-4 text-sm font-medium text-white hover:bg-blue-700">前往审核工作台</Link>
               </div>
             </>
           )}

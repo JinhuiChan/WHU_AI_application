@@ -21,7 +21,7 @@ export function DashboardCharts({
 }) {
   return (
     <div className="grid gap-5 xl:grid-cols-2">
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <div>
           <h2 className="font-medium text-slate-900">近 5 年获奖趋势</h2>
           <p className="mt-1 text-xs text-slate-500">仅统计已核验、已发布的有效获奖记录</p>
@@ -39,7 +39,7 @@ export function DashboardCharts({
         </div>
       </section>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <div>
           <h2 className="font-medium text-slate-900">学院排行前 10</h2>
           <p className="mt-1 text-xs text-slate-500">按折算分从高到低排列</p>

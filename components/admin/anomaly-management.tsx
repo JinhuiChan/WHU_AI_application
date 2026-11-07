@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import Link from "next/link";
 import type { AnomalyResolution, AnomalyStatus } from "@prisma/client";
@@ -84,7 +85,7 @@ export function AnomalyManagement({ initialData, isAdmin }: { initialData: Anoma
 
   return (
     <div className="space-y-5">
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           <div className="rounded-lg bg-slate-50 p-4"><div className="text-xs text-slate-500">异常总数</div><div className="mt-1 text-2xl font-semibold text-slate-900">{data.summary.total}</div></div>
           <div className="rounded-lg bg-amber-50 p-4"><div className="text-xs text-amber-700">待核实</div><div className="mt-1 text-2xl font-semibold text-amber-700">{data.summary.pending}</div></div>
@@ -100,15 +101,15 @@ export function AnomalyManagement({ initialData, isAdmin }: { initialData: Anoma
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex gap-2" aria-label="按状态筛选">
           {filters.map((item) => (
-            <button key={item.label} type="button" disabled={filterPending || pendingIds.length > 0} onClick={() => filter(item.value, data.ruleId)} aria-pressed={data.status === item.value} className={`h-9 rounded-md px-4 text-sm ${data.status === item.value ? "bg-blue-600 text-white" : "border border-slate-300 bg-white text-slate-600 hover:bg-slate-50"}`}>
+            <Button key={item.label} type="button" size="sm" variant={data.status === item.value ? "default" : "outline"} disabled={filterPending || pendingIds.length > 0} onClick={() => filter(item.value, data.ruleId)} aria-pressed={data.status === item.value}>
               {item.label}
-            </button>
+            </Button>
           ))}
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <label className="flex items-center gap-2 text-xs text-slate-500">
+          <label className="flex items-center gap-2 text-sm text-slate-500">
             规则筛选
-            <select aria-label="按规则筛选" value={data.ruleId ?? ""} disabled={filterPending || pendingIds.length > 0} onChange={(event) => filter(data.status, event.target.value || null)} className="h-9 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-700">
+            <select aria-label="按规则筛选" value={data.ruleId ?? ""} disabled={filterPending || pendingIds.length > 0} onChange={(event) => filter(data.status, event.target.value || null)} className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-700">
               <option value="">全部规则</option>
               {Object.entries(anomalyRuleNames).map(([ruleId, ruleName]) => <option key={ruleId} value={ruleId}>{ruleId} {ruleName}</option>)}
             </select>
@@ -118,7 +119,7 @@ export function AnomalyManagement({ initialData, isAdmin }: { initialData: Anoma
       </div>
 
       {isAdmin ? (
-        <section className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
+        <section className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
           <div className="flex flex-wrap items-center gap-4">
             <label className="flex items-center gap-2 text-sm text-slate-600">
               <input
@@ -139,12 +140,12 @@ export function AnomalyManagement({ initialData, isAdmin }: { initialData: Anoma
             <span className="text-xs text-slate-500">已选 {selectedIds.length} 条</span>
           </div>
           <div className="flex gap-2">
-            <select aria-label="批量处置结论" value={batchResolution} disabled={!selectedIds.length || pendingIds.length > 0} onChange={(event) => setBatchResolution(event.target.value as AnomalyResolution)} className="h-9 rounded-md border border-slate-300 bg-white px-3 text-xs text-slate-600 disabled:bg-slate-100">
+            <select aria-label="批量处置结论" value={batchResolution} disabled={!selectedIds.length || pendingIds.length > 0} onChange={(event) => setBatchResolution(event.target.value as AnomalyResolution)} className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-600 disabled:bg-slate-100">
               {resolutions.map((resolution) => <option key={resolution} value={resolution}>{anomalyResolutionLabels[resolution]}</option>)}
             </select>
-            <button type="button" disabled={!selectedIds.length || pendingIds.length > 0} onClick={() => resolveMany(selectedIds, batchResolution)} className="h-9 rounded-md bg-blue-600 px-4 text-xs font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">
+            <Button type="button" variant="default" size="sm" disabled={!selectedIds.length || pendingIds.length > 0} onClick={() => resolveMany(selectedIds, batchResolution)}>
               {pendingIds.length > 1 ? "批量处置中…" : `批量处置${selectedIds.length ? `（${selectedIds.length}）` : ""}`}
-            </button>
+            </Button>
           </div>
         </section>
       ) : null}
@@ -153,7 +154,7 @@ export function AnomalyManagement({ initialData, isAdmin }: { initialData: Anoma
       {notice ? <div role="status" className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">{notice}</div> : null}
 
       {data.groups.length ? data.groups.map((group) => (
-        <section key={group.ruleId} className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+        <section key={group.ruleId} className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
           <header className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 py-3">
             <div className="flex items-center gap-2">
               <span className="rounded bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-700">{group.ruleId}</span>
@@ -195,12 +196,12 @@ export function AnomalyManagement({ initialData, isAdmin }: { initialData: Anoma
                     </div>
                     {isAdmin && item.status === "PENDING" ? (
                       <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
-                        <select aria-label={`选择${item.project.name}的处置结论`} value={drafts[item.id] ?? "CONFIRMED"} disabled={pendingIds.length > 0} onChange={(event) => setDrafts((current) => ({ ...current, [item.id]: event.target.value as AnomalyResolution }))} className="h-9 rounded-md border border-slate-300 bg-white px-3 text-xs text-slate-600">
+                        <select aria-label={`选择${item.project.name}的处置结论`} value={drafts[item.id] ?? "CONFIRMED"} disabled={pendingIds.length > 0} onChange={(event) => setDrafts((current) => ({ ...current, [item.id]: event.target.value as AnomalyResolution }))} className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-600">
                           {resolutions.map((resolution) => <option key={resolution} value={resolution}>{anomalyResolutionLabels[resolution]}</option>)}
                         </select>
-                        <button type="button" disabled={pendingIds.length > 0} onClick={() => resolveMany([item.id], drafts[item.id] ?? "CONFIRMED")} className="h-9 rounded-md bg-blue-600 px-4 text-xs font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">
+                        <Button type="button" variant="default" size="sm" disabled={pendingIds.length > 0} onClick={() => resolveMany([item.id], drafts[item.id] ?? "CONFIRMED")}>
                           {pendingIds.includes(item.id) ? "提交中…" : "提交处置"}
-                        </button>
+                        </Button>
                       </div>
                     ) : null}
                   </div>
@@ -210,7 +211,7 @@ export function AnomalyManagement({ initialData, isAdmin }: { initialData: Anoma
           </div>
         </section>
       )) : (
-        <section className="rounded-lg border border-slate-200 bg-white px-4 py-12 text-center text-sm text-slate-500 shadow-sm">当前筛选条件下暂无异常记录</section>
+        <section className="rounded-xl border border-slate-200 bg-white px-4 py-12 text-center text-sm text-slate-500 shadow-sm">当前筛选条件下暂无异常记录</section>
       )}
     </div>
   );

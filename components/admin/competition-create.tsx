@@ -43,7 +43,7 @@ export function CompetitionCreate() {
           >
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-slate-900">新建赛事</h2>
-              <button type="button" onClick={() => setOpen(false)} className="-mr-2 grid h-9 w-9 place-items-center rounded-full text-2xl text-slate-500 hover:bg-slate-100">×</button>
+              <Button variant="outline" size="sm" type="button" onClick={() => setOpen(false)} >×</Button>
             </div>
             <div className="mt-5 grid gap-4">
               <label className={labelClass}>

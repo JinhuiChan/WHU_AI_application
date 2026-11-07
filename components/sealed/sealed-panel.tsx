@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatDateTime } from "@/lib/presentation";
@@ -36,18 +37,18 @@ export function SealedPanel({ projectId, files, currentFileId, canExportSensitiv
         <div className="flex flex-wrap gap-2">
           {canExportSensitive ? (
             confirmFull ? (
-              <div className="flex flex-wrap items-center gap-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+              <div className="flex flex-wrap items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
                 <span>将下载含完整身份证号、银行卡号的报名表（带水印，系统留痕）。确认继续？</span>
                 <a href={`/api/export/form?projectId=${encodeURIComponent(projectId)}&full=1`} className="rounded bg-amber-600 px-3 py-1 font-medium text-white hover:bg-amber-700">确认下载</a>
-                <button type="button" onClick={() => setConfirmFull(false)} className="rounded border border-amber-300 px-3 py-1 text-amber-800 hover:bg-amber-100">取消</button>
+                <Button variant="outline" size="default" type="button" onClick={() => setConfirmFull(false)} >取消</Button>
               </div>
             ) : (
-              <button type="button" onClick={() => setConfirmFull(true)} className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">下载报名表（交学院核验）</button>
+              <Button variant="default" size="default" type="button" onClick={() => setConfirmFull(true)} >下载报名表（交学院核验）</Button>
             )
           ) : (
-            <button type="button" disabled title="仅项目负责人、第二/第三负责人或管理员可下载完整报名表" className="rounded-md bg-slate-200 px-4 py-2 text-sm text-slate-500">下载报名表（交学院核验）</button>
+            <Button variant="outline" size="default" type="button" disabled title="仅项目负责人、第二/第三负责人或管理员可下载完整报名表" >下载报名表（交学院核验）</Button>
           )}
-          <a href={`/api/export/form?projectId=${encodeURIComponent(projectId)}&full=0`} className="rounded-md border border-blue-300 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50">下载报名表（脱敏留存）</a>
+          <a href={`/api/export/form?projectId=${encodeURIComponent(projectId)}&full=0`} className="rounded-lg border border-blue-300 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50">下载报名表（脱敏留存）</a>
         </div>
       </div>
 
@@ -56,7 +57,7 @@ export function SealedPanel({ projectId, files, currentFileId, canExportSensitiv
         {currentFile ? (
           <div className="mt-2 flex flex-wrap items-center gap-3">
             <span className="text-sm text-slate-700">第 {currentFile.versionNo} 版 · {currentFile.fileName}</span>
-            <a href={`/api/sealed/download?fileId=${encodeURIComponent(currentFile.id)}`} className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700">下载最终版</a>
+            <a href={`/api/sealed/download?fileId=${encodeURIComponent(currentFile.id)}`} className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700">下载最终版</a>
           </div>
         ) : <p className="mt-2 text-sm text-slate-500">尚未上传可用的盖章件</p>}
       </div>
@@ -98,13 +99,13 @@ export function SealedPanel({ projectId, files, currentFileId, canExportSensitiv
       >
         <label className="flex-1 text-sm text-slate-600">
           <span className="sr-only">上传盖章件</span>
-          <input name="file" type="file" required disabled={pending} accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" className="block w-full text-sm file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:text-slate-700 hover:file:bg-slate-200" />
+          <input name="file" type="file" required disabled={pending} accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" className="block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:text-slate-700 hover:file:bg-slate-200" />
         </label>
-        <button type="submit" disabled={pending} className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">{pending ? "上传中…" : "上传盖章件"}</button>
+        <Button variant="default" size="default" type="submit" disabled={pending} >{pending ? "上传中…" : "上传盖章件"}</Button>
       </form>
       <p className="mt-2 text-xs text-slate-400">支持 PDF/JPG/PNG，单文件不超过 20MB。</p>
-      {error ? <p role="alert" className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p> : null}
-      {notice ? <p role="status" className="mt-3 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{notice}</p> : null}
+      {error ? <p role="alert" className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p> : null}
+      {notice ? <p role="status" className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{notice}</p> : null}
 
       <div className="mt-5">
         <h3 className="text-sm font-medium text-slate-800">历史版本（{files.length}）</h3>
