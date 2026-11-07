@@ -7,6 +7,7 @@ import { StatisticsCharts } from "@/components/data/statistics-charts";
 import { getActiveUser } from "@/lib/auth.server";
 import { firstParam } from "@/lib/list-query";
 import { getStatisticsSummary, parseStatisticsQuery } from "@/lib/statistics";
+import CountUp from "@/components/react-bits/CountUp";
 
 export const metadata: Metadata = { title: "统计看板" };
 export const dynamic = "force-dynamic";
@@ -89,7 +90,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
       />
 
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-        {cards.map((card) => {
+        {cards.map((card, index) => {
           const isWarning = /待审核|异常|退回|待补|超期/.test(card.label);
           return (
             <section
@@ -97,7 +98,9 @@ export default async function DashboardPage({ searchParams }: PageProps) {
               key={card.label}
             >
               <h2 className="t-label text-xs text-slate-500">{card.label}</h2>
-              <div className={`mt-3 text-3xl font-semibold ${isWarning ? "t-warn-value" : "text-slate-900"}`}>{card.value}</div>
+              <div className={`mt-3 text-3xl font-semibold ${isWarning ? "t-warn-value" : "text-slate-900"}`}>
+                <CountUp to={card.value} duration={1.1} delay={index * 0.08} trigger="load" easing="easeOut" />
+              </div>
               <p className="mt-3 text-xs text-slate-400">{card.note}</p>
             </section>
           );

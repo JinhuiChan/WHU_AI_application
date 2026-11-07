@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { LoginForm } from "@/components/auth/login-form";
+import BlurText from "@/components/react-bits/BlurText";
 
 export const metadata: Metadata = {
   title: "登录",
@@ -33,10 +34,13 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
           <p className="login-fade-up text-xs font-medium tracking-[0.18em] text-blue-600" style={{ animationDelay: "40ms" }}>
             武汉大学 · 科创赛事
           </p>
-          <h1 className="login-fade-up font-rounded mt-5 text-3xl font-medium leading-snug text-slate-900" style={{ animationDelay: "100ms" }}>
-            从校赛业务管理到国赛数据存档，
-            <br />
-            让每一次变更都有依据。
+          <h1 className="font-rounded mt-5 text-3xl font-medium leading-snug text-slate-900">
+            <span className="block">
+              <BlurText text="从校赛业务管理到国赛数据存档，" animateBy="letters" delay={26} stepDuration={0.4} blur={8} distance={10} trigger="load" />
+            </span>
+            <span className="block">
+              <BlurText text="让每一次变更都有依据。" animateBy="letters" delay={26} stepDuration={0.4} blur={8} distance={10} trigger="load" />
+            </span>
           </h1>
           <p className="login-fade-up mt-5 max-w-lg text-sm leading-7 text-slate-500" style={{ animationDelay: "170ms" }}>
             报名在第二课堂、大创网与双创网完成；本平台管理校赛进程、材料版本与一致性核对。

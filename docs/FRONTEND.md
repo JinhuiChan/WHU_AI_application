@@ -52,3 +52,12 @@
 - 共享 `Button` 已改为 shadcn 风格（cva + Radix Slot + `cn()`），**走「按需引入 shadcn」路线**；4 变体 × 2 尺寸，仍保留 B2 胶囊与 K3。不跑最新 shadcn CLI（本项目 Tailwind 3）。
 - 底座不升级：Next 14 / React 18 / Tailwind 3；新增依赖仅 `class-variance-authority`、`clsx`、`tailwind-merge@2`、`@radix-ui/react-slot`。
 - 仍然有效：**只改前端**，不动 `lib/`、`app/api/`、`prisma/`、`middleware.ts`、`.env`；权限归属与报名业务口径由产品和后端负责人确认，前端不做假权限、不编造数据。
+
+## 2026-11-07 第三层：sonner + motion（依赖清单以本节为准）
+
+- 在上一节那 4 个依赖之外，本轮新增 **2 个运行时依赖**：`sonner@2`、`motion@14`（导入路径是 `motion/react`，**不是** `framer-motion`）。Next 14 / React 18 / Tailwind 3 版本一个没动，**未跑 shadcn CLI**。
+- `app/layout.tsx` 全局挂 `<Toaster />`：浅色、右上角、`offset=76`（下移避开页头用户菜单）、3.2s 自动消失、可手动关闭。toast **只加在「操作后跳转、原本没有任何文字反馈」的路径**：登录成功、报名草稿/提交、新建赛事。审核页与异常页已有页面内 notice / 错误条，**不重复弹**；注册页用 `window.location` 整页跳转，toast 会随页面卸载，故不加。
+- React Bits 组件按官方 **TS + Tailwind** 变体**手动复制源码**到 `components/react-bits/`，没跑 `npx shadcn@latest add @react-bits/...`（该 CLI 面向 Tailwind v4 / React 19）。`BlurText.tsx` 相对官方只改了一处：根元素 `<p>` → `<span>`（并同步 ref 类型），以便合法嵌进 `<h1>`；**后续更新源码时请保留这处改动**。
+- 登录页大标语用 Blur Text 逐字清晰：中文必须用 `animateBy="letters"`，官方默认按空格分词对中文无效；原 `.login-fade-up` 已移除，避免父子双重动画。看板四个统计数字用 Count Up 从 0 滚到**服务端返回的真实值**，待办红色与红边保留。
+- 降级：两个组件自带 `reducedMotion` / `matchMedia` 判断，另在 `globals.css` 补了一条 `prefers-reduced-motion` 规则，把 `.blur-text` 强制锁到终态。动画不得影响表单可读性和键盘操作。
+- **零依赖的 React Bits 效果**（Glare Hover、Shiny Text）本轮未加；需要时单独确认后再落地。

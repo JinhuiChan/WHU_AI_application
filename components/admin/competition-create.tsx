@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useDialogA11y } from "@/components/ui/use-dialog-a11y";
+import { toast } from "sonner";
 
 const fieldClass = "h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-blue-600";
 const labelClass = "grid gap-1 text-sm text-slate-700 sm:grid-cols-[6rem_1fr] sm:items-center";
@@ -35,6 +36,7 @@ export function CompetitionCreate() {
                 });
                 const result = await response.json() as { code: number; message: string; data?: { id: string } };
                 if (!response.ok || result.code !== 0 || !result.data) throw new Error(result.message || "创建赛事失败");
+                toast.success("赛事已创建");
                 router.push(`/competitions/${result.data.id}`);
               } catch (caught) {
                 setError(caught instanceof Error ? caught.message : "创建赛事失败");

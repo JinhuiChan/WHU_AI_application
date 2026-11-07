@@ -234,3 +234,13 @@ body {
   font-size: 13px;
   color: var(--ink-subtle);
 }
+
+/* React Bits 文字动效：系统开启「减少动态效果」时直接锁定终态。
+   MotionConfig reducedMotion="user" 只自动关闭位移，模糊与透明度仍可能变化，这里补一层强制降级。 */
+@media (prefers-reduced-motion: reduce) {
+  .blur-text span[aria-hidden="true"] {
+    filter: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

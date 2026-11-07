@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import type { ApiResponse } from "@/types/api";
 import type { AuthUser } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 type LoginData = {
   user: AuthUser;
@@ -58,6 +59,7 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
       if (!response.ok || result.code !== 0) {
         throw new Error(result.message || "登录失败");
       }
+      toast.success("登录成功，正在进入工作台");
       router.replace(callbackUrl);
       router.refresh();
     } catch (caught: unknown) {

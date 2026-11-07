@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import type { MemberInput, PayeeInput, ProjectFormInput, TeacherInput } from "@/types/apply";
 import { BasicInfoCard } from "./basic-info-card";
 import { MemberSection } from "./member-section";
@@ -266,6 +267,7 @@ export function ApplyForm({ student, options, projectId, initialValue, lockedCom
         setRequestError(result.message || (action === "draft" ? "保存草稿失败" : "提交报名失败"));
         return;
       }
+      toast.success(action === "submit" ? "报名已提交" : "草稿已保存");
       if (action === "submit") router.push("/my");
       else if (result.data?.projectId) router.push(`/my/${result.data.projectId}`);
       else router.push("/my");
