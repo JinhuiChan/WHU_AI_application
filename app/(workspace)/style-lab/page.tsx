@@ -179,7 +179,7 @@ export default function StyleLabPage() {
         en="Arrow Slide"
         recommended
         where="查看详情 / 去填写"
-        note="静止时只有一个箭头的位置是空的，悬停时箭头从右侧展开推出来，按钮整体变宽一点点。比一直挂个箭头更干净。"
+        note="静止时看不出有箭头，悬停才从右侧滑出来。前两个是「按钮变宽」版本，换行时会把右边的按钮推走；第三个是正式采用的「占位」版本——箭头一直占着 14px，只做淡入和 4px 内移，按钮宽度始终不变，表格里一排按钮不会互相推挤。"
       >
         <button className="group inline-flex h-9 items-center gap-1 rounded-full border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 transition duration-200 hover:border-blue-300 hover:text-blue-700">
           查看详情
@@ -193,6 +193,15 @@ export default function StyleLabPage() {
             <ArrowRight aria-hidden="true" size={14} />
           </span>
         </button>
+        <span className="group inline-flex h-9 -translate-y-0 items-center rounded-full border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-blue-300 hover:text-blue-700 hover:shadow-md">
+          查看详情（正式版）
+          <span
+            aria-hidden="true"
+            className="-ml-1.5 grid w-3.5 -translate-x-1 place-items-center overflow-hidden opacity-0 transition-all duration-200 ease-out group-hover:translate-x-0 group-hover:opacity-100"
+          >
+            <ArrowRight size={14} className="shrink-0" />
+          </span>
+        </span>
       </Demo>
 
       <Demo

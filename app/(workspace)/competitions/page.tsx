@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button, ButtonArrow } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -198,12 +198,18 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
                   )}
                   <td className="whitespace-nowrap px-4 py-4">
                     <div className="flex flex-wrap items-center gap-2">
-                      <Button asChild size="sm" variant="outline" className="h-8 px-3">
-                        <Link href={`/competitions/${competition.id}`}>查看详情</Link>
+                      <Button asChild size="sm" variant="outline" className="group h-8 px-3">
+                        <Link href={`/competitions/${competition.id}`}>
+                          查看详情
+                          <ButtonArrow />
+                        </Link>
                       </Button>
                       {isStudent && competition.registration?.windowOpen && !competition.registration.projectId ? (
-                        <Button asChild size="sm" variant="default" className="h-8 px-3">
-                          <Link href={`/apply?competitionId=${competition.id}`}>立即报名</Link>
+                        <Button asChild size="sm" variant="default" className="group h-8 px-3">
+                          <Link href={`/apply?competitionId=${competition.id}`}>
+                            立即报名
+                            <ButtonArrow />
+                          </Link>
                         </Button>
                       ) : null}
                       {isStudent && competition.registration?.projectStatus ? (

@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
+import { ArrowRight } from "lucide-react";
 import { cn } from "./cn";
 
 /**
@@ -46,6 +47,13 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
     loading?: boolean;
+    /**
+     * 悬停时从右侧滑出一个箭头，按钮同时微微变宽。
+     * 只给「进入 / 继续 / 提交前进」这类按钮开；取消、重置、删除、导出不要开，
+     * 箭头会暗示"点了会走下一步"，与实际行为不符。
+     * asChild 模式不生效（Slot 只接受单个子元素），需要调用方自己在子元素里写箭头。
+     */
+    arrow?: boolean;
   };
 
 function Spinner() {
@@ -57,21 +65,38 @@ function Spinner() {
   );
 }
 
+/**
+ * 箭头槽位。宽度固定 14px、只做淡入与 4px 内移，所以按钮的宽度在悬停前后完全一致，
+ * 表格里一排按钮不会互相推挤。`-ml-1.5` 抵掉一部分父级 gap，让静止时右侧不会空太多。
+ * asChild 的调用点直接用它：`<Link>文案<ButtonArrow /></Link>`，父元素记得带 `group`。
+ */
+export function ButtonArrow() {
+  return (
+    <span
+      aria-hidden="true"
+      className="-ml-1.5 grid w-3.5 -translate-x-1 place-items-center overflow-hidden opacity-0 transition-all duration-200 ease-out group-hover:translate-x-0 group-hover:opacity-100 motion-reduce:transition-none"
+    >
+      <ArrowRight size={14} className="shrink-0" />
+    </span>
+  );
+}
+
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { className, variant, size, asChild = false, type = "button", loading = false, disabled, children, ...props },
+  { className, variant, size, asChild = false, type = "button", loading = false, arrow = false, disabled, children, ...props },
   ref,
 ) {
   const Comp = asChild ? Slot : "button";
+  const classes = cn(buttonVariants({ variant, size }), arrow && !asChild && "group", className);
   if (asChild) {
     return (
-      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props}>
+      <Comp className={classes} ref={ref} {...props}>
         {children}
       </Comp>
     );
   }
   return (
     <Comp
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={classes}
       ref={ref}
       type={type}
       disabled={disabled || loading}
@@ -81,6 +106,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function 
     >
       {loading ? <Spinner /> : null}
       {children}
+      {arrow && !loading ? <ButtonArrow /> : null}
     </Comp>
   );
 });

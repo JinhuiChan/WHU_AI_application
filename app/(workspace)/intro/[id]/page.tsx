@@ -7,6 +7,7 @@ import { BreadcrumbTitle } from "@/components/layout/breadcrumbs";
 import { introContentFor } from "@/components/competitions/competition-intro-data";
 import BlurText from "@/components/react-bits/BlurText";
 import SpotlightCard from "@/components/react-bits/SpotlightCard";
+import { Button, ButtonArrow } from "@/components/ui/button";
 import { getActiveUser } from "@/lib/auth.server";
 import { loadScopedLabels } from "@/lib/dict-labels";
 import { prisma } from "@/lib/prisma";
@@ -119,19 +120,20 @@ export default async function CompetitionIntroDetailPage({ params }: PageProps) 
           <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">{intro.tagline}</p>
 
           <div className="mt-5 flex flex-wrap items-center gap-3">
-            <Link
-              href={`/competitions/${competition.id}`}
-              className="inline-flex h-11 items-center justify-center rounded-full bg-blue-600 px-6 text-sm font-medium text-white transition duration-[160ms] ease-out hover:bg-blue-700 active:scale-[0.97] active:bg-blue-800 motion-reduce:active:scale-100"
-            >
-              查看赛事详情
-            </Link>
+            <Button asChild className="group">
+              <Link href={`/competitions/${competition.id}`}>
+                查看赛事详情
+                <ButtonArrow />
+              </Link>
+            </Button>
             {user.role === "STUDENT" ? (
               applyOpen ? (
                 <Link
                   href={`/apply?competitionId=${competition.id}`}
-                  className="inline-flex h-11 items-center justify-center rounded-full border border-blue-200 bg-blue-50 px-6 text-sm font-medium text-blue-700 transition duration-[160ms] ease-out hover:bg-blue-100 active:scale-[0.97] motion-reduce:active:scale-100"
+                  className="group inline-flex h-11 items-center justify-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-6 text-sm font-medium text-blue-700 transition duration-[160ms] ease-out hover:bg-blue-100 active:scale-[0.97] motion-reduce:active:scale-100"
                 >
                   我要报名
+                  <ButtonArrow />
                 </Link>
               ) : null
             ) : null}
