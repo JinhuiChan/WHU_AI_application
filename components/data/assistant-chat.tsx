@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { FormEvent, useRef, useState } from "react";
 import { Bot, Send, UserRound } from "lucide-react";
+import LatticeLoader from "@/components/react-bits/LatticeLoader";
 import type { ApiResponse } from "@/types/api";
 import type { AssistantResult } from "@/types/assistant";
 
@@ -105,7 +106,7 @@ export function AssistantChat() {
         {error ? <p role="alert" className="mt-3 text-sm text-red-600">{error}</p> : null}
       </section>
 
-      {exchanges.length === 0 ? (
+      {exchanges.length === 0 && !pending ? (
         <section className="rounded-lg border border-dashed border-slate-300 bg-white px-4 py-10 text-center">
           <Bot size={28} className="mx-auto text-slate-400" aria-hidden="true" />
           <p className="mt-3 text-sm text-slate-500">选择示例问题或输入问题，回答下方会显示出处卡片。</p>
@@ -161,6 +162,19 @@ export function AssistantChat() {
               </article>
             </div>
           ))}
+          {pending ? (
+            <div className="flex justify-start">
+              <div className="inline-flex items-center rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                <LatticeLoader
+                  color="#2563eb"
+                  doneLabel="已回答"
+                  errorLabel="检索失败"
+                  fontSize={13}
+                  label="正在检索知识库"
+                />
+              </div>
+            </div>
+          ) : null}
         </div>
       )}
     </div>

@@ -112,3 +112,17 @@
 - **接口现状**：附件上传接口只放行 `NOTICE / RULE / TEMPLATE` 与文档扩展名，视频一律 422。前端已捕获这种情况，把黄色提示换成「需要把 VIDEO 加进白名单」的可执行说明，不是一串校验报错。真正可用的上传必须后端改两处，清单见 `docs/配合后端-宣传片上传.md`。
 - 过渡方案（现在就能把视频放上线）：`node scripts/import-competition-video.mjs --competition <ID|系列标识|名称> --file <视频> --title "宣传片"`，脚本把文件复制到 `public/uploads/competitions/<赛事ID>/` 并写一条 `kind = VIDEO` 记录；`--remove` 撤回，`--list` 查看现有宣传片。脚本没有登录身份，**不写审计日志**，正式环境应优先用接口上传。
 - 学生端简介页的播放器与占位卡统一 `max-w-3xl`，避免大屏上播放器拉满整行、和占位卡的宽度不一致。
+
+## 2026-11-07 Lattice Loader + Shiny Text（两个 React Bits 组件）
+
+**LatticeLoader** —— `components/react-bits/LatticeLoader.tsx`，取自官方 `src/ts-tailwind/Micro/LatticeLoader`。
+- 官方源码只改了 **1 处**：`useLayoutEffect` 换成同构版本（服务端降级为 `useEffect`），否则 Next.js SSR 会打印 "useLayoutEffect does nothing on the server"。图案表、CSS keyframes、props 全部保留。
+- 用在哪：`/assistant` 提问等待（"正在检索知识库" + 秒表，挂在对话流末尾）；`/import` 解析等待（**替换**按钮而不是并排，容器固定 `h-9` 与按钮等高，避免布局跳动）。
+- 为什么不放进按钮里：`Button` 自带 loading 转圈，叠加会变成"转圈 + 点阵"两套动画；而且 loader 本身已经回答"在干什么、等了多久"。
+- 已知行为：三条 label（进行中 / 完成 / 失败）都常驻 DOM，未激活的用 `absolute + opacity-0`，所以 `innerText` 会读到全部三段文字；视觉无影响，读屏靠 `sr-only` 播报当前状态。
+
+**ShinyText** —— `components/react-bits/ShinyText.tsx`，取自官方 `src/ts-tailwind/TextAnimations/ShinyText`，**未改源码**，零新增依赖（canvas 解析颜色 + `background-clip: text`）。
+- 用在哪：登录页主标题**第二行**。第一行仍是 `BlurText` 逐字入场，第二行用 `.fade-up` 延迟 420ms 淡入后开始循环扫光，两行节奏接得上。
+- 参数：`color #0f172a` / `shineColor #60a5fa` / `speed 3.2` / `delay 2.6` / `shineWidth 24` / `softness 0.72`。
+- **`shineWidth` 为什么是 24 而不是默认 40**：宽度 46 时实测整行会同时落到过渡带里，看起来像"文字整体变灰蓝"；收到 24 后只有局部被提亮，其余保持深色，才是"一道光扫过"的观感。
+- 可复用位置：赛事卡"报名中"标签、看板 CTA 文案。放大面积前先看 `shineWidth`，越长的一行越容易整行泛色。

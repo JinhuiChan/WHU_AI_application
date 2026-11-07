@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { LoginForm } from "@/components/auth/login-form";
 import BlurText from "@/components/react-bits/BlurText";
+import ShinyText from "@/components/react-bits/ShinyText";
 
 export const metadata: Metadata = {
   title: "登录",
@@ -38,8 +39,18 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
             <span className="block">
               <BlurText text="从校赛业务管理到国赛数据存档，" animateBy="letters" delay={26} stepDuration={0.4} blur={8} distance={10} trigger="load" />
             </span>
-            <span className="block">
-              <BlurText text="让每一次变更都有依据。" animateBy="letters" delay={26} stepDuration={0.4} blur={8} distance={10} trigger="load" />
+            <span className="fade-up block" style={{ animationDelay: "420ms" }}>
+              <ShinyText
+                text="让每一次变更都有依据。"
+                color="#0f172a"
+                shineColor="#60a5fa"
+                speed={3.2}
+                delay={2.6}
+                angle={110}
+                shineWidth={24}
+                softness={0.72}
+                trigger="loop"
+              />
             </span>
           </h1>
           <p className="login-fade-up mt-5 max-w-lg text-sm leading-7 text-slate-500" style={{ animationDelay: "170ms" }}>

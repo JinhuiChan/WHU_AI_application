@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import LatticeLoader from "@/components/react-bits/LatticeLoader";
 import StepperIndicator from "@/components/react-bits/StepperIndicator";
 import Link from "next/link";
 import { useState } from "react";
@@ -249,13 +250,25 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
             />
             {file ? <p className="mt-3 text-xs text-slate-500">已选择：{file.name}（{(file.size / 1024 / 1024).toFixed(2)} MB）</p> : null}
           </div>
-          <Button variant="default" size="sm"
-            type="button"
-            disabled={pending !== null || !file || !competitionId}
-            onClick={parse}
-            className="mt-5" >
-            {pending === "parse" ? "正在解析…" : "上传并解析"}
-          </Button>
+          {pending === "parse" ? (
+            <div className="mt-5 flex h-9 items-center">
+              <LatticeLoader
+                color="#2563eb"
+                doneLabel="解析完成"
+                errorLabel="解析失败"
+                fontSize={13}
+                label="正在解析文件"
+              />
+            </div>
+          ) : (
+            <Button variant="default" size="sm"
+              type="button"
+              disabled={pending !== null || !file || !competitionId}
+              onClick={parse}
+              className="mt-5" >
+              上传并解析
+            </Button>
+          )}
         </section>
       ) : null}
 
