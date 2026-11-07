@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useDialogA11y } from "@/components/ui/use-dialog-a11y";
 
 export function RejectDialog({
   title,
@@ -18,16 +19,10 @@ export function RejectDialog({
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape" && !pending) onCancel();
-    }
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [onCancel, pending]);
+  const dialogRef = useDialogA11y(true, onCancel, !pending);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" role="dialog" aria-modal="true" aria-labelledby="reject-dialog-title">
+    <div ref={dialogRef} className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" role="dialog" aria-modal="true" aria-labelledby="reject-dialog-title">
       <form
         className="w-full max-w-lg rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
         onSubmit={(event) => {

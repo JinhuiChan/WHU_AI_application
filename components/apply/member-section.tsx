@@ -5,6 +5,7 @@ import type { MemberInput, PayeeInput } from "@/types/apply";
 import type { ApplyOptions } from "./apply-form";
 import { PayeeToggle } from "./payee-toggle";
 import { Button } from "@/components/ui/button";
+import { useDialogA11y } from "@/components/ui/use-dialog-a11y";
 
 type MemberSectionProps = {
   members: MemberInput[];
@@ -67,6 +68,7 @@ function emptyMember(isInternal: boolean, sortOrder: number): MemberInput {
 
 export function MemberSection({ members, dictionaries, onChange, onPayeeToggle }: MemberSectionProps) {
   const [modal, setModal] = useState<"internal" | "external" | null>(null);
+  const dialogRef = useDialogA11y(modal !== null, () => setModal(null));
   const [draft, setDraft] = useState<MemberInput>(emptyMember(true, 0));
   const [keyword, setKeyword] = useState("");
   const [searching, setSearching] = useState(false);
@@ -184,7 +186,7 @@ export function MemberSection({ members, dictionaries, onChange, onPayeeToggle }
       </div>
 
       {modal ? (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 p-4" role="dialog" aria-modal="true" aria-label={modal === "internal" ? "添加校内成员" : "添加校外成员"}>
+        <div ref={dialogRef} className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 p-4" role="dialog" aria-modal="true" aria-label={modal === "internal" ? "添加校内成员" : "添加校外成员"}>
           <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-xl border border-slate-200 bg-white p-5 shadow-xl">
             <h3 className="text-lg font-semibold text-slate-900">{modal === "internal" ? "添加校内成员" : "添加校外成员"}</h3>
             {modal === "internal" ? (

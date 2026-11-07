@@ -2,9 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 设计变量：新增语义 token，不改任何已有 Tailwind 类名的解析结果。
+   新代码可直接用 var(--xxx) 或 bg-surface / text-ink / border-line 等语义类。 */
 :root {
   --background: #f8fafc;
   --foreground: #0f172a;
+
+  --surface: #ffffff;
+  --surface-subtle: #f8fafc;
+  --surface-muted: #f1f5f9;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+
+  --ink: #0f172a;
+  --ink-muted: #334155;
+  --ink-subtle: #64748b;
+  --ink-faint: #94a3b8;
+
+  --brand: #2563eb;
+  --brand-strong: #1d4ed8;
+  --brand-soft: #dbeafe;
+  --danger: #dc2626;
+  --danger-strong: #b91c1c;
+  --success: #059669;
+
+  --radius-card: 12px;
+  --radius-control: 8px;
+  --radius-pill: 9999px;
+  --space-block: 16px;
+  --text-title: 22px;
+  --text-label: 14px;
+  --text-body: 14px;
+  --text-note: 12px;
 }
 
 body {
@@ -19,7 +48,7 @@ body {
   select:focus-visible,
   textarea:focus-visible,
   [role="button"]:focus-visible {
-    outline: 2px solid #2563eb;
+    outline: 2px solid var(--brand);
     outline-offset: 2px;
   }
 }
@@ -111,7 +140,7 @@ body {
 
 .page-enter :is(h2, h3):not(.text-xs):not(.text-slate-500) {
   font-weight: 700;
-  color: #0f172a;
+  color: var(--ink);
 }
 
 .page-enter .text-3xl.font-semibold {
@@ -127,28 +156,28 @@ body {
   font-family: var(--font-geist-sans), "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
   font-size: 14px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--ink);
   letter-spacing: 0.1px;
 }
 
 /* 表头同样标黑提字重，但保持 12px，避免 1800px 宽表被撑得更挤 */
 .page-enter thead.text-xs.text-slate-500 th {
   font-weight: 600;
-  color: #334155;
+  color: var(--ink-muted);
 }
 
 /* 待办 / 异常数字标红：只按语义标签命中，克制使用，不与错误提示混用 */
 .page-enter .t-warn {
-  box-shadow: inset 3px 0 0 #dc2626;
+  box-shadow: inset 3px 0 0 var(--danger);
 }
 
 .page-enter .t-warn h2.t-label.text-xs.text-slate-500 {
-  color: #b91c1c;
+  color: var(--danger-strong);
   font-weight: 700;
 }
 
 .page-enter .t-warn-value {
-  color: #dc2626;
+  color: var(--danger);
 }
 
 /* 宽表横向滚动时固定首列：只命中设了 min-w-[...] 的宽表，小表格不受影响。
@@ -159,15 +188,49 @@ body {
   position: sticky;
   left: 0;
   z-index: 1;
-  background: #fff;
-  box-shadow: inset -1px 0 0 #e2e8f0;
+  background: var(--surface);
+  box-shadow: inset -1px 0 0 var(--border);
 }
 
 .page-enter .overflow-x-auto table[class*="min-w-"] > thead > tr > th:first-child {
   z-index: 2;
-  background: #f8fafc;
+  background: var(--surface-subtle);
 }
 
 .page-enter .overflow-x-auto table[class*="min-w-"] > tbody > tr:hover > td:first-child {
-  background: #f8fafc;
+  background: var(--surface-subtle);
+}
+
+/* 操作列右侧固定：与首列对称，宽表横滚时操作按钮始终可见。 */
+.page-enter .overflow-x-auto table[class*="min-w-"] > thead > tr > th:last-child,
+.page-enter .overflow-x-auto table[class*="min-w-"] > tbody > tr > td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 1;
+  background: var(--surface);
+  box-shadow: inset 1px 0 0 var(--border);
+}
+
+.page-enter .overflow-x-auto table[class*="min-w-"] > thead > tr > th:last-child {
+  z-index: 2;
+  background: var(--surface-subtle);
+}
+
+.page-enter .overflow-x-auto table[class*="min-w-"] > tbody > tr:hover > td:last-child {
+  background: var(--surface-subtle);
+}
+
+/* 表格行 hover 统一：原先只有赛事页写了，其余宽表补齐 */
+.page-enter .overflow-x-auto table[class*="min-w-"] > tbody > tr:hover {
+  background: var(--surface-subtle);
+}
+
+/* 段落级空态：轻量占位条，不放大成大空态卡，也不误伤普通说明文字 */
+.page-enter .inline-empty {
+  border-left: 2px solid var(--border);
+  border-radius: 0 var(--radius-control) var(--radius-control) 0;
+  background: var(--surface-subtle);
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--ink-subtle);
 }

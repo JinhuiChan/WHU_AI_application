@@ -140,7 +140,7 @@ export function CompetitionManagement({ competition, attachments, initialWindow 
             </li>
           ))}
         </ul>
-        {attachments.length === 0 ? <p className="mt-4 text-sm text-slate-500">暂无赛事文件</p> : null}
+        {attachments.length === 0 ? <p className="mt-4 text-sm text-slate-500 inline-empty">暂无赛事文件</p> : null}
       </section>
 
       {editOpen ? (

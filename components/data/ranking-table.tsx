@@ -75,7 +75,7 @@ export function RankingTable({ items }: { items: CollegeRanking[] }) {
                                 ))}
                               </tbody>
                             </table>
-                          ) : <p className="px-4 py-6 text-center text-xs text-slate-400">暂无有效获奖明细</p>}
+                          ) : <p className="inline-empty px-4 py-6 text-center text-xs text-slate-400">暂无有效获奖明细</p>}
                         </div>
                       </td>
                     </tr>

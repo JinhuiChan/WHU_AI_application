@@ -125,7 +125,7 @@ export function SealedPanel({ projectId, files, currentFileId, canExportSensitiv
               </article>
             ))}
           </div>
-        ) : <p className="mt-3 text-sm text-slate-500">暂无历史版本</p>}
+        ) : <p className="mt-3 text-sm text-slate-500 inline-empty">暂无历史版本</p>}
       </div>
     </section>
   );

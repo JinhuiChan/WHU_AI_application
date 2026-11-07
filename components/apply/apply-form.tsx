@@ -318,6 +318,7 @@ export function ApplyForm({ student, options, projectId, initialValue, lockedCom
             variant="outline"
             className="h-10 min-w-0 flex-1 px-4"
             disabled={pendingAction !== null}
+            loading={pendingAction === "draft"}
             onClick={() => void persist("draft")}
           >
             {pendingAction === "draft" ? "保存中…" : "保存草稿"}
@@ -326,6 +327,7 @@ export function ApplyForm({ student, options, projectId, initialValue, lockedCom
             type="button"
             className="h-10 min-w-0 flex-1 px-4"
             disabled={pendingAction !== null}
+            loading={pendingAction === "submit"}
             onClick={() => void persist("submit")}
           >
             {pendingAction === "submit" ? "提交中…" : "提交报名"}

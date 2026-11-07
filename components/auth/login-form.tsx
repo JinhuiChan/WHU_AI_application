@@ -161,7 +161,7 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
           </div>
         ) : null}
 
-        <Button className="w-full" disabled={loading} type="submit">
+        <Button className="w-full" loading={loading} type="submit">
           {loading ? "登录中…" : "登录"}
         </Button>
       </form>

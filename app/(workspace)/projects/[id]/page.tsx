@@ -49,7 +49,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
                 </span>
               ))}
             </div>
-          ) : <p className="mt-2 text-sm text-slate-400">暂无别名或编号</p>}
+          ) : <p className="mt-2 text-sm text-slate-400 inline-empty">暂无别名或编号</p>}
         </div>
       </section>
 

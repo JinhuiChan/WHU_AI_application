@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useDialogA11y } from "@/components/ui/use-dialog-a11y";
 import type { TeacherInput } from "@/types/apply";
 
 type TeacherSectionProps = {
@@ -40,6 +41,7 @@ type FieldKey = "staffNo" | "name" | "phone" | "school" | "unit" | "title";
 
 export function TeacherSection({ teachers, onChange }: TeacherSectionProps) {
   const [modal, setModal] = useState<"internal" | "external" | null>(null);
+  const dialogRef = useDialogA11y(modal !== null, () => setModal(null));
   const [draft, setDraft] = useState<TeacherInput>(emptyTeacher(true));
   const [keyword, setKeyword] = useState("");
   const [results, setResults] = useState<TeacherResult[]>([]);
@@ -143,7 +145,7 @@ export function TeacherSection({ teachers, onChange }: TeacherSectionProps) {
       </div>
 
       {modal ? (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 p-4" role="dialog" aria-modal="true" aria-label={modal === "internal" ? "添加校内指导老师" : "添加校外指导老师"}>
+        <div ref={dialogRef} className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 p-4" role="dialog" aria-modal="true" aria-label={modal === "internal" ? "添加校内指导老师" : "添加校外指导老师"}>
           <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl border border-slate-200 bg-white p-5 shadow-xl">
             <h3 className="text-lg font-semibold text-slate-900">{modal === "internal" ? "添加校内指导老师" : "添加校外指导老师"}</h3>
             {modal === "internal" ? (

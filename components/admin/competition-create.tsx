@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { useDialogA11y } from "@/components/ui/use-dialog-a11y";
 
 const fieldClass = "h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-blue-600";
 const labelClass = "grid gap-1 text-sm text-slate-700 sm:grid-cols-[6rem_1fr] sm:items-center";
@@ -13,12 +14,13 @@ export function CompetitionCreate() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState({ name: "", year: new Date().getFullYear(), level: "SCHOOL", seriesId: "", organizer: "", description: "" });
+  const dialogRef = useDialogA11y(open, () => setOpen(false), !pending);
 
   return (
     <>
       <Button type="button" onClick={() => { setOpen(true); setError(""); }}>新建赛事</Button>
       {open ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" role="dialog" aria-modal="true" aria-label="新建赛事">
+        <div ref={dialogRef} className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" role="dialog" aria-modal="true" aria-label="新建赛事">
           <form
             className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
             onSubmit={async (event) => {

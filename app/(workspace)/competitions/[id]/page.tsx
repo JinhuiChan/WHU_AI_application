@@ -187,7 +187,7 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-slate-500">暂无赛事文件</p>
+            <p className="text-sm text-slate-500 inline-empty">暂无赛事文件</p>
           )}
         </section>
       ) : null}

@@ -130,7 +130,7 @@ export default async function ReviewDetailPage({ params }: { params: { id: strin
             <Item label="PPT 文件" value={project.workDetail.pptFileName} />
             <Item label="PPT 文件地址" value={<span className="break-all">{project.workDetail.pptFileUrl}</span>} />
           </dl>
-        ) : <p className="text-sm text-slate-500">暂无作品信息</p>}
+        ) : <p className="text-sm text-slate-500 inline-empty">暂无作品信息</p>}
       </Section>
 
       <Section title={`盖章件（${project.sealedFiles.length}）`}>
@@ -151,7 +151,7 @@ export default async function ReviewDetailPage({ params }: { params: { id: strin
               </div>
             ))}
           </div>
-        ) : <p className="text-sm text-slate-500">暂无盖章件</p>}
+        ) : <p className="text-sm text-slate-500 inline-empty">暂无盖章件</p>}
       </Section>
 
       <Section title={`变更历史（${project.changeLogs.length}）`}>
@@ -159,7 +159,7 @@ export default async function ReviewDetailPage({ params }: { params: { id: strin
           <div className="overflow-x-auto"><table className="w-full min-w-[800px] text-left text-sm"><thead className="bg-slate-50 text-xs text-slate-500"><tr><th className="px-3 py-2">时间</th><th className="px-3 py-2">字段</th><th className="px-3 py-2">旧值</th><th className="px-3 py-2">新值</th><th className="px-3 py-2">操作人 / 来源</th></tr></thead><tbody className="divide-y divide-slate-100">
             {project.changeLogs.map((log) => <tr key={log.id}><td className="whitespace-nowrap px-3 py-3 text-xs">{formatDateTime(log.changedAt)}</td><td className="px-3 py-3">{log.field}</td><td className="max-w-64 break-all px-3 py-3 text-xs">{log.oldValue || "—"}</td><td className="max-w-64 break-all px-3 py-3 text-xs">{log.newValue || "—"}</td><td className="px-3 py-3">{log.changerName}<span className="block text-xs text-slate-500">{log.source}</span></td></tr>)}
           </tbody></table></div>
-        ) : <p className="text-sm text-slate-500">暂无变更历史</p>}
+        ) : <p className="text-sm text-slate-500 inline-empty">暂无变更历史</p>}
       </Section>
 
       <Section title={`审核记录（${project.reviews.length}）`}>
@@ -173,7 +173,7 @@ export default async function ReviewDetailPage({ params }: { params: { id: strin
               </article>
             ))}
           </div>
-        ) : <p className="text-sm text-slate-500">暂无审核记录</p>}
+        ) : <p className="text-sm text-slate-500 inline-empty">暂无审核记录</p>}
       </Section>
     </div>
   );

@@ -246,7 +246,7 @@ export default function RegisterPage() {
 
         <Button variant="default" size="default"
           type="submit"
-          disabled={submitting}
+          loading={submitting}
           className="w-full" >
           {submitting ? "注册中…" : "注册"}
         </Button>
