@@ -1,3 +1,4 @@
+import { detailHref, listHref } from "@/components/data/list-link";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button, ButtonArrow } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -114,6 +115,7 @@ export default async function MyProjectsPage({ searchParams }: PageProps) {
   const projects = await getMyProjects(user.id);
 
   const filterKey = firstParam(searchParams?.filter) || "all";
+  const from = listHref("/my", { filter: filterKey === "all" ? "" : filterKey });
   const active = FILTERS.find((item) => item.key === filterKey) ?? FILTERS[0];
   const visible = projects.filter((project) => matches(active.statuses, project.reviewStatus));
   const countOf = (statuses: string[]) => projects.filter((project) => matches(statuses, project.reviewStatus)).length;
@@ -137,7 +139,7 @@ export default async function MyProjectsPage({ searchParams }: PageProps) {
             {active.key === "all" ? "" : `当前只看「${active.label}」，共 ${visible.length} 个。`}
           </p>
         </div>
-        <Link href="/competitions" className="inline-flex h-11 items-center justify-center rounded-full bg-blue-600 px-5 text-sm font-medium text-white transition duration-[160ms] ease-out hover:bg-blue-700 active:scale-[0.97] active:bg-blue-800 motion-reduce:active:scale-100">新建报名</Link>
+        <Link href="/competitions" className="inline-flex h-10 items-center justify-center rounded-full bg-blue-600 px-5 text-sm font-medium text-white transition duration-[160ms] ease-out hover:bg-blue-700 active:scale-[0.97] active:bg-blue-800 motion-reduce:active:scale-100">新建报名</Link>
       </div>
 
       <nav aria-label="按状态筛选" className="flex flex-wrap gap-2">
@@ -169,7 +171,7 @@ export default async function MyProjectsPage({ searchParams }: PageProps) {
             <tbody className="divide-y divide-slate-100">
               {visible.map((project) => (
                 <tr key={project.id}>
-                  <td className="max-w-72 px-4 py-3 font-medium text-slate-900"><Link href={`/my/${project.id}`} className="hover:text-blue-600">{project.name}</Link></td>
+                  <td className="max-w-72 px-4 py-3 font-medium text-slate-900"><Link href={detailHref("/my", project.id, from)} className="hover:text-blue-600">{project.name}</Link></td>
                   <td className="px-4 py-3 text-slate-600">{project.competitionName} / {project.trackName}</td>
                   <td className="px-4 py-3">
                     <StatusBadge status={project.reviewStatus}>{registrationStatusLabels[project.reviewStatus]}</StatusBadge>
@@ -178,7 +180,7 @@ export default async function MyProjectsPage({ searchParams }: PageProps) {
                   <td className="px-4 py-3 text-slate-600">{formatDateTime(project.updatedAt.toISOString())}</td>
                   <td className="whitespace-nowrap px-4 py-3">
                     <Button asChild size="sm" variant="outline" className="group h-8 px-3">
-                      <Link href={`/my/${project.id}`}>
+                      <Link href={detailHref("/my", project.id, from)}>
                         查看
                         <ButtonArrow />
                       </Link>

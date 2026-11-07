@@ -1,6 +1,7 @@
 "use client";
 
 import { Button, ButtonArrow } from "@/components/ui/button";
+import { detailHref } from "@/components/data/list-link";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { useState } from "react";
 import Link from "next/link";
@@ -40,7 +41,7 @@ function Field({ label, value }: { label: string; value: string | number | null 
   );
 }
 
-export function ReviewWorkbench({ data }: { data: ReviewListPage }) {
+export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: string }) {
   const router = useRouter();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [expanded, setExpanded] = useState<string[]>([]);
@@ -212,7 +213,7 @@ export function ReviewWorkbench({ data }: { data: ReviewListPage }) {
                 />
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Link href={`/review/${item.id}`} className="text-sm font-semibold text-slate-900 hover:text-blue-600">
+                    <Link href={detailHref("/review", item.id, from)} className="text-sm font-semibold text-slate-900 hover:text-blue-600">
                       {item.projectName}
                     </Link>
                     <StatusBadge status={item.status}>{registrationStatusLabels[item.status]}</StatusBadge>
@@ -235,7 +236,7 @@ export function ReviewWorkbench({ data }: { data: ReviewListPage }) {
                     {open ? "收起信息" : "展开信息"}
                   </Button>
                   <Button asChild variant="outline" size="sm" className="group">
-                    <Link href={`/review/${item.id}`}>
+                    <Link href={detailHref("/review", item.id, from)}>
                       查看详情
                       <ButtonArrow />
                     </Link>

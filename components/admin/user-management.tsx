@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Role } from "@prisma/client";
 import type { ApiResponse } from "@/types/api";
+import { formatDate } from "@/lib/presentation";
 import type { ManagedUser } from "@/types/user";
 
 type UserAction = { action: "APPROVE" } | { action: "REJECT" } | { action: "UPDATE_ROLE"; role: Role; roles: Role[] };
@@ -111,9 +112,9 @@ export function UserManagement({
                   </td>
                   <td className="px-4 py-4 text-xs text-slate-500">
                     {user.approvedBy ? <div>{user.approvedBy}</div> : "—"}
-                    {user.approvedAt ? <div className="mt-1">{user.approvedAt.slice(0, 10)}</div> : null}
+                    {user.approvedAt ? <div className="mt-1">{formatDate(user.approvedAt)}</div> : null}
                   </td>
-                  <td className="px-4 py-4 text-xs text-slate-500">{user.createdAt.slice(0, 10)}</td>
+                  <td className="px-4 py-4 text-xs text-slate-500">{formatDate(user.createdAt)}</td>
                   <td className="px-4 py-4">
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm"

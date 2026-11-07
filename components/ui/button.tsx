@@ -31,9 +31,9 @@ const buttonVariants = cva(
           "bg-transparent text-blue-700 hover:translate-y-0 hover:bg-blue-50 hover:shadow-none active:bg-blue-100",
       },
       size: {
-        default: "h-11 px-6",
+        default: "h-10 px-6",
         sm: "h-9 px-4 text-xs",
-        icon: "h-11 w-11 p-0",
+        icon: "h-10 w-10 p-0",
       },
     },
     defaultVariants: {

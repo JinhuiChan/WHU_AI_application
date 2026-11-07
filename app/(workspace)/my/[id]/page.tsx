@@ -1,3 +1,5 @@
+import { BackLink } from "@/components/data/list-link";
+import { firstParam } from "@/lib/list-query";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Button, ButtonArrow } from "@/components/ui/button";
 import type { Metadata } from "next";
@@ -16,13 +18,16 @@ import { canExportFullForm, currentSealedFileId, listSealedFiles } from "@/lib/s
 export const metadata: Metadata = { title: "项目详情" };
 export const dynamic = "force-dynamic";
 
-type PageProps = { params: { id: string } };
+type PageProps = {
+  params: { id: string };
+  searchParams?: Record<string, string | string[] | undefined>;
+};
 
 function Item({ label, value }: { label: string; value: string | number | null | undefined }) {
   return <div><dt className="text-sm text-slate-500">{label}</dt><dd className="mt-1 text-sm text-slate-900">{value === "" || value === null || value === undefined ? "—" : value}</dd></div>;
 }
 
-export default async function MyProjectPage({ params }: PageProps) {
+export default async function MyProjectPage({ params, searchParams }: PageProps) {
   const user = await getActiveUser();
   if (!user) redirect("/login");
   if (user.role !== "STUDENT") redirect("/dashboard");
@@ -123,7 +128,7 @@ export default async function MyProjectPage({ params }: PageProps) {
       <SealedPanel projectId={params.id} files={sealedFiles} currentFileId={currentFileId} canExportSensitive={canExportSensitive} />
       {changePanel ? <ChangeRequestPanel projectId={params.id} data={changePanel} /> : null}
       <DatasetExport scope="mine" buttonLabel="导出我的数据表" />
-      <Link href="/my" className="inline-block text-sm text-blue-600 hover:underline">返回我的项目</Link>
+      <BackLink to={firstParam(searchParams?.from)} fallback="/my" label="返回我的项目" />
     </div>
   );
 }

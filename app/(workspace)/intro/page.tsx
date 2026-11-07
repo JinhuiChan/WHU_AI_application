@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import type { CompetitionLevel } from "@prisma/client";
 import { ArrowUpRight, Building2, CalendarDays, Layers, PlayCircle, Trophy } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
+import { detailHref } from "@/components/data/list-link";
 import SpotlightCard from "@/components/react-bits/SpotlightCard";
 import { introContentFor } from "@/components/competitions/competition-intro-data";
 import { getActiveUser } from "@/lib/auth.server";
@@ -53,7 +54,7 @@ export default async function CompetitionIntroPage() {
         </div>
         <Link
           href="/competitions"
-          className="inline-flex h-11 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100"
+          className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100"
         >
           赛事与报名
         </Link>
@@ -69,7 +70,7 @@ export default async function CompetitionIntroPage() {
             return (
               <Link
                 key={competition.id}
-                href={`/intro/${competition.id}`}
+                href={detailHref("/intro", competition.id, "/intro")}
                 className="group block rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-[180ms] ease-out hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 active:translate-y-0 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
               >
                 <SpotlightCard

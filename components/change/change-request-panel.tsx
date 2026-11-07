@@ -207,7 +207,7 @@ export function ChangeRequestPanel({ projectId, data }: Props) {
             />
           </label>
 
-          {error ? <p className="text-xs text-red-600 md:col-span-3">{error}</p> : null}
+          {error ? <p role="alert" className="text-xs text-red-600 md:col-span-3">{error}</p> : null}
 
           <div className="md:col-span-3">
             <Button variant="default" size="default"

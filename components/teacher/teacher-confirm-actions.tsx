@@ -89,7 +89,7 @@ export function TeacherConfirmActions({ teacherId, confirmStatus }: Props) {
           </Button>
         </div>
       ) : null}
-      {error ? <p className="text-xs text-red-600">{error}</p> : null}
+      {error ? <p role="alert" className="text-xs text-red-600">{error}</p> : null}
     </div>
   );
 }

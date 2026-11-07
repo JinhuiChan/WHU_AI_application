@@ -126,7 +126,7 @@ export function TeacherSection({ teachers, onChange }: TeacherSectionProps) {
           </Button>
         </div>
       </div>
-      {error && !modal ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
+      {error && !modal ? <p role="alert" className="mt-3 text-sm text-red-600">{error}</p> : null}
       <div className="mt-4 overflow-x-auto">
         <table className="w-full min-w-[760px] text-left text-sm">
           <thead className="bg-slate-50 text-xs text-slate-500">
@@ -177,7 +177,7 @@ export function TeacherSection({ teachers, onChange }: TeacherSectionProps) {
                   <span className="text-sm text-slate-600">工号</span>
                   <div>
                     <input className={`${fieldClass}${fieldErrors.staffNo ? " border-red-500" : ""}`} value={draft.staffNo ?? ""} onChange={(event) => updateDraft({ staffNo: event.target.value })} required />
-                    {fieldErrors.staffNo ? <span className="mt-1 block text-xs text-red-600">{fieldErrors.staffNo}</span> : null}
+                    {fieldErrors.staffNo ? <span role="alert" className="mt-1 block text-xs text-red-600">{fieldErrors.staffNo}</span> : null}
                   </div>
                 </label>
               ) : null}
@@ -185,7 +185,7 @@ export function TeacherSection({ teachers, onChange }: TeacherSectionProps) {
                 <span className="text-sm text-slate-600">姓名</span>
                 <div>
                   <input className={`${fieldClass}${fieldErrors.name ? " border-red-500" : ""}`} value={draft.name} onChange={(event) => updateDraft({ name: event.target.value })} required />
-                  {fieldErrors.name ? <span className="mt-1 block text-xs text-red-600">{fieldErrors.name}</span> : null}
+                  {fieldErrors.name ? <span role="alert" className="mt-1 block text-xs text-red-600">{fieldErrors.name}</span> : null}
                 </div>
               </label>
               <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
@@ -196,28 +196,28 @@ export function TeacherSection({ teachers, onChange }: TeacherSectionProps) {
                 <span className="text-sm text-slate-600">手机号</span>
                 <div>
                   <input type="tel" className={`${fieldClass}${fieldErrors.phone ? " border-red-500" : ""}`} value={draft.phone} onChange={(event) => updateDraft({ phone: event.target.value })} required />
-                  {fieldErrors.phone ? <span className="mt-1 block text-xs text-red-600">{fieldErrors.phone}</span> : null}
+                  {fieldErrors.phone ? <span role="alert" className="mt-1 block text-xs text-red-600">{fieldErrors.phone}</span> : null}
                 </div>
               </label>
               <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
                 <span className="text-sm text-slate-600">所在院校/公司</span>
                 <div>
                   <input className={`${fieldClass}${fieldErrors.school ? " border-red-500" : ""}`} value={draft.school} onChange={(event) => updateDraft({ school: event.target.value })} disabled={modal === "internal"} required />
-                  {fieldErrors.school ? <span className="mt-1 block text-xs text-red-600">{fieldErrors.school}</span> : null}
+                  {fieldErrors.school ? <span role="alert" className="mt-1 block text-xs text-red-600">{fieldErrors.school}</span> : null}
                 </div>
               </label>
               <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
                 <span className="text-sm text-slate-600">所在单位/部门</span>
                 <div>
                   <input className={`${fieldClass}${fieldErrors.unit ? " border-red-500" : ""}`} value={draft.unit} onChange={(event) => updateDraft({ unit: event.target.value })} required />
-                  {fieldErrors.unit ? <span className="mt-1 block text-xs text-red-600">{fieldErrors.unit}</span> : null}
+                  {fieldErrors.unit ? <span role="alert" className="mt-1 block text-xs text-red-600">{fieldErrors.unit}</span> : null}
                 </div>
               </label>
               <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
                 <span className="text-sm text-slate-600">{modal === "internal" ? "职称" : "职务"}</span>
                 <div>
                   <input className={`${fieldClass}${fieldErrors.title ? " border-red-500" : ""}`} value={draft.title} onChange={(event) => updateDraft({ title: event.target.value })} required />
-                  {fieldErrors.title ? <span className="mt-1 block text-xs text-red-600">{fieldErrors.title}</span> : null}
+                  {fieldErrors.title ? <span role="alert" className="mt-1 block text-xs text-red-600">{fieldErrors.title}</span> : null}
                 </div>
               </label>
               <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
@@ -225,7 +225,7 @@ export function TeacherSection({ teachers, onChange }: TeacherSectionProps) {
                 <input type="email" className={fieldClass} value={draft.email} onChange={(event) => updateDraft({ email: event.target.value })} />
               </label>
             </div>
-            {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
+            {error ? <p role="alert" className="mt-3 text-sm text-red-600">{error}</p> : null}
             <div className="mt-5 flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => { setModal(null); setError(""); }}>取消</Button>
               <Button type="button" onClick={addTeacher}>确认添加</Button>

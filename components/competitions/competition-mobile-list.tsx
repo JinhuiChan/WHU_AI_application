@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CompetitionDeleteButton } from "@/components/admin/competition-delete-button";
+import { detailHref } from "@/components/data/list-link";
 import { Button, ButtonArrow } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
@@ -14,6 +15,8 @@ type Props = {
   items: CompetitionListItem[];
   /** 与表格同一套口径：学生看报名相关信息，其余角色看管理与发布信息 */
   isStudent: boolean;
+  /** 列表页当前地址，详情页用它当返回目标 */
+  from: string;
 };
 
 const publishTone: Record<string, string> = {
@@ -30,7 +33,7 @@ const publishTone: Record<string, string> = {
  * 剩下的既看不到也没有滚动提示。两套渲染共用同一份数据与同一批按钮，
  * 只改展示，不动任何查询逻辑。
  */
-export function CompetitionMobileList({ items, isStudent }: Props) {
+export function CompetitionMobileList({ items, isStudent, from }: Props) {
   return (
     <ul className="divide-y divide-slate-100 lg:hidden">
       {items.map((competition) => {
@@ -58,7 +61,7 @@ export function CompetitionMobileList({ items, isStudent }: Props) {
             </div>
 
             <h3 className="mt-2 text-sm font-semibold leading-6 text-slate-900">
-              <Link href={`/competitions/${competition.id}`} className="hover:text-blue-600">
+              <Link href={detailHref("/competitions", competition.id, from)} className="hover:text-blue-600">
                 {competition.name}
               </Link>
             </h3>
@@ -101,7 +104,7 @@ export function CompetitionMobileList({ items, isStudent }: Props) {
 
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <Button asChild size="sm" variant="outline" className="group h-9 px-3">
-                <Link href={`/competitions/${competition.id}`}>
+                <Link href={detailHref("/competitions", competition.id, from)}>
                   查看详情
                   <ButtonArrow />
                 </Link>

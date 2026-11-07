@@ -8,6 +8,7 @@ import { CompetitionCreate } from "@/components/admin/competition-create";
 import { CompetitionDeleteButton } from "@/components/admin/competition-delete-button";
 import { CompetitionMobileList } from "@/components/competitions/competition-mobile-list";
 import { Pagination } from "@/components/data/pagination";
+import { detailHref, listHref } from "@/components/data/list-link";
 import { getActiveUser } from "@/lib/auth.server";
 import { getCompetitionPage, listCompetitionYears } from "@/lib/competitions";
 import { firstParam, optionalCompetitionLevel, optionalPublishStatus, optionalText, optionalYear, pageParams } from "@/lib/list-query";
@@ -45,6 +46,15 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
     listCompetitionYears(),
   ]);
   const isStudent = user.role === "STUDENT";
+  // 详情页的返回目标：带上当前筛选与页码，回来时不用重新选一遍
+  const from = listHref("/competitions", {
+    year,
+    level,
+    publishStatus,
+    q,
+    page: page > 1 ? String(page) : "",
+    pageSize: String(pageSize),
+  });
 
   return (
     <div className="space-y-6">
@@ -57,13 +67,13 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
               : "按赛年、等级和关键词查找赛事，进入详情查看获奖名单。"}
           </p>
         </div>
-        {user.role === "ADMIN" ? <CompetitionCreate /> : null}
         <div className="flex flex-wrap items-center gap-2">
-          <Link href="/intro" className="inline-flex h-11 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">
+          {user.role === "ADMIN" ? <CompetitionCreate /> : null}
+          <Link href="/intro" className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">
             赛事简介
           </Link>
           {user.role === "STUDENT" ? (
-            <Link href="/my" className="inline-flex h-11 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">
+            <Link href="/my" className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">
               我的项目
             </Link>
           ) : null}
@@ -142,7 +152,7 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
                 <tr key={competition.id} className="text-slate-700 hover:bg-slate-50">
                   <td className="px-4 py-4">{competition.year}</td>
                   <td className="px-4 py-4 font-medium text-slate-900">
-                    <Link href={`/competitions/${competition.id}`} className="hover:text-blue-600">{competition.name}</Link>
+                    <Link href={detailHref("/competitions", competition.id, from)} className="hover:text-blue-600">{competition.name}</Link>
                   </td>
                   <td className="px-4 py-4">
                     <span className="rounded-full bg-blue-50 px-2 py-1 text-xs text-blue-700">{competitionLevelLabels[competition.level]}</span>
@@ -193,7 +203,7 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
                   <td className="whitespace-nowrap px-4 py-4">
                     <div className="flex flex-wrap items-center gap-2">
                       <Button asChild size="sm" variant="outline" className="group h-8 px-3">
-                        <Link href={`/competitions/${competition.id}`}>
+                        <Link href={detailHref("/competitions", competition.id, from)}>
                           查看详情
                           <ButtonArrow />
                         </Link>
@@ -229,7 +239,7 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
             <EmptyState title="还没有符合条件的赛事" description="试试放宽赛年、状态或关键字，也可以重置筛选查看全部赛事。" action={{ href: "/competitions", label: "清除筛选" }} />
           </div>
         ) : (
-          <CompetitionMobileList items={data.list} isStudent={isStudent} />
+          <CompetitionMobileList items={data.list} isStudent={isStudent} from={from} />
         )}
         <Pagination basePath="/competitions" query={{ year, level, publishStatus, q, pageSize: String(pageSize) }} total={data.total} page={data.page} pageSize={data.pageSize} />
       </section>

@@ -1,8 +1,9 @@
+import { BackLink } from "@/components/data/list-link";
+import { firstParam } from "@/lib/list-query";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ReviewDecisionBar } from "@/components/review/review-decision-bar";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { BreadcrumbTitle } from "@/components/layout/breadcrumbs";
 import { getActiveUser } from "@/lib/auth.server";
@@ -31,7 +32,12 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-export default async function ReviewDetailPage({ params }: { params: { id: string } }) {
+type PageProps = {
+  params: { id: string };
+  searchParams?: Record<string, string | string[] | undefined>;
+};
+
+export default async function ReviewDetailPage({ params, searchParams }: PageProps) {
   const user = await getActiveUser();
   if (!user) redirect("/login");
   if (user.role !== "ADMIN") {
@@ -45,7 +51,7 @@ export default async function ReviewDetailPage({ params }: { params: { id: strin
     <div className="space-y-6">
       <BreadcrumbTitle label={project.projectName} />
       <div>
-        <Link href="/review" className="text-sm text-blue-600 hover:underline">返回审核列表</Link>
+        <BackLink to={firstParam(searchParams?.from)} fallback="/review" label="返回审核列表" />
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <h1 className="text-xl font-semibold text-slate-900">{project.projectName}</h1>
           <StatusBadge status={project.status}>{registrationStatusLabels[project.status]}</StatusBadge>

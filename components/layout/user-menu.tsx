@@ -66,7 +66,7 @@ export function UserMenu({ user }: { user: AuthUser }) {
             <p className="font-medium text-slate-800">{user.name}</p>
             <p className="mt-1 text-xs text-slate-500">{user.phone}</p>
           </div>
-          {error ? <p className="px-3 py-2 text-xs text-red-600">{error}</p> : null}
+          {error ? <p role="alert" className="px-3 py-2 text-xs text-red-600">{error}</p> : null}
           <Button variant="outline" size="default"
             type="button"
             role="menuitem"

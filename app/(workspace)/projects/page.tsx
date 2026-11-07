@@ -1,4 +1,5 @@
 import { Button, ButtonArrow } from "@/components/ui/button";
+import { detailHref, listHref } from "@/components/data/list-link";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
 import type { Metadata } from "next";
@@ -27,6 +28,16 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
   const q = firstParam(searchParams?.q);
   const awarded = firstParam(searchParams?.awarded) === "1";
   const { page, pageSize } = pageParams(firstParam(searchParams?.page), firstParam(searchParams?.pageSize));
+  const from = listHref("/projects", {
+    year,
+    competitionId,
+    college,
+    level,
+    q,
+    awarded: awarded ? "1" : "",
+    page: page > 1 ? String(page) : "",
+    pageSize: String(pageSize),
+  });
   const [data, options] = await Promise.all([
     getProjectPage(
       {
@@ -115,7 +126,7 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
               {data.list.map((project) => (
                 <tr key={project.id} className="text-slate-700 hover:bg-slate-50">
                   <td className="max-w-md px-4 py-4 font-medium text-slate-900">
-                    <Link href={`/projects/${project.id}`} className="hover:text-blue-600">{project.name}</Link>
+                    <Link href={detailHref("/projects", project.id, from)} className="hover:text-blue-600">{project.name}</Link>
                   </td>
                   <td className="px-4 py-4 text-xs text-slate-500">{project.competition?.name ?? "—"}</td>
                   <td className="px-4 py-4">{project.year}</td>
@@ -137,7 +148,7 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
                   </td>
                   <td className="whitespace-nowrap px-4 py-4">
                     <Button asChild size="sm" variant="outline" className="group h-8 px-3">
-                      <Link href={`/projects/${project.id}`}>
+                      <Link href={detailHref("/projects", project.id, from)}>
                         查看全貌
                         <ButtonArrow />
                       </Link>

@@ -148,7 +148,7 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
                     {item.href === "/review" && pendingTodo > 0 ? (
                       <span
                         title={pendingTitle}
-                        className="ml-auto rounded-full bg-red-600 px-1.5 text-[10px] font-medium leading-4 text-white"
+                        className="ml-auto rounded-full bg-red-600 px-1.5 text-[11px] font-medium leading-4 text-white"
                       >
                         {pendingTodo}
                       </span>
@@ -170,7 +170,7 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
               key={item.href}
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-[10px] ${active ? "text-blue-600" : "text-slate-500"}`}
+              className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-[11px] ${active ? "text-blue-600" : "text-slate-500"}`}
             >
               <Icon size={20} aria-hidden="true" />
               {item.label}

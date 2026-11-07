@@ -205,7 +205,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
         <StepperIndicator current={step} steps={steps} />
       </div>
 

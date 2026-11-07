@@ -5,10 +5,12 @@ import { CompetitionDeleteButton } from "@/components/admin/competition-delete-b
 import { CompetitionManagement } from "@/components/admin/competition-management";
 import { CompetitionPublishButton } from "@/components/admin/competition-publish-button";
 import { TrackEditor } from "@/components/admin/track-editor";
+import { BackLink } from "@/components/data/list-link";
 import { BreadcrumbTitle } from "@/components/layout/breadcrumbs";
 import { getActiveUser } from "@/lib/auth.server";
 import { getCompetitionDetail } from "@/lib/competitions";
 import { loadScopedLabels } from "@/lib/dict-labels";
+import { firstParam } from "@/lib/list-query";
 import { prisma } from "@/lib/prisma";
 import { awardLevelLabels, awardStatusLabels, competitionLevelLabels, dataSourceTypeLabels, formatDate, formatDateTime, publishStatusLabels } from "@/lib/presentation";
 
@@ -17,9 +19,10 @@ export const dynamic = "force-dynamic";
 
 type PageProps = {
   params: { id: string };
+  searchParams?: Record<string, string | string[] | undefined>;
 };
 
-export default async function CompetitionDetailPage({ params }: PageProps) {
+export default async function CompetitionDetailPage({ params, searchParams }: PageProps) {
   const user = await getActiveUser();
   if (!user) redirect("/login");
   const competition = await getCompetitionDetail(params.id, user.role);
@@ -76,7 +79,7 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
       <BreadcrumbTitle label={competition.name} />
       <div>
         <div className="flex flex-wrap items-center gap-3 text-sm">
-          <Link href="/competitions" className="text-blue-600 hover:underline">返回赛事列表</Link>
+          <BackLink to={firstParam(searchParams?.from)} fallback="/competitions" label="返回赛事列表" />
           <span aria-hidden="true" className="text-slate-300">·</span>
           <Link href={`/intro/${competition.id}`} className="text-blue-600 hover:underline">查看赛事简介</Link>
         </div>
@@ -125,7 +128,7 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
           ) : (
             <span className="text-sm text-slate-500">仅参赛学生可报名</span>
           )}
-          <Link href="/my" className="inline-flex h-11 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">我的项目</Link>
+          <Link href="/my" className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">我的项目</Link>
         </div>
       </section>
 

@@ -1,8 +1,10 @@
+import { BackLink } from "@/components/data/list-link";
+import { firstParam } from "@/lib/list-query";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import type { CompetitionLevel } from "@prisma/client";
-import { ArrowLeft, ArrowUpRight, CalendarDays, FileText, PlayCircle, Route } from "lucide-react";
+import { ArrowUpRight, CalendarDays, FileText, PlayCircle, Route } from "lucide-react";
 import { BreadcrumbTitle } from "@/components/layout/breadcrumbs";
 import { introContentFor } from "@/components/competitions/competition-intro-data";
 import BlurText from "@/components/react-bits/BlurText";
@@ -24,9 +26,12 @@ const levelTone: Record<CompetitionLevel, string> = {
   NATIONAL: "bg-indigo-50 text-indigo-700",
 };
 
-type PageProps = { params: { id: string } };
+type PageProps = {
+  params: { id: string };
+  searchParams?: Record<string, string | string[] | undefined>;
+};
 
-export default async function CompetitionIntroDetailPage({ params }: PageProps) {
+export default async function CompetitionIntroDetailPage({ params, searchParams }: PageProps) {
   const user = await getActiveUser();
   if (!user) redirect("/login");
 
@@ -91,10 +96,7 @@ export default async function CompetitionIntroDetailPage({ params }: PageProps) 
           className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-blue-50 blur-3xl"
         />
         <div className="relative">
-          <Link href="/intro" className="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline">
-            <ArrowLeft aria-hidden="true" size={14} />
-            返回赛事简介
-          </Link>
+          <BackLink to={firstParam(searchParams?.from)} fallback="/intro" label="返回赛事简介" />
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${levelTone[competition.level]}`}>
@@ -130,7 +132,7 @@ export default async function CompetitionIntroDetailPage({ params }: PageProps) 
               applyOpen ? (
                 <Link
                   href={`/apply?competitionId=${competition.id}`}
-                  className="group inline-flex h-11 items-center justify-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-6 text-sm font-medium text-blue-700 transition duration-[160ms] ease-out hover:bg-blue-100 active:scale-[0.97] motion-reduce:active:scale-100"
+                  className="group inline-flex h-10 items-center justify-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-6 text-sm font-medium text-blue-700 transition duration-[160ms] ease-out hover:bg-blue-100 active:scale-[0.97] motion-reduce:active:scale-100"
                 >
                   我要报名
                   <ButtonArrow />
@@ -139,7 +141,7 @@ export default async function CompetitionIntroDetailPage({ params }: PageProps) 
             ) : null}
             <Link
               href="/my"
-              className="inline-flex h-11 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100"
+              className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100"
             >
               我的项目
             </Link>

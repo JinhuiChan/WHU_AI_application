@@ -1,3 +1,5 @@
+import { BackLink } from "@/components/data/list-link";
+import { firstParam } from "@/lib/list-query";
 import { StatusBadge } from "@/components/ui/status-badge";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -12,9 +14,10 @@ export const metadata: Metadata = { title: "项目全貌" };
 
 type PageProps = {
   params: { id: string };
+  searchParams?: Record<string, string | string[] | undefined>;
 };
 
-export default async function ProjectDetailPage({ params }: PageProps) {
+export default async function ProjectDetailPage({ params, searchParams }: PageProps) {
   const user = await getActiveUser();
   if (!user) redirect("/login");
   const project = await getProjectDetail(params.id, user.role);
@@ -24,7 +27,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
     <div className="space-y-6">
       <BreadcrumbTitle label={project.name} />
       <div>
-        <Link href="/projects" className="text-sm text-blue-600 hover:underline">返回项目列表</Link>
+        <BackLink to={firstParam(searchParams?.from)} fallback="/projects" label="返回项目列表" />
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <h1 className="max-w-4xl text-xl font-semibold text-slate-900">{project.name}</h1>
           <span className="rounded-full bg-blue-50 px-2 py-1 text-xs text-blue-700">{project.year}</span>
