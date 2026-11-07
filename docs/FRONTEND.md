@@ -83,3 +83,14 @@
   4. 徽章语义调整：官方是「当前=描边、已完成=实心」，这里改成「当前=品牌实心白字、已完成=品牌浅底打勾」，因为中文后台里当前步骤需要最醒目。
 - 还修了官方一处行为：`ResizeObserver` 在 `observe()` 后必定回调一次，会把刚设好的 `transform` 过渡覆盖成 `opacity-only`，导致切换步骤变成瞬移。现在只在轨道宽度真的变化时才重算，切换保留 560ms 弹簧（实测采样 `4 → 61 → 220 → 367 → 400 → 391 → 374 → 370`，有弹性过冲）。
 - 目前只用在 `/import`：替换了原来手写的 `<ol>`，外层卡片（`rounded-xl border shadow-sm p-4`）保留，**默认不传 `onStepClick`**，所以步骤条只做展示、不可点击，与原 `<li>` 行为一致。窄屏（<640px）只显示数字徽章，标题仍保留在 `aria-label` 里供读屏使用。
+
+## 2026-11-07 看板统计卡可点 + 我的项目筛选
+
+- 看板统计卡原来只有数字、点不动，容易被当成死块。现在给**能准确跳转的卡片**加了链接和右上角箭头（hover 变蓝、按压缩放、`focus-visible` 轮廓，Tab 可聚焦）：
+  - 学生：我的项目数 → `/my?filter=all`；我的待审核 → `pending`；我的终审通过 → `final`；我的晋级省赛 → `advanced`
+  - 管理员：项目总数 → `/projects`；待审核数 → `/review`（默认就是待审核 tab）
+  - **「报名总人数（去重）」和「晋级省赛数」保持不可点**：前者没有对应明细页，后者 `/projects` 不支持按状态筛选。宁可不给入口，也不让人点进去看到一份无关列表。
+- 「我的状态」里每个状态块也是链接，`status → filter` 映射与 `/my` 的取值一致（`PENDING`/`COLLEGE_REVIEW` → `pending`，`PROVINCE_ADVANCED`/`NATIONAL_ADVANCED` → `advanced`）。
+- `/my` 新增 `?filter=`：pills（全部 / 待审核 / 终审通过 / 晋级省赛 / 已驳回 / 草稿 / 已撤回，各带数量）+ 结果过滤 + 针对性空态。**筛选在页面内对 `getMyProjects` 已返回的数组过滤**，没有改 `lib/apply.ts`、没有加接口参数。
+- **口径必须与 `lib/statistics.ts` 一致**：统计按 `reviewStatus` 分组，所以筛选也用 `reviewStatus`，否则会出现「卡片写 1、列表是 0」。为此表格状态列从 `projectStatusLabels[project.status]` 改为 `registrationStatusLabels[project.reviewStatus]`（两套枚举在本项目现有数据里取值一致，但 reviewStatus 才是「报名进度」的语义）。
+- 顺带把「新建报名」按钮从 `/apply` 改为 `/competitions`：`/apply` 不带 `competitionId` 会被服务端重定向回赛事列表，直连少一跳。

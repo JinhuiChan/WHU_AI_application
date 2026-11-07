@@ -29,17 +29,31 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   const summary = await getStatisticsSummary(parseStatisticsQuery(params), user);
   const scoped = summary.scope === "mine";
   const finalCount = summary.myStatus?.find((item) => item.status === "SCHOOL_FINAL")?.count ?? 0;
+  // href 只给「点过去确实能看到对应明细」的卡片；没有对应页面的保持不可点，
+  // 避免点进去看到的是一份无关列表。筛选口径与 lib/statistics.ts 的统计一致（reviewStatus）。
   const cards = scoped ? [
-    { label: "我的项目数", value: summary.cards.totalProjects, note: "当前筛选内本人参与的项目" },
-    { label: "我的待审核", value: summary.cards.pendingReviewCount, note: "待学院审核或待校级终审" },
-    { label: "我的终审通过", value: finalCount, note: "校内终审通过项目" },
-    { label: "我的晋级省赛", value: summary.cards.provinceAdvancedCount, note: "含已晋级国赛项目" },
+    { label: "我的项目数", value: summary.cards.totalProjects, note: "当前筛选内本人参与的项目", href: "/my?filter=all" },
+    { label: "我的待审核", value: summary.cards.pendingReviewCount, note: "待学院审核或待校级终审", href: "/my?filter=pending" },
+    { label: "我的终审通过", value: finalCount, note: "校内终审通过项目", href: "/my?filter=final" },
+    { label: "我的晋级省赛", value: summary.cards.provinceAdvancedCount, note: "含已晋级国赛项目", href: "/my?filter=advanced" },
   ] : [
-    { label: "项目总数", value: summary.cards.totalProjects, note: "当前筛选内的全部项目" },
-    { label: "报名总人数（去重）", value: summary.cards.totalParticipants, note: "按成员学号去重" },
-    { label: "待审核数", value: summary.cards.pendingReviewCount, note: "待学院审核或待校级终审" },
-    { label: "晋级省赛数", value: summary.cards.provinceAdvancedCount, note: "含已晋级国赛项目" },
+    { label: "项目总数", value: summary.cards.totalProjects, note: "当前筛选内的全部项目", href: "/projects" },
+    { label: "报名总人数（去重）", value: summary.cards.totalParticipants, note: "按成员学号去重", href: null },
+    { label: "待审核数", value: summary.cards.pendingReviewCount, note: "待学院审核或待校级终审", href: "/review" },
+    { label: "晋级省赛数", value: summary.cards.provinceAdvancedCount, note: "含已晋级国赛项目", href: null },
   ];
+
+  // 「我的状态」里每个状态块点进去对应的筛选：与 /my 的 filter 取值保持一致
+  const statusFilter: Record<string, string> = {
+    DRAFT: "draft",
+    PENDING: "pending",
+    COLLEGE_REVIEW: "pending",
+    SCHOOL_FINAL: "final",
+    REJECTED: "rejected",
+    PROVINCE_ADVANCED: "advanced",
+    NATIONAL_ADVANCED: "advanced",
+    WITHDRAWN: "withdrawn",
+  };
 
   const isAdmin = user.role === "ADMIN";
   const quickLinks = isAdmin ? [
@@ -104,16 +118,37 @@ export default async function DashboardPage({ searchParams }: PageProps) {
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         {cards.map((card, index) => {
           const isWarning = /待审核|异常|退回|待补|超期/.test(card.label);
-          return (
-            <section
-              className={`rounded-xl border border-slate-200 bg-white p-5 shadow-sm${isWarning ? " t-warn" : ""}`}
-              key={card.label}
-            >
+          const interactive = Boolean(card.href);
+          const className = [
+            "relative rounded-xl border border-slate-200 bg-white p-5 shadow-sm",
+            isWarning ? "t-warn" : "",
+            interactive
+              ? "group block transition duration-[160ms] hover:border-blue-300 hover:bg-blue-50/30 active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 motion-reduce:active:scale-100"
+              : "",
+          ].filter(Boolean).join(" ");
+          const body = (
+            <>
               <h2 className="t-label text-xs text-slate-500">{card.label}</h2>
               <div className={`mt-3 text-3xl font-semibold ${isWarning ? "t-warn-value" : "text-slate-900"}`}>
                 <CountUp to={card.value} duration={1.1} delay={index * 0.08} trigger="load" easing="easeOut" />
               </div>
-              <p className="mt-3 text-xs text-slate-400">{card.note}</p>
+              <p className={`mt-3 text-xs text-slate-400 ${interactive ? "pr-5" : ""}`}>{card.note}</p>
+              {interactive ? (
+                <ArrowUpRight
+                  aria-hidden="true"
+                  className="absolute right-4 top-4 text-slate-300 transition group-hover:text-blue-600"
+                  size={16}
+                />
+              ) : null}
+            </>
+          );
+          return card.href ? (
+            <Link className={className} href={card.href} key={card.label}>
+              {body}
+            </Link>
+          ) : (
+            <section className={className} key={card.label}>
+              {body}
             </section>
           );
         })}
@@ -127,10 +162,17 @@ export default async function DashboardPage({ searchParams }: PageProps) {
           </div>
           <div className="grid grid-cols-2 gap-3 p-5 md:grid-cols-4">
             {(summary.myStatus ?? []).filter((item) => item.count > 0).map((item) => (
-              <div key={item.status} className="rounded-lg bg-slate-50 p-4">
-                <div className="t-label text-xs text-slate-500">{item.label}</div>
+              <Link
+                key={item.status}
+                className="group relative rounded-lg bg-slate-50 p-4 transition duration-[160ms] hover:bg-blue-50 active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 motion-reduce:active:scale-100"
+                href={`/my?filter=${statusFilter[item.status] ?? "all"}`}
+              >
+                <div className="t-label flex items-start justify-between gap-2 text-xs text-slate-500">
+                  {item.label}
+                  <ArrowUpRight aria-hidden="true" className="shrink-0 text-slate-300 transition group-hover:text-blue-600" size={14} />
+                </div>
                 <div className="mt-2 text-2xl font-semibold text-slate-900">{item.count}</div>
-              </div>
+              </Link>
             ))}
             {summary.cards.totalProjects === 0 ? (
               <div className="col-span-full py-8 text-center">
