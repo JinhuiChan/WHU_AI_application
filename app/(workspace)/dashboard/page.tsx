@@ -8,6 +8,7 @@ import { getActiveUser } from "@/lib/auth.server";
 import { firstParam } from "@/lib/list-query";
 import { getStatisticsSummary, parseStatisticsQuery } from "@/lib/statistics";
 import CountUp from "@/components/react-bits/CountUp";
+import SpotlightCard from "@/components/react-bits/SpotlightCard";
 
 export const metadata: Metadata = { title: "统计看板" };
 export const dynamic = "force-dynamic";
@@ -62,18 +63,29 @@ export default async function DashboardPage({ searchParams }: PageProps) {
           const Icon = item.icon;
           return (
             <Link
-              className="group flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition duration-[160ms] hover:border-blue-300 hover:bg-blue-50/40 active:scale-[0.98] motion-reduce:active:scale-100"
+              className="group block rounded-xl border border-slate-200 bg-white shadow-sm transition duration-[160ms] hover:border-blue-300 active:scale-[0.98] motion-reduce:active:scale-100"
               href={item.href}
               key={item.href}
             >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                <Icon aria-hidden="true" size={18} />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-sm font-medium text-slate-900">{item.label}</span>
-                <span className="mt-0.5 block text-xs text-slate-500">{item.note}</span>
-              </span>
-              <ArrowUpRight aria-hidden="true" className="shrink-0 text-slate-400 transition group-hover:text-blue-600" size={16} />
+              <SpotlightCard
+                borderGlow={0.4}
+                className="flex items-center gap-3 p-4"
+                intensity={0.55}
+                proximity={48}
+                softness={0.75}
+                spotlightColor="#2563eb"
+                spotlightSize={180}
+                theme="light"
+              >
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                  <Icon aria-hidden="true" size={18} />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-medium text-slate-900">{item.label}</span>
+                  <span className="mt-0.5 block text-xs text-slate-500">{item.note}</span>
+                </span>
+                <ArrowUpRight aria-hidden="true" className="shrink-0 text-slate-400 transition group-hover:text-blue-600" size={16} />
+              </SpotlightCard>
             </Link>
           );
         })}

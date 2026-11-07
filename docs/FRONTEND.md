@@ -61,3 +61,13 @@
 - 登录页大标语用 Blur Text 逐字清晰：中文必须用 `animateBy="letters"`，官方默认按空格分词对中文无效；原 `.login-fade-up` 已移除，避免父子双重动画。看板四个统计数字用 Count Up 从 0 滚到**服务端返回的真实值**，待办红色与红边保留。
 - 降级：两个组件自带 `reducedMotion` / `matchMedia` 判断，另在 `globals.css` 补了一条 `prefers-reduced-motion` 规则，把 `.blur-text` 强制锁到终态。动画不得影响表单可读性和键盘操作。
 - **零依赖的 React Bits 效果**（Glare Hover、Shiny Text）本轮未加；需要时单独确认后再落地。
+
+## 2026-11-07 Spotlight Card（看板快捷入口）
+
+- `components/react-bits/SpotlightCard.tsx` 为官方 **TS + Tailwind** 源码手动复制（纯 React，**零第三方依赖**），同样没跑 shadcn CLI。
+- 相对官方改了 **3 处**，目的都是「只负责打光、不接管卡片外观」。官方自带 `rounded-3xl p-8` + 白卡背景 + 阴影，直接套会顶掉项目现有的 12px 圆角与 16px 内边距：
+  1. `CARD` 常量改为 `relative isolate overflow-hidden rounded-[inherit]`，去掉圆角、内边距、背景色和阴影。
+  2. 删掉静态边框 span，避免与现有 `border border-slate-200` 叠成两层边框。
+  3. `focusin` / `focusout` 挂到 `root.parentElement`，并让焦点判定接受父级——卡片被包在 `<a>` 里时，官方原逻辑（只认卡片内部元素）会失效，键盘聚焦不亮。
+- 目前只用在 `/dashboard` 快捷入口的三张卡：`theme="light"`、`spotlightColor="#2563eb"`、`intensity=0.55`（浅色主题内部再乘 0.28，实际约 0.15）、`proximity=48`、`borderGlow=0.4`。统计卡、表格行、审核列表**不用**。
+- **更新该组件源码时请保留上面 3 处改动**，否则会退回「接管卡片外观 + 键盘不亮」的官方行为。
