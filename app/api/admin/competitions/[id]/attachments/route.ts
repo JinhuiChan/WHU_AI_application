@@ -6,6 +6,7 @@ import { apiError, apiSuccess } from "@/lib/api";
 import { writeAuditLog } from "@/lib/audit";
 import { requireApiAdmin } from "@/lib/auth.server";
 import { prisma } from "@/lib/prisma";
+import { syncAttachment } from "@/lib/attachment-knowledge";
 
 type Context = { params: { id: string } };
 type Extension = "pdf" | "docx" | "doc" | "xlsx" | "jpg" | "jpeg" | "png" | "txt";
@@ -54,6 +55,7 @@ export async function POST(request: NextRequest, { params }: Context) {
   const authorization = await requireApiAdmin({ activeIdentity: true });
   if (!authorization.ok) return authorization.response;
   let diskPath = "";
+  let stored = false;
   try {
     const competition = await prisma.competition.findUnique({ where: { id: params.id }, select: { id: true } });
     if (!competition) return apiError(404, "赛事不存在");
@@ -61,6 +63,9 @@ export async function POST(request: NextRequest, { params }: Context) {
     const titleValue = form.get("title");
     const kind = form.get("kind");
     const file = form.get("file");
+    const replacesValue = form.get("replacesAttachmentId");
+    const replacesAttachmentId = typeof replacesValue === "string" && replacesValue ? replacesValue : null;
+    if (replacesAttachmentId && kind !== "NOTICE" && kind !== "RULE") return apiError(422, "仅通知或规程可替换旧版规则");
     const title = typeof titleValue === "string" ? titleValue.trim() : "";
     if (!title) return apiError(422, "请填写文件标题");
     if (kind !== "NOTICE" && kind !== "RULE" && kind !== "TEMPLATE") return apiError(422, "文件类型不正确");
@@ -80,6 +85,9 @@ export async function POST(request: NextRequest, { params }: Context) {
     await writeFile(diskPath, buffer, { flag: "wx" });
     const filePath = `/uploads/competitions/${params.id}/${storedName}`;
     const attachment = await prisma.$transaction(async (transaction) => {
+      if (replacesAttachmentId && !(await transaction.competitionAttachment.findFirst({ where: {
+        id: replacesAttachmentId, competitionId: params.id, kind: { in: ["NOTICE", "RULE"] }, knowledgeStatus: "READY",
+      } }))) throw new Error("INVALID_REPLACEMENT");
       const max = await transaction.competitionAttachment.aggregate({ where: { competitionId: params.id }, _max: { sortOrder: true } });
       const created = await transaction.competitionAttachment.create({
         data: {
@@ -90,6 +98,7 @@ export async function POST(request: NextRequest, { params }: Context) {
           filePath,
           fileSize: buffer.length,
           uploadedBy: authorization.user.id,
+          replacesAttachmentId,
           sortOrder: (max._max.sortOrder ?? -1) + 1,
         },
       });
@@ -102,9 +111,14 @@ export async function POST(request: NextRequest, { params }: Context) {
       }, transaction);
       return created;
     });
-    return apiSuccess(attachment, "文件上传成功", 201);
+    stored = true;
+    await syncAttachment(attachment.id);
+    const indexed = await prisma.competitionAttachment.findUnique({ where: { id: attachment.id } });
+    return apiSuccess(indexed, "文件已上传，问答解析状态见赛事文件列表", 201);
   } catch (error) {
-    if (diskPath) await unlink(diskPath).catch(() => {});
+    if (diskPath && !stored) await unlink(diskPath).catch(() => {});
+    if (error instanceof Error && error.message === "INVALID_REPLACEMENT") return apiError(422, "请选择本场赛事中当前可用于问答的旧附件");
+    if (error instanceof Error && "code" in error && error.code === "P2002") return apiError(409, "这份旧附件已有关联的新版，请先处理已有新版");
     console.error("上传赛事文件失败：", error instanceof Error ? error.message : error);
     return apiError(500, "上传赛事文件失败");
   }

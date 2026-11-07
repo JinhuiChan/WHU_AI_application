@@ -25,21 +25,21 @@ export async function POST(request: NextRequest) {
   }
   const question = value.trim();
   const competitionId = "competitionId" in body ? body.competitionId : undefined;
-  if (typeof competitionId !== "string" || !competitionId.trim() || competitionId.length > 100) {
-    return apiError(422, "请选择要咨询的赛事");
+  if (competitionId !== undefined && (typeof competitionId !== "string" || competitionId.length > 100)) {
+    return apiError(422, "赛事范围格式不正确");
   }
   if (question.length > 500) {
     return apiError(422, "咨询问题不能超过 500 个字符");
   }
 
   try {
-    const result = await answerQuestion(question, competitionId);
+    const result = await answerQuestion(question, typeof competitionId === "string" ? competitionId.trim() || undefined : undefined);
     await writeAuditLog({
       actorId: authorization.user.id,
       action: "ASSISTANT_ASKED",
       targetType: "Assistant",
       targetId: result.evidence?.chunkId ?? "NO_MATCH",
-      detail: { question, competitionId, handoff: result.handoff, mode: result.mode, chunkIds: result.sources.map(({ chunkId }) => chunkId) },
+      detail: { question, competitionId: competitionId || null, handoff: result.handoff, mode: result.mode, chunkIds: result.sources.map(({ chunkId }) => chunkId) },
     });
     return apiSuccess(result, result.handoff ? "已提供人工咨询渠道" : "检索完成");
   } catch (error) {

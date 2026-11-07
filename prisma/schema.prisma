@@ -494,6 +494,10 @@ model CompetitionAttachment {
   fileSize      Int?
   uploadedBy    String
   sortOrder     Int         @default(0)
+  knowledgeStatus String    @default("PENDING")
+  knowledgeError String?
+  knowledgeIndexedAt DateTime?
+  replacesAttachmentId String? @unique
   createdAt     DateTime    @default(now())
   competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
   uploader      User        @relation("AttachmentUploader", fields: [uploadedBy], references: [id], onDelete: Restrict)
