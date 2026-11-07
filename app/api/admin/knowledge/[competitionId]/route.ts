@@ -19,6 +19,32 @@ export async function POST(request: NextRequest, { params }: Context) {
     const competition = await prisma.competition.findUnique({ where: { id: competitionId }, select: { year: true } });
     if (!competition) return apiError(404, "赛事不存在");
     const actorId = auth.user.id;
+    if (input.action === "view" || input.action === "restore") {
+      if (typeof input.documentId !== "string") return apiError(422, "请选择资料");
+      const documentId = input.documentId;
+      if (input.action === "view") {
+        const document = await prisma.kbDocument.findFirst({ where: { id: documentId, competitionId }, include: { chunks: true } });
+        if (!document) return apiError(404, "资料不存在");
+        return apiSuccess({ chunks: document.chunks });
+      }
+      await prisma.$transaction(async (tx) => {
+        const document = await tx.kbDocument.findFirst({ where: { id: documentId, competitionId } });
+        if (!document || document.isActive) throw new KnowledgeError("资料不存在或已经启用");
+        if (document.expiresAt || document.replacesId || await tx.kbDocument.count({ where: { replacesId: documentId, isActive: true } })) {
+          throw new KnowledgeError("资料涉及版本替换，请添加新版资料重新发布");
+        }
+        if (document.sourceAttachmentId) {
+          const source = await tx.competitionAttachment.findFirst({ where: { id: document.sourceAttachmentId, competitionId } });
+          if (!source) throw new KnowledgeError("来源附件已删除，请重新上传并发布");
+          await readKnowledgeAttachment(source);
+        } else if (document.filePath) {
+          throw new KnowledgeError("来源附件已失效，请重新上传并发布");
+        }
+        await tx.kbDocument.update({ where: { id: documentId }, data: { isActive: true, effectiveAt: new Date() } });
+        await writeAuditLog({ actorId, action: "KNOWLEDGE_RESTORED", targetType: "KbDocument", targetId: documentId, detail: { competitionId } }, tx);
+      });
+      return apiSuccess(null, "资料已重新启用");
+    }
     if (input.action === "withdraw") {
       if (typeof input.documentId !== "string") return apiError(422, "请选择资料");
       const documentId = input.documentId;
@@ -38,6 +64,7 @@ export async function POST(request: NextRequest, { params }: Context) {
     }
     if (input.action !== "preview" && input.action !== "publish") return apiError(422, "操作类型不正确");
     const attachmentId = typeof input.attachmentId === "string" ? input.attachmentId : "";
+    if (attachmentId && typeof input.text === "string" && input.text.trim()) return apiError(422, "请选择文件导入或手工录入其中一种方式");
     const attachment = attachmentId
       ? await prisma.competitionAttachment.findFirst({ where: { id: attachmentId, competitionId } })
       : null;

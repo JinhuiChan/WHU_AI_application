@@ -54,7 +54,7 @@ export function AssistantChat({ competitionId }: { competitionId: string }) {
             </div>
             <article className="rounded-xl border border-slate-200 p-4">
               <p className="mb-2 text-xs font-semibold text-blue-700">
-                {result.mode === "generated" ? "DeepSeek Flash" : "资料查询"}
+                赛事助手
               </p>
               <p className="whitespace-pre-wrap text-sm leading-7 text-slate-800">{result.answer}</p>
               {result.sources.map((source) => (

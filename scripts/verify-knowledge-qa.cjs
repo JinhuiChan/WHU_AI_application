@@ -108,6 +108,26 @@ async function main() {
   assert.match((await req("/assistant?competitionId=" + a.id, { cookie: admin })).data, /管理本场赛事的问答资料/);
   assert.ok(!(await req("/assistant?competitionId=" + a.id, { cookie: student })).data.includes("管理本场赛事的问答资料"));
   console.log("PASS 页面、登录和管理员权限");
+  const adminHtml = (await req("/assistant?competitionId=" + a.id, { cookie: admin })).data;
+  assert.ok(adminHtml.indexOf('id="knowledge"') < adminHtml.indexOf("测试问答"));
+  assert.ok(!adminHtml.includes('<details id="knowledge"'));
+  assert.ok(!adminHtml.includes("DeepSeek Flash"));
+  const otherHtml = (await req("/assistant?competitionId=" + b.id, { cookie: admin })).data;
+  assert.match(otherHtml, new RegExp("当前赛事：.*" + b.name));
+  await req("/assistant?competitionId=missing-competition", { cookie: admin, status: 404 });
+  await req(endpoint(a.id), { cookie: student, body: { action: "view", documentId: "missing" }, status: 403 });
+  await req(endpoint(a.id), { cookie: student, body: { action: "restore", documentId: "missing" }, status: 403 });
+  const sample = await db.competitionAttachment.findFirst({ where: { competitionId: a.id, filePath: "/samples/赛事报名通知.txt" } });
+  assert.ok(sample);
+  const samplePreview = (await req(endpoint(a.id), { cookie: admin, body: { action: "preview", title: "演示附件", attachmentId: sample.id } })).data;
+  assert.ok(samplePreview.chunks.length > 0);
+  const unsafeAttachment = await db.competitionAttachment.create({ data: {
+    competitionId: a.id, title: "无效路径", fileName: "test.txt", filePath: "/samples/../package.json", uploadedBy: (await db.user.findFirst({ where: { phone: "13800000001" } })).id,
+  } });
+  await req(endpoint(a.id), { cookie: admin, body: { action: "preview", title: "无效路径", attachmentId: unsafeAttachment.id }, status: 422 });
+  await db.competitionAttachment.delete({ where: { id: unsafeAttachment.id } });
+  console.log("PASS 管理布局、赛事范围、演示附件白名单及新操作权限");
+
 
   const form = new FormData();
   form.set("title", "接口验收通知");
@@ -120,7 +140,19 @@ async function main() {
   assert.equal(preview.chunks.length, 2);
   assert.ok(preview.chunks[0].content.includes("11 月 20 日"));
   await req(endpoint(b.id), { cookie: admin, body: { action: "preview", ...draft }, status: 422 });
+  await req(endpoint(a.id), { cookie: admin, body: { action: "preview", ...draft, text: "不能混用正文" }, status: 422 });
   const old = await publish(a.id, draft);
+  const savedBody = (await req(endpoint(a.id), { cookie: admin, body: { action: "view", documentId: old } })).data;
+  assert.equal(savedBody.chunks.length, 2);
+  await req(endpoint(b.id), { cookie: admin, body: { action: "view", documentId: old }, status: 404 });
+  await req(endpoint(a.id), { cookie: admin, body: { action: "withdraw", documentId: old } });
+  assert.equal((await ask(a.id)).mode, "no_evidence");
+  await req(endpoint(b.id), { cookie: admin, body: { action: "restore", documentId: old }, status: 422 });
+  await req(endpoint(a.id), { cookie: admin, body: { action: "restore", documentId: old } });
+  assert.equal((await ask(a.id)).mode, "generated");
+  assert.ok(await db.auditLog.count({ where: { action: "KNOWLEDGE_RESTORED", targetId: old } }));
+  console.log("PASS 查看、下架、恢复与审计，跨赛事操作被拒绝");
+
   await req(endpoint(a.id), { cookie: admin, body: { action: "publish", ...draft }, status: 409 });
   const answered = await ask(a.id);
   assert.equal(answered.mode, "generated");
@@ -178,6 +210,9 @@ async function main() {
   assert.equal((await ask(a.id)).sources[0].documentId, next);
   await req(endpoint(a.id), { cookie: admin, body: { action: "withdraw", documentId: next } });
   assert.equal((await ask(a.id)).mode, "no_evidence");
+  await req(endpoint(a.id), { cookie: admin, body: { action: "restore", documentId: next }, status: 422 });
+  await req(endpoint(a.id), { cookie: admin, body: { action: "withdraw", documentId: old } });
+  await req(endpoint(a.id), { cookie: admin, body: { action: "restore", documentId: old }, status: 422 });
   console.log("PASS 定时换版、取消未来替换、下架");
 
   await db.kbDocument.update({ where: { id: old }, data: { isActive: true, expiresAt: null } });
@@ -185,6 +220,7 @@ async function main() {
   attachments.length = 0;
   assert.equal((await db.kbDocument.findUnique({ where: { id: old } })).isActive, false);
   assert.equal((await ask(a.id)).mode, "no_evidence");
+  await req(endpoint(a.id), { cookie: admin, body: { action: "restore", documentId: old }, status: 422 });
   console.log("PASS 删除源附件后停止引用");
   await publish(a.id, { title: "并发下架测试", text: "# 报名时间\n报名截止时间为 11 月 30 日 17:00。" });
   const withdrawnDuringFailure = await ask(a.id, "报名截止故障时下架");

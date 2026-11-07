@@ -69,10 +69,18 @@ export function chunksFromText(text: string, title: string): KnowledgeChunk[] {
   return chunks;
 }
 
-export async function readKnowledgeAttachment(attachment: { competitionId: string; fileName: string; filePath: string }) {
+const samplePaths = new Set(["/samples/赛事报名通知.txt", "/samples/参赛规程与组别说明.txt"]);
+export function knowledgeAttachmentIssue(attachment: { competitionId: string; fileName: string; filePath: string }) {
+  if (![".txt", ".docx", ".pdf"].includes(path.extname(attachment.fileName).toLowerCase())) return "不支持解析此格式";
   const root = path.resolve(process.cwd(), "public", "uploads", "competitions", attachment.competitionId);
   const file = path.resolve(process.cwd(), "public", `.${attachment.filePath}`);
-  if (!file.startsWith(root + path.sep)) throw new KnowledgeError("附件路径无效，请重新上传文件");
+  if (!file.startsWith(root + path.sep) && !samplePaths.has(attachment.filePath)) return "附件路径无效，请重新上传";
+  return null;
+}
+export async function readKnowledgeAttachment(attachment: { competitionId: string; fileName: string; filePath: string }) {
+  const issue = knowledgeAttachmentIssue(attachment);
+  if (issue) throw new KnowledgeError(issue);
+  const file = path.resolve(process.cwd(), "public", `.${attachment.filePath}`);
   const extension = path.extname(attachment.fileName).toLowerCase();
   if (![".txt", ".docx", ".pdf"].includes(extension)) throw new KnowledgeError("支持 TXT、DOCX 和含文字的 PDF");
   let buffer: Buffer;
