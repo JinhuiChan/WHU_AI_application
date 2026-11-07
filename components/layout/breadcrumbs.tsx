@@ -10,7 +10,6 @@ const pageNames: Record<string, string> = {
   "/competitions": "赛事",
   "/intro": "赛事简介",
   "/compare3": "界面问题对照",
-  "/compare4": "界面问题对照",
   "/projects": "项目",
   "/my": "我的项目",
   "/apply": "报名表",
