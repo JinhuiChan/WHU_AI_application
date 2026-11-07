@@ -87,15 +87,27 @@ export function AnomalyManagement({ initialData, isAdmin }: { initialData: Anoma
     <div className="space-y-5">
       <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <div className="rounded-lg bg-slate-50 p-4"><div className="text-xs text-slate-500">异常总数</div><div className="mt-1 text-2xl font-semibold text-slate-900">{data.summary.total}</div></div>
-          <div className="rounded-lg bg-amber-50 p-4"><div className="text-xs text-amber-700">待核实</div><div className="mt-1 text-2xl font-semibold text-amber-700">{data.summary.pending}</div></div>
-          <div className="rounded-lg bg-green-50 p-4"><div className="text-xs text-green-700">已处置</div><div className="mt-1 text-2xl font-semibold text-green-700">{data.summary.resolved}</div></div>
-          <div className="rounded-lg bg-blue-50 p-4"><div className="text-xs text-blue-700">处置率</div><div className="mt-1 text-2xl font-semibold text-blue-700">{data.summary.resolutionRate}%</div></div>
+          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="text-xs text-slate-500">异常总数</div>
+            <div className="mt-1 text-2xl font-semibold text-slate-900">{data.summary.total}</div>
+          </div>
+          <div className="rounded-lg border border-amber-200 bg-white p-4 shadow-sm">
+            <div className="text-xs text-amber-700">待核实</div>
+            <div className="mt-1 text-2xl font-semibold text-amber-700">{data.summary.pending}</div>
+          </div>
+          <div className="rounded-lg border border-emerald-200 bg-white p-4 shadow-sm">
+            <div className="text-xs text-emerald-700">已处置</div>
+            <div className="mt-1 text-2xl font-semibold text-emerald-700">{data.summary.resolved}</div>
+          </div>
+          <div className="rounded-lg border border-blue-200 bg-white p-4 shadow-sm">
+            <div className="text-xs text-blue-700">处置率</div>
+            <div className="mt-1 text-2xl font-semibold text-blue-700">{data.summary.resolutionRate}%</div>
+          </div>
         </div>
         <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100" role="progressbar" aria-label="异常处置率" aria-valuenow={data.summary.resolutionRate} aria-valuemin={0} aria-valuemax={100}>
           <div className="h-full rounded-full bg-blue-600 transition-all" style={{ width: `${data.summary.resolutionRate}%` }} />
         </div>
-        <div className="mt-2 flex justify-between text-xs text-slate-500"><span>已处置 {data.summary.resolved} / 总数 {data.summary.total}</span><span>{data.summary.resolutionRate}%</span></div>
+        <div className="mt-2 text-xs text-slate-500">已处置 {data.summary.resolved} / 总数 {data.summary.total}</div>
       </section>
 
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">

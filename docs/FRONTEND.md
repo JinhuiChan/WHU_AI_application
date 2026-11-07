@@ -186,3 +186,24 @@
 
 - `/my`「查看」、`/projects`「查看全貌」、`/review`「查看详情」从蓝色文字链接改为 `Button asChild size="sm" variant="outline"` + `ButtonArrow`，与赛事页同一套（白底描边、悬停上浮、箭头滑入）。
 - 顺带发现：`/projects` 表格 `min-w-[1180px]`，操作列换成按钮后更宽，横向溢出更明显。这条属于单独议题（表格溢出），尚未处理。
+
+## 2026-11-07 审计日志对象名、奖项列表、异常统计卡
+
+**审计日志「操作对象」补名称（`components/admin/audit-targets.ts`）**
+
+- 原来只显示 `targetType`（英文 `User` / `Project`）和 `targetId`（UUID），管理员查不到东西。
+- 现在第一行是 **类型标签 + 可读名称 + 补充信息**（用户带手机号、项目带赛事与学院、赛事带年份），第二行是小号等宽的内部编号，`select-all` 方便整段复制。
+- **编号是刻意保留的**：用户明确要求「内部编号可能也有用」，排查问题、跟后端对数都要靠它，只是降到副信息层。
+- 实现：页面里按 `targetType` 分组收集 id，只对 User / Project / Competition / Track / Teacher / CompetitionAttachment 六类做一次 `findMany`，其余类型（ImportBatch、Anomaly 等）只显示类型标签 + 编号。查不到的显示「未找到对应记录」，不假装成功。
+- 表里没有名称字段的类型（TimeWindow、MaterialCheck、Assistant）不查，避免为显示一个空值多打一次库。
+
+**奖项录入（`components/admin/award-workbench.tsx`）**
+
+- 「未通过终审」从小字改成琥珀色小徽章，从操作列移到「当前奖项」列 —— 那本来就是讲奖项的列。
+- 操作列加 `whitespace-nowrap`，并删掉保存前预览的「旧 → 新」那行（它与当前奖项列的保存后变化重复，且会撑高行）。
+- 实测六行行高全部 69px，之前有徽章的行比别人高一块。
+
+**异常核实（`components/admin/anomaly-management.tsx`）**
+
+- 四块原来是整块彩色底（`bg-amber-50` 等）无缝并排，看起来像一条彩带。现在改成白底 + 淡色边框 + `shadow-sm` + 彩色数字，与看板统计卡同一套语言。
+- 顺带把 `green-*` 统一成 `emerald-*`，进度条下面那行重复的百分比删掉（处置率卡片里已有）。

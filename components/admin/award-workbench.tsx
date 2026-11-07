@@ -138,9 +138,16 @@ export function AwardWorkbench({ data, competitions, colleges, filters }: AwardW
                     <td className="px-4 py-4">{item.college}</td>
                     <td className="px-4 py-4">{item.trackName}</td>
                     <td className="px-4 py-4">
-                      <span className={item.currentAward ? "font-medium text-amber-700" : "text-slate-400"}>
-                        {item.currentAward ? awardLevelLabels[item.currentAward] : "未录入"}
-                      </span>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className={item.currentAward ? "font-medium text-amber-700" : "text-slate-400"}>
+                          {item.currentAward ? awardLevelLabels[item.currentAward] : "未录入"}
+                        </span>
+                        {!item.eligible ? (
+                          <span className="rounded-full bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 ring-1 ring-amber-200">
+                            未通过终审
+                          </span>
+                        ) : null}
+                      </div>
                       {transition ? (
                         <div className="mt-1 text-xs text-green-700">
                           {transition.oldLevel ? awardLevelLabels[transition.oldLevel] : "未录入"} → {awardLevelLabels[transition.newLevel]}
@@ -148,7 +155,7 @@ export function AwardWorkbench({ data, competitions, colleges, filters }: AwardW
                       ) : null}
                     </td>
                     <td className="px-4 py-4 text-xs text-slate-500">{item.updatedAt.slice(0, 16).replace("T", " ")}</td>
-                    <td className="px-4 py-4">
+                    <td className="whitespace-nowrap px-4 py-4">
                       <div className="flex items-center gap-2">
                         <select
                           aria-label={`${item.projectName}的奖项等级`}
@@ -171,10 +178,6 @@ export function AwardWorkbench({ data, competitions, colleges, filters }: AwardW
                           {pending ? "保存中…" : "保存"}
                         </Button>
                       </div>
-                      {!item.eligible ? <div className="mt-1 text-xs text-slate-400">未通过终审</div> : null}
-                      {item.currentAward && draft && draft !== item.currentAward ? (
-                        <div className="mt-1 text-xs text-blue-600">{awardLevelLabels[item.currentAward]} → {awardLevelLabels[draft as AdminAwardLevel]}</div>
-                      ) : null}
                     </td>
                   </tr>
                 );
