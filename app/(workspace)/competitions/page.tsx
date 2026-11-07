@@ -6,6 +6,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CompetitionCreate } from "@/components/admin/competition-create";
 import { CompetitionDeleteButton } from "@/components/admin/competition-delete-button";
+import { CompetitionMobileList } from "@/components/competitions/competition-mobile-list";
 import { Pagination } from "@/components/data/pagination";
 import { getActiveUser } from "@/lib/auth.server";
 import { getCompetitionPage, listCompetitionYears } from "@/lib/competitions";
@@ -114,7 +115,7 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
       </section>
 
       <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="overflow-x-auto">
+        <div className="hidden overflow-x-auto lg:block">
           <table className="w-full min-w-[900px] text-left text-sm">
             <thead className="bg-slate-50 text-xs text-slate-500">
               <tr>
@@ -223,6 +224,13 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
             </tbody>
           </table>
         </div>
+        {data.list.length === 0 ? (
+          <div className="lg:hidden">
+            <EmptyState title="还没有符合条件的赛事" description="试试放宽赛年、状态或关键字，也可以重置筛选查看全部赛事。" action={{ href: "/competitions", label: "清除筛选" }} />
+          </div>
+        ) : (
+          <CompetitionMobileList items={data.list} isStudent={isStudent} />
+        )}
         <Pagination basePath="/competitions" query={{ year, level, publishStatus, q, pageSize: String(pageSize) }} total={data.total} page={data.page} pageSize={data.pageSize} />
       </section>
     </div>
