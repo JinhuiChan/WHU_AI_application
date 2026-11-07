@@ -118,14 +118,33 @@ body {
   font-weight: 700;
 }
 
+/* 指标 / 字段小标签（L3b）：像小标题一样的标签统一标黑、加大、加粗。
+   这里同时是「字体插槽」：以后要换正式中文字体，只改下面这一处 font-family。
+   用显式类名 + 结构选择器命中，不碰 .mt-1 说明文字、表格单元格与快捷入口副标题。 */
+.page-enter .t-label,
+.page-enter :is(h2, h3, dt).text-xs.text-slate-500,
+.page-enter .rounded-lg.bg-slate-50 > div.text-xs.text-slate-500 {
+  font-family: var(--font-geist-sans), "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: 0.1px;
+}
+
+/* 表头同样标黑提字重，但保持 12px，避免 1800px 宽表被撑得更挤 */
+.page-enter thead.text-xs.text-slate-500 th {
+  font-weight: 600;
+  color: #334155;
+}
+
 /* 待办 / 异常数字标红：只按语义标签命中，克制使用，不与错误提示混用 */
 .page-enter .t-warn {
   box-shadow: inset 3px 0 0 #dc2626;
 }
 
-.page-enter .t-warn h2 {
+.page-enter .t-warn h2.t-label.text-xs.text-slate-500 {
   color: #b91c1c;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .page-enter .t-warn-value {

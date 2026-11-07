@@ -96,7 +96,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
               className={`rounded-xl border border-slate-200 bg-white p-5 shadow-sm${isWarning ? " t-warn" : ""}`}
               key={card.label}
             >
-              <h2 className="text-xs text-slate-500">{card.label}</h2>
+              <h2 className="t-label text-xs text-slate-500">{card.label}</h2>
               <div className={`mt-3 text-3xl font-semibold ${isWarning ? "t-warn-value" : "text-slate-900"}`}>{card.value}</div>
               <p className="mt-3 text-xs text-slate-400">{card.note}</p>
             </section>
@@ -113,7 +113,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
           <div className="grid grid-cols-2 gap-3 p-5 md:grid-cols-4">
             {(summary.myStatus ?? []).filter((item) => item.count > 0).map((item) => (
               <div key={item.status} className="rounded-lg bg-slate-50 p-4">
-                <div className="text-xs text-slate-500">{item.label}</div>
+                <div className="t-label text-xs text-slate-500">{item.label}</div>
                 <div className="mt-2 text-2xl font-semibold text-slate-900">{item.count}</div>
               </div>
             ))}
