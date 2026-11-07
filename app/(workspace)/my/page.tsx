@@ -1,7 +1,10 @@
 import { EmptyState } from "@/components/ui/empty-state";
+import { Button, ButtonArrow } from "@/components/ui/button";
+import { StatusBadge } from "@/components/ui/status-badge";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AlertTriangle, CheckCircle2, Clock3, FileEdit, Undo2 } from "lucide-react";
 import { getMyProjects } from "@/lib/apply";
 import { getActiveUser } from "@/lib/auth.server";
 import { firstParam } from "@/lib/list-query";
@@ -31,6 +34,79 @@ const FILTERS: Array<{ key: string; label: string; statuses: string[] }> = [
 
 const matches = (statuses: string[], value: string) => statuses.length === 0 || statuses.includes(value);
 
+type StepTone = "amber" | "blue" | "emerald" | "slate";
+
+const STEP_STYLE: Record<StepTone, { circle: string; box: string }> = {
+  amber: { circle: "bg-amber-100 text-amber-700", box: "border-amber-200 bg-amber-50/70" },
+  blue: { circle: "bg-blue-100 text-blue-700", box: "border-blue-200 bg-blue-50/70" },
+  emerald: { circle: "bg-emerald-100 text-emerald-700", box: "border-emerald-200 bg-emerald-50/70" },
+  slate: { circle: "bg-slate-100 text-slate-600", box: "border-slate-200 bg-white" },
+};
+
+/**
+ * 把「当前状态」翻译成「下一步做什么」。
+ * 学生大多数时候只有一个项目，表格只有一行、下面一片空白，
+ * 光看「已驳回」三个字并不知道该点哪里。这里只描述已有事实，不编造处理时限。
+ */
+function nextStepFor(project: { reviewStatus: string; rejectedReason?: string | null }) {
+  switch (project.reviewStatus) {
+    case "REJECTED":
+      return {
+        tone: "amber" as StepTone,
+        icon: AlertTriangle,
+        title: "被退回了，需要补材料后重新提交",
+        body: project.rejectedReason
+          ? `退回原因：${project.rejectedReason}`
+          : "退回原因还没填写。可以先检查团队成员、指导老师与材料是否齐全。",
+        action: "去处理",
+      };
+    case "DRAFT":
+      return {
+        tone: "slate" as StepTone,
+        icon: FileEdit,
+        title: "这份报名还是草稿，没有提交",
+        body: "填写完成后提交，才会进入学院审核队列。提交前可以随时修改。",
+        action: "继续填写",
+      };
+    case "PENDING":
+    case "COLLEGE_REVIEW":
+      return {
+        tone: "blue" as StepTone,
+        icon: Clock3,
+        title: "已提交，正在等待审核",
+        body: "审核由学院和学校依次处理，结果会自动更新在这里，不需要重复提交。",
+        action: "查看报名详情",
+      };
+    case "SCHOOL_FINAL":
+      return {
+        tone: "emerald" as StepTone,
+        icon: CheckCircle2,
+        title: "已通过校内终审",
+        body: "材料已冻结留档。省赛通知发布后，按通知在外部平台完成报名。",
+        action: "查看冻结版本",
+      };
+    case "PROVINCE_ADVANCED":
+    case "NATIONAL_ADVANCED":
+      return {
+        tone: "emerald" as StepTone,
+        icon: CheckCircle2,
+        title: "已晋级到下一阶段",
+        body: "后续材料与复核要求以通知为准，平台保留的是当时提交的版本。",
+        action: "查看项目",
+      };
+    case "WITHDRAWN":
+      return {
+        tone: "slate" as StepTone,
+        icon: Undo2,
+        title: "这份报名已撤回",
+        body: "撤回后不再参与当前批次审核。需要重新参加时，可以新发起一次报名。",
+        action: "浏览赛事",
+      };
+    default:
+      return null;
+  }
+}
+
 export default async function MyProjectsPage({ searchParams }: PageProps) {
   const user = await getActiveUser();
   if (!user) redirect("/login");
@@ -41,6 +117,15 @@ export default async function MyProjectsPage({ searchParams }: PageProps) {
   const active = FILTERS.find((item) => item.key === filterKey) ?? FILTERS[0];
   const visible = projects.filter((project) => matches(active.statuses, project.reviewStatus));
   const countOf = (statuses: string[]) => projects.filter((project) => matches(statuses, project.reviewStatus)).length;
+
+  // 优先挑需要本人动手的：被驳回 → 等审核 → 其余
+  const focus =
+    visible.find((project) => project.reviewStatus === "REJECTED") ??
+    visible.find((project) => project.reviewStatus === "PENDING" || project.reviewStatus === "COLLEGE_REVIEW") ??
+    visible[0];
+  const step = focus ? nextStepFor(focus) : null;
+  const StepIcon = step?.icon;
+  const stepHref = focus && focus.reviewStatus === "WITHDRAWN" ? "/competitions" : focus ? `/my/${focus.id}` : "/my";
 
   return (
     <div className="space-y-6">
@@ -86,10 +171,19 @@ export default async function MyProjectsPage({ searchParams }: PageProps) {
                 <tr key={project.id}>
                   <td className="max-w-72 px-4 py-3 font-medium text-slate-900"><Link href={`/my/${project.id}`} className="hover:text-blue-600">{project.name}</Link></td>
                   <td className="px-4 py-3 text-slate-600">{project.competitionName} / {project.trackName}</td>
-                  <td className="px-4 py-3"><span className="rounded-full bg-blue-50 px-2 py-1 text-xs text-blue-700">{registrationStatusLabels[project.reviewStatus]}</span></td>
+                  <td className="px-4 py-3">
+                    <StatusBadge status={project.reviewStatus}>{registrationStatusLabels[project.reviewStatus]}</StatusBadge>
+                  </td>
                   <td className="max-w-56 px-4 py-3 text-slate-600">{project.rejectedReason ?? "—"}</td>
                   <td className="px-4 py-3 text-slate-600">{formatDateTime(project.updatedAt.toISOString())}</td>
-                  <td className="px-4 py-3"><Link href={`/my/${project.id}`} className="text-blue-600 hover:underline">查看</Link></td>
+                  <td className="whitespace-nowrap px-4 py-3">
+                    <Button asChild size="sm" variant="outline" className="group h-8 px-3">
+                      <Link href={`/my/${project.id}`}>
+                        查看
+                        <ButtonArrow />
+                      </Link>
+                    </Button>
+                  </td>
                 </tr>
               ))}
               {visible.length === 0 ? (
@@ -109,6 +203,30 @@ export default async function MyProjectsPage({ searchParams }: PageProps) {
           </table>
         </div>
       </section>
+
+      {step && focus && StepIcon ? (
+        <section className={`rounded-xl border p-4 shadow-sm ${STEP_STYLE[step.tone].box}`} aria-label="下一步该做什么">
+          <div className="flex flex-wrap items-start gap-3">
+            <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${STEP_STYLE[step.tone].circle}`}>
+              <StepIcon size={18} aria-hidden="true" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-slate-900">{step.title}</p>
+              <p className="mt-1 text-sm leading-6 text-slate-600">{step.body}</p>
+              <p className="mt-1.5 text-xs text-slate-400">
+                对应项目：{focus.name}
+                {visible.length > 1 ? `　（另有 ${visible.length - 1} 个，见上表）` : ""}
+              </p>
+            </div>
+            <Button asChild variant="outline" className="group">
+              <Link href={stepHref}>
+                {step.action}
+                <ButtonArrow />
+              </Link>
+            </Button>
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { StatusBadge } from "@/components/ui/status-badge";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -38,7 +39,7 @@ export default async function MyProjectPage({ params }: PageProps) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div><h1 className="text-xl font-semibold text-slate-900">{project.name}</h1><p className="mt-1 text-sm text-slate-500">{project.competitionName} / {project.trackName}</p></div>
         <div className="flex items-center gap-3">
-          <span className="rounded-full bg-blue-50 px-3 py-1 text-xs text-blue-700">{projectStatusLabels[project.status]}</span>
+          <StatusBadge status={project.status} scope="project">{projectStatusLabels[project.status]}</StatusBadge>
           {project.canEdit ? <Link href={`/apply?projectId=${project.id}`} className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white">编辑</Link> : null}
         </div>
       </div>

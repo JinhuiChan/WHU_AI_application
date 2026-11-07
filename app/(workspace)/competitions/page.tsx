@@ -1,4 +1,5 @@
 import { Button, ButtonArrow } from "@/components/ui/button";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -13,14 +14,6 @@ import { competitionLevelLabels, formatDateTime, publishStatusLabels, registrati
 
 export const metadata: Metadata = { title: "赛事" };
 
-function registrationTone(status: string) {
-  if (status === "REJECTED") return "bg-red-50 text-red-700";
-  if (status === "DRAFT") return "bg-slate-100 text-slate-600";
-  if (status === "SCHOOL_FINAL" || status === "PROVINCE_ADVANCED" || status === "NATIONAL_ADVANCED") {
-    return "bg-emerald-50 text-emerald-700";
-  }
-  return "bg-amber-50 text-amber-700";
-}
 
 type PageProps = {
   searchParams?: Record<string, string | string[] | undefined>;
@@ -171,9 +164,9 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
                       </td>
                       <td className="px-4 py-4 text-xs">
                         {competition.registration?.projectStatus ? (
-                          <span className={`rounded-full px-2 py-0.5 ${registrationTone(competition.registration.projectStatus)}`}>
+                          <StatusBadge status={competition.registration.projectStatus}>
                             {registrationStatusLabels[competition.registration.projectStatus]}
-                          </span>
+                          </StatusBadge>
                         ) : (
                           <span className="text-slate-400">未报名</span>
                         )}

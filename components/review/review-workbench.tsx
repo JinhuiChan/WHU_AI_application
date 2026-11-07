@@ -1,6 +1,7 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button, ButtonArrow } from "@/components/ui/button";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -37,13 +38,6 @@ function Field({ label, value }: { label: string; value: string | number | null 
       <dd className="mt-0.5 break-all text-slate-700">{show(value)}</dd>
     </div>
   );
-}
-
-function statusTone(status: RegistrationStatus) {
-  if (status === "SCHOOL_FINAL") return "bg-emerald-50 text-emerald-700";
-  if (status === "REJECTED") return "bg-red-100 text-red-700";
-  if (status === "PENDING" || status === "COLLEGE_REVIEW") return "bg-amber-50 text-amber-700";
-  return "bg-slate-100 text-slate-600";
 }
 
 export function ReviewWorkbench({ data }: { data: ReviewListPage }) {
@@ -221,9 +215,7 @@ export function ReviewWorkbench({ data }: { data: ReviewListPage }) {
                     <Link href={`/review/${item.id}`} className="text-sm font-semibold text-slate-900 hover:text-blue-600">
                       {item.projectName}
                     </Link>
-                    <span className={`rounded-full px-2 py-0.5 text-xs ${statusTone(item.status)}`}>
-                      {registrationStatusLabels[item.status]}
-                    </span>
+                    <StatusBadge status={item.status}>{registrationStatusLabels[item.status]}</StatusBadge>
                     {item.hasUnconfirmedTeachers ? (
                       <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">指导关系未确认</span>
                     ) : null}
@@ -242,9 +234,12 @@ export function ReviewWorkbench({ data }: { data: ReviewListPage }) {
                     onClick={() => setExpanded((current) => open ? current.filter((id) => id !== item.id) : [...current, item.id])} >
                     {open ? "收起信息" : "展开信息"}
                   </Button>
-                  <Link href={`/review/${item.id}`} className="h-9 rounded-lg border border-slate-300 px-3 text-center text-xs leading-9 text-slate-700 hover:bg-slate-50">
-                    查看详情
-                  </Link>
+                  <Button asChild variant="outline" size="sm" className="group">
+                    <Link href={`/review/${item.id}`}>
+                      查看详情
+                      <ButtonArrow />
+                    </Link>
+                  </Button>
                   {level ? (
                     <div className="flex gap-2">
                       <Button variant="default" size="sm" type="button" disabled={pending} onClick={() => void approve(item)} >

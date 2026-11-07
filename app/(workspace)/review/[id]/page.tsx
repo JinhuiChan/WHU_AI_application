@@ -1,3 +1,4 @@
+import { StatusBadge } from "@/components/ui/status-badge";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
@@ -46,7 +47,7 @@ export default async function ReviewDetailPage({ params }: { params: { id: strin
         <Link href="/review" className="text-sm text-blue-600 hover:underline">返回审核列表</Link>
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <h1 className="text-xl font-semibold text-slate-900">{project.projectName}</h1>
-          <span className="rounded-full bg-blue-50 px-3 py-1 text-xs text-blue-700">{registrationStatusLabels[project.status]}</span>
+          <StatusBadge status={project.status}>{registrationStatusLabels[project.status]}</StatusBadge>
           {project.hasUnconfirmedTeachers ? <span className="rounded-full bg-red-50 px-3 py-1 text-xs text-red-700">指导关系未确认</span> : null}
         </div>
         <p className="mt-2 text-sm text-slate-500">{project.competitionName} · {stageLabels[project.stage]} · 已提交 {project.submissionCount} 次</p>

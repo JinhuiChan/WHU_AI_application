@@ -1,5 +1,6 @@
-import { Button } from "@/components/ui/button";
+import { Button, ButtonArrow } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { StatusBadge } from "@/components/ui/status-badge";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -119,7 +120,9 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
                   <td className="px-4 py-4 text-xs text-slate-500">{project.competition?.name ?? "—"}</td>
                   <td className="px-4 py-4">{project.year}</td>
                   <td className="px-4 py-4">{project.college}</td>
-                  <td className="px-4 py-4">{projectStatusLabels[project.status]}</td>
+                  <td className="px-4 py-4">
+                    <StatusBadge status={project.status} scope="project">{projectStatusLabels[project.status]}</StatusBadge>
+                  </td>
                   <td className="px-4 py-4">
                     {project.awards.length ? (
                       <div className="space-y-1">
@@ -132,7 +135,14 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
                       </div>
                     ) : <span className="text-xs text-slate-400">暂无可见获奖</span>}
                   </td>
-                  <td className="px-4 py-4"><Link href={`/projects/${project.id}`} className="text-blue-600 hover:underline">查看全貌</Link></td>
+                  <td className="whitespace-nowrap px-4 py-4">
+                    <Button asChild size="sm" variant="outline" className="group h-8 px-3">
+                      <Link href={`/projects/${project.id}`}>
+                        查看全貌
+                        <ButtonArrow />
+                      </Link>
+                    </Button>
+                  </td>
                 </tr>
               ))}
               {data.list.length === 0 ? (

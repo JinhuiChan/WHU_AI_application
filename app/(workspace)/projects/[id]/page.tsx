@@ -1,3 +1,4 @@
+import { StatusBadge } from "@/components/ui/status-badge";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -27,7 +28,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <h1 className="max-w-4xl text-xl font-semibold text-slate-900">{project.name}</h1>
           <span className="rounded-full bg-blue-50 px-2 py-1 text-xs text-blue-700">{project.year}</span>
-          <span className="rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-600">{projectStatusLabels[project.status]}</span>
+          <StatusBadge status={project.status} scope="project">{projectStatusLabels[project.status]}</StatusBadge>
         </div>
       </div>
 
@@ -36,7 +37,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
         <dl className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
           <div><dt className="text-sm text-slate-500">所属学院</dt><dd className="mt-1 text-slate-900">{project.college}</dd></div>
           <div><dt className="text-sm text-slate-500">赛年</dt><dd className="mt-1 text-slate-900">{project.year}</dd></div>
-          <div><dt className="text-sm text-slate-500">项目状态</dt><dd className="mt-1 text-slate-900">{projectStatusLabels[project.status]}</dd></div>
+          <div><dt className="text-sm text-slate-500">项目状态</dt><dd className="mt-1 text-slate-900"><StatusBadge status={project.status} scope="project">{projectStatusLabels[project.status]}</StatusBadge></dd></div>
           <div><dt className="text-sm text-slate-500">创建时间</dt><dd className="mt-1 text-slate-900">{formatDate(project.createdAt)}</dd></div>
         </dl>
         <div className="mt-4 border-t border-slate-100 pt-4">
