@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -118,7 +119,7 @@ export default async function ChangeReviewPage({ searchParams }: PageProps) {
                 </tr>
               ))}
               {result.list.length === 0 ? (
-                <tr><td colSpan={8} className="px-4 py-12 text-center text-slate-500">当前筛选下暂无变更申请{status === "PENDING" ? "（可切换「全部状态」查看历史）" : ""}</td></tr>
+                <tr><td colSpan={8}><EmptyState title="当前筛选下没有变更申请" description={status === "PENDING" ? "可以切换「全部状态」查看历史申请，或重置筛选条件。" : "试试放宽筛选条件，或重置后查看全部申请。"} action={{ href: "/review/changes", label: "清除筛选" }} /></td></tr>
               ) : null}
             </tbody>
           </table>

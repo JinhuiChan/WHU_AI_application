@@ -150,3 +150,24 @@ body {
 .page-enter .t-warn-value {
   color: #dc2626;
 }
+
+/* 宽表横向滚动时固定首列：只命中设了 min-w-[...] 的宽表，小表格不受影响。
+   sticky 元素必须有显式背景，否则滚动时下方单元格会透出来；表头层级更高，
+   hover 行首列跟随浅灰，右侧细线让「这一列是钉住的」看得出来。 */
+.page-enter .overflow-x-auto table[class*="min-w-"] > thead > tr > th:first-child,
+.page-enter .overflow-x-auto table[class*="min-w-"] > tbody > tr > td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: #fff;
+  box-shadow: inset -1px 0 0 #e2e8f0;
+}
+
+.page-enter .overflow-x-auto table[class*="min-w-"] > thead > tr > th:first-child {
+  z-index: 2;
+  background: #f8fafc;
+}
+
+.page-enter .overflow-x-auto table[class*="min-w-"] > tbody > tr:hover > td:first-child {
+  background: #f8fafc;
+}

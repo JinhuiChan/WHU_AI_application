@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -209,7 +210,7 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
                 </tr>
               ))}
               {data.list.length === 0 ? (
-                <tr><td colSpan={isStudent ? 6 : 7} className="px-4 py-12 text-center text-slate-500">暂无符合条件的赛事</td></tr>
+                <tr><td colSpan={isStudent ? 6 : 7}><EmptyState title="还没有符合条件的赛事" description="试试放宽赛年、状态或关键字，也可以重置筛选查看全部赛事。" action={{ href: "/competitions", label: "清除筛选" }} /></td></tr>
               ) : null}
             </tbody>
           </table>

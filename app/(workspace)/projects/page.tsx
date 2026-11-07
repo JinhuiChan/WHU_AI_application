@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -135,7 +136,7 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
                 </tr>
               ))}
               {data.list.length === 0 ? (
-                <tr><td colSpan={7} className="px-4 py-12 text-center text-slate-500">暂无符合条件的项目</td></tr>
+                <tr><td colSpan={7}><EmptyState title="还没有符合条件的项目" description="试试放宽赛年、奖项或关键字，也可以重置筛选查看全部项目。" action={{ href: "/projects", label: "清除筛选" }} /></td></tr>
               ) : null}
             </tbody>
           </table>

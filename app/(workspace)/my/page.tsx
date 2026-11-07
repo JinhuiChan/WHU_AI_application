@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/ui/empty-state";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -35,7 +36,7 @@ export default async function MyProjectsPage() {
                   <td className="px-4 py-3"><Link href={`/my/${project.id}`} className="text-blue-600 hover:underline">查看</Link></td>
                 </tr>
               ))}
-              {projects.length === 0 ? <tr><td colSpan={6} className="px-4 py-12 text-center text-slate-500">暂无项目，点击“新建报名”开始填写。</td></tr> : null}
+              {projects.length === 0 ? <tr><td colSpan={6}><EmptyState title="你还没有项目" description="先从已发布的赛事里选择一项，再填写报名；进度与材料都会在这里看到。" action={{ href: "/competitions", label: "浏览赛事" }} /></td></tr> : null}
             </tbody>
           </table>
         </div>
