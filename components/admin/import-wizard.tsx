@@ -201,8 +201,8 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
   }
 
   return (
-    <div className="space-y-5">
-      <ol className="grid grid-cols-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="space-y-6">
+      <ol className="grid grid-cols-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         {steps.map((label, index) => {
           const number = index + 1;
           const active = step === number;
@@ -222,7 +222,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
       {notice ? <div role="status" className="break-all rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">{notice}</div> : null}
 
       {step === 1 ? (
-        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="font-medium text-slate-900">上传赛事报名数据</h2>
           <p className="mt-1 text-sm leading-6 text-slate-500">支持 xlsx、docx、pdf，单个文件不超过 20MB。上传后先解析和映射，不会直接写入报名数据。</p>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
@@ -272,7 +272,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
 
       {step === 2 && parseResult ? (
         <>
-          <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
               <div>
                 <h2 className="font-medium text-slate-900">确认字段映射</h2>
@@ -297,7 +297,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
             ) : null}
           </section>
 
-          <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+          <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
             <div className="border-b border-slate-100 px-5 py-4">
               <h3 className="font-medium text-slate-900">系统字段与文件列</h3>
               <p className="mt-1 text-xs leading-5 text-slate-500">带“必填”的系统字段必须完成映射；同一文件列不能重复选择。</p>
@@ -334,7 +334,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
             </div>
           </section>
 
-          <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+          <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
             <div className="border-b border-slate-100 px-5 py-4">
               <h3 className="font-medium text-slate-900">映射结果预览</h3>
               <p className="mt-1 text-xs text-slate-500">仅显示前 20 行；学号须为 6–20 位数字、手机号 11 位，入学/毕业年份须为数字；续行不重复校验项目必填项。</p>
@@ -374,7 +374,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
             </div>
           </section>
 
-          <section className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
+          <section className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
             <p className="text-sm leading-6 text-slate-500">保存仅写入 ImportBatch.mappingJson 与审计记录，不会创建或修改项目、成员、老师及奖项。</p>
             <button type="button" disabled={pending !== null || Boolean(savedBatchId)} onClick={saveMapping} className="h-10 shrink-0 rounded-md bg-blue-600 px-5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">
               {pending === "save" ? "正在保存…" : savedBatchId ? "映射方案已保存" : "保存映射方案"}
@@ -384,7 +384,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
       ) : null}
 
       {step === 3 && parseResult ? (
-        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="font-medium text-slate-900">{commitResult ? "入库完成" : "确认入库"}</h2>
           <p className="mt-1 break-all text-sm text-slate-500">{parseResult.fileName} · 批次号：{savedBatchId}</p>
           {!commitResult ? (

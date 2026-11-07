@@ -68,7 +68,7 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
   const childrenOf = (id: string) => tracks.filter((track) => track.parentId === id);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <BreadcrumbTitle label={competition.name} />
       <div>
         <Link href="/competitions" className="text-sm text-blue-600 hover:underline">返回赛事列表</Link>
@@ -86,7 +86,7 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
         />
       ) : null}
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-sm font-semibold text-slate-900">赛事信息</h2>
         <dl className="grid grid-cols-2 gap-4 text-sm md:grid-cols-5">
           <div><dt className="text-xs text-slate-500">赛年</dt><dd className="mt-1 text-slate-900">{competition.year}</dd></div>
@@ -97,7 +97,7 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
         </dl>
       </section>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-sm font-semibold text-slate-900">报名</h2>
           <span className={`rounded-full px-3 py-1 text-xs ${applyState.tone}`}>{applyState.label}</span>
@@ -117,11 +117,11 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
           ) : (
             <span className="text-sm text-slate-500">仅参赛学生可报名</span>
           )}
-          <Link href="/my" className="rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">我的项目</Link>
+          <Link href="/my" className="inline-flex h-11 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">我的项目</Link>
         </div>
       </section>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-sm font-semibold text-slate-900">时间安排</h2>
         {windows.length ? (
           <ul className="space-y-2 text-sm text-slate-700">
@@ -137,7 +137,7 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
         )}
       </section>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-sm font-semibold text-slate-900">赛道与组别</h2>
         {user.role === "ADMIN" ? <TrackEditor competitionId={competition.id} /> : null}
         {user.role === "ADMIN" ? null : (
@@ -169,7 +169,7 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
       </section>
 
       {user.role !== "ADMIN" ? (
-        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="mb-1 text-sm font-semibold text-slate-900">赛事文件</h2>
           <p className="mb-4 text-xs text-slate-500">报名前请先阅读通知与规程，确认所在赛道与组别。</p>
           {attachments.length ? (
@@ -192,7 +192,7 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
         </section>
       ) : null}
 
-      <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="border-b border-slate-200 px-5 py-4">
           <h2 className="text-sm font-semibold text-slate-900">获奖名单（{competition.awards.length}）</h2>
           <p className="mt-1 text-xs text-slate-500">来源与核验信息按获奖记录展示，未登记来源时明确标注。</p>
@@ -243,7 +243,7 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
       </section>
 
       {user.role === "ADMIN" ? (
-        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 className="text-sm font-semibold text-slate-900">发布状态</h2>

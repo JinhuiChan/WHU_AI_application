@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import type { TeacherInput } from "@/types/apply";
 
 type TeacherSectionProps = {
@@ -19,7 +20,7 @@ type TeacherResult = {
   email: string | null;
 };
 
-const fieldClass = "mt-1 h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm outline-none focus:border-blue-600 disabled:bg-slate-100";
+const fieldClass = "h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-blue-600 disabled:bg-slate-100";
 
 function emptyTeacher(isInternal: boolean): TeacherInput {
   return {
@@ -108,15 +109,19 @@ export function TeacherSection({ teachers, onChange }: TeacherSectionProps) {
   }
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-base font-semibold text-slate-900">指导老师</h2>
           <p className="mt-1 text-xs text-slate-500">已添加 {teachers.length}/8 名</p>
         </div>
-        <div className="flex gap-2">
-          <button type="button" onClick={() => openModal(true)} className="rounded-md border border-blue-200 px-3 py-2 text-sm text-blue-700 hover:bg-blue-50">+ 添加校内指导老师</button>
-          <button type="button" onClick={() => openModal(false)} className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50">+ 添加校外指导老师</button>
+        <div className="flex flex-wrap gap-2">
+          <Button type="button" variant="outline" onClick={() => openModal(true)} className="rounded-full">
+            + 添加校内指导老师
+          </Button>
+          <Button type="button" variant="outline" onClick={() => openModal(false)} className="rounded-full">
+            + 添加校外指导老师
+          </Button>
         </div>
       </div>
       {error && !modal ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
@@ -138,15 +143,18 @@ export function TeacherSection({ teachers, onChange }: TeacherSectionProps) {
       </div>
 
       {modal ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" role="dialog" aria-modal="true" aria-label={modal === "internal" ? "添加校内指导老师" : "添加校外指导老师"}>
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-5 shadow-xl">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 p-4" role="dialog" aria-modal="true" aria-label={modal === "internal" ? "添加校内指导老师" : "添加校外指导老师"}>
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl border border-slate-200 bg-white p-5 shadow-xl">
             <h3 className="text-lg font-semibold text-slate-900">{modal === "internal" ? "添加校内指导老师" : "添加校外指导老师"}</h3>
             {modal === "internal" ? (
-              <div className="mt-4 rounded-md bg-slate-50 p-3">
-                <label className="text-xs text-slate-600">按工号/姓名检索
-                  <div className="mt-1 flex gap-2">
+              <div className="mt-4 rounded-lg bg-slate-50 p-3">
+                <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+                  <span className="text-sm text-slate-600">按工号/姓名检索</span>
+                  <div className="flex gap-2">
                     <input className={fieldClass} value={keyword} onChange={(event) => setKeyword(event.target.value)} placeholder="工号或姓名" />
-                    <button type="button" onClick={searchTeachers} disabled={searching} className="shrink-0 rounded-md bg-blue-600 px-4 text-sm text-white disabled:opacity-60">{searching ? "检索中" : "检索"}</button>
+                    <Button type="button" onClick={searchTeachers} disabled={searching} className="shrink-0">
+                      {searching ? "检索中" : "检索"}
+                    </Button>
                   </div>
                 </label>
                 {results.length ? <div className="mt-2 space-y-1">{results.map((teacher) => (
@@ -162,20 +170,64 @@ export function TeacherSection({ teachers, onChange }: TeacherSectionProps) {
                 ))}</div> : <p className="mt-2 text-xs text-slate-500">检索后选择老师，也可继续校正信息；检索结果没有职称时请手填。</p>}
               </div>
             ) : null}
-            <div className="mt-4 grid gap-3 md:grid-cols-2">
-              {modal === "internal" ? <label className="text-xs text-slate-600">工号<input className={`${fieldClass}${fieldErrors.staffNo ? " border-red-500" : ""}`} value={draft.staffNo ?? ""} onChange={(event) => updateDraft({ staffNo: event.target.value })} required />{fieldErrors.staffNo ? <span className="mt-1 block text-xs text-red-600">{fieldErrors.staffNo}</span> : null}</label> : null}
-              <label className="text-xs text-slate-600">姓名<input className={`${fieldClass}${fieldErrors.name ? " border-red-500" : ""}`} value={draft.name} onChange={(event) => updateDraft({ name: event.target.value })} required />{fieldErrors.name ? <span className="mt-1 block text-xs text-red-600">{fieldErrors.name}</span> : null}</label>
-              <label className="text-xs text-slate-600">性别<select className={fieldClass} value={draft.gender} onChange={(event) => updateDraft({ gender: event.target.value })}><option value="">请选择</option><option value="男">男</option><option value="女">女</option></select></label>
-              <label className="text-xs text-slate-600">手机号<input type="tel" className={`${fieldClass}${fieldErrors.phone ? " border-red-500" : ""}`} value={draft.phone} onChange={(event) => updateDraft({ phone: event.target.value })} required />{fieldErrors.phone ? <span className="mt-1 block text-xs text-red-600">{fieldErrors.phone}</span> : null}</label>
-              <label className="text-xs text-slate-600">所在院校/公司<input className={`${fieldClass}${fieldErrors.school ? " border-red-500" : ""}`} value={draft.school} onChange={(event) => updateDraft({ school: event.target.value })} disabled={modal === "internal"} required />{fieldErrors.school ? <span className="mt-1 block text-xs text-red-600">{fieldErrors.school}</span> : null}</label>
-              <label className="text-xs text-slate-600">所在单位/部门<input className={`${fieldClass}${fieldErrors.unit ? " border-red-500" : ""}`} value={draft.unit} onChange={(event) => updateDraft({ unit: event.target.value })} required />{fieldErrors.unit ? <span className="mt-1 block text-xs text-red-600">{fieldErrors.unit}</span> : null}</label>
-              <label className="text-xs text-slate-600">{modal === "internal" ? "职称" : "职务"}<input className={`${fieldClass}${fieldErrors.title ? " border-red-500" : ""}`} value={draft.title} onChange={(event) => updateDraft({ title: event.target.value })} required />{fieldErrors.title ? <span className="mt-1 block text-xs text-red-600">{fieldErrors.title}</span> : null}</label>
-              <label className="text-xs text-slate-600">邮箱<input type="email" className={fieldClass} value={draft.email} onChange={(event) => updateDraft({ email: event.target.value })} /></label>
+            <div className="mt-4 space-y-3">
+              {modal === "internal" ? (
+                <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+                  <span className="text-sm text-slate-600">工号</span>
+                  <div>
+                    <input className={`${fieldClass}${fieldErrors.staffNo ? " border-red-500" : ""}`} value={draft.staffNo ?? ""} onChange={(event) => updateDraft({ staffNo: event.target.value })} required />
+                    {fieldErrors.staffNo ? <span className="mt-1 block text-xs text-red-600">{fieldErrors.staffNo}</span> : null}
+                  </div>
+                </label>
+              ) : null}
+              <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+                <span className="text-sm text-slate-600">姓名</span>
+                <div>
+                  <input className={`${fieldClass}${fieldErrors.name ? " border-red-500" : ""}`} value={draft.name} onChange={(event) => updateDraft({ name: event.target.value })} required />
+                  {fieldErrors.name ? <span className="mt-1 block text-xs text-red-600">{fieldErrors.name}</span> : null}
+                </div>
+              </label>
+              <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+                <span className="text-sm text-slate-600">性别</span>
+                <select className={fieldClass} value={draft.gender} onChange={(event) => updateDraft({ gender: event.target.value })}><option value="">请选择</option><option value="男">男</option><option value="女">女</option></select>
+              </label>
+              <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+                <span className="text-sm text-slate-600">手机号</span>
+                <div>
+                  <input type="tel" className={`${fieldClass}${fieldErrors.phone ? " border-red-500" : ""}`} value={draft.phone} onChange={(event) => updateDraft({ phone: event.target.value })} required />
+                  {fieldErrors.phone ? <span className="mt-1 block text-xs text-red-600">{fieldErrors.phone}</span> : null}
+                </div>
+              </label>
+              <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+                <span className="text-sm text-slate-600">所在院校/公司</span>
+                <div>
+                  <input className={`${fieldClass}${fieldErrors.school ? " border-red-500" : ""}`} value={draft.school} onChange={(event) => updateDraft({ school: event.target.value })} disabled={modal === "internal"} required />
+                  {fieldErrors.school ? <span className="mt-1 block text-xs text-red-600">{fieldErrors.school}</span> : null}
+                </div>
+              </label>
+              <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+                <span className="text-sm text-slate-600">所在单位/部门</span>
+                <div>
+                  <input className={`${fieldClass}${fieldErrors.unit ? " border-red-500" : ""}`} value={draft.unit} onChange={(event) => updateDraft({ unit: event.target.value })} required />
+                  {fieldErrors.unit ? <span className="mt-1 block text-xs text-red-600">{fieldErrors.unit}</span> : null}
+                </div>
+              </label>
+              <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+                <span className="text-sm text-slate-600">{modal === "internal" ? "职称" : "职务"}</span>
+                <div>
+                  <input className={`${fieldClass}${fieldErrors.title ? " border-red-500" : ""}`} value={draft.title} onChange={(event) => updateDraft({ title: event.target.value })} required />
+                  {fieldErrors.title ? <span className="mt-1 block text-xs text-red-600">{fieldErrors.title}</span> : null}
+                </div>
+              </label>
+              <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+                <span className="text-sm text-slate-600">邮箱</span>
+                <input type="email" className={fieldClass} value={draft.email} onChange={(event) => updateDraft({ email: event.target.value })} />
+              </label>
             </div>
             {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
             <div className="mt-5 flex justify-end gap-2">
-              <button type="button" onClick={() => { setModal(null); setError(""); }} className="rounded-md border border-slate-300 px-4 py-2 text-sm">取消</button>
-              <button type="button" onClick={addTeacher} className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white">确认添加</button>
+              <Button type="button" variant="outline" onClick={() => { setModal(null); setError(""); }}>取消</Button>
+              <Button type="button" onClick={addTeacher}>确认添加</Button>
             </div>
           </div>
         </div>

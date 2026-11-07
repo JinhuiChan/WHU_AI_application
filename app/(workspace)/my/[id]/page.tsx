@@ -33,7 +33,7 @@ export default async function MyProjectPage({ params }: PageProps) {
   const changePanel = await getChangeRequestPanel(params.id, user.id);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <BreadcrumbTitle label={project.name} />
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div><h1 className="text-xl font-semibold text-slate-900">{project.name}</h1><p className="mt-1 text-sm text-slate-500">{project.competitionName} / {project.trackName}</p></div>
@@ -44,7 +44,7 @@ export default async function MyProjectPage({ params }: PageProps) {
       </div>
       {project.rejectedReason ? <p className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">驳回原因：{project.rejectedReason}</p> : null}
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="text-base font-semibold text-slate-900">项目基本信息</h2>
         <dl className="mt-4 grid gap-4 md:grid-cols-3">
           <Item label="项目组别" value={project.groupLabel} /><Item label="项目类别" value={project.categoryLabel} />
@@ -60,7 +60,7 @@ export default async function MyProjectPage({ params }: PageProps) {
         </dl>
       </section>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="text-base font-semibold text-slate-900">团队成员</h2>
         <div className="mt-4 space-y-3">
           {[project.leader, ...project.members].map((member) => (
@@ -86,7 +86,7 @@ export default async function MyProjectPage({ params }: PageProps) {
         </div>
       </section>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="text-base font-semibold text-slate-900">指导老师</h2>
         <div className="mt-4 space-y-2">
           {project.teachers.map((teacher) => <p key={teacher.id} className="rounded-md bg-slate-50 px-3 py-2 text-sm text-slate-700">{teacher.isInternal ? "校内" : "校外"} · {teacher.name} · {teacher.unit} · {teacher.title || "—"} · {teacher.phone || "—"}</p>)}
@@ -94,7 +94,7 @@ export default async function MyProjectPage({ params }: PageProps) {
         </div>
       </section>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="text-base font-semibold text-slate-900">作品与材料</h2>
         {project.work ? <dl className="mt-4 grid gap-4 md:grid-cols-3"><Item label="作品形式" value={project.work.formLabel} /><Item label="作品类别" value={project.work.categoryLabel} /><Item label="作品组别" value={project.work.groupLabel} /><Item label="作品文件" value={project.work.fileName} /><Item label="作品外链" value={project.work.externalUrl} /><Item label="PPT 文件" value={project.work.pptFileName} /></dl> : <p className="mt-3 text-sm text-slate-500">暂无作品信息</p>}
       </section>

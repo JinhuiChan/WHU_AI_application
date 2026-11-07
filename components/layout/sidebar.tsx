@@ -63,14 +63,17 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
   ];
 
   function isActive(href: string) {
-    return pathname === href || (href !== "/dashboard" && pathname.startsWith(`${href}/`));
+    if (pathname === href || (href !== "/dashboard" && pathname.startsWith(`${href}/`))) return true;
+    // /apply is part of the student "赛事与报名" flow — keep same selected state as competitions list
+    if (href === "/competitions" && (pathname === "/apply" || pathname.startsWith("/apply/"))) return true;
+    return false;
   }
 
   return (
     <>
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-slate-200 bg-white md:flex">
-        <Link href="/dashboard" className="flex h-16 items-center gap-3 border-b border-slate-200 px-5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 font-bold text-white">科</span>
+        <Link href="/dashboard" className="flex h-16 items-center gap-3 border-b border-slate-200 px-5 py-0">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 font-bold text-white">科</span>
           <span>
             <span className="block text-sm font-semibold text-slate-900">科创赛事</span>
             <span className="block text-xs text-slate-500">综合管理服务平台</span>
@@ -85,7 +88,7 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
                 key={item.href}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={`flex h-10 items-center gap-3 rounded-lg px-3 text-sm transition ${
+                className={`flex h-10 items-center gap-3 rounded-xl px-3 text-sm transition ${
                   active ? "bg-blue-50 font-medium text-blue-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                 }`}
               >
@@ -105,7 +108,7 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
                     key={item.href}
                     href={item.href}
                     aria-current={active ? "page" : undefined}
-                    className={`flex h-10 items-center gap-3 rounded-lg px-3 text-sm transition ${
+                    className={`flex h-10 items-center gap-3 rounded-xl px-3 text-sm transition ${
                       active ? "bg-blue-50 font-medium text-blue-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                     }`}
                   >

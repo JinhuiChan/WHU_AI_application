@@ -70,7 +70,7 @@ export function CompetitionManagement({ competition, attachments, initialWindow 
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <section className="rounded-lg border border-blue-200 bg-blue-50 p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div><h2 className="text-sm font-semibold text-slate-900">管理员操作区</h2><p className="mt-1 text-xs text-slate-600">赛事信息、公开材料和报名窗口保存后立即生效。</p></div>
@@ -80,7 +80,7 @@ export function CompetitionManagement({ competition, attachments, initialWindow 
         {error ? <p role="alert" className="mt-3 text-sm text-red-600">{error}</p> : null}
       </section>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="text-sm font-semibold text-slate-900">报名设置</h2>
         <div className="mt-4 grid items-end gap-3 md:grid-cols-4">
           <label className="text-xs text-slate-600">开始时间<input type="datetime-local" className={fieldClass} value={windowForm.startAt} onChange={(event) => setWindowForm({ ...windowForm, startAt: event.target.value })} /></label>
@@ -95,7 +95,7 @@ export function CompetitionManagement({ competition, attachments, initialWindow 
         </p>
       </section>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="text-sm font-semibold text-slate-900">赛事文件</h2>
         <form
           className="mt-4 grid items-end gap-3 rounded-md bg-slate-50 p-4 md:grid-cols-[1fr_160px_1fr_auto]"

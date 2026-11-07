@@ -15,12 +15,12 @@ export default async function MyProjectsPage() {
   const projects = await getMyProjects(user.id);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div><h1 className="text-xl font-semibold text-slate-900">我的项目</h1><p className="mt-1 text-sm text-slate-500">查看本人负责或参与项目的报名进度。</p></div>
-        <Link href="/apply" className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">新建报名</Link>
+        <Link href="/apply" className="inline-flex h-11 items-center justify-center rounded-full bg-blue-600 px-5 text-sm font-medium text-white transition duration-[160ms] ease-out hover:bg-blue-700 active:scale-[0.97] active:bg-blue-800 motion-reduce:active:scale-100">新建报名</Link>
       </div>
-      <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[900px] text-left text-sm">
             <thead className="bg-slate-50 text-xs text-slate-500"><tr><th className="px-4 py-3">名称</th><th className="px-4 py-3">赛道</th><th className="px-4 py-3">状态</th><th className="px-4 py-3">驳回原因</th><th className="px-4 py-3">最后修改时间</th><th className="px-4 py-3">操作</th></tr></thead>

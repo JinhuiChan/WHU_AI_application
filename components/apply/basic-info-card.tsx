@@ -13,7 +13,7 @@ type BasicInfoCardProps = {
   onPayeeToggle: (checked: boolean) => void;
 };
 
-const fieldClass = "mt-1 h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm outline-none focus:border-blue-600 disabled:bg-slate-100 disabled:text-slate-600";
+const fieldClass = "h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-blue-600 disabled:bg-slate-100 disabled:text-slate-600";
 
 type TrackNode = ApplyOptions["competitions"][number]["tracks"][number];
 
@@ -39,36 +39,43 @@ export function BasicInfoCard({ student, value, competitions, dictionaries, onCh
   const categories = selectedTrack?.categories ?? dictionaries.categories;
   const isEnterpriseTrack = Boolean(selectedTrack && `${selectedTrack.kind}${selectedTrack.name}`.includes("企业命题"));
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <h2 className="text-base font-semibold text-slate-900">项目基本信息</h2>
       <datalist id="unit-options">
         {units.map((unit) => <option key={unit} value={unit} />)}
       </datalist>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
-        <label className="text-xs text-slate-600">负责人学号
+        <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+          <span className="text-sm font-medium text-slate-700">负责人学号</span>
           <input className={fieldClass} value={value.leaderStudentNo || "未绑定学号"} disabled />
         </label>
-        <label className="text-xs text-slate-600">负责人姓名
+        <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+          <span className="text-sm font-medium text-slate-700">负责人姓名</span>
           <input className={fieldClass} value={value.leaderName} disabled />
         </label>
-        <label className="text-xs text-slate-600">年级
+        <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+          <span className="text-sm font-medium text-slate-700">年级</span>
           <input className={fieldClass} value={value.grade} onChange={(event) => onChange({ grade: event.target.value })} required />
         </label>
-        <label className="text-xs text-slate-600">性别
+        <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+          <span className="text-sm font-medium text-slate-700">性别</span>
           <select className={fieldClass} value={value.gender} onChange={(event) => onChange({ gender: event.target.value })} required>
             <option value="">请选择</option><option value="男">男</option><option value="女">女</option>
           </select>
         </label>
-        <label className="text-xs text-slate-600">培养阶段
+        <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+          <span className="text-sm font-medium text-slate-700">培养阶段</span>
           <select className={fieldClass} value={value.educationStage} onChange={(event) => onChange({ educationStage: event.target.value })} required>
             <option value="">请选择</option>
             {dictionaries.educationStages.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
           </select>
         </label>
-        <label className="text-xs text-slate-600">培养单位
+        <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+          <span className="text-sm font-medium text-slate-700">培养单位</span>
           <input className={fieldClass} list="unit-options" value={value.trainingUnit} onChange={(event) => onChange({ trainingUnit: event.target.value })} placeholder="可下拉选择，也可直接填写" required />
         </label>
-        <label className="text-xs text-slate-600">项目赛道
+        <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+          <span className="text-sm font-medium text-slate-700">项目赛道</span>
           <select
             className={fieldClass}
             value={trackValue}
@@ -88,13 +95,15 @@ export function BasicInfoCard({ student, value, competitions, dictionaries, onCh
             ))}
           </select>
         </label>
-        <label className="text-xs text-slate-600">项目组别
+        <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+          <span className="text-sm font-medium text-slate-700">项目组别</span>
           <select className={fieldClass} value={value.groupName} onChange={(event) => onChange({ groupName: event.target.value })} required>
             <option value="">请选择</option>
             {groups.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
           </select>
         </label>
-        <label className="text-xs text-slate-600">项目类别
+        <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+          <span className="text-sm font-medium text-slate-700">项目类别</span>
           <select className={fieldClass} value={value.categoryName} onChange={(event) => onChange({ categoryName: event.target.value })} required>
             <option value="">请选择</option>
             {categories.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
@@ -102,43 +111,54 @@ export function BasicInfoCard({ student, value, competitions, dictionaries, onCh
         </label>
         {isEnterpriseTrack ? (
           <>
-            <label className="text-xs text-slate-600">命题名称
+            <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+              <span className="text-sm font-medium text-slate-700">命题名称</span>
               <input className={fieldClass} value={value.propositionName ?? ""} onChange={(event) => onChange({ propositionName: event.target.value })} required />
             </label>
-            <label className="text-xs text-slate-600">命题企业
+            <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+              <span className="text-sm font-medium text-slate-700">命题企业</span>
               <input className={fieldClass} value={value.propositionCompany ?? ""} onChange={(event) => onChange({ propositionCompany: event.target.value })} required />
             </label>
           </>
         ) : null}
-        <label className="text-xs text-slate-600">申报单位
+        <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+          <span className="text-sm font-medium text-slate-700">申报单位</span>
           <input className={fieldClass} list="unit-options" value={value.applicationUnit} onChange={(event) => onChange({ applicationUnit: event.target.value })} placeholder="可下拉选择，也可直接填写" required />
         </label>
-        <label className="text-xs text-slate-600">民族
+        <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+          <span className="text-sm font-medium text-slate-700">民族</span>
           <select className={fieldClass} value={value.ethnicity} onChange={(event) => onChange({ ethnicity: event.target.value })} required>
             <option value="">请选择</option>
             {dictionaries.ethnicities.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
           </select>
         </label>
-        <label className="text-xs text-slate-600">项目名称
+        <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+          <span className="text-sm font-medium text-slate-700">项目名称</span>
           <input className={fieldClass} value={value.name} onChange={(event) => onChange({ name: event.target.value })} required />
         </label>
-        <label className="text-xs text-slate-600">专业
+        <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+          <span className="text-sm font-medium text-slate-700">专业</span>
           <input className={fieldClass} value={value.major} onChange={(event) => onChange({ major: event.target.value })} required />
         </label>
-        <label className="text-xs text-slate-600">入学年份
+        <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+          <span className="text-sm font-medium text-slate-700">入学年份</span>
           <input type="number" min="2000" max="2100" className={fieldClass} value={value.enrollmentYear || ""} onChange={(event) => onChange({ enrollmentYear: Number(event.target.value) })} required />
         </label>
-        <label className="text-xs text-slate-600">毕业年份
+        <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+          <span className="text-sm font-medium text-slate-700">毕业年份</span>
           <input type="number" min="2000" max="2100" className={fieldClass} value={value.graduationYear || ""} onChange={(event) => onChange({ graduationYear: Number(event.target.value) })} required />
         </label>
-        <label className="text-xs text-slate-600">申报者手机号
+        <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
+          <span className="text-sm font-medium text-slate-700">申报者手机号</span>
           <input type="tel" className={fieldClass} value={value.phone} onChange={(event) => onChange({ phone: event.target.value })} required />
         </label>
-        <label className="text-xs text-slate-600">申报者邮箱
+        <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4 md:col-span-2">
+          <span className="text-sm font-medium text-slate-700">申报者邮箱</span>
           <input type="email" className={fieldClass} value={value.email} onChange={(event) => onChange({ email: event.target.value })} required />
         </label>
-        <label className="text-xs text-slate-600 md:col-span-2">备注
-          <textarea className="mt-1 min-h-20 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-600" value={value.remark ?? ""} onChange={(event) => onChange({ remark: event.target.value })} placeholder="若该生 6 月毕业，请填写其后续去向单位" />
+        <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4 md:col-span-2">
+          <span className="text-sm font-medium text-slate-700">备注</span>
+          <textarea className="min-h-20 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-600" value={value.remark ?? ""} onChange={(event) => onChange({ remark: event.target.value })} placeholder="若该生 6 月毕业，请填写其后续去向单位" />
         </label>
         <div className="md:col-span-2">
           <PayeeToggle checked={value.isPayee} payee={value.payee} onCheckedChange={onPayeeToggle} onPayeeChange={(payee) => onChange({ payee })} />

@@ -51,7 +51,7 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
   const isStudent = user.role === "STUDENT";
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold text-slate-900">{user.role === "STUDENT" ? "可报名赛事" : "赛事管理"}</h1>
@@ -64,25 +64,25 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
         {user.role === "ADMIN" ? <CompetitionCreate /> : null}
         {user.role === "STUDENT" ? (
           <div className="flex items-center gap-2">
-            <Link href="/my" className="rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+            <Link href="/my" className="inline-flex h-11 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">
               我的项目
             </Link>
           </div>
         ) : null}
       </div>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <form action="/competitions" method="get" className="flex flex-wrap items-end gap-3">
-          <label className="text-xs text-slate-500">
+          <label className="text-sm text-slate-600">
             <span className="mb-1 block">赛年</span>
-            <select name="year" defaultValue={year} className="h-10 min-w-28 rounded-md border border-slate-300 bg-white px-3 text-sm">
+            <select name="year" defaultValue={year} className="h-10 min-w-28 rounded-lg border border-slate-300 bg-white px-3 text-sm">
               <option value="">全部赛年</option>
               {years.map((item) => <option key={item} value={item}>{item}</option>)}
             </select>
           </label>
-          <label className="text-xs text-slate-500">
+          <label className="text-sm text-slate-600">
             <span className="mb-1 block">赛事等级</span>
-            <select name="level" defaultValue={level} className="h-10 min-w-28 rounded-md border border-slate-300 bg-white px-3 text-sm">
+            <select name="level" defaultValue={level} className="h-10 min-w-28 rounded-lg border border-slate-300 bg-white px-3 text-sm">
               <option value="">全部等级</option>
               <option value="SCHOOL">校赛</option>
               <option value="PROVINCE">省赛</option>
@@ -90,9 +90,9 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
             </select>
           </label>
           {user.role === "ADMIN" ? (
-            <label className="text-xs text-slate-500">
+            <label className="text-sm text-slate-600">
               <span className="mb-1 block">发布状态</span>
-              <select name="publishStatus" defaultValue={publishStatus} className="h-10 min-w-28 rounded-md border border-slate-300 bg-white px-3 text-sm">
+              <select name="publishStatus" defaultValue={publishStatus} className="h-10 min-w-28 rounded-lg border border-slate-300 bg-white px-3 text-sm">
                 <option value="">全部状态</option>
                 <option value="DRAFT">草稿</option>
                 <option value="PUBLISHED">已发布</option>
@@ -100,22 +100,22 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
               </select>
             </label>
           ) : null}
-          <label className="min-w-52 flex-1 text-xs text-slate-500">
+          <label className="min-w-52 flex-1 text-sm text-slate-600">
             <span className="mb-1 block">关键词</span>
-            <input name="q" type="search" defaultValue={q} placeholder={isStudent ? "赛事名称或主办方" : "赛事名称、主办方或系列标识"} className="h-10 w-full rounded-md border border-slate-300 px-3 text-sm outline-none focus:border-blue-600" />
+            <input name="q" type="search" defaultValue={q} placeholder={isStudent ? "赛事名称或主办方" : "赛事名称、主办方或系列标识"} className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none focus:border-blue-600" />
           </label>
-          <label className="text-xs text-slate-500">
+          <label className="text-sm text-slate-600">
             <span className="mb-1 block">每页条数</span>
-            <select name="pageSize" defaultValue={String(pageSize)} className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm">
+            <select name="pageSize" defaultValue={String(pageSize)} className="h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm">
               {[10, 20, 50].map((size) => <option key={size} value={size}>{size} 条</option>)}
             </select>
           </label>
-          <button type="submit" className="h-10 rounded-md bg-blue-600 px-4 text-sm text-white hover:bg-blue-700">筛选</button>
-          <Link href="/competitions" className="flex h-10 items-center rounded-md border border-slate-300 px-4 text-sm text-slate-600 hover:bg-slate-50">重置</Link>
+          <button type="submit" className="h-10 inline-flex h-11 items-center justify-center rounded-full bg-blue-600 px-5 text-sm font-medium text-white transition duration-[160ms] ease-out hover:bg-blue-700 active:scale-[0.97] active:bg-blue-800 motion-reduce:active:scale-100 h-10 px-4">筛选</button>
+          <Link href="/competitions" className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100 px-4">重置</Link>
         </form>
       </section>
 
-      <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[900px] text-left text-sm">
             <thead className="bg-slate-50 text-xs text-slate-500">

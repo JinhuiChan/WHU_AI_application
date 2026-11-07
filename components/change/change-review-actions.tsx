@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   requestId: string;
@@ -52,40 +53,42 @@ export function ChangeReviewActions({ requestId, status }: Props) {
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap gap-2">
-        <button
+        <Button
           type="button"
           onClick={() => send("approve")}
           disabled={pending}
-          className="rounded-md bg-emerald-600 px-3 py-1 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+          className="rounded-full bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60"
         >
           通过
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="outline"
           onClick={() => setMode(mode === "reject" ? "idle" : "reject")}
           disabled={pending}
-          className="rounded-md border border-red-300 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-50 disabled:opacity-60"
+          className="rounded-full border-red-300 text-red-700 hover:bg-red-50 disabled:opacity-60"
         >
           驳回
-        </button>
+        </Button>
       </div>
       {mode === "reject" ? (
         <div className="space-y-1">
           <textarea
-            className="w-56 rounded-md border border-slate-300 px-2 py-1 text-xs outline-none focus:border-blue-600"
+            className="w-56 rounded-lg border border-slate-300 px-2 py-1 text-xs outline-none focus:border-blue-600"
             placeholder="驳回理由（必填，不超过 200 字）"
             maxLength={200}
             value={reason}
             onChange={(event) => setReason(event.target.value)}
           />
-          <button
+          <Button
             type="button"
-            onClick={() => send("reject")}
+            variant="outline"
+          onClick={() => send("reject")}
             disabled={pending}
-            className="rounded-md bg-red-600 px-2 py-1 text-xs text-white hover:bg-red-700 disabled:opacity-60"
+            className="rounded-full border-red-300 text-red-700 hover:bg-red-50 disabled:opacity-60"
           >
             确认驳回
-          </button>
+          </Button>
         </div>
       ) : null}
       {error ? <p className="text-xs text-red-600">{error}</p> : null}

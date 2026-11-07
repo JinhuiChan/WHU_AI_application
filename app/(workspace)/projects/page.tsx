@@ -42,59 +42,59 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
   ]);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div>
         <h1 className="text-xl font-semibold text-slate-900">项目管理</h1>
         <p className="mt-1 text-sm text-slate-500">查看项目基本信息、获奖记录与成员版本全貌。</p>
       </div>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <form action="/projects" method="get" className="flex flex-wrap items-end gap-3">
           {awarded ? <input type="hidden" name="awarded" value="1" /> : null}
-          <label className="text-xs text-slate-500">
+          <label className="text-sm text-slate-600">
             <span className="mb-1 block">赛事</span>
-            <select name="competitionId" defaultValue={competitionId} className="h-10 min-w-52 rounded-md border border-slate-300 bg-white px-3 text-sm">
+            <select name="competitionId" defaultValue={competitionId} className="h-10 min-w-52 rounded-lg border border-slate-300 bg-white px-3 text-sm">
               <option value="">全部赛事</option>
               {options.competitions.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
             </select>
           </label>
-          <label className="text-xs text-slate-500">
+          <label className="text-sm text-slate-600">
             <span className="mb-1 block">赛年</span>
-            <select name="year" defaultValue={year} className="h-10 min-w-28 rounded-md border border-slate-300 bg-white px-3 text-sm">
+            <select name="year" defaultValue={year} className="h-10 min-w-28 rounded-lg border border-slate-300 bg-white px-3 text-sm">
               <option value="">全部赛年</option>
               {options.years.map((item) => <option key={item} value={item}>{item}</option>)}
             </select>
           </label>
-          <label className="text-xs text-slate-500">
+          <label className="text-sm text-slate-600">
             <span className="mb-1 block">学院</span>
-            <select name="college" defaultValue={college} className="h-10 min-w-44 rounded-md border border-slate-300 bg-white px-3 text-sm">
+            <select name="college" defaultValue={college} className="h-10 min-w-44 rounded-lg border border-slate-300 bg-white px-3 text-sm">
               <option value="">全部学院</option>
               {options.colleges.map((item) => <option key={item} value={item}>{item}</option>)}
             </select>
           </label>
-          <label className="text-xs text-slate-500">
+          <label className="text-sm text-slate-600">
             <span className="mb-1 block">获奖等级</span>
-            <select name="level" defaultValue={level} className="h-10 min-w-28 rounded-md border border-slate-300 bg-white px-3 text-sm">
+            <select name="level" defaultValue={level} className="h-10 min-w-28 rounded-lg border border-slate-300 bg-white px-3 text-sm">
               <option value="">全部奖项</option>
               {(["S", "A", "B", "C", "EXCELLENT"] as const).map((item) => <option key={item} value={item}>{awardLevelLabels[item]}</option>)}
             </select>
           </label>
-          <label className="min-w-52 flex-1 text-xs text-slate-500">
+          <label className="min-w-52 flex-1 text-sm text-slate-600">
             <span className="mb-1 block">关键词</span>
-            <input name="q" type="search" defaultValue={q} placeholder="项目名称、学院或报名编号" className="h-10 w-full rounded-md border border-slate-300 px-3 text-sm outline-none focus:border-blue-600" />
+            <input name="q" type="search" defaultValue={q} placeholder="项目名称、学院或报名编号" className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none focus:border-blue-600" />
           </label>
-          <label className="text-xs text-slate-500">
+          <label className="text-sm text-slate-600">
             <span className="mb-1 block">每页条数</span>
-            <select name="pageSize" defaultValue={String(pageSize)} className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm">
+            <select name="pageSize" defaultValue={String(pageSize)} className="h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm">
               {[10, 20, 50].map((size) => <option key={size} value={size}>{size} 条</option>)}
             </select>
           </label>
-          <button type="submit" className="h-10 rounded-md bg-blue-600 px-4 text-sm text-white hover:bg-blue-700">筛选</button>
-          <Link href="/projects" className="flex h-10 items-center rounded-md border border-slate-300 px-4 text-sm text-slate-600 hover:bg-slate-50">重置</Link>
+          <button type="submit" className="h-10 inline-flex h-11 items-center justify-center rounded-full bg-blue-600 px-5 text-sm font-medium text-white transition duration-[160ms] ease-out hover:bg-blue-700 active:scale-[0.97] active:bg-blue-800 motion-reduce:active:scale-100 h-10 px-4">筛选</button>
+          <Link href="/projects" className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100 px-4">重置</Link>
         </form>
       </section>
 
-      <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1180px] text-left text-sm">
             <thead className="bg-slate-50 text-xs text-slate-500">

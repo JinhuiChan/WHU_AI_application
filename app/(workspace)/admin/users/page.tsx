@@ -23,7 +23,7 @@ export default async function UsersPage() {
   }
   const users = await listManagedUsers();
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div>
         <h1 className="text-xl font-semibold text-slate-900">用户管理</h1>
         <p className="mt-1 text-sm text-slate-500">审核平台账号并调整用户角色，所有操作均保留审计记录。</p>

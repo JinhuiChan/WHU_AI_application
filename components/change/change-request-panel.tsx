@@ -126,7 +126,7 @@ export function ChangeRequestPanel({ projectId, data }: Props) {
   }
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-sm font-semibold text-slate-900">变更申请</h2>
         <span className="text-xs text-slate-500">

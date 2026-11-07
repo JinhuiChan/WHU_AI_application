@@ -164,7 +164,7 @@ export function ReviewWorkbench({ data }: { data: ReviewListPage }) {
       ) : null}
 
       <section className="space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
           <label className="flex items-center gap-2 text-sm text-slate-700">
             <input
               type="checkbox"
@@ -255,7 +255,7 @@ export function ReviewWorkbench({ data }: { data: ReviewListPage }) {
               </div>
 
               {open ? (
-                <div className="space-y-5 border-t border-slate-100 bg-slate-50/40 px-4 py-4 text-xs">
+                <div className="space-y-6 border-t border-slate-100 bg-slate-50/40 px-4 py-4 text-xs">
                   <div>
                     <h3 className="font-semibold text-slate-900">报名信息</h3>
                     <dl className="mt-2 grid grid-cols-2 gap-x-6 gap-y-3 md:grid-cols-4">
@@ -313,7 +313,7 @@ export function ReviewWorkbench({ data }: { data: ReviewListPage }) {
           );
         })}
         {data.list.length === 0 ? (
-          <p className="rounded-lg border border-slate-200 bg-white px-4 py-12 text-center text-sm text-slate-500">暂无符合条件的项目</p>
+          <p className="rounded-xl border border-slate-200 bg-white px-4 py-12 text-center text-sm text-slate-500">暂无符合条件的项目</p>
         ) : null}
       </section>
 

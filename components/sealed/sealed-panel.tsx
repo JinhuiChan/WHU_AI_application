@@ -27,7 +27,7 @@ export function SealedPanel({ projectId, files, currentFileId, canExportSensitiv
   const currentFile = files.find((file) => file.id === currentFileId) ?? null;
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-base font-semibold text-slate-900">报名表与盖章件</h2>

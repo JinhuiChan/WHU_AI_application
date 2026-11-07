@@ -39,7 +39,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   ];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div>
         <h1 className="text-xl font-semibold text-slate-900">{scoped ? "我的统计" : "统计看板"}</h1>
         <p className="mt-1 text-sm text-slate-500">{scoped ? "仅统计本人参与的项目与状态，不展示全校数据。" : "所有数字按当前筛选条件实时聚合。"}</p>
@@ -57,7 +57,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         {cards.map((card) => (
-          <section key={card.label} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <section key={card.label} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
             <h2 className="text-xs text-slate-500">{card.label}</h2>
             <div className="mt-3 text-3xl font-semibold text-slate-900">{card.value}</div>
             <p className="mt-3 text-xs text-slate-400">{card.note}</p>
@@ -66,7 +66,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
       </div>
 
       {scoped ? (
-        <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+        <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-100 px-5 py-4">
             <h2 className="text-sm font-semibold text-slate-900">我的状态</h2>
             <p className="mt-1 text-xs text-slate-500">仅汇总当前筛选内本人参与的项目</p>
@@ -83,7 +83,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
         </section>
       ) : (
         <>
-          <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+          <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
             <div className="border-b border-slate-100 px-5 py-4">
               <h2 className="text-sm font-semibold text-slate-900">学院统计</h2>
               <p className="mt-1 text-xs text-slate-500">点击学院名可下钻到对应审核项目列表</p>

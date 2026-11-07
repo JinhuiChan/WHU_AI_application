@@ -5,6 +5,7 @@ import type { FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import type { ApiResponse } from "@/types/api";
 import type { AuthUser } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
 
 type LoginData = {
   user: AuthUser;
@@ -41,79 +42,84 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
     }
   }
 
+  const fieldClassName =
+    "h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-100";
+
   return (
-    <div className="w-full max-w-md rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
-      <div className="mb-8 text-center">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-blue-600 text-xl font-bold text-white">
-          科
-        </div>
+    <section className="w-full rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
+      <div className="mb-8 space-y-2 text-left">
         <h1 className="text-2xl font-semibold text-slate-900">欢迎登录</h1>
-        <p className="mt-2 text-sm text-slate-500">高校科创赛事综合管理服务平台</p>
+        <p className="text-sm text-slate-500">高校科创赛事综合管理服务平台</p>
       </div>
 
       <form className="space-y-5" onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="identity" className="mb-2 block text-sm font-medium text-slate-700">身份</label>
+        <div className="grid gap-2 sm:grid-cols-[5rem_1fr] sm:items-center sm:gap-x-4">
+          <label className="text-sm font-medium text-slate-700" htmlFor="identity">
+            身份
+          </label>
           <select
+            className={fieldClassName}
             id="identity"
             name="identity"
-            className="h-11 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none focus:border-blue-500"
-            value={identity}
             onChange={(event) => setIdentity(event.target.value as "STUDENT" | "TEACHER" | "ADMIN")}
+            value={identity}
           >
             <option value="STUDENT">学生</option>
             <option value="TEACHER">指导老师</option>
             <option value="ADMIN">管理员</option>
           </select>
-          <p className="mt-1 text-xs text-slate-500">多身份账号：以所选身份进入，身份不对会被拒绝</p>
+          <p className="text-xs text-slate-500 sm:col-start-2">多身份账号：以所选身份进入，身份不对会被拒绝</p>
         </div>
-        <div>
-          <label htmlFor="phone" className="mb-2 block text-sm font-medium text-slate-700">
+
+        <div className="grid gap-2 sm:grid-cols-[5rem_1fr] sm:items-center sm:gap-x-4">
+          <label className="text-sm font-medium text-slate-700" htmlFor="phone">
             手机号
           </label>
           <input
-            id="phone"
-            name="phone"
-            type="tel"
-            inputMode="tel"
             autoComplete="username"
-            required
-            value={phone}
+            className={fieldClassName}
+            id="phone"
+            inputMode="tel"
+            name="phone"
             onChange={(event) => setPhone(event.target.value)}
             placeholder="请输入手机号"
-            className="h-11 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+            required
+            type="tel"
+            value={phone}
           />
         </div>
-        <div>
-          <label htmlFor="password" className="mb-2 block text-sm font-medium text-slate-700">
+
+        <div className="grid gap-2 sm:grid-cols-[5rem_1fr] sm:items-center sm:gap-x-4">
+          <label className="text-sm font-medium text-slate-700" htmlFor="password">
             密码
           </label>
           <input
+            autoComplete="current-password"
+            className={fieldClassName}
             id="password"
             name="password"
-            type="password"
-            autoComplete="current-password"
-            required
-            value={password}
             onChange={(event) => setPassword(event.target.value)}
             placeholder="请输入密码"
-            className="h-11 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+            required
+            type="password"
+            value={password}
           />
         </div>
+
         {error ? (
-          <div role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+          <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600" role="alert">
             {error}
           </div>
         ) : null}
-        <button
-          type="submit"
-          disabled={loading}
-          className="h-11 w-full rounded-lg bg-blue-600 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {loading ? "登录中…" : "登录"}
-        </button>
-      </form>
 
-    </div>
+        <div className="grid sm:grid-cols-[5rem_1fr] sm:gap-x-4">
+          <div className="sm:col-start-2">
+            <Button className="w-full" disabled={loading} type="submit">
+              {loading ? "登录中…" : "登录"}
+            </Button>
+          </div>
+        </div>
+      </form>
+    </section>
   );
 }

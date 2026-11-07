@@ -41,7 +41,7 @@ export function DatasetExport({
   }
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
+    <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
       <details>
         <summary className="cursor-pointer list-none px-5 py-4 text-sm font-medium text-blue-700 hover:bg-blue-50">{buttonLabel}<span className="ml-2 text-xs font-normal text-slate-400">字段勾选与调序</span></summary>
         <div className="grid gap-5 border-t border-slate-100 p-5 lg:grid-cols-2">

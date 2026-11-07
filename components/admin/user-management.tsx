@@ -52,7 +52,7 @@ export function UserManagement({
   }
 
   return (
-    <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       {error ? <div role="alert" className="border-b border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div> : null}
       {notice ? <div role="status" className="border-b border-green-100 bg-green-50 px-4 py-3 text-sm text-green-700">{notice}</div> : null}
       <div className="overflow-x-auto">

@@ -77,13 +77,13 @@ export default async function ReviewPage({ searchParams }: PageProps) {
   const exportFilters = { ...values, tab: "" };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
           <h1 className="text-xl font-semibold text-slate-900">报名审核</h1>
           <p className="mt-1 text-sm text-slate-500">学院审核通过后进入校级终审；红色行表示存在未确认指导关系。</p>
         </div>
-        <Link href="/review/changes" className="rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+        <Link href="/review/changes" className="inline-flex h-11 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">
           变更申请
           {pendingChanges > 0 ? (
             <span className="ml-2 rounded-full bg-red-600 px-2 py-0.5 text-xs font-medium text-white" title={`待审批变更申请 ${pendingChanges} 条`}>
@@ -116,7 +116,7 @@ export default async function ReviewPage({ searchParams }: PageProps) {
       <ReviewFilters options={options} values={values} />
       <DatasetExport scope="all" filters={exportFilters} buttonLabel="导出数据表" />
       <ReviewWorkbench data={data} />
-      <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
+      <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
         <Pagination basePath="/review" query={values} total={data.total} page={data.page} pageSize={data.pageSize} />
       </div>
     </div>

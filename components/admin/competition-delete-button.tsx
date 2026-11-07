@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   competitionId: string;
@@ -39,13 +40,14 @@ export function CompetitionDeleteButton({ competitionId, competitionName, redire
 
   if (!confirming) {
     return (
-      <button
+      <Button
         type="button"
+        variant="outline"
         onClick={() => setConfirming(true)}
-        className="rounded-md border border-red-200 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50"
+        className="rounded-full border-red-200 text-xs text-red-600 hover:bg-red-50"
       >
         {label}
-      </button>
+      </Button>
     );
   }
 
@@ -53,22 +55,24 @@ export function CompetitionDeleteButton({ competitionId, competitionName, redire
     <div className="space-y-2">
       <p className="text-xs text-red-700">确认删除「{competitionName}」？删除后不可恢复；赛道、报名窗口与赛事文件会一并删除。</p>
       <div className="flex flex-wrap gap-2">
-        <button
+        <Button
           type="button"
+          variant="outline"
           disabled={pending}
           onClick={() => void remove()}
-          className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-60"
+          className="rounded-full border-red-200 text-xs text-red-600 hover:bg-red-50 disabled:opacity-60"
         >
           {pending ? "删除中…" : "确认删除"}
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="outline"
           disabled={pending}
           onClick={() => { setConfirming(false); setError(""); }}
-          className="rounded-md border border-slate-300 px-3 py-1.5 text-xs"
+          className="rounded-lg border-slate-200 text-xs"
         >
           取消
-        </button>
+        </Button>
       </div>
       {error ? <p role="alert" className="text-xs text-red-600">{error}</p> : null}
     </div>

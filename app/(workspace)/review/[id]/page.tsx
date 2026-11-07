@@ -22,7 +22,7 @@ function Item({ label, value }: { label: string; value: ReactNode }) {
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       <h2 className="border-b border-slate-100 px-5 py-4 text-sm font-semibold text-slate-900">{title}</h2>
       <div className="p-5">{children}</div>
     </section>

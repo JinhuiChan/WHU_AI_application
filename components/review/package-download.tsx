@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { Button } from "@/components/ui/button";
+
 export function PackageDownload({ filters }: { filters: Record<string, string> }) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
@@ -9,7 +11,7 @@ export function PackageDownload({ filters }: { filters: Record<string, string> }
 
   return (
     <div className="flex flex-col items-start gap-2 md:items-end">
-      <button
+      <Button
         type="button"
         disabled={pending}
         onClick={async () => {
@@ -44,10 +46,9 @@ export function PackageDownload({ filters }: { filters: Record<string, string> }
             setPending(false);
           }
         }}
-        className="rounded-md border border-blue-300 bg-white px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50 disabled:opacity-50"
       >
         {pending ? "打包中…" : "打包下载"}
-      </button>
+      </Button>
       <p className="text-xs text-slate-400">按当前筛选结果，≤100 项且 ≤500MB</p>
       {error ? <p role="alert" className="max-w-md text-right text-xs text-red-600">{error}</p> : null}
       {notice ? <p role="status" className="text-xs text-emerald-600">{notice}</p> : null}

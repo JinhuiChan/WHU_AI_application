@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import type { MemberInput, PayeeInput, ProjectFormInput, TeacherInput } from "@/types/apply";
 import { BasicInfoCard } from "./basic-info-card";
 import { MemberSection } from "./member-section";
@@ -276,9 +277,10 @@ export function ApplyForm({ student, options, projectId, initialValue, lockedCom
   }
 
   return (
-    <div className="space-y-5" onBlur={() => setValidationVisible(true)}>
+    <div className="relative">
+      <div className="space-y-6" onBlur={() => setValidationVisible(true)}>
       <BasicInfoCard student={student} value={form} competitions={resolvedOptions.competitions} dictionaries={resolvedOptions.dictionaries} onChange={updateBasic} onPayeeToggle={toggleLeaderPayee} />
-      {payeeHint ? <p role="status" className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">{payeeHint}</p> : null}
+      {payeeHint ? <p role="status" className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">{payeeHint}</p> : null}
       <TeacherSection teachers={form.teachers} onChange={(teachers: TeacherInput[]) => updateBasic({ teachers })} />
       <MemberSection
         members={form.members.map((member) => ({
@@ -301,15 +303,34 @@ export function ApplyForm({ student, options, projectId, initialValue, lockedCom
         onChange={updateWork}
       />
       {validationVisible ? (
-        <section className={`rounded-lg border p-4 text-sm ${errors.length ? "border-amber-200 bg-amber-50 text-amber-900" : "border-emerald-200 bg-emerald-50 text-emerald-800"}`}>
+        <section className={`rounded-xl border p-4 text-sm ${errors.length ? "border-amber-200 bg-amber-50 text-amber-900" : "border-emerald-200 bg-emerald-50 text-emerald-800"}`}>
           <h2 className="font-medium">前端校验</h2>
           {errors.length ? <ul className="mt-2 list-disc space-y-1 pl-5">{errors.map((error) => <li key={error}>{error}</li>)}</ul> : <p className="mt-2">当前填写已通过前端校验，尚未保存或提交。</p>}
         </section>
       ) : null}
-      {requestError ? <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{requestError}</p> : null}
-      <div className="flex justify-end gap-3 rounded-lg border border-slate-200 bg-white p-4">
-        <button type="button" disabled={pendingAction !== null} onClick={() => void persist("draft")} className="rounded-md border border-slate-300 px-5 py-2 text-sm text-slate-700 disabled:opacity-60">{pendingAction === "draft" ? "保存中…" : "保存草稿"}</button>
-        <button type="button" disabled={pendingAction !== null} onClick={() => void persist("submit")} className="rounded-md bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60">{pendingAction === "submit" ? "提交中…" : "提交报名"}</button>
+      {requestError ? <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{requestError}</p> : null}
+      <div className="h-14 shrink-0" aria-hidden="true" />
+      </div>
+      <div className="sticky bottom-0 z-20 w-full border-t border-slate-200 bg-white shadow-sm max-md:bottom-16">
+        <div className="flex w-full gap-3 bg-white py-2">
+          <Button
+            type="button"
+            variant="outline"
+            className="h-10 min-w-0 flex-1 px-4"
+            disabled={pendingAction !== null}
+            onClick={() => void persist("draft")}
+          >
+            {pendingAction === "draft" ? "保存中…" : "保存草稿"}
+          </Button>
+          <Button
+            type="button"
+            className="h-10 min-w-0 flex-1 px-4"
+            disabled={pendingAction !== null}
+            onClick={() => void persist("submit")}
+          >
+            {pendingAction === "submit" ? "提交中…" : "提交报名"}
+          </Button>
+        </div>
       </div>
     </div>
   );
