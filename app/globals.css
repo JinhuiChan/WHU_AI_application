@@ -51,10 +51,15 @@ body {
   .font-rounded {
     font-family: var(--font-geist-sans), "Yuanti SC", "YouYuan", "幼圆", "SimYou", "Microsoft YaHei", "PingFang SC", sans-serif;
   }
+
+  .fade-up {
+    animation: login-fade-up 480ms ease-out both;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .login-fade-up {
+  .login-fade-up,
+  .fade-up {
     animation: none;
   }
 }

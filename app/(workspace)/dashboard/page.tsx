@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { ArrowUpRight, ClipboardCheck, FolderKanban, Trophy, Upload } from "lucide-react";
 import { DashboardFilterBar } from "@/components/data/dashboard-filter-bar";
 import { StatisticsCharts } from "@/components/data/statistics-charts";
 import { getActiveUser } from "@/lib/auth.server";
@@ -38,12 +39,45 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     { label: "晋级省赛数", value: summary.cards.provinceAdvancedCount, note: "含已晋级国赛项目" },
   ];
 
+  const isAdmin = user.role === "ADMIN";
+  const quickLinks = isAdmin ? [
+    { href: "/projects", label: "项目台账", note: "查看与检索全部参赛项目", icon: FolderKanban },
+    { href: "/review", label: "报名审核", note: "处理待学院与校级审核项目", icon: ClipboardCheck },
+    { href: "/import", label: "数据导入", note: "导入外部平台导出的数据", icon: Upload },
+  ] : [
+    { href: "/competitions", label: "赛事与报名", note: "查看已发布赛事与报名入口", icon: Trophy },
+    { href: "/my", label: "我的项目", note: "查看本人参与的项目与状态", icon: FolderKanban },
+  ];
+
   return (
     <div className="space-y-6">
-      <div>
+      <div className="fade-up">
         <h1 className="text-xl font-semibold text-slate-900">{scoped ? "我的统计" : "统计看板"}</h1>
         <p className="mt-1 text-sm text-slate-500">{scoped ? "仅统计本人参与的项目与状态，不展示全校数据。" : "所有数字按当前筛选条件实时聚合。"}</p>
       </div>
+
+      <section className={`grid gap-3 sm:grid-cols-2 ${isAdmin ? "lg:grid-cols-3" : "lg:grid-cols-2"}`} aria-label="快捷入口">
+        {quickLinks.map((item, index) => {
+          const Icon = item.icon;
+          return (
+            <Link
+              className="fade-up group flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition duration-[160ms] hover:border-blue-300 hover:bg-blue-50/40 active:scale-[0.98] motion-reduce:active:scale-100"
+              href={item.href}
+              key={item.href}
+              style={{ animationDelay: `${80 + index * 70}ms` }}
+            >
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                <Icon aria-hidden="true" size={18} />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-medium text-slate-900">{item.label}</span>
+                <span className="mt-0.5 block text-xs text-slate-500">{item.note}</span>
+              </span>
+              <ArrowUpRight aria-hidden="true" className="shrink-0 text-slate-400 transition group-hover:text-blue-600" size={16} />
+            </Link>
+          );
+        })}
+      </section>
 
       <DashboardFilterBar
         competitions={summary.options.competitions}
@@ -56,8 +90,12 @@ export default async function DashboardPage({ searchParams }: PageProps) {
       />
 
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-        {cards.map((card) => (
-          <section key={card.label} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        {cards.map((card, index) => (
+          <section
+            className="fade-up rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+            key={card.label}
+            style={{ animationDelay: `${160 + index * 60}ms` }}
+          >
             <h2 className="text-xs text-slate-500">{card.label}</h2>
             <div className="mt-3 text-3xl font-semibold text-slate-900">{card.value}</div>
             <p className="mt-3 text-xs text-slate-400">{card.note}</p>
@@ -78,7 +116,18 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                 <div className="mt-2 text-2xl font-semibold text-slate-900">{item.count}</div>
               </div>
             ))}
-            {summary.cards.totalProjects === 0 ? <p className="col-span-full py-6 text-center text-sm text-slate-400">当前筛选内暂无本人参与的项目</p> : null}
+            {summary.cards.totalProjects === 0 ? (
+              <div className="col-span-full py-8 text-center">
+                <p className="text-sm text-slate-600">这个筛选条件下还没有你参与的项目。</p>
+                <p className="mt-1 text-xs text-slate-400">换个赛事或年份试试，也可以清除筛选看看全部数据。</p>
+                <Link
+                  className="mt-4 inline-flex h-9 items-center justify-center rounded-full border border-slate-300 bg-white px-4 text-sm text-slate-700 transition hover:bg-slate-50"
+                  href="/dashboard"
+                >
+                  清除筛选
+                </Link>
+              </div>
+            ) : null}
           </div>
         </section>
       ) : (
@@ -97,14 +146,27 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                   {summary.byCollege.map((item) => (
                     <tr key={item.college} className="text-slate-700">
                       <td className="px-5 py-3 font-medium text-slate-900">
-                        {user.role === "ADMIN" ? <Link href={`/review?college=${encodeURIComponent(item.college)}`} className="text-blue-700 hover:underline">{item.college}</Link> : item.college}
+                        {isAdmin ? <Link href={`/review?college=${encodeURIComponent(item.college)}`} className="text-blue-700 hover:underline">{item.college}</Link> : item.college}
                       </td>
                       <td className="px-5 py-3">{item.projectCount}</td>
                       <td className="px-5 py-3">{item.participantCount}</td>
                       <td className="px-5 py-3">{item.provinceAdvancedCount}</td>
                     </tr>
                   ))}
-                  {!summary.byCollege.length ? <tr><td colSpan={4} className="px-5 py-10 text-center text-slate-400">当前筛选内暂无项目</td></tr> : null}
+                  {!summary.byCollege.length ? (
+                    <tr>
+                      <td colSpan={4} className="px-5 py-10 text-center">
+                        <p className="text-sm text-slate-600">这个筛选条件下还没有项目数据。</p>
+                        <p className="mt-1 text-xs text-slate-400">换个赛事、年份或阶段试试，也可以清除筛选。</p>
+                        <Link
+                          className="mt-4 inline-flex h-9 items-center justify-center rounded-full border border-slate-300 bg-white px-4 text-sm text-slate-700 transition hover:bg-slate-50"
+                          href="/dashboard"
+                        >
+                          清除筛选
+                        </Link>
+                      </td>
+                    </tr>
+                  ) : null}
                 </tbody>
               </table>
             </div>
