@@ -9,6 +9,7 @@ const pageNames: Record<string, string> = {
   "/dashboard": "看板",
   "/competitions": "赛事",
   "/intro": "赛事简介",
+  "/style-lab": "按钮样式实验室",
   "/projects": "项目",
   "/my": "我的项目",
   "/apply": "报名表",
