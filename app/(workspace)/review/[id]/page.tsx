@@ -1,4 +1,5 @@
 import { StatusBadge } from "@/components/ui/status-badge";
+import { ReviewDecisionBar } from "@/components/review/review-decision-bar";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
@@ -49,6 +50,9 @@ export default async function ReviewDetailPage({ params }: { params: { id: strin
           <h1 className="text-xl font-semibold text-slate-900">{project.projectName}</h1>
           <StatusBadge status={project.status}>{registrationStatusLabels[project.status]}</StatusBadge>
           {project.hasUnconfirmedTeachers ? <span className="rounded-full bg-red-50 px-3 py-1 text-xs text-red-700">指导关系未确认</span> : null}
+          <div className="md:ml-auto">
+            <ReviewDecisionBar projectId={project.id} projectName={project.projectName} status={project.status} />
+          </div>
         </div>
         <p className="mt-2 text-sm text-slate-500">{project.competitionName} · {stageLabels[project.stage]} · 已提交 {project.submissionCount} 次</p>
       </div>

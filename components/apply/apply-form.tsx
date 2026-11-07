@@ -126,6 +126,42 @@ function validatePayee(payee: PayeeInput | undefined, owner: string): string[] {
   return required.every((item) => item.trim()) ? [] : [`请完整填写${owner}的银行信息`];
 }
 
+/**
+ * 必填完成度，只用于底部进度提示。
+ * 和 validateForm 分开：那边返回的是错误清单（含格式错误、人数上限等），
+ * 拿它当"还差几项"会把人填对的字段也算成没完成。
+ */
+function requiredProgress(form: ProjectFormInput, options: ApplyOptions): { done: number; total: number } {
+  const filled = (value: string | undefined | null) => Boolean(value && value.trim());
+  const base = [
+    form.trackId,
+    form.groupName,
+    form.categoryName,
+    form.name,
+    form.grade,
+    form.gender,
+    form.educationStage,
+    form.trainingUnit,
+    form.applicationUnit,
+    form.ethnicity,
+    form.major,
+    form.phone,
+    form.email,
+    form.work.form,
+    form.work.category,
+    form.work.groupName,
+  ];
+  const selectedTrack = options.competitions.map((competition) => findTrack(competition.tracks, form.trackId)).find(Boolean);
+  const isEnterprise = Boolean(selectedTrack && `${selectedTrack.kind}${selectedTrack.name}`.includes("企业命题"));
+  const extra = isEnterprise ? [form.propositionName ?? "", form.propositionCompany ?? ""] : [];
+  const items = [...base, ...extra];
+  const workAttached = filled(form.work.fileName) || filled(form.work.externalUrl);
+  return {
+    done: items.filter(filled).length + (workAttached ? 1 : 0),
+    total: items.length + 1,
+  };
+}
+
 function validateForm(form: ProjectFormInput, options: ApplyOptions): string[] {
   const errors: string[] = [];
   const required: Array<[string, string]> = [
@@ -184,6 +220,8 @@ export function ApplyForm({ student, options, projectId, initialValue, lockedCom
   const [requestError, setRequestError] = useState("");
   const [payeeHint, setPayeeHint] = useState("");
   const errors = validateForm(form, resolvedOptions);
+  const progress = requiredProgress(form, resolvedOptions);
+  const progressPercent = Math.round((progress.done / progress.total) * 100);
 
   useEffect(() => {
     let active = true;
@@ -314,11 +352,25 @@ export function ApplyForm({ student, options, projectId, initialValue, lockedCom
       <div className="h-14 shrink-0" aria-hidden="true" />
       </div>
       <div className="sticky bottom-0 z-20 w-full border-t border-slate-200 bg-white shadow-sm max-md:bottom-16">
-        <div className="flex w-full gap-3 bg-white py-2">
+        <div className="flex w-full items-center gap-3 bg-white py-2">
+          <div className="hidden min-w-0 flex-1 items-center gap-2 sm:flex" aria-live="polite">
+            <span className="shrink-0 text-xs text-slate-500">
+              必填 <strong className="tabular-nums text-slate-900">{progress.done}</strong> / {progress.total}
+            </span>
+            <span className="h-1.5 w-20 shrink-0 overflow-hidden rounded-full bg-slate-100">
+              <span
+                className="block h-full rounded-full bg-blue-600 transition-all"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </span>
+            <span className={`truncate text-xs ${progress.done === progress.total ? "text-emerald-700" : "text-slate-400"}`}>
+              {progress.done === progress.total ? "必填项已填完" : `还有 ${progress.total - progress.done} 项未填`}
+            </span>
+          </div>
           <Button
             type="button"
             variant="outline"
-            className="h-10 min-w-0 flex-1 px-4"
+            className="h-10 min-w-0 flex-1 px-4 sm:w-28 sm:flex-none"
             disabled={pendingAction !== null}
             loading={pendingAction === "draft"}
             onClick={() => void persist("draft")}
@@ -327,7 +379,7 @@ export function ApplyForm({ student, options, projectId, initialValue, lockedCom
           </Button>
           <Button
             type="button"
-            className="h-10 min-w-0 flex-1 px-4"
+            className="h-10 min-w-0 flex-1 px-4 sm:w-32 sm:flex-none"
             disabled={pendingAction !== null}
             loading={pendingAction === "submit"}
             onClick={() => void persist("submit")}
