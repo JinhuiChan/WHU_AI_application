@@ -51,20 +51,19 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <div className="fade-up">
+      <div>
         <h1 className="text-xl font-semibold text-slate-900">{scoped ? "我的统计" : "统计看板"}</h1>
         <p className="mt-1 text-sm text-slate-500">{scoped ? "仅统计本人参与的项目与状态，不展示全校数据。" : "所有数字按当前筛选条件实时聚合。"}</p>
       </div>
 
       <section className={`grid gap-3 sm:grid-cols-2 ${isAdmin ? "lg:grid-cols-3" : "lg:grid-cols-2"}`} aria-label="快捷入口">
-        {quickLinks.map((item, index) => {
+        {quickLinks.map((item) => {
           const Icon = item.icon;
           return (
             <Link
-              className="fade-up group flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition duration-[160ms] hover:border-blue-300 hover:bg-blue-50/40 active:scale-[0.98] motion-reduce:active:scale-100"
+              className="group flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition duration-[160ms] hover:border-blue-300 hover:bg-blue-50/40 active:scale-[0.98] motion-reduce:active:scale-100"
               href={item.href}
               key={item.href}
-              style={{ animationDelay: `${80 + index * 70}ms` }}
             >
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
                 <Icon aria-hidden="true" size={18} />
@@ -90,11 +89,10 @@ export default async function DashboardPage({ searchParams }: PageProps) {
       />
 
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-        {cards.map((card, index) => (
+        {cards.map((card) => (
           <section
-            className="fade-up rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+            className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
             key={card.label}
-            style={{ animationDelay: `${160 + index * 60}ms` }}
           >
             <h2 className="text-xs text-slate-500">{card.label}</h2>
             <div className="mt-3 text-3xl font-semibold text-slate-900">{card.value}</div>

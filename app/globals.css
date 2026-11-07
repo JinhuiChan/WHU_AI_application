@@ -57,9 +57,46 @@ body {
   }
 }
 
+@keyframes page-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 全站入场：页面级区块 + 顶层网格里的卡片，按出现顺序依次淡入。
+   PageTransition 用 pathname 做 key，导航时重挂载内容区，动画每次都会重播。 */
+.page-enter > * > *,
+.page-enter > * > .grid > * {
+  animation: page-fade-up 460ms ease-out both;
+}
+
+.page-enter > * > *:nth-child(1),
+.page-enter > * > .grid > *:nth-child(1) { animation-delay: 0ms; }
+.page-enter > * > *:nth-child(2),
+.page-enter > * > .grid > *:nth-child(2) { animation-delay: 60ms; }
+.page-enter > * > *:nth-child(3),
+.page-enter > * > .grid > *:nth-child(3) { animation-delay: 120ms; }
+.page-enter > * > *:nth-child(4),
+.page-enter > * > .grid > *:nth-child(4) { animation-delay: 180ms; }
+.page-enter > * > *:nth-child(5),
+.page-enter > * > .grid > *:nth-child(5) { animation-delay: 240ms; }
+.page-enter > * > *:nth-child(6),
+.page-enter > * > .grid > *:nth-child(6) { animation-delay: 300ms; }
+.page-enter > * > *:nth-child(7),
+.page-enter > * > .grid > *:nth-child(7) { animation-delay: 360ms; }
+.page-enter > * > *:nth-child(8),
+.page-enter > * > .grid > *:nth-child(8) { animation-delay: 420ms; }
+
 @media (prefers-reduced-motion: reduce) {
   .login-fade-up,
-  .fade-up {
+  .fade-up,
+  .page-enter > * > *,
+  .page-enter > * > .grid > * {
     animation: none;
   }
 }

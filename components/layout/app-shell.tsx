@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { AuthUser } from "@/lib/auth";
 import { getPendingBadges } from "@/lib/pending";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { PageTransition } from "@/components/layout/page-transition";
 import { Sidebar } from "@/components/layout/sidebar";
 import { UserMenu } from "@/components/layout/user-menu";
 
@@ -15,7 +16,9 @@ export async function AppShell({ user, children }: { user: AuthUser; children: R
           <Breadcrumbs />
           <UserMenu user={user} />
         </header>
-        <main className="px-4 pb-24 pt-6 md:px-6 md:pb-8 md:pt-6">{children}</main>
+        <main className="px-4 pb-24 pt-6 md:px-6 md:pb-8 md:pt-6">
+          <PageTransition>{children}</PageTransition>
+        </main>
       </div>
     </div>
   );
