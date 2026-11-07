@@ -8,6 +8,7 @@ import { ChevronRight } from "lucide-react";
 const pageNames: Record<string, string> = {
   "/dashboard": "看板",
   "/competitions": "赛事",
+  "/intro": "赛事简介",
   "/projects": "项目",
   "/my": "我的项目",
   "/apply": "报名表",
@@ -26,6 +27,7 @@ const pageNames: Record<string, string> = {
 
 const detailSections: { prefix: string; parent: { href: string; label: string }; current: string }[] = [
   { prefix: "/competitions/", parent: { href: "/competitions", label: "赛事" }, current: "赛事详情" },
+  { prefix: "/intro/", parent: { href: "/intro", label: "赛事简介" }, current: "赛事介绍" },
   { prefix: "/projects/", parent: { href: "/projects", label: "项目" }, current: "项目全貌" },
   { prefix: "/my/", parent: { href: "/my", label: "我的项目" }, current: "项目详情" },
   { prefix: "/review/", parent: { href: "/review", label: "报名审核" }, current: "审核项目详情" },

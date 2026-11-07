@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  BookOpen,
   Bot,
   ClipboardCheck,
   FileCheck,
@@ -21,18 +22,21 @@ import type { Role } from "@prisma/client";
 const adminNavigation = [
   { href: "/dashboard", label: "看板", icon: LayoutDashboard },
   { href: "/competitions", label: "赛事", icon: Trophy },
+  { href: "/intro", label: "赛事简介", icon: BookOpen },
   { href: "/projects", label: "项目", icon: FolderKanban },
 ];
 
 const studentNavigation = [
   { href: "/dashboard", label: "看板", icon: LayoutDashboard },
   { href: "/competitions", label: "赛事与报名", icon: Trophy },
+  { href: "/intro", label: "赛事简介", icon: BookOpen },
   { href: "/my", label: "我的项目", icon: FolderKanban },
 ];
 
 const teacherNavigation = [
   { href: "/dashboard", label: "看板", icon: LayoutDashboard },
   { href: "/teacher", label: "指导项目", icon: UserCheck },
+  { href: "/intro", label: "赛事简介", icon: BookOpen },
 ];
 
 function navigationFor(roles: Role[]) {
@@ -157,7 +161,7 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
         </nav>
       </aside>
 
-      <nav aria-label="移动端导航" className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-slate-200 bg-white pb-safe md:hidden">
+      <nav aria-label="移动端导航" className="fixed inset-x-0 bottom-0 z-40 flex border-t border-slate-200 bg-white pb-safe md:hidden">
         {mobileNavigation.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.href);
@@ -166,7 +170,7 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
               key={item.href}
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={`flex min-h-16 flex-col items-center justify-center gap-1 text-[10px] ${active ? "text-blue-600" : "text-slate-500"}`}
+              className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-[10px] ${active ? "text-blue-600" : "text-slate-500"}`}
             >
               <Icon size={20} aria-hidden="true" />
               {item.label}

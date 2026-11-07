@@ -71,7 +71,11 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
     <div className="space-y-6">
       <BreadcrumbTitle label={competition.name} />
       <div>
-        <Link href="/competitions" className="text-sm text-blue-600 hover:underline">返回赛事列表</Link>
+        <div className="flex flex-wrap items-center gap-3 text-sm">
+          <Link href="/competitions" className="text-blue-600 hover:underline">返回赛事列表</Link>
+          <span aria-hidden="true" className="text-slate-300">·</span>
+          <Link href={`/intro/${competition.id}`} className="text-blue-600 hover:underline">查看赛事简介</Link>
+        </div>
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <h1 className="text-xl font-semibold text-slate-900">{competition.name}</h1>
           <span className="rounded-full bg-blue-50 px-2 py-1 text-xs text-blue-700">{competitionLevelLabels[competition.level]}</span>

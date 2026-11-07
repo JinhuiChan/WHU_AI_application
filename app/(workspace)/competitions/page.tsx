@@ -64,13 +64,16 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
           </p>
         </div>
         {user.role === "ADMIN" ? <CompetitionCreate /> : null}
-        {user.role === "STUDENT" ? (
-          <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Link href="/intro" className="inline-flex h-11 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">
+            赛事简介
+          </Link>
+          {user.role === "STUDENT" ? (
             <Link href="/my" className="inline-flex h-11 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">
               我的项目
             </Link>
-          </div>
-        ) : null}
+          ) : null}
+        </div>
       </div>
 
       <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">

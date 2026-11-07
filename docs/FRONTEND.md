@@ -94,3 +94,13 @@
 - `/my` 新增 `?filter=`：pills（全部 / 待审核 / 终审通过 / 晋级省赛 / 已驳回 / 草稿 / 已撤回，各带数量）+ 结果过滤 + 针对性空态。**筛选在页面内对 `getMyProjects` 已返回的数组过滤**，没有改 `lib/apply.ts`、没有加接口参数。
 - **口径必须与 `lib/statistics.ts` 一致**：统计按 `reviewStatus` 分组，所以筛选也用 `reviewStatus`，否则会出现「卡片写 1、列表是 0」。为此表格状态列从 `projectStatusLabels[project.status]` 改为 `registrationStatusLabels[project.reviewStatus]`（两套枚举在本项目现有数据里取值一致，但 reviewStatus 才是「报名进度」的语义）。
 - 顺带把「新建报名」按钮从 `/apply` 改为 `/competitions`：`/apply` 不带 `competitionId` 会被服务端重定向回赛事列表，直连少一跳。
+
+## 2026-11-07 赛事简介（/intro）—— 卡片式赛事介绍
+
+- 新增两个页面：`app/(workspace)/intro/page.tsx`（卡片列表）与 `app/(workspace)/intro/[id]/page.tsx`（简介详情），**只读展示，不写库、不加接口**。
+- 定位区别：`/competitions/[id]` 是操作型详情（报名、时间窗、文件、获奖、管理员操作），`/intro/[id]` 是展示型介绍（定位、看点、赛道、流程、视频位）。两边互相有跳转，不复制对方的主功能。
+- 入口补齐 4 处：侧栏「赛事简介」（管理员 / 学生 / 教师都有）、看板快捷入口（学生 3 张、管理员 4 张，列数随角色变 `lg:grid-cols-3/4`）、`/competitions` 顶部按钮、`/competitions/[id]` 顶部「查看赛事简介」。移动端底部导航从 `grid-cols-5` 改成 `flex + flex-1`，3～5 项都能均分，不会再留空格子。
+- 卡片用 `SpotlightCard`（light 主题、蓝色聚光、`rounded-2xl` 由外层 `Link` 提供、卡片自身 `rounded-[inherit]`）。外层 `Link` 负责 hover 上浮与焦点轮廓，SpotlightCard 只负责打光。
+- 简介文案：`components/competitions/competition-intro-data.ts` 按 `seriesId` 提供兜底介绍。**数据库 `Competition.description` 有值时优先用它**，为空才用兜底。文案只写赛事定位与流程，不写日期、名额、奖金等会变的规则，一律指向通知与规程。
+- 视频位是**预留接口而不是假播放器**：查 `CompetitionAttachment` 里 `kind === "VIDEO"` 或文件名以 `mp4/webm/mov/m4v/ogv` 结尾的记录，有就渲染 `<video controls>`，没有就渲染 16:9 占位卡。管理员以后按现有附件上传流程传视频，这里会自动变成播放器，不需要再改前端。
+- 详情页标题用 `BlurText`（`animateBy="letters"`，中文逐字），其余区块交给 `.page-enter` 的逐块渐入，不叠第二套入场动画。

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowUpRight, ClipboardCheck, FolderKanban, Trophy, Upload } from "lucide-react";
+import { ArrowUpRight, BookOpen, ClipboardCheck, FolderKanban, Trophy, Upload } from "lucide-react";
 import { DashboardFilterBar } from "@/components/data/dashboard-filter-bar";
 import { StatisticsCharts } from "@/components/data/statistics-charts";
 import { getActiveUser } from "@/lib/auth.server";
@@ -60,8 +60,10 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     { href: "/projects", label: "项目台账", note: "查看与检索全部参赛项目", icon: FolderKanban },
     { href: "/review", label: "报名审核", note: "处理待学院与校级审核项目", icon: ClipboardCheck },
     { href: "/import", label: "数据导入", note: "导入外部平台导出的数据", icon: Upload },
+    { href: "/intro", label: "赛事简介", note: "学生看到的赛事介绍与视频位", icon: BookOpen },
   ] : [
     { href: "/competitions", label: "赛事与报名", note: "查看已发布赛事与报名入口", icon: Trophy },
+    { href: "/intro", label: "赛事简介", note: "先了解赛事定位、赛道与流程", icon: BookOpen },
     { href: "/my", label: "我的项目", note: "查看本人参与的项目与状态", icon: FolderKanban },
   ];
 
@@ -72,7 +74,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
         <p className="mt-1 text-sm text-slate-500">{scoped ? "仅统计本人参与的项目与状态，不展示全校数据。" : "所有数字按当前筛选条件实时聚合。"}</p>
       </div>
 
-      <section className={`grid gap-3 sm:grid-cols-2 ${isAdmin ? "lg:grid-cols-3" : "lg:grid-cols-2"}`} aria-label="快捷入口">
+      <section className={`grid gap-3 sm:grid-cols-2 ${isAdmin ? "lg:grid-cols-4" : "lg:grid-cols-3"}`} aria-label="快捷入口">
         {quickLinks.map((item) => {
           const Icon = item.icon;
           return (
