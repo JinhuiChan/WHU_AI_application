@@ -7,6 +7,7 @@ import {
   FileText,
   FolderKanban,
   LayoutDashboard,
+  MessageCircle,
   Settings,
   Trophy,
   Upload,
@@ -34,14 +35,15 @@ const teacherNavigation = [
 
 function navigationFor(roles: Role[]) {
   const set = new Set(roles);
+  const assistant = { href: "/assistant", label: "赛事 AI 问答", icon: MessageCircle };
   // 管理员导航已覆盖全部管理入口
-  if (set.has("ADMIN")) return adminNavigation;
+  if (set.has("ADMIN")) return [...adminNavigation, assistant];
   const dashboard = [{ href: "/dashboard", label: "看板", icon: LayoutDashboard }];
   const extra = [
     ...(set.has("STUDENT") ? studentNavigation.filter((item) => item.href !== "/dashboard") : []),
     ...(set.has("TEACHER") ? teacherNavigation.filter((item) => item.href !== "/dashboard") : []),
   ];
-  return extra.length ? [...dashboard, ...extra] : dashboard;
+  return [...dashboard, ...extra, assistant];
 }
 
 const administration = [

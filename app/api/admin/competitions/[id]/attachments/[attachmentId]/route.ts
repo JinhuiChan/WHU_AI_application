@@ -20,6 +20,10 @@ export async function DELETE(_request: NextRequest, { params }: Context) {
     const diskPath = path.resolve(process.cwd(), "public", `.${attachment.filePath}`);
     if (!diskPath.startsWith(`${base}${path.sep}`)) return apiError(500, "文件路径不安全");
     await prisma.$transaction(async (transaction) => {
+      await transaction.kbDocument.updateMany({
+        where: { sourceAttachmentId: attachment.id },
+        data: { isActive: false },
+      });
       await transaction.competitionAttachment.delete({ where: { id: attachment.id } });
       await writeAuditLog({
         actorId: authorization.user.id,

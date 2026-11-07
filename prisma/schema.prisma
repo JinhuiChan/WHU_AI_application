@@ -225,6 +225,7 @@ model Competition {
   tracks       Track[]
   projects     Project[]
   attachments  CompetitionAttachment[]
+  knowledgeDocuments KbDocument[]
   timeWindows  TimeWindow[]
   importBatches ImportBatch[]
   formTemplates FormTemplate[]
@@ -671,11 +672,18 @@ model KbDocument {
   filePath    String?
   year        Int
   effectiveAt DateTime?
+  expiresAt   DateTime?
+  competitionId String?
+  sourceAttachmentId String? @unique
+  replacesId  String?
   isActive    Boolean   @default(true)
   uploadedBy  String
   createdAt   DateTime  @default(now())
   uploader    User      @relation(fields: [uploadedBy], references: [id], onDelete: Restrict)
   chunks      KbChunk[]
+  competition Competition? @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+
+  @@index([competitionId, isActive, effectiveAt])
 }
 
 model KbChunk {

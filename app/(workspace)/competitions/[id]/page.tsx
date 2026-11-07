@@ -75,6 +75,12 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <h1 className="text-xl font-semibold text-slate-900">{competition.name}</h1>
           <span className="rounded-full bg-blue-50 px-2 py-1 text-xs text-blue-700">{competitionLevelLabels[competition.level]}</span>
+          {competition.publishStatus === "PUBLISHED" && (
+            <Link href={`/assistant?competitionId=${competition.id}`} className="text-sm text-blue-600 hover:underline">问这场比赛</Link>
+          )}
+          {user.roles.includes("ADMIN") && (
+            <Link href={`/assistant?competitionId=${competition.id}#knowledge`} className="text-sm text-blue-600 hover:underline">管理问答资料</Link>
+          )}
         </div>
       </div>
 
