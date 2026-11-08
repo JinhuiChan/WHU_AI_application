@@ -2,6 +2,15 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-09 组队/个人中心 · 收尾三项（⑬ 获奖口径 / ⑭ 多角色主页 / ⑯ 时间线去重）
+
+- ⑬ `listAwardExportRows` 单独改读 `Award`，函数签名与旧返回键保留，`status` 固定为 `PUBLISHED`；2026 年 ADMIN 直接调用实测 2 条。兼容风险：`Award` 无旧证据/核验字段，导出适配值为证据类型 `URL`、证据地址空、核验时间取 `updatedAt`、核验人取录奖人，不代表新增核验记录。
+- ⑭ `/u/[id]` 合并主角色与 `extraRoles`，学生/老师记录及各自获奖段独立查询、独立受 `showRecords` / `showAwards` 控制，资料区也同时展示两类信息。风险：双角色按身份分别查询和展示，同一项目若同时关联两种身份会在各自区段出现，不做跨身份合并。
+- ⑯ 老师记录沿用 `confirmedAt` / `createdAt` 降序，按 `projectId` 保留首条并以项目 ID 渲染 key；单位/职称仍从全部记录取最近非空值。风险：两级时间完全相同的重复行未额外定义第三排序键。
+- 验证：`npm run typecheck`、`npm run lint` 通过；只改 `lib/dashboard.ts`、`app/(workspace)/u/[id]/page.tsx`、本文件，未动导出路由、statistics、schema、依赖或登录页。
+- 数据验收边界：当前库无学生+老师双角色账号，也无同项目重复 `CONFIRMED` 指导关系，未造测试数据，因此这两类 UI 分支未做真实数据 HTTP 验收。
+- 下一步：S7 组队接入 AI 问答。
+
 ## 2026-11-08 组队/个人中心 · S5 个人中心二期（简介/技能/可见性开关）
 
 - commit `cc05bfa`（5 文件，+299/−12）：`User` 追加 `bio` / `avatarUrl` / `skills` / `showRecords` / `showAwards` 五个字段（`prisma validate` 通过、`db:push` 已同步）；新增 `PATCH /api/profile` 与 `components/profile/profile-form.tsx`；`/profile` 挂表单；`/u/[id]` 加简介与技能区块，并按开关**在查询层短路**。

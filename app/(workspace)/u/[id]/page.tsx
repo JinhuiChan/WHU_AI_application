@@ -70,14 +70,18 @@ export default async function PublicProfilePage({ params }: PageProps) {
       skills: true,
       showRecords: true,
       showAwards: true,
+      extraRoles: { select: { role: true } },
     },
   });
   if (!profile) notFound();
 
-  const isStudent = profile.role === "STUDENT";
-  const isTeacher = profile.role === "TEACHER";
-  let timeline: TimelineItem[] = [];
-  let awards: AwardItem[] = [];
+  const roles = new Set([profile.role, ...profile.extraRoles.map((item) => item.role)]);
+  const isStudent = roles.has("STUDENT");
+  const isTeacher = roles.has("TEACHER");
+  let studentTimeline: TimelineItem[] = [];
+  let teacherTimeline: TimelineItem[] = [];
+  let studentAwards: AwardItem[] = [];
+  let teacherAwards: AwardItem[] = [];
   let teacherUnit = profile.trainingUnit ?? profile.college;
   let teacherTitle: string | null = null;
 
@@ -116,7 +120,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
         orderBy: [{ createdAt: "desc" }, { id: "asc" }],
       }) : Promise.resolve([]),
     ]);
-    timeline = projects.map((project) => ({
+    studentTimeline = projects.map((project) => ({
       id: project.id,
       projectName: project.name,
       competitionName: project.competition?.name ?? "未设置赛事",
@@ -130,8 +134,9 @@ export default async function PublicProfilePage({ params }: PageProps) {
       date: project.submittedAt ?? project.updatedAt,
       dateLabel: project.submittedAt ? "提交" : "更新",
     }));
-    awards = awardRows;
-  } else if (isTeacher) {
+    studentAwards = awardRows;
+  }
+  if (isTeacher) {
     const [teacherRows, awardRows] = await Promise.all([
       profile.showRecords ? prisma.teacher.findMany({
         where: { userId: profile.id, confirmStatus: "CONFIRMED", project: { deletedAt: null } },
@@ -164,10 +169,16 @@ export default async function PublicProfilePage({ params }: PageProps) {
         orderBy: [{ createdAt: "desc" }, { id: "asc" }],
       }) : Promise.resolve([]),
     ]);
+    const seenProjectIds = new Set<string>();
+    const latestTeacherRows = teacherRows.filter((row) => {
+      if (seenProjectIds.has(row.project.id)) return false;
+      seenProjectIds.add(row.project.id);
+      return true;
+    });
     teacherUnit = teacherRows.find((row) => row.unit.trim())?.unit ?? teacherUnit;
     teacherTitle = teacherRows.find((row) => row.title?.trim())?.title ?? null;
-    timeline = teacherRows.map((row) => ({
-      id: row.id,
+    teacherTimeline = latestTeacherRows.map((row) => ({
+      id: row.project.id,
       projectName: row.project.name,
       competitionName: row.project.competition?.name ?? "未设置赛事",
       trackName: row.project.track?.name ?? "未设置赛道",
@@ -176,21 +187,28 @@ export default async function PublicProfilePage({ params }: PageProps) {
       date: row.confirmedAt ?? row.createdAt,
       dateLabel: "确认指导",
     }));
-    awards = awardRows;
+    teacherAwards = awardRows;
   }
 
   const skills = profile.skills.split(/[,，]/).map((item) => item.trim()).filter(Boolean);
-  const details = isStudent
-    ? [
-        { label: "学院", value: profile.college },
-        { label: "专业", value: profile.major },
-        { label: "年级", value: profile.grade },
-        { label: "学号后 4 位", value: profile.studentNo?.slice(-4) },
-      ]
-    : isTeacher
-      ? [{ label: "单位", value: teacherUnit }, { label: "职称", value: teacherTitle }]
-      : [{ label: "单位", value: teacherUnit }];
-  const recordTitle = isTeacher ? "指导记录" : isStudent ? "参赛记录" : "公开记录";
+  const details = [
+    ...(isStudent ? [
+      { label: "学院", value: profile.college },
+      { label: "专业", value: profile.major },
+      { label: "年级", value: profile.grade },
+      { label: "学号后 4 位", value: profile.studentNo?.slice(-4) },
+    ] : []),
+    ...(isTeacher ? [{ label: "单位", value: teacherUnit }, { label: "职称", value: teacherTitle }] : []),
+    ...(!isStudent && !isTeacher ? [{ label: "单位", value: teacherUnit }] : []),
+  ];
+  const recordSections = [
+    ...(isStudent ? [{ title: "参赛记录", timeline: studentTimeline, emptyDescription: "可公开的参赛与项目记录会显示在这里。" }] : []),
+    ...(isTeacher ? [{ title: "指导记录", timeline: teacherTimeline, emptyDescription: "已确认的指导关系会显示在这里。" }] : []),
+  ];
+  const awardSections = [
+    ...(isStudent ? [{ title: isTeacher ? "参赛获奖记录" : "获奖记录", awards: studentAwards }] : []),
+    ...(isTeacher ? [{ title: isStudent ? "指导获奖记录" : "获奖记录", awards: teacherAwards }] : []),
+  ];
 
   return (
     <div className="space-y-6">
@@ -230,61 +248,62 @@ export default async function PublicProfilePage({ params }: PageProps) {
       </section>
       ) : null}
 
-      {profile.showRecords ? <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="text-base font-semibold text-slate-900">{recordTitle}（{timeline.length}）</h2>
-        {timeline.length ? (
-          <ol className="mt-5 space-y-5">
-            {timeline.map((item) => (
-              <li key={item.id} className="relative border-l border-slate-200 pl-5">
-                <span aria-hidden="true" className="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full bg-blue-600 ring-4 ring-blue-50" />
-                <div className="flex flex-wrap items-start justify-between gap-3">
+      {profile.showRecords ? recordSections.map(({ title, timeline, emptyDescription }) => (
+        <section key={title} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 className="text-base font-semibold text-slate-900">{title}（{timeline.length}）</h2>
+          {timeline.length ? (
+            <ol className="mt-5 space-y-5">
+              {timeline.map((item) => (
+                <li key={item.id} className="relative border-l border-slate-200 pl-5">
+                  <span aria-hidden="true" className="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full bg-blue-600 ring-4 ring-blue-50" />
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-xs text-slate-500">{item.competitionName} · {item.trackName}</p>
+                      <h3 className="mt-1 text-sm font-semibold text-slate-900">{item.projectName}</h3>
+                      <p className="mt-2 text-xs text-slate-500">
+                        角色：{item.role} · {item.dateLabel}：<time dateTime={item.date.toISOString()}>{formatDate(item.date.toISOString())}</time>
+                      </p>
+                    </div>
+                    <StatusBadge status={item.status} scope="registration">
+                      {registrationStatusLabels[item.status]}
+                    </StatusBadge>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <EmptyState title={`暂无${title}`} description={emptyDescription} />
+          )}
+        </section>
+      )) : null}
+
+      {profile.showAwards ? awardSections.map(({ title, awards }) => (
+        <section key={title} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 className="text-base font-semibold text-slate-900">{title}（{awards.length}）</h2>
+          {awards.length ? (
+            <ul className="mt-3 divide-y divide-slate-100">
+              {awards.map((award) => (
+                <li key={award.id} className="flex flex-wrap items-start justify-between gap-3 py-4">
                   <div className="min-w-0">
-                    <p className="text-xs text-slate-500">{item.competitionName} · {item.trackName}</p>
-                    <h3 className="mt-1 text-sm font-semibold text-slate-900">{item.projectName}</h3>
+                    <p className="text-xs text-slate-500">{award.competition.year} · {award.competition.name}</p>
+                    <h3 className="mt-1 text-sm font-semibold text-slate-900">{award.project.name}</h3>
                     <p className="mt-2 text-xs text-slate-500">
-                      角色：{item.role} · {item.dateLabel}：<time dateTime={item.date.toISOString()}>{formatDate(item.date.toISOString())}</time>
+                      记录时间：<time dateTime={award.createdAt.toISOString()}>{formatDate(award.createdAt.toISOString())}</time>
                     </p>
                   </div>
-                  <StatusBadge status={item.status} scope="registration">
-                    {registrationStatusLabels[item.status]}
-                  </StatusBadge>
-                </div>
-              </li>
-            ))}
-          </ol>
-        ) : (
-          <EmptyState
-            title={`暂无${recordTitle}`}
-            description={isTeacher ? "已确认的指导关系会显示在这里。" : "可公开的参赛与项目记录会显示在这里。"}
-          />
-        )}
-      </section> : null}
-
-      {profile.showAwards ? <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="text-base font-semibold text-slate-900">获奖记录（{awards.length}）</h2>
-        {awards.length ? (
-          <ul className="mt-3 divide-y divide-slate-100">
-            {awards.map((award) => (
-              <li key={award.id} className="flex flex-wrap items-start justify-between gap-3 py-4">
-                <div className="min-w-0">
-                  <p className="text-xs text-slate-500">{award.competition.year} · {award.competition.name}</p>
-                  <h3 className="mt-1 text-sm font-semibold text-slate-900">{award.project.name}</h3>
-                  <p className="mt-2 text-xs text-slate-500">
-                    记录时间：<time dateTime={award.createdAt.toISOString()}>{formatDate(award.createdAt.toISOString())}</time>
-                  </p>
-                </div>
-                <div className="flex flex-wrap items-center gap-2 text-xs">
-                  <span className="rounded-full bg-blue-50 px-2.5 py-1 font-medium text-blue-700">
-                    {awardLevelLabels[award.awardLevel]}
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <EmptyState title="暂无获奖记录" description="与本人关联且当前可见的获奖记录会显示在这里。" />
-        )}
-      </section> : null}
+                  <div className="flex flex-wrap items-center gap-2 text-xs">
+                    <span className="rounded-full bg-blue-50 px-2.5 py-1 font-medium text-blue-700">
+                      {awardLevelLabels[award.awardLevel]}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <EmptyState title={`暂无${title}`} description="与本人关联且当前可见的获奖记录会显示在这里。" />
+          )}
+        </section>
+      )) : null}
     </div>
   );
 }

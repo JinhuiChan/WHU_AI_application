@@ -178,23 +178,31 @@ export async function getCollegeRankings(year: number, role: Role, limit = 10): 
 }
 
 export async function listAwardExportRows(year: number, role: Role) {
-  return prisma.awardRecord.findMany({
+  void role;
+  const rows = await prisma.award.findMany({
     where: {
       competition: { year },
-      status: { in: awardStatuses(role) },
       project: { deletedAt: null },
     },
     orderBy: [{ project: { college: "asc" } }, { project: { name: "asc" } }, { competition: { level: "desc" } }],
     select: {
       awardLevel: true,
-      evidenceType: true,
-      evidenceRef: true,
-      status: true,
-      verifiedAt: true,
       createdAt: true,
+      updatedAt: true,
       project: { select: { name: true, college: true } },
       competition: { select: { name: true, level: true, year: true } },
-      verifier: { select: { name: true } },
+      creator: { select: { name: true } },
     },
   });
+  return rows.map((row) => ({
+    awardLevel: row.awardLevel,
+    evidenceType: "URL" as const,
+    evidenceRef: "",
+    status: "PUBLISHED" as const,
+    verifiedAt: row.updatedAt,
+    createdAt: row.createdAt,
+    project: row.project,
+    competition: row.competition,
+    verifier: row.creator,
+  }));
 }
