@@ -9,6 +9,7 @@
 - 口径：学生记录排除 `DRAFT`/`REJECTED`/`WITHDRAWN`；老师仅 `CONFIRMED`；学号只显示后 4 位；手机/邮箱/身份证/银行卡不查询、不渲染；他人访问无编辑入口。
 - 验收：Lead 独立复跑 `tsc --noEmit`、`next lint` 均 0 错误；`npm run build` 通过（用户终端，路由表含 `/profile`、`/u/[id]`），工作区干净。
 - 遗留（已记入 Kimi 提示词第 4 节）：⑬ 获奖口径四处不同源；⑭ 主页按主角色判定，多身份账号信息不全；⑮ 获奖按查看者角色过滤；⑯ 老师时间线可能重复。
+- 修正（同日）：`/u/[id]` 获奖查询由 `AwardRecord` 改为 `Award`（与 `lib/statistics.ts:86` 看板同源），移除状态徽章与 `awardWhereForRole` 过滤；`AwardRecord` 当前 0 行、`Award` 2 行，`lib/admin-awards.ts:110` 只 `award.upsert` 不写 `AwardRecord` → ⑬ 结论坐实，需另开 PR 统一四处口径。⑮ 随本次改口径自然消解。
 - 下一步：S2 组队数据模型（`TeamPost` + `TeamJoinRequest`），**需用户批准 schema 变更**，在新会话执行。
 
 ## 2026-11-08 本地集成：feat/ui-polish + pr-4（统一数据源问答）

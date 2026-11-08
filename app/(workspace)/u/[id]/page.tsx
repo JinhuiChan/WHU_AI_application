@@ -4,11 +4,9 @@ import type { Prisma, RegistrationStatus } from "@prisma/client";
 import { BreadcrumbTitle } from "@/components/layout/breadcrumbs";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { awardWhereForRole } from "@/lib/award-visibility";
 import { getActiveUser } from "@/lib/auth.server";
 import {
   awardLevelLabels,
-  awardStatusLabels,
   formatDate,
   memberRoleLabels,
   registrationStatusLabels,
@@ -37,14 +35,12 @@ type TimelineItem = {
 const awardSelection = {
   id: true,
   awardLevel: true,
-  status: true,
-  verifiedAt: true,
   createdAt: true,
   project: { select: { name: true } },
   competition: { select: { name: true, year: true } },
-} satisfies Prisma.AwardRecordSelect;
+} satisfies Prisma.AwardSelect;
 
-type AwardItem = Prisma.AwardRecordGetPayload<{ select: typeof awardSelection }>;
+type AwardItem = Prisma.AwardGetPayload<{ select: typeof awardSelection }>;
 
 function InfoItem({ label, value }: { label: string; value: string | null | undefined }) {
   return (
@@ -110,8 +106,8 @@ export default async function PublicProfilePage({ params }: PageProps) {
         },
         orderBy: [{ submittedAt: "desc" }, { updatedAt: "desc" }],
       }),
-      prisma.awardRecord.findMany({
-        where: { ...awardWhereForRole(viewer.role), project: projectWhere },
+      prisma.award.findMany({
+        where: { project: projectWhere },
         select: awardSelection,
         orderBy: [{ createdAt: "desc" }, { id: "asc" }],
       }),
@@ -153,9 +149,8 @@ export default async function PublicProfilePage({ params }: PageProps) {
         },
         orderBy: [{ confirmedAt: "desc" }, { createdAt: "desc" }],
       }),
-      prisma.awardRecord.findMany({
+      prisma.award.findMany({
         where: {
-          ...awardWhereForRole(viewer.role),
           project: {
             deletedAt: null,
             teachers: { some: { userId: profile.id, confirmStatus: "CONFIRMED" } },
@@ -262,7 +257,6 @@ export default async function PublicProfilePage({ params }: PageProps) {
                   <span className="rounded-full bg-blue-50 px-2.5 py-1 font-medium text-blue-700">
                     {awardLevelLabels[award.awardLevel]}
                   </span>
-                  <span className="text-slate-500">{awardStatusLabels[award.status]}</span>
                 </div>
               </li>
             ))}
