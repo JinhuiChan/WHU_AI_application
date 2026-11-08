@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Button, ButtonArrow } from "@/components/ui/button";
+import { ProfileForm } from "@/components/profile/profile-form";
 import { getActiveUser } from "@/lib/auth.server";
 import { roleLabels } from "@/lib/presentation";
 import { prisma } from "@/lib/prisma";
@@ -33,6 +34,11 @@ export default async function ProfilePage() {
       major: true,
       grade: true,
       trainingUnit: true,
+      bio: true,
+      avatarUrl: true,
+      skills: true,
+      showRecords: true,
+      showAwards: true,
     },
   });
   if (!profile) redirect("/login");
@@ -85,13 +91,15 @@ export default async function ProfilePage() {
                 {roleLabels[profile.role]}
               </span>
             </div>
-            <p className="mt-1 text-sm text-slate-500">资料当前为只读状态</p>
+            <p className="mt-1 text-sm text-slate-500">以上身份档案为只读</p>
           </div>
         </div>
         <dl className="mt-6 grid grid-cols-2 gap-4 border-t border-slate-100 pt-5 md:grid-cols-4">
           {details.map((item) => <InfoItem key={item.label} label={item.label} value={item.value} />)}
         </dl>
       </section>
+
+      <ProfileForm initialValue={profile} />
     </div>
   );
 }

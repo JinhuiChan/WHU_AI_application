@@ -186,6 +186,11 @@ model User {
   createdAt             DateTime            @default(now())
   updatedAt             DateTime            @default(now()) @updatedAt
   deletedAt             DateTime?
+  bio                   String?
+  avatarUrl             String?
+  skills                String              @default("")
+  showRecords           Boolean             @default(true)
+  showAwards            Boolean             @default(true)
   extraRoles            UserRoleLink[]
   ownedProjects         Project[]           @relation("ProjectOwner")
   teamMemberships       TeamMember[]        @relation("MemberUser")

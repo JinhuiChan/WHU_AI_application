@@ -66,6 +66,10 @@ export default async function PublicProfilePage({ params }: PageProps) {
       major: true,
       grade: true,
       trainingUnit: true,
+      bio: true,
+      skills: true,
+      showRecords: true,
+      showAwards: true,
     },
   });
   if (!profile) notFound();
@@ -87,7 +91,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
       ],
     };
     const [projects, awardRows] = await Promise.all([
-      prisma.project.findMany({
+      profile.showRecords ? prisma.project.findMany({
         where: projectWhere,
         select: {
           id: true,
@@ -105,12 +109,12 @@ export default async function PublicProfilePage({ params }: PageProps) {
           },
         },
         orderBy: [{ submittedAt: "desc" }, { updatedAt: "desc" }],
-      }),
-      prisma.award.findMany({
+      }) : Promise.resolve([]),
+      profile.showAwards ? prisma.award.findMany({
         where: { project: projectWhere },
         select: awardSelection,
         orderBy: [{ createdAt: "desc" }, { id: "asc" }],
-      }),
+      }) : Promise.resolve([]),
     ]);
     timeline = projects.map((project) => ({
       id: project.id,
@@ -129,7 +133,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
     awards = awardRows;
   } else if (isTeacher) {
     const [teacherRows, awardRows] = await Promise.all([
-      prisma.teacher.findMany({
+      profile.showRecords ? prisma.teacher.findMany({
         where: { userId: profile.id, confirmStatus: "CONFIRMED", project: { deletedAt: null } },
         select: {
           id: true,
@@ -148,8 +152,8 @@ export default async function PublicProfilePage({ params }: PageProps) {
           },
         },
         orderBy: [{ confirmedAt: "desc" }, { createdAt: "desc" }],
-      }),
-      prisma.award.findMany({
+      }) : Promise.resolve([]),
+      profile.showAwards ? prisma.award.findMany({
         where: {
           project: {
             deletedAt: null,
@@ -158,7 +162,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
         },
         select: awardSelection,
         orderBy: [{ createdAt: "desc" }, { id: "asc" }],
-      }),
+      }) : Promise.resolve([]),
     ]);
     teacherUnit = teacherRows.find((row) => row.unit.trim())?.unit ?? teacherUnit;
     teacherTitle = teacherRows.find((row) => row.title?.trim())?.title ?? null;
@@ -175,6 +179,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
     awards = awardRows;
   }
 
+  const skills = profile.skills.split(/[,，]/).map((item) => item.trim()).filter(Boolean);
   const details = isStudent
     ? [
         { label: "学院", value: profile.college },
@@ -210,7 +215,22 @@ export default async function PublicProfilePage({ params }: PageProps) {
         </dl>
       </section>
 
+      {(profile.bio?.trim() || skills.length) ? (
       <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h2 className="text-base font-semibold text-slate-900">简介与擅长技能</h2>
+        {profile.bio?.trim() ? <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-700">{profile.bio}</p> : null}
+        {skills.length ? (
+          <div className="mt-4">
+            <h3 className="text-xs font-medium text-slate-500">擅长技能</h3>
+            <ul className="mt-2 flex flex-wrap gap-2">
+              {skills.map((skill, index) => <li key={`${skill}-${index}`} className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">{skill}</li>)}
+            </ul>
+          </div>
+        ) : null}
+      </section>
+      ) : null}
+
+      {profile.showRecords ? <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="text-base font-semibold text-slate-900">{recordTitle}（{timeline.length}）</h2>
         {timeline.length ? (
           <ol className="mt-5 space-y-5">
@@ -238,9 +258,9 @@ export default async function PublicProfilePage({ params }: PageProps) {
             description={isTeacher ? "已确认的指导关系会显示在这里。" : "可公开的参赛与项目记录会显示在这里。"}
           />
         )}
-      </section>
+      </section> : null}
 
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      {profile.showAwards ? <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="text-base font-semibold text-slate-900">获奖记录（{awards.length}）</h2>
         {awards.length ? (
           <ul className="mt-3 divide-y divide-slate-100">
@@ -264,7 +284,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
         ) : (
           <EmptyState title="暂无获奖记录" description="与本人关联且当前可见的获奖记录会显示在这里。" />
         )}
-      </section>
+      </section> : null}
     </div>
   );
 }
