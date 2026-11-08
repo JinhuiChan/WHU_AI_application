@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ApplyForm } from "@/components/apply/apply-form";
-import { getMyProject } from "@/lib/apply";
+import { getMyProject, getTeamAcceptedMembers } from "@/lib/apply";
 import { buildApplyOptions } from "@/lib/apply-options";
 import { getActiveUser } from "@/lib/auth.server";
 import { prisma } from "@/lib/prisma";
@@ -9,7 +9,7 @@ import { prisma } from "@/lib/prisma";
 export const metadata: Metadata = { title: "项目报名" };
 export const dynamic = "force-dynamic";
 
-type PageProps = { searchParams?: { projectId?: string | string[]; competitionId?: string | string[] } };
+type PageProps = { searchParams?: { projectId?: string | string[]; competitionId?: string | string[]; teamPostId?: string | string[] } };
 
 function firstParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
@@ -21,6 +21,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
   if (user.role !== "STUDENT") redirect("/dashboard");
   const projectId = firstParam(searchParams?.projectId);
   const competitionId = firstParam(searchParams?.competitionId);
+  const teamPostId = firstParam(searchParams?.teamPostId);
 
   // 草稿/已下架赛事不能新报名（编辑已有项目不受影响）
   if (competitionId && !projectId) {
@@ -63,6 +64,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
   if (!lockedCompetitionId) redirect("/competitions");
 
   const options = await buildApplyOptions(lockedCompetitionId);
+  const initialMembers = teamPostId ? await getTeamAcceptedMembers(teamPostId, user.id) : undefined;
 
   return (
     <div className="space-y-6">
@@ -75,6 +77,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
         options={options}
         projectId={projectId}
         initialValue={existing?.formInput}
+        initialMembers={initialMembers}
         lockedCompetitionId={lockedCompetitionId}
       />
     </div>

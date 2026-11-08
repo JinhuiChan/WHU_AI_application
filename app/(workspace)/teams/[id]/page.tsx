@@ -5,6 +5,7 @@ import type { Prisma, TeamPostStatus } from "@prisma/client";
 import { BackLink } from "@/components/data/list-link";
 import { BreadcrumbTitle } from "@/components/layout/breadcrumbs";
 import { RequestDecisionButtons, TeamPostActions } from "@/components/teams/team-actions";
+import { Button, ButtonArrow } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { getActiveUser } from "@/lib/auth.server";
@@ -97,6 +98,7 @@ export default async function TeamDetailPage({ params, searchParams }: PageProps
   const now = new Date();
   const status: TeamPostStatus = post.status === "RECRUITING" && post.expiresAt <= now ? "EXPIRED" : post.status;
   const myLatestRequest = canManage ? null : visibleRequests[0];
+  const isAcceptedMember = acceptedRequests.some((request) => request.user.id === user.id);
   const requestActive = myLatestRequest?.status === "PENDING" || myLatestRequest?.status === "ACCEPTED";
   const canApply = !post.removedBy && status === "RECRUITING" && post.currentCount < post.memberLimit && !requestActive;
   const from = firstParam(searchParams?.from);
@@ -214,6 +216,11 @@ export default async function TeamDetailPage({ params, searchParams }: PageProps
             {post.contact ? <div><dt className="text-xs text-slate-500">联系方式</dt><dd className="mt-1 whitespace-pre-wrap break-words text-slate-900">{post.contact}</dd></div> : null}
           </dl>
           <div className="mt-5">
+            {(isAuthor || isAcceptedMember) && post.competition ? (
+              <Button asChild arrow className="group mb-3 w-full">
+                <Link href={`/apply?competitionId=${post.competition.id}&teamPostId=${post.id}`}>去报名<ButtonArrow /></Link>
+              </Button>
+            ) : null}
             <TeamPostActions
               postId={post.id}
               status={status}

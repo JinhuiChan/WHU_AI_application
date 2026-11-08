@@ -344,6 +344,65 @@ export async function withdrawProject(projectId: string, userId: string) {
   });
 }
 
+export async function getTeamAcceptedMembers(teamPostId: string, viewerId: string): Promise<MemberInput[]> {
+  // 只有帖子作者或已被接受的成员能读取成员信息，防止按 teamPostId 枚举手机号/邮箱
+  const post = await prisma.teamPost.findUnique({ where: { id: teamPostId }, select: { authorId: true } });
+  if (!post) return [];
+  if (post.authorId !== viewerId) {
+    const accepted = await prisma.teamJoinRequest.findFirst({
+      where: { postId: teamPostId, userId: viewerId, status: "ACCEPTED" },
+      select: { id: true },
+    });
+    if (!accepted) return [];
+  }
+
+  const requests = await prisma.teamJoinRequest.findMany({
+    where: {
+      postId: teamPostId,
+      status: "ACCEPTED",
+      user: { role: "STUDENT", deletedAt: null },
+    },
+    select: {
+      user: {
+        select: {
+          studentNo: true,
+          name: true,
+          gender: true,
+          ethnicity: true,
+          educationStage: true,
+          trainingUnit: true,
+          college: true,
+          major: true,
+          enrollmentYear: true,
+          graduationYear: true,
+          phone: true,
+          email: true,
+        },
+      },
+    },
+    orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+  });
+
+  return requests.map((request, index) => ({
+    isInternal: true,
+    personNo: request.user.studentNo,
+    name: request.user.name,
+    school: "武汉大学",
+    educationStage: request.user.educationStage ?? "",
+    trainingUnit: request.user.trainingUnit ?? request.user.college ?? "",
+    major: request.user.major ?? "",
+    gender: request.user.gender ?? "",
+    ethnicity: request.user.ethnicity ?? "",
+    enrollmentYear: request.user.enrollmentYear ?? 0,
+    graduationYear: request.user.graduationYear ?? 0,
+    phone: request.user.phone,
+    email: request.user.email ?? "",
+    remark: "",
+    sortOrder: index,
+    isPayee: false,
+  }));
+}
+
 export async function getMyProjects(userId: string) {
   const projects = await prisma.project.findMany({
     where: accessWhere(userId),
