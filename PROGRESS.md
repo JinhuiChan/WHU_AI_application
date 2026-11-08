@@ -2,6 +2,22 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-08 本地集成：feat/ui-polish + pr-4（统一数据源问答）
+
+- 集成分支 `integration/ui-polish-qa`，基于 `jinhui/main c2116ef`：先合 `feat/ui-polish`（0 冲突），再合 `pr-4 / feat/knowledge-qa 2015398`。
+- pr-4 带来的能力：问答不再单独维护资料，直接读赛事配置 + 通知/规程附件；全平台默认范围、候选澄清、配置类直答不调模型、附件自动解析/索引/替换、引用校验、学生禁止管理、旧知识接口 410。
+- 冲突解决（5 个文件）：
+  - `assistant/page.tsx`、`assistant-chat.tsx` 采用 pr-4 能力，外壳与按钮统一为 ui-polish 风格；
+  - `competitions/[id]/page.tsx` 同时保留返回筛选参数与 `syncPendingAttachments`；
+  - `competition-management.tsx` 以 ui-polish 布局为底，补「问答状态 / 重新解析 / 完整替换旧版」；
+  - `login-form.tsx` 保留 ui-polish 输入体验 + pr-4 身份复核（`window.location.replace` 重建客户端缓存）。
+- 集成修复：
+  - **重定向死循环**：`db:seed` 重建账号后旧 JWT 仍有效，页面查库失败跳 `/login`，middleware 又踢回 `/dashboard`。改为 middleware 不再凭 JWT 重定向登录页，由登录页 `getActiveUser()` 决定。
+  - 无效 `competitionId` 因 `(workspace)/loading.tsx` 流式渲染返回 200：页面校验保留，回归脚本改为「200/404 均可，但内容必须是 404 页」。
+  - 侧栏删除重复「AI 助手」入口，统一为单一「赛事 AI 问答」板块（页面用 ui-polish 外壳 + pr-4 能力）。
+- schema：`CompetitionAttachment` 新增 `knowledgeStatus / knowledgeError / knowledgeIndexedAt / replacesAttachmentId`，`KbDocument` 扩展；已备份 `tmp/dev.db.before-integration.bak` 后 `db push`。
+- 验证：`tsc --noEmit`、`next lint` 通过；`scripts/verify-platform-assistant.cjs` 5 组 PASS（含澄清、配置直答、附件解析/替换、权限、下架失效），模型协议调用 13 次。生产 build 与 P3 全量回归待用户执行。
+
 ## 2026-11-06 获奖名单导出 + 审核列表卡片化
 
 - 获奖名单导出：`/admin/awards` 右上角新增「导出获奖名单」按钮，链接自动带当前筛选（赛事/学院/奖项等级）。
