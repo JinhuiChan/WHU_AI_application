@@ -2,6 +2,14 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-08 组队/个人中心 · S4 组队前端 4 页
+
+- commit `425f54f`（10 文件）：`/teams`（广场，筛选+卡片+空态+分页）、`/teams/new`（发布表单）、`/teams/[id]`（详情+角色化操作）、`/my/teams`（三个 tab）；组件 `components/teams/{team-form,team-actions,my-teams}.tsx`；改 `sidebar`（学生「组队广场」）、`breadcrumbs`（3 条路由映射）、`status-badge`（新增 `scope="team"`）。
+- 分工：作者看「管理申请/关闭招募」，他人看「申请加入」，管理员看「下架」；配色仍走 `StatusBadge`，页面内无自写状态配色（只有错误/警示条用红/琥珀底）。
+- Lead HTTP 验收（dev 3000）：`/teams`、`/teams/new`、`/teams/[id]`、`/my/teams` 均 200 且渲染出真实数据；角色化视图三态正确（B 学生看到「申请加入」、申请 201、管理员看到「下架」）。测试数据已清理（`TeamPost=0`、`TeamJoinRequest=0`）。
+- 纪律偏差：本阶段 7 个文件共 **1231 行**，超行预算（700）约 76%；验收时按"能跑通"放行，但 S5/S6 必须收敛到预算内。
+- 下一步：S5 个人中心二期（`User` 加 6 个可空字段，**需用户批准**）。
+
 ## 2026-11-08 组队/个人中心 · S2 schema + S3 后端接口
 
 - S2（commit `31a7c09`）：新增 `TeamPost`、`TeamJoinRequest` + `TeamPostStatus`/`TeamJoinStatus` 两个枚举，`schema.prisma` **+66 行、0 删除**；`prisma validate` 通过；用户执行 `db:push` + `db:generate` 后库里 32 表、两新表 0 行，`User` 872 / `Project` 258 未变。改前已备份 `tmp/dev.db.before-s2.bak`。
