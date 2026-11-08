@@ -15,6 +15,7 @@ import {
   Trophy,
   Upload,
   UserCheck,
+  UserRound,
   Users,
 } from "lucide-react";
 import type { Role } from "@prisma/client";
@@ -31,12 +32,14 @@ const studentNavigation = [
   { href: "/competitions", label: "赛事与报名", icon: Trophy },
   { href: "/intro", label: "赛事简介", icon: BookOpen },
   { href: "/my", label: "我的项目", icon: FolderKanban },
+  { href: "/profile", label: "个人中心", icon: UserRound },
 ];
 
 const teacherNavigation = [
   { href: "/dashboard", label: "看板", icon: LayoutDashboard },
   { href: "/teacher", label: "指导项目", icon: UserCheck },
   { href: "/intro", label: "赛事简介", icon: BookOpen },
+  { href: "/profile", label: "个人中心", icon: UserRound },
 ];
 
 function navigationFor(roles: Role[]) {

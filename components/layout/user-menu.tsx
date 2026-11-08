@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { roleLabels } from "@/lib/presentation";
 
@@ -64,6 +65,12 @@ export function UserMenu({ user }: { user: AuthUser }) {
             <p className="mt-1 text-xs text-slate-500">{user.phone}</p>
           </div>
           {error ? <p role="alert" className="px-3 py-2 text-xs text-red-600">{error}</p> : null}
+          <Button asChild variant="ghost" size="sm" className="w-full justify-start gap-2">
+            <Link href="/profile" role="menuitem" onClick={() => setOpen(false)}>
+              <UserRound size={16} aria-hidden="true" />
+              个人中心
+            </Link>
+          </Button>
           <Button variant="outline" size="default"
             type="button"
             role="menuitem"

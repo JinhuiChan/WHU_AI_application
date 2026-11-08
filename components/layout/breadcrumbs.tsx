@@ -11,6 +11,7 @@ const pageNames: Record<string, string> = {
   "/intro": "赛事简介",
   "/projects": "项目",
   "/my": "我的项目",
+  "/profile": "我的资料",
   "/apply": "报名表",
   "/teacher": "指导项目",
   "/review": "报名审核",
@@ -25,12 +26,13 @@ const pageNames: Record<string, string> = {
   "/admin/logs": "审计日志",
 };
 
-const detailSections: { prefix: string; parent: { href: string; label: string }; current: string }[] = [
+const detailSections: { prefix: string; parent?: { href: string; label: string }; current: string }[] = [
   { prefix: "/competitions/", parent: { href: "/competitions", label: "赛事" }, current: "赛事详情" },
   { prefix: "/intro/", parent: { href: "/intro", label: "赛事简介" }, current: "赛事介绍" },
   { prefix: "/projects/", parent: { href: "/projects", label: "项目" }, current: "项目全貌" },
   { prefix: "/my/", parent: { href: "/my", label: "我的项目" }, current: "项目详情" },
   { prefix: "/review/", parent: { href: "/review", label: "报名审核" }, current: "审核项目详情" },
+  { prefix: "/u/", current: "个人主页" },
 ];
 
 // 详情页用真实名称覆盖「XX详情」：客户端共享状态，BreadcrumbTitle 挂载写入、卸载清空
