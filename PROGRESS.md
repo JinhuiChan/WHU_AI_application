@@ -16,8 +16,10 @@
   - 无效 `competitionId` 因 `(workspace)/loading.tsx` 流式渲染返回 200：页面校验保留，回归脚本改为「200/404 均可，但内容必须是 404 页」。
   - 侧栏删除重复「AI 助手」入口，统一为单一「赛事 AI 问答」板块（页面用 ui-polish 外壳 + pr-4 能力）。
 - schema：`CompetitionAttachment` 新增 `knowledgeStatus / knowledgeError / knowledgeIndexedAt / replacesAttachmentId`，`KbDocument` 扩展；已备份 `tmp/dev.db.before-integration.bak` 后 `db push`。
-- 验证：`tsc --noEmit`、`next lint` 通过；`scripts/verify-platform-assistant.cjs` 5 组 PASS（含澄清、配置直答、附件解析/替换、权限、下架失效），模型协议调用 13 次。生产 build 与 P3 全量回归待用户执行。
-- P3 基础回归（HTTP，seed 数据）已过：草稿学生不可见、发布可见、窗口「报名中」、下架隐藏；审核卡片/展开、获奖导出（管理员 200 xlsx、学生 403）、报名页「未上传」提示、问答单板块、配置类问答 `mode=configuration` 且返回来源、详情问答状态/替换入口、学生知识接口 403。
+- 验证：`tsc --noEmit`、`next lint`、`npm run build` 通过；`scripts/verify-platform-assistant.cjs` 5 组 PASS（含澄清、配置直答、附件解析/替换、权限、下架失效），模型协议调用 13 次。
+- P3 回归（seed + demo:all 大数据两轮）：
+  - 基础：草稿学生不可见、发布可见、窗口「报名中」、下架隐藏；审核卡片/展开、获奖导出（管理员 200 xlsx、学生 403）、报名页「未上传」提示、问答单板块、配置类问答 `mode=configuration` 且返回来源、详情问答状态/替换入口、学生知识接口 403。
+  - 大数据（872 账号 / 258 项目）：800 学生账号登录、「我的项目」、审核 258 条分页、看板、获奖导出（2 条仅已录奖项）、抽样导入项目详情、教师端均正常；dev 热态耗时约 155–289ms/页，配置问答约 151ms。
 - 已知取舍：`(workspace)/loading.tsx` 的 Suspense 流式渲染下，`notFound()` 页面内容正确但 HTTP 状态为 200（草稿/下架详情、无效问答赛事）；尝试 `generateMetadata` 提前校验也无法改变状态码，已回退，保留骨架屏与 404 内容。
 
 ## 2026-11-06 获奖名单导出 + 审核列表卡片化
