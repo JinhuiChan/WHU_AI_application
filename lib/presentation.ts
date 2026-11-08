@@ -149,6 +149,11 @@ export const auditActionLabels: Record<string, string> = {
   AWARD_UPDATED: "调整奖项",
   EXPORT_CREATED: "导出数据",
   IMPORT_BATCH_CREATED: "导入批次创建",
+  TEAM_POST_CREATED: "发布组队帖",
+  TEAM_POST_CLOSED: "关闭组队帖",
+  TEAM_POST_REMOVED: "下架组队帖",
+  TEAM_JOIN_ACCEPTED: "接受入队申请",
+  TEAM_JOIN_DECLINED: "婉拒入队申请",
 };
 
 export function formatDateTime(value: string) {
