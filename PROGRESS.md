@@ -2,6 +2,14 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-08 组队/个人中心 · S6 成团 → 报名预填
+
+- commit `2c9c530`（4 文件，+74/−3）：`lib/apply.ts` 新增 `getTeamAcceptedMembers(teamPostId, viewerId)`；`/apply` 读 `teamPostId` 并传 `initialMembers`；`apply-form` 加可选 prop（仅在无 `initialValue` 时生效，编辑已有项目不受影响）；`/teams/[id]` 对作者与已接受成员显示「去报名」。
+- **Lead 发现并当场修复越权**：初版 helper 不校验访问者，任意登录学生可用别人的 `teamPostId` 把已接受成员姓名/手机号/邮箱读进报名表。已加守卫：仅帖子作者或 `ACCEPTED` 成员可读，否则返回空数组。
+- 运行时验证（dev 3000）：作者能看到成员姓名+手机号；已接受成员可读；**无关学生两者都拿不到**；不带 `teamPostId` 的 `/apply` 行为与改动前一致。
+- 未触碰：提交校验、必填规则、`submitProject`、schema、接口。测试数据已清理（`TeamPost=0`、`TeamJoinRequest=0`）。
+- 下一步：S5 个人中心二期（`User` 加 6 个可空字段，**需用户批准**）→ 最后 S7 组队接入 AI 问答。
+
 ## 2026-11-08 组队/个人中心 · S4 组队前端 4 页
 
 - commit `425f54f`（10 文件）：`/teams`（广场，筛选+卡片+空态+分页）、`/teams/new`（发布表单）、`/teams/[id]`（详情+角色化操作）、`/my/teams`（三个 tab）；组件 `components/teams/{team-form,team-actions,my-teams}.tsx`；改 `sidebar`（学生「组队广场」）、`breadcrumbs`（3 条路由映射）、`status-badge`（新增 `scope="team"`）。
