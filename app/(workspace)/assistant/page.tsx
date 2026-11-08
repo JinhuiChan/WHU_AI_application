@@ -5,22 +5,10 @@ import { AssistantChat } from "@/components/data/assistant-chat";
 import { AssistantWorkspace } from "@/components/data/assistant-workspace";
 import { getActiveUser } from "@/lib/auth.server";
 import { prisma } from "@/lib/prisma";
+export const metadata: Metadata = { title: "赛事 AI 问答" };
 export const dynamic = "force-dynamic";
 
 type PageProps = { searchParams: { competitionId?: string } };
-
-// 工作区有 loading.tsx（Suspense 边界），页面内 notFound() 会因流式输出已开始而返回 200；
-// 把赛事校验提前到 generateMetadata，保证无效 competitionId 返回真正的 404。
-export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
-  if (searchParams.competitionId) {
-    const exists = await prisma.competition.findFirst({
-      where: { id: searchParams.competitionId, publishStatus: "PUBLISHED" },
-      select: { id: true },
-    });
-    if (!exists) notFound();
-  }
-  return { title: "赛事 AI 问答" };
-}
 
 export default async function AssistantPage({ searchParams }: PageProps) {
   const user = await getActiveUser();
