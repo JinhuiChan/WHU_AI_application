@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { syncPendingAttachments } from "@/lib/attachment-knowledge";
 import { publishedCompetitionContext, competitionYears, namedCompetition, configurationSource, activeTracks, stageFor, windowStatus, type CompetitionContext } from "@/lib/competition-context";
 import type { AssistantResult, AssistantSource } from "@/types/assistant";
+import { answerTeamRecruitmentQuestion, isTeamRecruitmentQuestion } from "@/lib/team-context";
 
 export const HANDOFF_ANSWER = "现有赛事配置和通知中没有足够依据，请联系对应赛事管理员确认。";
 const MAX_SOURCES = 12;
@@ -218,6 +219,7 @@ function configurationAnswer(question: string, competitions: CompetitionContext[
 }
 
 export async function answerQuestion(question: string, competitionId?: string): Promise<AssistantResult> {
+  if (isTeamRecruitmentQuestion(question)) return answerTeamRecruitmentQuestion(question, competitionId);
   const all = await publishedCompetitionContext();
   const years = competitionYears(question);
   const pool = years.length ? all.filter(({ year }) => years.includes(year)) : all;
