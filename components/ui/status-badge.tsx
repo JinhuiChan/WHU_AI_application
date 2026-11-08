@@ -25,7 +25,13 @@ const TONE_CLASS: Record<Tone, string> = {
   neutral: "bg-slate-100 text-slate-600 ring-slate-200",
 };
 
-export function statusTone(status: string, scope: "registration" | "project" = "registration"): Tone {
+export function statusTone(status: string, scope: "registration" | "project" | "team" = "registration"): Tone {
+  if (scope === "team") {
+    if (status === "RECRUITING" || status === "ACCEPTED") return "success";
+    if (status === "PENDING") return "warn";
+    if (status === "DECLINED") return "danger";
+    if (status === "FULL" || status === "CLOSED" || status === "EXPIRED" || status === "CANCELLED" || status === "LEFT") return "neutral";
+  }
   if (status === "REJECTED") return "danger";
   if (status === "PROVINCE_ADVANCED" || status === "NATIONAL_ADVANCED") return "success";
   if (status === "SCHOOL_FINAL") return scope === "registration" ? "success" : "info";
@@ -40,7 +46,7 @@ export function StatusBadge({
   children,
 }: {
   status: string;
-  scope?: "registration" | "project";
+  scope?: "registration" | "project" | "team";
   children: ReactNode;
 }) {
   return (

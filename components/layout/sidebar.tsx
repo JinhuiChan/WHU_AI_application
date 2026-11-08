@@ -31,6 +31,7 @@ const studentNavigation = [
   { href: "/dashboard", label: "看板", icon: LayoutDashboard },
   { href: "/competitions", label: "赛事与报名", icon: Trophy },
   { href: "/intro", label: "赛事简介", icon: BookOpen },
+  { href: "/teams", label: "组队广场", icon: Users },
   { href: "/my", label: "我的项目", icon: FolderKanban },
   { href: "/profile", label: "个人中心", icon: UserRound },
 ];
