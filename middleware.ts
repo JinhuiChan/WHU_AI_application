@@ -36,9 +36,9 @@ export async function middleware(request: NextRequest) {
   const session = token ? await verifySession(token) : null;
 
   if (pathname === "/login" || pathname === "/register") {
-    if (session) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
-    }
+    // 不在这里根据 JWT 判断“已登录”：JWT 可能对应已删除/重建的账号，
+    // 若此处强制跳 /dashboard，会与页面内的 getActiveUser() 校验形成死循环。
+    // 登录页会自行校验有效会话并决定是否跳转。
     return NextResponse.next();
   }
 

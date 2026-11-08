@@ -2,11 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import type { ApiResponse } from "@/types/api";
 import type { AuthUser } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 
 type LoginData = {
   user: AuthUser;
@@ -17,7 +15,6 @@ type Identity = "STUDENT" | "TEACHER" | "ADMIN";
 const IDENTITY_STORAGE_KEY = "login.lastIdentity";
 
 export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
-  const router = useRouter();
   const phoneRef = useRef<HTMLInputElement>(null);
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -59,9 +56,8 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
       if (!response.ok || result.code !== 0) {
         throw new Error(result.message || "登录失败");
       }
-      toast.success("登录成功，正在进入工作台");
-      router.replace(callbackUrl);
-      router.refresh();
+      // 身份切换后重建页面，清除上一身份的客户端路由缓存。
+      window.location.replace(callbackUrl);
     } catch (caught: unknown) {
       setError(caught instanceof Error ? caught.message : "登录失败，请稍后重试");
     } finally {

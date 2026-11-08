@@ -5,11 +5,21 @@ import { apiError, apiSuccess } from "@/lib/api";
 import { writeAuditLog } from "@/lib/audit";
 import { requireApiAdmin } from "@/lib/auth.server";
 import { prisma } from "@/lib/prisma";
+import { syncAttachment } from "@/lib/attachment-knowledge";
 
 type Context = { params: { id: string; attachmentId: string } };
 
+export async function POST(_request: NextRequest, { params }: Context) {
+  const authorization = await requireApiAdmin({ activeIdentity: true });
+  if (!authorization.ok) return authorization.response;
+  const attachment = await prisma.competitionAttachment.findFirst({ where: { id: params.attachmentId, competitionId: params.id } });
+  if (!attachment) return apiError(404, "附件不存在");
+  await syncAttachment(attachment.id, true);
+  return apiSuccess(await prisma.competitionAttachment.findUnique({ where: { id: attachment.id } }), "已重新解析，请查看状态");
+}
+
 export async function DELETE(_request: NextRequest, { params }: Context) {
-  const authorization = await requireApiAdmin();
+  const authorization = await requireApiAdmin({ activeIdentity: true });
   if (!authorization.ok) return authorization.response;
   try {
     const attachment = await prisma.competitionAttachment.findFirst({
@@ -20,6 +30,10 @@ export async function DELETE(_request: NextRequest, { params }: Context) {
     const diskPath = path.resolve(process.cwd(), "public", `.${attachment.filePath}`);
     if (!diskPath.startsWith(`${base}${path.sep}`)) return apiError(500, "文件路径不安全");
     await prisma.$transaction(async (transaction) => {
+      await transaction.kbDocument.updateMany({
+        where: { sourceAttachmentId: attachment.id },
+        data: { isActive: false },
+      });
       await transaction.competitionAttachment.delete({ where: { id: attachment.id } });
       await writeAuditLog({
         actorId: authorization.user.id,

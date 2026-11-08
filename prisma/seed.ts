@@ -554,6 +554,7 @@ async function main() {
   const kbDocument = await prisma.kbDocument.create({
     data: {
       title: "2026年科创赛事报名指南",
+      competitionId: firstTemplate.competitionId,
       fileName: "2026-报名指南.pdf",
       filePath: "/seed-files/2026-guide.pdf",
       year: 2026,

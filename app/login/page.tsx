@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/auth/login-form";
 import BlurText from "@/components/react-bits/BlurText";
 import ShinyText from "@/components/react-bits/ShinyText";
+import { getActiveUser } from "@/lib/auth.server";
 
 export const metadata: Metadata = {
   title: "登录",
@@ -17,7 +19,10 @@ type LoginPageProps = {
 
 const CAPABILITIES = ["校赛进程", "材料版本", "一致性核对", "全流程留痕"];
 
-export default function LoginPage({ searchParams }: LoginPageProps) {
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  // 只有数据库里仍然有效的会话才自动进工作台；失效 cookie 留在 /login 重新登录。
+  const user = await getActiveUser();
+  if (user) redirect("/dashboard");
   const rawCallback = Array.isArray(searchParams?.callbackUrl)
     ? searchParams.callbackUrl[0]
     : searchParams?.callbackUrl;

@@ -17,7 +17,7 @@ const pageNames: Record<string, string> = {
   "/review/changes": "变更申请",
   "/import": "数据导入",
   "/anomalies": "异常核实",
-  "/assistant": "AI 助手",
+  "/assistant": "赛事 AI 问答",
   "/check": "材料检查",
   "/rankings": "学院排行",
   "/admin/users": "用户管理",

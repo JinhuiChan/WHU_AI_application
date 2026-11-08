@@ -4,7 +4,16 @@ import { Button } from "@/components/ui/button";
 import { useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
-type Attachment = { id: string; title: string; kind: string; fileName: string; filePath: string };
+type Attachment = {
+  id: string;
+  title: string;
+  kind: string;
+  fileName: string;
+  filePath: string;
+  knowledgeStatus?: string;
+  knowledgeError?: string | null;
+  replacesAttachmentId?: string | null;
+};
 type WindowValue = { startAt: string; endAt: string; enabled: boolean } | null;
 type Props = {
   competition: { id: string; name: string; organizer: string | null; description: string | null };
@@ -21,6 +30,13 @@ const attachmentKindLabels: Record<string, string> = {
   RULE: "规程",
   TEMPLATE: "模板",
   VIDEO: "宣传片",
+};
+const knowledgeStatusLabels: Record<string, string> = {
+  READY: "已解析",
+  PENDING: "待解析",
+  ERROR: "解析失败",
+  SKIPPED: "仅供下载",
+  REPLACED: "已被新版替换",
 };
 
 function localInput(value: string | undefined) {
@@ -239,16 +255,19 @@ export function CompetitionManagement({ competition, attachments, initialWindow 
       </section>
 
       <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="text-sm font-semibold text-slate-900">赛事文件</h2>
-        <p className="mt-1 text-xs text-slate-500">通知、规程、模板在这里上传；宣传片请用上面的独立入口，避免和文档混在一起。</p>
+        <h2 id="competition-files" className="text-sm font-semibold text-slate-900">赛事文件与问答依据</h2>
+        <p className="mt-2 text-xs leading-5 text-slate-500">
+          通知、规程上传后自动解析供问答使用，无须另行发布。模板和内置演示文件不作为规则依据；图片、扫描件及旧版 DOC 需换成含文字的 PDF、DOCX 或 TXT。
+          替换旧版仅在新文件解析成功后生效。宣传片请用上面的独立入口。
+        </p>
         <form
-          className="mt-4 grid items-end gap-3 rounded-lg bg-slate-50 p-4 md:grid-cols-[1fr_160px_1fr_auto]"
+          className="mt-4 grid items-end gap-3 rounded-lg bg-slate-50 p-4 md:grid-cols-[1fr_150px_1fr_1fr_auto]"
           onSubmit={async (event) => {
             event.preventDefault();
             const formElement = event.currentTarget;
             const form = new FormData(formElement);
             setPending("upload");
-            const saved = await request(`/api/admin/competitions/${competition.id}/attachments`, { method: "POST", body: form }, "文件上传成功");
+            const saved = await request(`/api/admin/competitions/${competition.id}/attachments`, { method: "POST", body: form }, "文件已上传，请核对下方问答解析状态");
             setPending("");
             if (saved) {
               formElement.reset();
@@ -259,13 +278,43 @@ export function CompetitionManagement({ competition, attachments, initialWindow 
           <label className="text-sm text-slate-600">标题<input name="title" ref={titleRef} className={fieldClass} required maxLength={120} placeholder="选择文件后自动填入文件名，可修改" /></label>
           <label className="text-sm text-slate-600">类型<select name="kind" className={fieldClass} defaultValue="NOTICE"><option value="NOTICE">通知</option><option value="RULE">规程</option><option value="TEMPLATE">模板</option></select></label>
           <label className="text-sm text-slate-600">文件<input ref={fileRef} name="file" type="file" required accept=".pdf,.docx,.doc,.xlsx,.jpg,.jpeg,.png,.txt" onChange={(event) => { const picked = event.target.files?.[0]; if (picked && titleRef.current && !titleRef.current.value.trim()) { titleRef.current.value = picked.name.replace(/\.[^.]+$/, ""); } }} className="mt-1 block w-full text-sm file:mr-2 file:rounded file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:text-blue-700" /></label>
+          <label className="text-sm text-slate-600">完整替换旧版（可选）
+            <select name="replacesAttachmentId" className={fieldClass} defaultValue="">
+              <option value="">新增独立资料</option>
+              {attachments.filter((item) => item.knowledgeStatus === "READY").map((item) => (
+                <option key={item.id} value={item.id}>{item.title}</option>
+              ))}
+            </select>
+          </label>
           <Button type="submit" variant="default" size="sm" disabled={pending === "upload"}>{pending === "upload" ? "上传中…" : "上传文件"}</Button>
         </form>
         <ul className="mt-4 divide-y divide-slate-100">
           {documents.map((file) => (
             <li key={file.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
-              <div><p className="text-sm text-slate-900">{file.title}</p><p className="text-xs text-slate-500">{attachmentKindLabels[file.kind] ?? file.kind} · {file.fileName}</p></div>
-              <div className="flex gap-2">
+              <div>
+                <p className="text-sm text-slate-900">{file.title}</p>
+                <p className="text-xs text-slate-500">{attachmentKindLabels[file.kind] ?? file.kind} · {file.fileName}</p>
+                <p className="mt-1 text-xs text-slate-600">
+                  问答状态：{knowledgeStatusLabels[file.knowledgeStatus ?? ""] ?? "待解析"}
+                  {file.knowledgeError ? ` · ${file.knowledgeError}` : ""}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {["PENDING", "ERROR"].includes(file.knowledgeStatus ?? "") ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={pending === `sync-${file.id}`}
+                    onClick={async () => {
+                      setPending(`sync-${file.id}`);
+                      await request(`/api/admin/competitions/${competition.id}/attachments/${file.id}`, { method: "POST" }, "已重试解析，请查看状态");
+                      setPending("");
+                    }}
+                  >
+                    {pending === `sync-${file.id}` ? "解析中…" : "重新解析"}
+                  </Button>
+                ) : null}
                 <a href={file.filePath} target="_blank" rel="noreferrer" className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-700">查看 / 下载</a>
                 <Button
                   type="button"

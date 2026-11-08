@@ -11,6 +11,7 @@ import { getActiveUser } from "@/lib/auth.server";
 import { getCompetitionDetail } from "@/lib/competitions";
 import { loadScopedLabels } from "@/lib/dict-labels";
 import { firstParam } from "@/lib/list-query";
+import { syncPendingAttachments } from "@/lib/attachment-knowledge";
 import { prisma } from "@/lib/prisma";
 import { awardLevelLabels, awardStatusLabels, competitionLevelLabels, dataSourceTypeLabels, formatDate, formatDateTime, publishStatusLabels } from "@/lib/presentation";
 
@@ -30,6 +31,7 @@ export default async function CompetitionDetailPage({ params, searchParams }: Pa
   // 草稿/已下架赛事仅管理员可见，学生直接访问按不存在处理
   if (user.role !== "ADMIN" && competition.publishStatus !== "PUBLISHED") notFound();
 
+  if (user.role === "ADMIN") await syncPendingAttachments([params.id]);
   const [attachments, windows, tracks] = await Promise.all([
     prisma.competitionAttachment.findMany({
       where: { competitionId: params.id },
@@ -86,6 +88,12 @@ export default async function CompetitionDetailPage({ params, searchParams }: Pa
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <h1 className="text-xl font-semibold text-slate-900">{competition.name}</h1>
           <span className="rounded-full bg-blue-50 px-2 py-1 text-xs text-blue-700">{competitionLevelLabels[competition.level]}</span>
+          {competition.publishStatus === "PUBLISHED" && (
+            <Link href={`/assistant?competitionId=${competition.id}`} className="text-sm text-blue-600 hover:underline">问这场比赛</Link>
+          )}
+          {user.role === "ADMIN" && (
+            <Link href="#competition-files" className="text-sm text-blue-600 hover:underline">维护赛事资料</Link>
+          )}
         </div>
       </div>
 
@@ -189,6 +197,8 @@ export default async function CompetitionDetailPage({ params, searchParams }: Pa
                 <li key={file.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
                   <div>
                     <p className="text-sm text-slate-900">{file.title}</p>
+                    {file.filePath.startsWith("/samples/") && <p className="text-xs text-amber-700">内置演示资料，不作为正式问答依据</p>}
+                    {file.knowledgeStatus === "REPLACED" && <p className="text-xs text-slate-500">已被新版替换，仅供历史查阅</p>}
                     <p className="text-xs text-slate-500">{file.kind === "RULE" ? "规程" : file.kind === "TEMPLATE" ? "模板" : "通知"} · {file.fileName}</p>
                   </div>
                   <a href={file.filePath} target="_blank" rel="noreferrer" className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50">

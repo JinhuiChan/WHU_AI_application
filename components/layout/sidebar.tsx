@@ -4,13 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BookOpen,
-  Bot,
   ClipboardCheck,
   FileCheck,
   FileText,
   FolderKanban,
   ShieldAlert,
   LayoutDashboard,
+  MessageCircle,
   Settings,
   Trophy,
   Upload,
@@ -41,17 +41,16 @@ const teacherNavigation = [
 
 function navigationFor(roles: Role[]) {
   const set = new Set(roles);
+  const assistant = { href: "/assistant", label: "赛事 AI 问答", icon: MessageCircle };
   // 管理员导航已覆盖全部管理入口
-  if (set.has("ADMIN")) return adminNavigation;
+  if (set.has("ADMIN")) return [...adminNavigation, assistant];
   const dashboard = [{ href: "/dashboard", label: "看板", icon: LayoutDashboard }];
   const extra = [
     ...(set.has("STUDENT") ? studentNavigation.filter((item) => item.href !== "/dashboard") : []),
     ...(set.has("TEACHER") ? teacherNavigation.filter((item) => item.href !== "/dashboard") : []),
   ];
-  return extra.length ? [...dashboard, ...extra] : dashboard;
+  return [...dashboard, ...extra, assistant];
 }
-
-const commonTools = [{ href: "/assistant", label: "AI 助手", icon: Bot }];
 
 const administration = [
   { href: "/review", label: "报名审核", icon: ClipboardCheck },
@@ -108,26 +107,6 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
               </Link>
             );
           })}
-          <div className="pt-5">
-            <p className="mb-2 px-3 text-xs font-medium text-slate-400">工具</p>
-            {commonTools.map((item) => {
-              const Icon = item.icon;
-              const active = isActive(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  aria-current={active ? "page" : undefined}
-                  className={`flex h-10 items-center gap-3 rounded-xl px-3 text-sm transition ${
-                    active ? "bg-blue-50 font-medium text-blue-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                  }`}
-                >
-                  <Icon size={18} aria-hidden="true" />
-                  {item.label}
-                </Link>
-              );
-            })}
-          </div>
           {roles.includes("ADMIN") ? (
             <div className="pt-5">
               <p className="mb-2 px-3 text-xs font-medium text-slate-400">管理</p>

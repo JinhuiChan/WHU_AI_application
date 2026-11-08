@@ -4,13 +4,11 @@ import { Button } from "@/components/ui/button";
 import { roleLabels } from "@/lib/presentation";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { ChevronDown, LogOut, UserRound } from "lucide-react";
 import type { AuthUser } from "@/lib/auth";
 import type { ApiResponse } from "@/types/api";
 
 export function UserMenu({ user }: { user: AuthUser }) {
-  const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -35,8 +33,7 @@ export function UserMenu({ user }: { user: AuthUser }) {
       if (!response.ok || result.code !== 0) {
         throw new Error(result.message || "退出失败");
       }
-      router.replace("/login");
-      router.refresh();
+      window.location.replace("/login");
     } catch (caught: unknown) {
       setError(caught instanceof Error ? caught.message : "退出失败，请稍后重试");
       setLoading(false);
