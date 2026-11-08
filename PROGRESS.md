@@ -2,6 +2,20 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-08 组队/个人中心 · S2 schema + S3 后端接口
+
+- S2（commit `31a7c09`）：新增 `TeamPost`、`TeamJoinRequest` + `TeamPostStatus`/`TeamJoinStatus` 两个枚举，`schema.prisma` **+66 行、0 删除**；`prisma validate` 通过；用户执行 `db:push` + `db:generate` 后库里 32 表、两新表 0 行，`User` 872 / `Project` 258 未变。改前已备份 `tmp/dev.db.before-s2.bak`。
+- S3（commit `bffc5b6`）：6 个路由（列表/详情+编辑+关闭+下架/申请/申请列表/审批/我的组队）+ `lib/presentation.ts` 5 条审计中文，共 701 行。发布/申请限学生，关帖/审批限作者或管理员，全部走 `$transaction` + `AuditLog`。
+- **Lead 独立 HTTP 补测**（dev 3000，学生 A/B + 管理员）全绿：
+  - `403` 非学生发帖；`422` 申请自己的帖；`409` 重复申请；`403` 非作者审批；`403` 非作者看申请列表
+  - `201` 建帖；`200` 详情；接受后 `currentCount=2`
+  - `404` 下架不存在的 id；`200` 管理员下架；`409` 重复下架；`404` 下架后非管理员看详情；`200` 管理员仍可见
+  - 测试数据已清理：`TeamPost=0`、`TeamJoinRequest=0`、测试审计已删
+- 排障记录两条（避免重复踩）：
+  1. `.next` 缓存损坏（`vendor-chunks/bcryptjs.js` ENOENT）会让**动态路由整个 500 且返回体为空**，`Remove-Item .next` 后重启即恢复；不是代码问题。
+  2. PowerShell 里 `'{"a":1}' | ConvertTo-Json` 会二次转义成 JSON 字符串，服务端判 422；测试脚本必须直接把 JSON 文本写进请求体。
+- 下一步：S4 组队前端 4 页（广场/发布/详情/我的组队）。
+
 ## 2026-11-08 组队/个人中心 · S1 个人中心只读页（Kimi 执行，Lead 验收）
 
 - commit `9786b36`（5 文件，+386/−1）：新增 `/u/[id]` 公开主页、`/profile` 我的资料（只读）；改 `breadcrumbs.tsx`（补 `/profile`、`/u/` 映射）、`sidebar.tsx`（学生/老师导航加「个人中心」）、`user-menu.tsx`（加「个人中心」链接）。
