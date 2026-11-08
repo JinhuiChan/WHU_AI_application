@@ -2,6 +2,14 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-08 组队/个人中心 · S5 个人中心二期（简介/技能/可见性开关）
+
+- commit `cc05bfa`（5 文件，+299/−12）：`User` 追加 `bio` / `avatarUrl` / `skills` / `showRecords` / `showAwards` 五个字段（`prisma validate` 通过、`db:push` 已同步）；新增 `PATCH /api/profile` 与 `components/profile/profile-form.tsx`；`/profile` 挂表单；`/u/[id]` 加简介与技能区块，并按开关**在查询层短路**。
+- 设计取舍：**未加 `showContact`**。它与 S1 定下的「手机号/邮箱永不出现在公开主页」红线冲突，需单独决策；头像只存 URL，不做上传。
+- 运行时验证（dev 3000，A=孙嘉禾 / B=周浩然）：简介与技能能存能显示；`showRecords` + `showAwards` 同时关闭后，他人主页的参赛记录段、获奖段、项目名**全部消失**（服务端未查询），重新开启后恢复；`AuditLog.detail` 只有 `{"changedFields":[...]}`，**无简介原文**；测试数据已重置（`dirty users = 0`）。
+- 排障记录：Windows 上 `prisma generate` 报 `EPERM rename query_engine-windows.dll.node`，原因是 dev 进程占用 DLL —— 先停 dev 再 generate，然后重启 dev。
+- 下一步：收尾三项（⑬ 获奖口径统一、⑭ 多角色主页、⑯ 老师时间线去重）→ 最后 S7 组队接入 AI 问答。
+
 ## 2026-11-08 组队/个人中心 · S6 成团 → 报名预填
 
 - commit `2c9c530`（4 文件，+74/−3）：`lib/apply.ts` 新增 `getTeamAcceptedMembers(teamPostId, viewerId)`；`/apply` 读 `teamPostId` 并传 `initialMembers`；`apply-form` 加可选 prop（仅在无 `initialValue` 时生效，编辑已有项目不受影响）；`/teams/[id]` 对作者与已接受成员显示「去报名」。
