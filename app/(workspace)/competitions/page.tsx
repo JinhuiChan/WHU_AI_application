@@ -1,9 +1,14 @@
+import { Button, ButtonArrow } from "@/components/ui/button";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CompetitionCreate } from "@/components/admin/competition-create";
 import { CompetitionDeleteButton } from "@/components/admin/competition-delete-button";
+import { CompetitionMobileList } from "@/components/competitions/competition-mobile-list";
 import { Pagination } from "@/components/data/pagination";
+import { detailHref, listHref } from "@/components/data/list-link";
 import { getActiveUser } from "@/lib/auth.server";
 import { getCompetitionPage, listCompetitionYears } from "@/lib/competitions";
 import { firstParam, optionalCompetitionLevel, optionalPublishStatus, optionalText, optionalYear, pageParams } from "@/lib/list-query";
@@ -11,14 +16,6 @@ import { competitionLevelLabels, formatDateTime, publishStatusLabels, registrati
 
 export const metadata: Metadata = { title: "赛事" };
 
-function registrationTone(status: string) {
-  if (status === "REJECTED") return "bg-red-50 text-red-700";
-  if (status === "DRAFT") return "bg-slate-100 text-slate-600";
-  if (status === "SCHOOL_FINAL" || status === "PROVINCE_ADVANCED" || status === "NATIONAL_ADVANCED") {
-    return "bg-emerald-50 text-emerald-700";
-  }
-  return "bg-amber-50 text-amber-700";
-}
 
 type PageProps = {
   searchParams?: Record<string, string | string[] | undefined>;
@@ -49,9 +46,18 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
     listCompetitionYears(),
   ]);
   const isStudent = user.role === "STUDENT";
+  // 详情页的返回目标：带上当前筛选与页码，回来时不用重新选一遍
+  const from = listHref("/competitions", {
+    year,
+    level,
+    publishStatus,
+    q,
+    page: page > 1 ? String(page) : "",
+    pageSize: String(pageSize),
+  });
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold text-slate-900">{user.role === "STUDENT" ? "可报名赛事" : "赛事管理"}</h1>
@@ -61,28 +67,31 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
               : "按赛年、等级和关键词查找赛事，进入详情查看获奖名单。"}
           </p>
         </div>
-        {user.role === "ADMIN" ? <CompetitionCreate /> : null}
-        {user.role === "STUDENT" ? (
-          <div className="flex items-center gap-2">
-            <Link href="/my" className="rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+        <div className="flex flex-wrap items-center gap-2">
+          {user.role === "ADMIN" ? <CompetitionCreate /> : null}
+          <Link href="/intro" className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">
+            赛事简介
+          </Link>
+          {user.role === "STUDENT" ? (
+            <Link href="/my" className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">
               我的项目
             </Link>
-          </div>
-        ) : null}
+          ) : null}
+        </div>
       </div>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <form action="/competitions" method="get" className="flex flex-wrap items-end gap-3">
-          <label className="text-xs text-slate-500">
+          <label className="text-sm text-slate-600">
             <span className="mb-1 block">赛年</span>
-            <select name="year" defaultValue={year} className="h-10 min-w-28 rounded-md border border-slate-300 bg-white px-3 text-sm">
+            <select name="year" defaultValue={year} className="h-10 min-w-28 rounded-lg border border-slate-300 bg-white px-3 text-sm">
               <option value="">全部赛年</option>
               {years.map((item) => <option key={item} value={item}>{item}</option>)}
             </select>
           </label>
-          <label className="text-xs text-slate-500">
+          <label className="text-sm text-slate-600">
             <span className="mb-1 block">赛事等级</span>
-            <select name="level" defaultValue={level} className="h-10 min-w-28 rounded-md border border-slate-300 bg-white px-3 text-sm">
+            <select name="level" defaultValue={level} className="h-10 min-w-28 rounded-lg border border-slate-300 bg-white px-3 text-sm">
               <option value="">全部等级</option>
               <option value="SCHOOL">校赛</option>
               <option value="PROVINCE">省赛</option>
@@ -90,9 +99,9 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
             </select>
           </label>
           {user.role === "ADMIN" ? (
-            <label className="text-xs text-slate-500">
+            <label className="text-sm text-slate-600">
               <span className="mb-1 block">发布状态</span>
-              <select name="publishStatus" defaultValue={publishStatus} className="h-10 min-w-28 rounded-md border border-slate-300 bg-white px-3 text-sm">
+              <select name="publishStatus" defaultValue={publishStatus} className="h-10 min-w-28 rounded-lg border border-slate-300 bg-white px-3 text-sm">
                 <option value="">全部状态</option>
                 <option value="DRAFT">草稿</option>
                 <option value="PUBLISHED">已发布</option>
@@ -100,23 +109,23 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
               </select>
             </label>
           ) : null}
-          <label className="min-w-52 flex-1 text-xs text-slate-500">
+          <label className="min-w-52 flex-1 text-sm text-slate-600">
             <span className="mb-1 block">关键词</span>
-            <input name="q" type="search" defaultValue={q} placeholder={isStudent ? "赛事名称或主办方" : "赛事名称、主办方或系列标识"} className="h-10 w-full rounded-md border border-slate-300 px-3 text-sm outline-none focus:border-blue-600" />
+            <input name="q" type="search" defaultValue={q} placeholder={isStudent ? "赛事名称或主办方" : "赛事名称、主办方或系列标识"} className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none focus:border-blue-600" />
           </label>
-          <label className="text-xs text-slate-500">
+          <label className="text-sm text-slate-600">
             <span className="mb-1 block">每页条数</span>
-            <select name="pageSize" defaultValue={String(pageSize)} className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm">
+            <select name="pageSize" defaultValue={String(pageSize)} className="h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm">
               {[10, 20, 50].map((size) => <option key={size} value={size}>{size} 条</option>)}
             </select>
           </label>
-          <button type="submit" className="h-10 rounded-md bg-blue-600 px-4 text-sm text-white hover:bg-blue-700">筛选</button>
-          <Link href="/competitions" className="flex h-10 items-center rounded-md border border-slate-300 px-4 text-sm text-slate-600 hover:bg-slate-50">重置</Link>
+          <Button variant="default" size="sm" type="submit" >筛选</Button>
+          <Link href="/competitions" className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100 px-4">重置</Link>
         </form>
       </section>
 
-      <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-        <div className="overflow-x-auto">
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="hidden overflow-x-auto lg:block">
           <table className="w-full min-w-[900px] text-left text-sm">
             <thead className="bg-slate-50 text-xs text-slate-500">
               <tr>
@@ -143,7 +152,7 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
                 <tr key={competition.id} className="text-slate-700 hover:bg-slate-50">
                   <td className="px-4 py-4">{competition.year}</td>
                   <td className="px-4 py-4 font-medium text-slate-900">
-                    <Link href={`/competitions/${competition.id}`} className="hover:text-blue-600">{competition.name}</Link>
+                    <Link href={detailHref("/competitions", competition.id, from)} className="hover:text-blue-600">{competition.name}</Link>
                   </td>
                   <td className="px-4 py-4">
                     <span className="rounded-full bg-blue-50 px-2 py-1 text-xs text-blue-700">{competitionLevelLabels[competition.level]}</span>
@@ -166,9 +175,9 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
                       </td>
                       <td className="px-4 py-4 text-xs">
                         {competition.registration?.projectStatus ? (
-                          <span className={`rounded-full px-2 py-0.5 ${registrationTone(competition.registration.projectStatus)}`}>
+                          <StatusBadge status={competition.registration.projectStatus}>
                             {registrationStatusLabels[competition.registration.projectStatus]}
-                          </span>
+                          </StatusBadge>
                         ) : (
                           <span className="text-slate-400">未报名</span>
                         )}
@@ -192,27 +201,46 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
                     </>
                   )}
                   <td className="whitespace-nowrap px-4 py-4">
-                    <Link href={`/competitions/${competition.id}`} className="text-blue-600 hover:underline">查看详情</Link>
-                    {isStudent && competition.registration?.windowOpen && !competition.registration.projectId ? (
-                      <Link href={`/apply?competitionId=${competition.id}`} className="ml-3 text-blue-600 hover:underline">立即报名</Link>
-                    ) : null}
-                    {isStudent && competition.registration?.projectStatus ? (
-                      <Link href="/my" className="ml-3 text-slate-500 hover:underline">我的项目</Link>
-                    ) : null}
-                    {user.role === "ADMIN" ? (
-                      <span className="ml-3 inline-block align-middle">
-                        <CompetitionDeleteButton competitionId={competition.id} competitionName={competition.name} label="删除" />
-                      </span>
-                    ) : null}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Button asChild size="sm" variant="outline" className="group h-8 px-3">
+                        <Link href={detailHref("/competitions", competition.id, from)}>
+                          查看详情
+                          <ButtonArrow />
+                        </Link>
+                      </Button>
+                      {isStudent && competition.registration?.windowOpen && !competition.registration.projectId ? (
+                        <Button asChild size="sm" variant="default" className="group h-8 px-3">
+                          <Link href={`/apply?competitionId=${competition.id}`}>
+                            立即报名
+                            <ButtonArrow />
+                          </Link>
+                        </Button>
+                      ) : null}
+                      {isStudent && competition.registration?.projectStatus ? (
+                        <Button asChild size="sm" variant="ghost" className="h-8 px-3 text-slate-500 hover:bg-slate-100">
+                          <Link href="/my">我的项目</Link>
+                        </Button>
+                      ) : null}
+                      {user.role === "ADMIN" ? (
+                        <CompetitionDeleteButton compact competitionId={competition.id} competitionName={competition.name} label="删除" />
+                      ) : null}
+                    </div>
                   </td>
                 </tr>
               ))}
               {data.list.length === 0 ? (
-                <tr><td colSpan={isStudent ? 6 : 7} className="px-4 py-12 text-center text-slate-500">暂无符合条件的赛事</td></tr>
+                <tr><td colSpan={isStudent ? 6 : 7}><EmptyState title="还没有符合条件的赛事" description="试试放宽赛年、状态或关键字，也可以重置筛选查看全部赛事。" action={{ href: "/competitions", label: "清除筛选" }} /></td></tr>
               ) : null}
             </tbody>
           </table>
         </div>
+        {data.list.length === 0 ? (
+          <div className="lg:hidden">
+            <EmptyState title="还没有符合条件的赛事" description="试试放宽赛年、状态或关键字，也可以重置筛选查看全部赛事。" action={{ href: "/competitions", label: "清除筛选" }} />
+          </div>
+        ) : (
+          <CompetitionMobileList items={data.list} isStudent={isStudent} from={from} />
+        )}
         <Pagination basePath="/competitions" query={{ year, level, publishStatus, q, pageSize: String(pageSize) }} total={data.total} page={data.page} pageSize={data.pageSize} />
       </section>
     </div>

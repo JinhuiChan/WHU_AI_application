@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { listHref } from "@/components/data/list-link";
 import { Pagination } from "@/components/data/pagination";
 import { DatasetExport } from "@/components/export/dataset-export";
 import { PackageDownload } from "@/components/review/package-download";
@@ -77,13 +78,13 @@ export default async function ReviewPage({ searchParams }: PageProps) {
   const exportFilters = { ...values, tab: "" };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
           <h1 className="text-xl font-semibold text-slate-900">报名审核</h1>
           <p className="mt-1 text-sm text-slate-500">学院审核通过后进入校级终审；红色行表示存在未确认指导关系。</p>
         </div>
-        <Link href="/review/changes" className="rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+        <Link href="/review/changes" className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">
           变更申请
           {pendingChanges > 0 ? (
             <span className="ml-2 rounded-full bg-red-600 px-2 py-0.5 text-xs font-medium text-white" title={`待审批变更申请 ${pendingChanges} 条`}>
@@ -99,7 +100,7 @@ export default async function ReviewPage({ searchParams }: PageProps) {
             key={item.key}
             href={tabHref(item.key)}
             aria-current={tab === item.key ? "page" : undefined}
-            className={`h-10 rounded-md px-4 text-sm leading-10 ${tab === item.key ? "bg-blue-600 font-medium text-white" : "border border-slate-300 bg-white text-slate-600 hover:bg-slate-50"}`}
+            className={`h-10 rounded-lg px-4 text-sm leading-10 ${tab === item.key ? "bg-blue-600 font-medium text-white" : "border border-slate-300 bg-white text-slate-600 hover:bg-slate-50"}`}
           >
             {item.label}
           </Link>
@@ -107,7 +108,7 @@ export default async function ReviewPage({ searchParams }: PageProps) {
         <span className="text-xs text-slate-400">默认只看待审核；状态下拉可精确到某一状态</span>
       </div>
       {tab === "pending" && data.total === 0 ? (
-        <p className="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+        <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
           当前没有待审核项目，可切换到
           <Link href={tabHref("reviewed")} className="mx-1 underline">已审核</Link>或
           <Link href={tabHref("all")} className="mx-1 underline">全部</Link>查看。
@@ -115,8 +116,8 @@ export default async function ReviewPage({ searchParams }: PageProps) {
       ) : null}
       <ReviewFilters options={options} values={values} />
       <DatasetExport scope="all" filters={exportFilters} buttonLabel="导出数据表" />
-      <ReviewWorkbench data={data} />
-      <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
+      <ReviewWorkbench data={data} from={listHref("/review", { ...values } as Record<string, string>)} />
+      <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
         <Pagination basePath="/review" query={values} total={data.total} page={data.page} pageSize={data.pageSize} />
       </div>
     </div>

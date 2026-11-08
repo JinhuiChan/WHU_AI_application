@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -45,32 +47,32 @@ export default async function ChangeReviewPage({ searchParams }: PageProps) {
   const totalPages = Math.max(1, Math.ceil(result.total / result.pageSize));
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold text-slate-900">变更申请</h1>
           <p className="mt-1 text-sm text-slate-500">学生提交的变更申请，按类型走学院审核或学院 + 校级两级审核；默认只列待审批。</p>
         </div>
-        <Link href="/review" className="rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+        <Link href="/review" className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">
           返回报名审核
         </Link>
       </div>
 
-      <form action="/review/changes" method="get" className="flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <label className="text-xs text-slate-500">
+      <form action="/review/changes" method="get" className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <label className="text-sm text-slate-500">
           <span className="mb-1 block">状态</span>
-          <select name="status" defaultValue={status || "ALL"} className="h-10 min-w-40 rounded-md border border-slate-300 bg-white px-3 text-sm">
+          <select name="status" defaultValue={status || "ALL"} className="h-10 min-w-40 rounded-lg border border-slate-300 bg-white px-3 text-sm">
             <option value="ALL">全部状态</option>
             {STATUS_OPTIONS.map((item) => (
               <option key={item.value} value={item.value}>{item.label}</option>
             ))}
           </select>
         </label>
-        <button type="submit" className="h-10 rounded-md bg-blue-600 px-4 text-sm font-medium text-white hover:bg-blue-700">筛选</button>
-        <Link href="/review/changes" className="h-10 rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">重置</Link>
+        <Button variant="default" size="sm" type="submit" >筛选</Button>
+        <Link href="/review/changes" className="h-10 inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">重置</Link>
       </form>
 
-      <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1100px] text-left text-sm">
             <thead className="bg-slate-50 text-xs text-slate-500">
@@ -117,7 +119,7 @@ export default async function ChangeReviewPage({ searchParams }: PageProps) {
                 </tr>
               ))}
               {result.list.length === 0 ? (
-                <tr><td colSpan={8} className="px-4 py-12 text-center text-slate-500">当前筛选下暂无变更申请{status === "PENDING" ? "（可切换「全部状态」查看历史）" : ""}</td></tr>
+                <tr><td colSpan={8}><EmptyState title="当前筛选下没有变更申请" description={status === "PENDING" ? "可以切换「全部状态」查看历史申请，或重置筛选条件。" : "试试放宽筛选条件，或重置后查看全部申请。"} action={{ href: "/review/changes", label: "清除筛选" }} /></td></tr>
               ) : null}
             </tbody>
           </table>
@@ -126,10 +128,10 @@ export default async function ChangeReviewPage({ searchParams }: PageProps) {
           <span>共 {result.total} 条，第 {result.page} / {totalPages} 页</span>
           <div className="flex gap-2">
             {result.page > 1 ? (
-              <Link href={`/review/changes?page=${result.page - 1}&status=${statusQuery}`} className="rounded-md border border-slate-300 px-3 py-1 hover:bg-slate-50">上一页</Link>
+              <Link href={`/review/changes?page=${result.page - 1}&status=${statusQuery}`} className="rounded-lg border border-slate-300 px-3 py-1 hover:bg-slate-50">上一页</Link>
             ) : null}
             {result.page < totalPages ? (
-              <Link href={`/review/changes?page=${result.page + 1}&status=${statusQuery}`} className="rounded-md border border-slate-300 px-3 py-1 hover:bg-slate-50">下一页</Link>
+              <Link href={`/review/changes?page=${result.page + 1}&status=${statusQuery}`} className="rounded-lg border border-slate-300 px-3 py-1 hover:bg-slate-50">下一页</Link>
             ) : null}
           </div>
         </div>

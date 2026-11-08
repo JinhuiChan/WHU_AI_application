@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   teacherId: string;
@@ -50,43 +51,45 @@ export function TeacherConfirmActions({ teacherId, confirmStatus }: Props) {
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap gap-2">
-        <button
+        <Button
           type="button"
           onClick={() => send("confirm")}
           disabled={pending}
-          className="rounded-md bg-emerald-600 px-3 py-1 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+          className="h-7 rounded-full px-3 text-xs font-medium"
         >
           确认指导关系
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="outline"
           onClick={() => setMode(mode === "reject" ? "idle" : "reject")}
           disabled={pending}
-          className="rounded-md border border-red-300 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-50 disabled:opacity-60"
+          className="h-7 rounded-full border-red-300 px-3 text-xs font-medium text-red-700 hover:bg-red-50 hover:text-red-700"
         >
           拒绝
-        </button>
+        </Button>
       </div>
       {mode === "reject" ? (
         <div className="space-y-1">
           <textarea
-            className="w-56 rounded-md border border-slate-300 px-2 py-1 text-xs outline-none focus:border-blue-600"
+            className="w-56 rounded-lg border border-slate-300 px-2 py-1 text-xs outline-none focus:border-blue-600"
             placeholder="拒绝理由（必填，不超过 200 字）"
             maxLength={200}
             value={reason}
             onChange={(event) => setReason(event.target.value)}
           />
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={() => send("reject")}
             disabled={pending}
-            className="rounded-md bg-red-600 px-2 py-1 text-xs text-white hover:bg-red-700 disabled:opacity-60"
+            className="h-7 rounded-full border-red-300 px-2 text-xs text-red-700 hover:bg-red-50 hover:text-red-700"
           >
             确认拒绝
-          </button>
+          </Button>
         </div>
       ) : null}
-      {error ? <p className="text-xs text-red-600">{error}</p> : null}
+      {error ? <p role="alert" className="text-xs text-red-600">{error}</p> : null}
     </div>
   );
 }

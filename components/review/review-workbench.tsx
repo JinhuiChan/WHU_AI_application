@@ -1,5 +1,8 @@
 "use client";
 
+import { Button, ButtonArrow } from "@/components/ui/button";
+import { detailHref } from "@/components/data/list-link";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -32,20 +35,13 @@ function show(value: string | number | null | undefined) {
 function Field({ label, value }: { label: string; value: string | number | null | undefined }) {
   return (
     <div>
-      <dt className="text-slate-400">{label}</dt>
+      <dt className="text-sm text-slate-400">{label}</dt>
       <dd className="mt-0.5 break-all text-slate-700">{show(value)}</dd>
     </div>
   );
 }
 
-function statusTone(status: RegistrationStatus) {
-  if (status === "SCHOOL_FINAL") return "bg-emerald-50 text-emerald-700";
-  if (status === "REJECTED") return "bg-red-100 text-red-700";
-  if (status === "PENDING" || status === "COLLEGE_REVIEW") return "bg-amber-50 text-amber-700";
-  return "bg-slate-100 text-slate-600";
-}
-
-export function ReviewWorkbench({ data }: { data: ReviewListPage }) {
+export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: string }) {
   const router = useRouter();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [expanded, setExpanded] = useState<string[]>([]);
@@ -150,7 +146,12 @@ export function ReviewWorkbench({ data }: { data: ReviewListPage }) {
         onApprove={() => void runBatch("APPROVE")}
         onReject={() => setRejectTarget({ kind: "batch" })}
       />
-      {error ? <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
+      {error ? (
+        <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <span>{error}</span>
+          <Button type="button" variant="outline" size="sm" onClick={() => router.refresh()}>重试</Button>
+        </div>
+      ) : null}
       {notice ? <div role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{notice}</div> : null}
       {failed.length ? (
         <section className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
@@ -164,7 +165,7 @@ export function ReviewWorkbench({ data }: { data: ReviewListPage }) {
       ) : null}
 
       <section className="space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
           <label className="flex items-center gap-2 text-sm text-slate-700">
             <input
               type="checkbox"
@@ -184,9 +185,9 @@ export function ReviewWorkbench({ data }: { data: ReviewListPage }) {
           <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400">
             <span>共 {data.total} 条；红色卡片表示存在未确认指导关系</span>
             {selectedIds.length ? (
-              <button type="button" onClick={() => setSelectedIds([])} className="text-blue-600 hover:underline">
+              <Button variant="ghost" size="default" type="button" onClick={() => setSelectedIds([])} >
                 清除已选 {selectedIds.length} 项
-              </button>
+              </Button>
             ) : null}
           </div>
         </div>
@@ -212,50 +213,49 @@ export function ReviewWorkbench({ data }: { data: ReviewListPage }) {
                 />
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Link href={`/review/${item.id}`} className="text-sm font-semibold text-slate-900 hover:text-blue-600">
+                    <Link href={detailHref("/review", item.id, from)} className="text-sm font-semibold text-slate-900 hover:text-blue-600">
                       {item.projectName}
                     </Link>
-                    <span className={`rounded-full px-2 py-0.5 text-xs ${statusTone(item.status)}`}>
-                      {registrationStatusLabels[item.status]}
-                    </span>
+                    <StatusBadge status={item.status}>{registrationStatusLabels[item.status]}</StatusBadge>
                     {item.hasUnconfirmedTeachers ? (
                       <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">指导关系未确认</span>
                     ) : null}
                   </div>
                   <p className="mt-1 text-xs text-slate-500">{item.competitionName} · {item.trackDisplay}</p>
                   <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-xs md:grid-cols-4">
-                    <div><dt className="text-slate-400">负责人</dt><dd className="mt-0.5 text-slate-700">{show(item.leaderName)}（{show(item.leaderStudentNo)}）</dd></div>
-                    <div><dt className="text-slate-400">申报单位</dt><dd className="mt-0.5 text-slate-700">{show(item.applicationUnit)}</dd></div>
-                    <div><dt className="text-slate-400">提交时间</dt><dd className="mt-0.5 text-slate-700">{item.submittedAt ? formatDateTime(item.submittedAt) : "—"}</dd></div>
-                    <div><dt className="text-slate-400">提交次数 / 批次</dt><dd className="mt-0.5 text-slate-700">{item.submissionCount} 次 · {show(item.batchName)}</dd></div>
+                    <div><dt className="text-sm text-slate-400">负责人</dt><dd className="mt-0.5 text-slate-700">{show(item.leaderName)}（{show(item.leaderStudentNo)}）</dd></div>
+                    <div><dt className="text-sm text-slate-400">申报单位</dt><dd className="mt-0.5 text-slate-700">{show(item.applicationUnit)}</dd></div>
+                    <div><dt className="text-sm text-slate-400">提交时间</dt><dd className="mt-0.5 text-slate-700">{item.submittedAt ? formatDateTime(item.submittedAt) : "—"}</dd></div>
+                    <div><dt className="text-sm text-slate-400">提交次数 / 批次</dt><dd className="mt-0.5 text-slate-700">{item.submissionCount} 次 · {show(item.batchName)}</dd></div>
                   </dl>
                 </div>
                 <div className="flex flex-col items-stretch gap-2">
-                  <button
+                  <Button variant="outline" size="sm"
                     type="button"
-                    onClick={() => setExpanded((current) => open ? current.filter((id) => id !== item.id) : [...current, item.id])}
-                    className="h-9 rounded-md border border-slate-300 px-3 text-xs text-slate-700 hover:bg-slate-50"
-                  >
+                    onClick={() => setExpanded((current) => open ? current.filter((id) => id !== item.id) : [...current, item.id])} >
                     {open ? "收起信息" : "展开信息"}
-                  </button>
-                  <Link href={`/review/${item.id}`} className="h-9 rounded-md border border-slate-300 px-3 text-center text-xs leading-9 text-slate-700 hover:bg-slate-50">
-                    查看详情
-                  </Link>
+                  </Button>
+                  <Button asChild variant="outline" size="sm" className="group">
+                    <Link href={detailHref("/review", item.id, from)}>
+                      查看详情
+                      <ButtonArrow />
+                    </Link>
+                  </Button>
                   {level ? (
                     <div className="flex gap-2">
-                      <button type="button" disabled={pending} onClick={() => void approve(item)} className="h-9 rounded-md bg-blue-600 px-3 text-xs text-white hover:bg-blue-700 disabled:opacity-50">
+                      <Button variant="default" size="sm" type="button" disabled={pending} onClick={() => void approve(item)} >
                         {level === "COLLEGE" ? "学院通过" : "校级通过"}
-                      </button>
-                      <button type="button" disabled={pending} onClick={() => setRejectTarget({ kind: "single", projectId: item.id, projectName: item.projectName, level })} className="h-9 rounded-md border border-red-300 bg-white px-3 text-xs text-red-700 hover:bg-red-50 disabled:opacity-50">
+                      </Button>
+                      <Button variant="destructive" size="sm" type="button" disabled={pending} onClick={() => setRejectTarget({ kind: "single", projectId: item.id, projectName: item.projectName, level })} >
                         驳回
-                      </button>
+                      </Button>
                     </div>
                   ) : null}
                 </div>
               </div>
 
               {open ? (
-                <div className="space-y-5 border-t border-slate-100 bg-slate-50/40 px-4 py-4 text-xs">
+                <div className="space-y-6 border-t border-slate-100 bg-slate-50/40 px-4 py-4 text-xs">
                   <div>
                     <h3 className="font-semibold text-slate-900">报名信息</h3>
                     <dl className="mt-2 grid grid-cols-2 gap-x-6 gap-y-3 md:grid-cols-4">
@@ -313,7 +313,11 @@ export function ReviewWorkbench({ data }: { data: ReviewListPage }) {
           );
         })}
         {data.list.length === 0 ? (
-          <p className="rounded-lg border border-slate-200 bg-white px-4 py-12 text-center text-sm text-slate-500">暂无符合条件的项目</p>
+          <div className="rounded-xl border border-slate-200 bg-white px-4 py-12 text-center">
+            <p className="text-sm font-medium text-slate-700">当前筛选条件下没有待审项目</p>
+            <p className="mt-2 text-sm text-slate-500">可以清除筛选条件，或等新的报名提交后再来核对。</p>
+            <Link href="/review" className="mt-4 inline-flex h-9 items-center justify-center rounded-full border border-slate-300 bg-white px-4 text-xs text-slate-700 hover:bg-slate-50">清除筛选</Link>
+          </div>
         ) : null}
       </section>
 

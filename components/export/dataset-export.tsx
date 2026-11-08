@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { datasetFieldMap, datasetFields, defaultDatasetFields, requiredDatasetFields } from "@/lib/export-fields";
 import type { DatasetFieldKey } from "@/lib/export-fields";
@@ -41,20 +42,20 @@ export function DatasetExport({
   }
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
+    <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
       <details>
         <summary className="cursor-pointer list-none px-5 py-4 text-sm font-medium text-blue-700 hover:bg-blue-50">{buttonLabel}<span className="ml-2 text-xs font-normal text-slate-400">字段勾选与调序</span></summary>
         <div className="grid gap-5 border-t border-slate-100 p-5 lg:grid-cols-2">
           <div>
             <div className="flex items-center justify-between gap-3">
               <h3 className="text-sm font-medium text-slate-800">可选字段</h3>
-              <button type="button" onClick={() => setSelected(defaultDatasetFields)} className="text-xs text-blue-600 hover:underline">恢复默认 27 列</button>
+              <Button variant="ghost" size="sm" type="button" onClick={() => setSelected(defaultDatasetFields)} >恢复默认 27 列</Button>
             </div>
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
               {datasetFields.map((field) => {
                 const required = scope === "mine" && requiredDatasetFields.includes(field.key);
                 return (
-                  <label key={field.key} className={`flex items-center gap-2 rounded-md border px-3 py-2 text-xs ${field.sensitive ? "border-amber-200 bg-amber-50 text-amber-800" : "border-slate-200 text-slate-600"}`}>
+                  <label key={field.key} className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-xs ${field.sensitive ? "border-amber-200 bg-amber-50 text-amber-800" : "border-slate-200 text-slate-600"}`}>
                     <input type="checkbox" checked={selected.includes(field.key)} disabled={required || pending} onChange={() => toggle(field.key)} className="h-4 w-4 rounded border-slate-300 text-blue-600" />
                     <span>{field.label}{field.sensitive ? "（敏感）" : ""}{required ? "（必选）" : ""}</span>
                   </label>
@@ -65,27 +66,27 @@ export function DatasetExport({
 
           <div>
             <h3 className="text-sm font-medium text-slate-800">导出列顺序（{selected.length}）</h3>
-            <ol className="mt-3 max-h-72 space-y-1 overflow-y-auto rounded-md border border-slate-200 p-2">
+            <ol className="mt-3 max-h-72 space-y-1 overflow-y-auto rounded-lg border border-slate-200 p-2">
               {selected.map((field, index) => (
                 <li key={field} className="flex items-center gap-2 rounded bg-slate-50 px-2 py-1.5 text-xs text-slate-700">
                   <span className="w-6 text-center text-slate-400">{index + 1}</span>
                   <span className="flex-1">{datasetFieldMap[field].label}</span>
-                  <button type="button" aria-label={`上移${datasetFieldMap[field].label}`} disabled={index === 0 || pending} onClick={() => move(index, -1)} className="rounded border border-slate-300 px-2 py-0.5 disabled:opacity-30">上移</button>
-                  <button type="button" aria-label={`下移${datasetFieldMap[field].label}`} disabled={index === selected.length - 1 || pending} onClick={() => move(index, 1)} className="rounded border border-slate-300 px-2 py-0.5 disabled:opacity-30">下移</button>
+                  <Button variant="outline" size="default" type="button" aria-label={`上移${datasetFieldMap[field].label}`} disabled={index === 0 || pending} onClick={() => move(index, -1)} >上移</Button>
+                  <Button variant="outline" size="default" type="button" aria-label={`下移${datasetFieldMap[field].label}`} disabled={index === selected.length - 1 || pending} onClick={() => move(index, 1)} >下移</Button>
                 </li>
               ))}
             </ol>
             {scope === "all" && sensitiveSelected ? (
-              <label className="mt-3 flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+              <label className="mt-3 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
                 <input type="checkbox" checked={confirmSensitive} disabled={pending} onChange={(event) => setConfirmSensitive(event.target.checked)} className="mt-0.5 h-4 w-4" />
                 <span>二次确认：导出完整身份证与银行卡号。不勾选则敏感列脱敏。</span>
               </label>
             ) : null}
             {scope === "mine" && sensitiveSelected ? <p className="mt-3 text-xs text-slate-500">学生数据表中的身份证与银行卡号始终脱敏。</p> : null}
             {scope === "all" ? <p className="mt-3 text-xs text-slate-500">按当前筛选结果导出，单次最多 5000 行。</p> : <p className="mt-3 text-xs text-slate-500">项目名称与状态为必选列，仅导出本人参与的项目。</p>}
-            {error ? <p role="alert" className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">{error}</p> : null}
+            {error ? <p role="alert" className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">{error}</p> : null}
             {notice ? <p role="status" className="mt-3 text-xs text-emerald-600">{notice}</p> : null}
-            <button
+            <Button variant="default" size="default"
               type="button"
               disabled={!selected.length || pending}
               onClick={async () => {
@@ -118,10 +119,9 @@ export function DatasetExport({
                   setPending(false);
                 }
               }}
-              className="mt-4 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-            >
+              className="mt-4" >
               {pending ? "导出中…" : buttonLabel}
-            </button>
+            </Button>
           </div>
         </div>
       </details>

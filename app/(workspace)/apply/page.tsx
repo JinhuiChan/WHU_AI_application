@@ -65,8 +65,8 @@ export default async function ApplyPage({ searchParams }: PageProps) {
   const options = await buildApplyOptions(lockedCompetitionId);
 
   return (
-    <div className="space-y-5">
-      <header className="rounded-lg border border-blue-100 bg-blue-50 px-5 py-4">
+    <div className="space-y-6">
+      <header className="rounded-xl border border-blue-100 bg-blue-50 px-5 py-4">
         <h1 className="text-xl font-semibold text-slate-900">项目报名</h1>
         <p className="mt-1 text-sm text-blue-900">当前学生：{student.studentNo ?? "未绑定学号"} · {student.name}</p>
       </header>

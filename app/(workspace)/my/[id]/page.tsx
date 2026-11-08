@@ -1,3 +1,7 @@
+import { BackLink } from "@/components/data/list-link";
+import { firstParam } from "@/lib/list-query";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { Button, ButtonArrow } from "@/components/ui/button";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -14,13 +18,16 @@ import { canExportFullForm, currentSealedFileId, listSealedFiles } from "@/lib/s
 export const metadata: Metadata = { title: "项目详情" };
 export const dynamic = "force-dynamic";
 
-type PageProps = { params: { id: string } };
+type PageProps = {
+  params: { id: string };
+  searchParams?: Record<string, string | string[] | undefined>;
+};
 
 function Item({ label, value }: { label: string; value: string | number | null | undefined }) {
-  return <div><dt className="text-xs text-slate-500">{label}</dt><dd className="mt-1 text-sm text-slate-900">{value === "" || value === null || value === undefined ? "—" : value}</dd></div>;
+  return <div><dt className="text-sm text-slate-500">{label}</dt><dd className="mt-1 text-sm text-slate-900">{value === "" || value === null || value === undefined ? "—" : value}</dd></div>;
 }
 
-export default async function MyProjectPage({ params }: PageProps) {
+export default async function MyProjectPage({ params, searchParams }: PageProps) {
   const user = await getActiveUser();
   if (!user) redirect("/login");
   if (user.role !== "STUDENT") redirect("/dashboard");
@@ -33,18 +40,37 @@ export default async function MyProjectPage({ params }: PageProps) {
   const changePanel = await getChangeRequestPanel(params.id, user.id);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <BreadcrumbTitle label={project.name} />
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div><h1 className="text-xl font-semibold text-slate-900">{project.name}</h1><p className="mt-1 text-sm text-slate-500">{project.competitionName} / {project.trackName}</p></div>
         <div className="flex items-center gap-3">
-          <span className="rounded-full bg-blue-50 px-3 py-1 text-xs text-blue-700">{projectStatusLabels[project.status]}</span>
-          {project.canEdit ? <Link href={`/apply?projectId=${project.id}`} className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white">编辑</Link> : null}
+          <StatusBadge status={project.status} scope="project">{projectStatusLabels[project.status]}</StatusBadge>
+          {project.canEdit ? <Link href={`/apply?projectId=${project.id}`} className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white">编辑</Link> : null}
         </div>
       </div>
-      {project.rejectedReason ? <p className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">驳回原因：{project.rejectedReason}</p> : null}
+      {project.rejectedReason ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
+          <p className="min-w-0 text-sm text-red-800">
+            <span className="font-medium">驳回原因：</span>
+            {project.rejectedReason}
+          </p>
+          {project.canEdit ? (
+            <Button
+              asChild
+              size="sm"
+              className="group shrink-0 bg-red-600 hover:bg-red-700 hover:shadow-red-600/25"
+            >
+              <Link href={`/apply?projectId=${project.id}`}>
+                去补材料
+                <ButtonArrow />
+              </Link>
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="text-base font-semibold text-slate-900">项目基本信息</h2>
         <dl className="mt-4 grid gap-4 md:grid-cols-3">
           <Item label="项目组别" value={project.groupLabel} /><Item label="项目类别" value={project.categoryLabel} />
@@ -60,11 +86,11 @@ export default async function MyProjectPage({ params }: PageProps) {
         </dl>
       </section>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="text-base font-semibold text-slate-900">团队成员</h2>
         <div className="mt-4 space-y-3">
           {[project.leader, ...project.members].map((member) => (
-            <div key={member.id} className="rounded-md border border-slate-200 p-4">
+            <div key={member.id} className="rounded-lg border border-slate-200 p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="font-medium text-slate-900">{member.name}<span className="ml-2 text-xs font-normal text-slate-500">{member.role === "LEADER" ? "负责人" : "成员"}</span></p>
                 <p className="text-sm text-slate-600">{member.personNo || "无学号"} · {member.isInternal ? "校内" : "校外"}{member.isPayee ? " · 领款人" : ""}</p>
@@ -86,23 +112,23 @@ export default async function MyProjectPage({ params }: PageProps) {
         </div>
       </section>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="text-base font-semibold text-slate-900">指导老师</h2>
         <div className="mt-4 space-y-2">
-          {project.teachers.map((teacher) => <p key={teacher.id} className="rounded-md bg-slate-50 px-3 py-2 text-sm text-slate-700">{teacher.isInternal ? "校内" : "校外"} · {teacher.name} · {teacher.unit} · {teacher.title || "—"} · {teacher.phone || "—"}</p>)}
-          {project.teachers.length === 0 ? <p className="text-sm text-slate-500">暂无指导老师</p> : null}
+          {project.teachers.map((teacher) => <p key={teacher.id} className="rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-700">{teacher.isInternal ? "校内" : "校外"} · {teacher.name} · {teacher.unit} · {teacher.title || "—"} · {teacher.phone || "—"}</p>)}
+          {project.teachers.length === 0 ? <p className="text-sm text-slate-500 inline-empty">暂无指导老师</p> : null}
         </div>
       </section>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="text-base font-semibold text-slate-900">作品与材料</h2>
-        {project.work ? <dl className="mt-4 grid gap-4 md:grid-cols-3"><Item label="作品形式" value={project.work.formLabel} /><Item label="作品类别" value={project.work.categoryLabel} /><Item label="作品组别" value={project.work.groupLabel} /><Item label="作品文件" value={project.work.fileName} /><Item label="作品外链" value={project.work.externalUrl} /><Item label="PPT 文件" value={project.work.pptFileName} /></dl> : <p className="mt-3 text-sm text-slate-500">暂无作品信息</p>}
+        {project.work ? <dl className="mt-4 grid gap-4 md:grid-cols-3"><Item label="作品形式" value={project.work.formLabel} /><Item label="作品类别" value={project.work.categoryLabel} /><Item label="作品组别" value={project.work.groupLabel} /><Item label="作品文件" value={project.work.fileName ? `${project.work.fileName}（仅登记名称，未上传）` : ""} /><Item label="作品外链" value={project.work.externalUrl} /><Item label="PPT 文件" value={project.work.pptFileName ? `${project.work.pptFileName}（仅登记名称，未上传）` : ""} /></dl> : <p className="mt-3 text-sm text-slate-500 inline-empty">暂无作品信息</p>}
       </section>
 
       <SealedPanel projectId={params.id} files={sealedFiles} currentFileId={currentFileId} canExportSensitive={canExportSensitive} />
       {changePanel ? <ChangeRequestPanel projectId={params.id} data={changePanel} /> : null}
       <DatasetExport scope="mine" buttonLabel="导出我的数据表" />
-      <Link href="/my" className="inline-block text-sm text-blue-600 hover:underline">返回我的项目</Link>
+      <BackLink to={firstParam(searchParams?.from)} fallback="/my" label="返回我的项目" />
     </div>
   );
 }

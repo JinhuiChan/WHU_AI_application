@@ -3,9 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  BookOpen,
+  Bot,
   ClipboardCheck,
+  FileCheck,
   FileText,
   FolderKanban,
+  ShieldAlert,
   LayoutDashboard,
   Settings,
   Trophy,
@@ -18,18 +22,21 @@ import type { Role } from "@prisma/client";
 const adminNavigation = [
   { href: "/dashboard", label: "看板", icon: LayoutDashboard },
   { href: "/competitions", label: "赛事", icon: Trophy },
+  { href: "/intro", label: "赛事简介", icon: BookOpen },
   { href: "/projects", label: "项目", icon: FolderKanban },
 ];
 
 const studentNavigation = [
   { href: "/dashboard", label: "看板", icon: LayoutDashboard },
   { href: "/competitions", label: "赛事与报名", icon: Trophy },
+  { href: "/intro", label: "赛事简介", icon: BookOpen },
   { href: "/my", label: "我的项目", icon: FolderKanban },
 ];
 
 const teacherNavigation = [
   { href: "/dashboard", label: "看板", icon: LayoutDashboard },
   { href: "/teacher", label: "指导项目", icon: UserCheck },
+  { href: "/intro", label: "赛事简介", icon: BookOpen },
 ];
 
 function navigationFor(roles: Role[]) {
@@ -44,9 +51,13 @@ function navigationFor(roles: Role[]) {
   return extra.length ? [...dashboard, ...extra] : dashboard;
 }
 
+const commonTools = [{ href: "/assistant", label: "AI 助手", icon: Bot }];
+
 const administration = [
   { href: "/review", label: "报名审核", icon: ClipboardCheck },
   { href: "/import", label: "数据导入", icon: Upload },
+  { href: "/anomalies", label: "异常核实", icon: ShieldAlert },
+  { href: "/check", label: "材料检查", icon: FileCheck },
   { href: "/admin/awards", label: "奖项录入", icon: Trophy },
   { href: "/admin/users", label: "用户管理", icon: Users },
   { href: "/admin/logs", label: "审计日志", icon: FileText },
@@ -63,14 +74,17 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
   ];
 
   function isActive(href: string) {
-    return pathname === href || (href !== "/dashboard" && pathname.startsWith(`${href}/`));
+    if (pathname === href || (href !== "/dashboard" && pathname.startsWith(`${href}/`))) return true;
+    // /apply is part of the student "赛事与报名" flow — keep same selected state as competitions list
+    if (href === "/competitions" && (pathname === "/apply" || pathname.startsWith("/apply/"))) return true;
+    return false;
   }
 
   return (
     <>
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-slate-200 bg-white md:flex">
-        <Link href="/dashboard" className="flex h-16 items-center gap-3 border-b border-slate-200 px-5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 font-bold text-white">科</span>
+        <Link href="/dashboard" className="flex h-16 items-center gap-3 border-b border-slate-200 px-5 py-0">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 font-bold text-white">科</span>
           <span>
             <span className="block text-sm font-semibold text-slate-900">科创赛事</span>
             <span className="block text-xs text-slate-500">综合管理服务平台</span>
@@ -85,7 +99,7 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
                 key={item.href}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={`flex h-10 items-center gap-3 rounded-lg px-3 text-sm transition ${
+                className={`flex h-10 items-center gap-3 rounded-xl px-3 text-sm transition ${
                   active ? "bg-blue-50 font-medium text-blue-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                 }`}
               >
@@ -94,6 +108,26 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
               </Link>
             );
           })}
+          <div className="pt-5">
+            <p className="mb-2 px-3 text-xs font-medium text-slate-400">工具</p>
+            {commonTools.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
+                  className={`flex h-10 items-center gap-3 rounded-xl px-3 text-sm transition ${
+                    active ? "bg-blue-50 font-medium text-blue-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  }`}
+                >
+                  <Icon size={18} aria-hidden="true" />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
           {roles.includes("ADMIN") ? (
             <div className="pt-5">
               <p className="mb-2 px-3 text-xs font-medium text-slate-400">管理</p>
@@ -105,7 +139,7 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
                     key={item.href}
                     href={item.href}
                     aria-current={active ? "page" : undefined}
-                    className={`flex h-10 items-center gap-3 rounded-lg px-3 text-sm transition ${
+                    className={`flex h-10 items-center gap-3 rounded-xl px-3 text-sm transition ${
                       active ? "bg-blue-50 font-medium text-blue-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                     }`}
                   >
@@ -114,7 +148,7 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
                     {item.href === "/review" && pendingTodo > 0 ? (
                       <span
                         title={pendingTitle}
-                        className="ml-auto rounded-full bg-red-600 px-1.5 text-[10px] font-medium leading-4 text-white"
+                        className="ml-auto rounded-full bg-red-600 px-1.5 text-[11px] font-medium leading-4 text-white"
                       >
                         {pendingTodo}
                       </span>
@@ -127,7 +161,7 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
         </nav>
       </aside>
 
-      <nav aria-label="移动端导航" className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-slate-200 bg-white pb-safe md:hidden">
+      <nav aria-label="移动端导航" className="fixed inset-x-0 bottom-0 z-40 flex border-t border-slate-200 bg-white pb-safe md:hidden">
         {mobileNavigation.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.href);
@@ -136,7 +170,7 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
               key={item.href}
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={`flex min-h-16 flex-col items-center justify-center gap-1 text-[10px] ${active ? "text-blue-600" : "text-slate-500"}`}
+              className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-[11px] ${active ? "text-blue-600" : "text-slate-500"}`}
             >
               <Icon size={20} aria-hidden="true" />
               {item.label}

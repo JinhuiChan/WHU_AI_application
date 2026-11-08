@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { FormEvent, useState } from "react";
 import { FileCheck, ShieldAlert, Upload } from "lucide-react";
 import type { ApiResponse } from "@/types/api";
@@ -50,7 +51,7 @@ export function MaterialChecker() {
 
   return (
     <div className="space-y-5">
-      <form onSubmit={submitFile} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm md:p-5">
+      <form onSubmit={submitFile} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
         <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
           <ShieldAlert size={20} className="mt-0.5 shrink-0" aria-hidden="true" />
           <div>
@@ -74,7 +75,7 @@ export function MaterialChecker() {
               setResult(null);
               setError("");
             }}
-            className="block w-full cursor-pointer rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-600 file:mr-4 file:cursor-pointer file:rounded-md file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:border-blue-400"
+            className="block w-full cursor-pointer rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-600 file:mr-4 file:cursor-pointer file:rounded-lg file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:border-blue-400"
           />
           <p className="mt-2 text-xs text-slate-500">仅支持 PDF / DOCX，单个文件不超过 10MB；扫描图片型 PDF 需先转换为含文本层的文件。</p>
           {file ? <p className="mt-2 break-all text-sm text-slate-700">已选择：{file.name}（{(file.size / 1024).toFixed(1)} KB）</p> : null}
@@ -95,19 +96,18 @@ export function MaterialChecker() {
           </span>
         </label>
 
-        <button
+        <Button variant="default" size="sm"
           type="submit"
           disabled={pending || !file}
-          className="mt-5 inline-flex h-10 items-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-        >
+          className="mt-5 gap-2" >
           {pending ? <FileCheck size={17} aria-hidden="true" /> : <Upload size={17} aria-hidden="true" />}
           {pending ? "正在解析与检查…" : "开始检查"}
-        </button>
+        </Button>
         {error ? <p role="alert" className="mt-3 text-sm text-red-600">{error}</p> : null}
       </form>
 
       {result ? (
-        <section aria-live="polite" className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+        <section aria-live="polite" className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-200 bg-slate-50 px-4 py-4 md:px-5">
             <h2 className="flex items-center gap-2 text-base font-semibold text-slate-900">
               <FileCheck size={19} className="text-blue-600" aria-hidden="true" />
@@ -137,11 +137,11 @@ export function MaterialChecker() {
                     </div>
                     <dl className="mt-3 space-y-3 text-sm leading-6">
                       <div>
-                        <dt className="text-xs font-medium text-slate-500">依据条款</dt>
+                        <dt className="text-sm font-medium text-slate-500">依据条款</dt>
                         <dd className="mt-1 text-slate-600">{check.basis}</dd>
                       </div>
                       <div>
-                        <dt className="text-xs font-medium text-slate-500">修改建议</dt>
+                        <dt className="text-sm font-medium text-slate-500">修改建议</dt>
                         <dd className="mt-1 text-slate-700">{check.suggestion}</dd>
                       </div>
                     </dl>

@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -82,36 +83,36 @@ export function AwardWorkbench({ data, competitions, colleges, filters }: AwardW
   }
 
   return (
-    <div className="space-y-5">
-      <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="space-y-6">
+      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <form onSubmit={applyFilters} className="flex flex-wrap items-end gap-3">
-          <label className="min-w-56 flex-1 text-xs text-slate-500">
+          <label className="min-w-56 flex-1 text-sm text-slate-500">
             <span className="mb-1 block">赛事</span>
-            <select name="competitionId" defaultValue={filters.competitionId} className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm">
+            <select name="competitionId" defaultValue={filters.competitionId} className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm">
               <option value="">全部赛事</option>
               {competitions.map((competition) => <option key={competition.id} value={competition.id}>{competition.year} · {competition.name}</option>)}
             </select>
           </label>
-          <label className="min-w-44 flex-1 text-xs text-slate-500">
+          <label className="min-w-44 flex-1 text-sm text-slate-500">
             <span className="mb-1 block">学院</span>
-            <select name="college" defaultValue={filters.college} className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm">
+            <select name="college" defaultValue={filters.college} className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm">
               <option value="">全部学院</option>
               {colleges.map((college) => <option key={college} value={college}>{college}</option>)}
             </select>
           </label>
-          <label className="min-w-36 text-xs text-slate-500">
+          <label className="min-w-36 text-sm text-slate-500">
             <span className="mb-1 block">奖项等级</span>
-            <select name="level" defaultValue={filters.level} className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm">
+            <select name="level" defaultValue={filters.level} className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm">
               <option value="">全部等级</option>
               {adminAwardLevels.map((level) => <option key={level} value={level}>{awardLevelLabels[level]}</option>)}
             </select>
           </label>
-          <button type="submit" className="h-10 rounded-md bg-blue-600 px-5 text-sm font-medium text-white hover:bg-blue-700">筛选</button>
-          <Link href="/admin/awards" className="inline-flex h-10 items-center rounded-md border border-slate-300 px-4 text-sm text-slate-600 hover:bg-slate-50">重置</Link>
+          <Button variant="default" size="sm" type="submit" >筛选</Button>
+          <Link href="/admin/awards" className="inline-flex h-10 items-center rounded-lg border border-slate-300 px-4 text-sm text-slate-600 hover:bg-slate-50">重置</Link>
         </form>
       </section>
 
-      <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         {error ? <div role="alert" className="border-b border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div> : null}
         {notice ? <div role="status" className="border-b border-green-100 bg-green-50 px-4 py-3 text-sm text-green-700">{notice}</div> : null}
         <div className="overflow-x-auto">
@@ -137,9 +138,16 @@ export function AwardWorkbench({ data, competitions, colleges, filters }: AwardW
                     <td className="px-4 py-4">{item.college}</td>
                     <td className="px-4 py-4">{item.trackName}</td>
                     <td className="px-4 py-4">
-                      <span className={item.currentAward ? "font-medium text-amber-700" : "text-slate-400"}>
-                        {item.currentAward ? awardLevelLabels[item.currentAward] : "未录入"}
-                      </span>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className={item.currentAward ? "font-medium text-amber-700" : "text-slate-400"}>
+                          {item.currentAward ? awardLevelLabels[item.currentAward] : "未录入"}
+                        </span>
+                        {!item.eligible ? (
+                          <span className="rounded-full bg-amber-50 px-1.5 py-0.5 text-[11px] font-medium text-amber-700 ring-1 ring-amber-200">
+                            未通过终审
+                          </span>
+                        ) : null}
+                      </div>
                       {transition ? (
                         <div className="mt-1 text-xs text-green-700">
                           {transition.oldLevel ? awardLevelLabels[transition.oldLevel] : "未录入"} → {awardLevelLabels[transition.newLevel]}
@@ -147,7 +155,7 @@ export function AwardWorkbench({ data, competitions, colleges, filters }: AwardW
                       ) : null}
                     </td>
                     <td className="px-4 py-4 text-xs text-slate-500">{item.updatedAt.slice(0, 16).replace("T", " ")}</td>
-                    <td className="px-4 py-4">
+                    <td className="whitespace-nowrap px-4 py-4">
                       <div className="flex items-center gap-2">
                         <select
                           aria-label={`${item.projectName}的奖项等级`}
@@ -158,24 +166,18 @@ export function AwardWorkbench({ data, competitions, colleges, filters }: AwardW
                             setLastChange(null);
                             setNotice("");
                           }}
-                          className="h-9 rounded-md border border-slate-300 bg-white px-2 text-xs disabled:bg-slate-100"
+                          className="h-9 rounded-lg border border-slate-300 bg-white px-2 text-xs disabled:bg-slate-100"
                         >
                           <option value="">选择奖项</option>
                           {adminAwardLevels.map((level) => <option key={level} value={level}>{awardLevelLabels[level]}</option>)}
                         </select>
-                        <button
+                        <Button variant="default" size="sm"
                           type="button"
                           disabled={pending || !item.eligible || !draft || draft === item.currentAward}
-                          onClick={() => save(item)}
-                          className="rounded-md bg-blue-600 px-3 py-2 text-xs text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-                        >
+                          onClick={() => save(item)} >
                           {pending ? "保存中…" : "保存"}
-                        </button>
+                        </Button>
                       </div>
-                      {!item.eligible ? <div className="mt-1 text-xs text-slate-400">未通过终审</div> : null}
-                      {item.currentAward && draft && draft !== item.currentAward ? (
-                        <div className="mt-1 text-xs text-blue-600">{awardLevelLabels[item.currentAward]} → {awardLevelLabels[draft as AdminAwardLevel]}</div>
-                      ) : null}
                     </td>
                   </tr>
                 );
