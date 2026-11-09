@@ -32,6 +32,7 @@ const studentNavigation = [
   { href: "/competitions", label: "赛事与报名", icon: Trophy },
   { href: "/intro", label: "赛事简介", icon: BookOpen },
   { href: "/teams", label: "组队广场", icon: Users },
+  { href: "/my/teams", label: "我的组队", icon: ClipboardCheck },
   { href: "/my", label: "我的项目", icon: FolderKanban },
   { href: "/profile", label: "个人中心", icon: UserRound },
 ];
@@ -66,10 +67,11 @@ const administration = [
   { href: "/admin/logs", label: "审计日志", icon: FileText },
 ];
 
-export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: number; changes: number } }) {
+export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: number; changes: number; teamRequests: number } }) {
   const pathname = usePathname();
   const navigation = navigationFor(roles);
   const pendingTodo = badges ? badges.review + badges.changes : 0;
+  const teamRequests = badges?.teamRequests ?? 0;
   const pendingTitle = badges ? `待审核项目 ${badges.review} 个 · 待审批变更 ${badges.changes} 条` : undefined;
   const mobileNavigation = [
     ...navigation.slice(0, 4),
@@ -108,6 +110,14 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
               >
                 <Icon size={18} aria-hidden="true" />
                 {item.label}
+                {item.href === "/my/teams" && teamRequests > 0 ? (
+                  <span
+                    title={`待处理入队申请 ${teamRequests} 条`}
+                    className="ml-auto rounded-full bg-red-600 px-1.5 text-[11px] font-medium leading-4 text-white"
+                  >
+                    {teamRequests}
+                  </span>
+                ) : null}
               </Link>
             );
           })}
