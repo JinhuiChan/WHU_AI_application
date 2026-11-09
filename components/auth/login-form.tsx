@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import type { ApiResponse } from "@/types/api";
 import type { AuthUser } from "@/lib/auth";
 
@@ -11,7 +10,6 @@ type LoginData = {
 };
 
 export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
-  const router = useRouter();
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [identity, setIdentity] = useState<"STUDENT" | "TEACHER" | "ADMIN">("STUDENT");
@@ -32,8 +30,8 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
       if (!response.ok || result.code !== 0) {
         throw new Error(result.message || "登录失败");
       }
-      router.replace(callbackUrl);
-      router.refresh();
+      // 身份切换后重建页面，清除上一身份的客户端路由缓存。
+      window.location.replace(callbackUrl);
     } catch (caught: unknown) {
       setError(caught instanceof Error ? caught.message : "登录失败，请稍后重试");
     } finally {
