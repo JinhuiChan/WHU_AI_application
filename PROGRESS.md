@@ -2,6 +2,103 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-09 组队：待处理申请红点提醒
+
+- commit `5eecff4`（3 文件 +37/−5）：学生导航新增「我的组队」→ `/my/teams`；`lib/pending.ts` 新增 `getTeamPendingRequests(userId)`（统计我发布的、未下架帖子中 `status=PENDING` 的申请）；`AppShell` 统一产出 `{review, changes, teamRequests}`；`Sidebar` 在「我的组队」右侧渲染红色数字 + 悬停提示「待处理入队申请 N 条」。
+- 实测（用户真实数据）：其帖子「校园低碳调度系统…」收到 1 条 PENDING 申请 → 侧栏红点 1；婉拒后归 0。测试帖与申请已删除，仅保留用户自己的 1 帖 1 申请。
+- 口径：红点只统计「我作为发帖人收到的待处理申请」，不含我发出的申请；下架帖不计。
+- 顺带修（commit `ceb4917`）：获奖 xlsx 的「佐证类型/证据地址」两列不再伪造 `URL`，改为留白；老师时间线补 `{ id: asc }` 第三排序键消除并列不稳定。实测导出：3 行（表头+2 条）、12 列，佐证列为空。
+
+## 2026-11-09 组队/个人中心 · S7 组队接入 AI 问答（S1–S7 全闭环）
+
+- commit `f7745c7` + `73962f1`：新增 `lib/team-context.ts`（144 行）；`lib/assistant.ts` 只加 2 行分流。方案取 **C 混合**：招募规则继续走原知识库，在招队伍**实时查询注入**（静态入库会立刻过期）。
+- 意图判定收窄：只认「组队/队友/队伍/招募/缺人/找队友/加队」，并排除「通知/规程/规则/资格/参赛条件/人数上限」等规则类问句。
+- 查询条件：`status=RECRUITING` + `expiresAt>now` + `removedBy=null` + 赛事范围；`select` **不含 `contact`**（查询层就没有这个字段）；最多 8 条、摘要 ≤80 字、带「数据时间」；模型按 postIds 白名单二次筛选，失败回退全部，杜绝编造。
+- 运行时验证（dev 3000，学生 13800010001）：
+  - 「有哪些队伍在招人？」→ 列出测试队、**不含联系方式**、带「截至 2026-11-09」→ PASS
+  - 「数学建模怎么报名？」→ 走原知识库澄清、**无队伍信息** → PASS
+  - 「不存在的赛事有哪些队伍？」→ 组队专用兜底、未编造 → PASS
+  - 测试帖与审计已清理（`TeamPost=0`、`TeamJoinRequest=0`）
+- 顺手修：问答页是 `whitespace-pre-wrap` 纯文本，回答里的 markdown 链接会原样显示 → 改为「组队广场（/teams）」纯文本。
+- **S1–S7 全部完成**。剩余建议（未做）：导出里「佐证类型/佐证」两列在 Award 口径下无常量值、`showContact` 开关、`Award` 与 `AwardRecord` 长期统一、prisma 补 migrations 基线。
+
+## 2026-11-09 组队/个人中心 · 收尾三项（⑬ 获奖口径 / ⑭ 多角色主页 / ⑯ 时间线去重）
+
+- ⑬ `listAwardExportRows` 单独改读 `Award`，函数签名与旧返回键保留，`status` 固定为 `PUBLISHED`；2026 年 ADMIN 直接调用实测 2 条。兼容风险：`Award` 无旧证据/核验字段，导出适配值为证据类型 `URL`、证据地址空、核验时间取 `updatedAt`、核验人取录奖人，不代表新增核验记录。
+- ⑭ `/u/[id]` 合并主角色与 `extraRoles`，学生/老师记录及各自获奖段独立查询、独立受 `showRecords` / `showAwards` 控制，资料区也同时展示两类信息。风险：双角色按身份分别查询和展示，同一项目若同时关联两种身份会在各自区段出现，不做跨身份合并。
+- ⑯ 老师记录沿用 `confirmedAt` / `createdAt` 降序，按 `projectId` 保留首条并以项目 ID 渲染 key；单位/职称仍从全部记录取最近非空值。风险：两级时间完全相同的重复行未额外定义第三排序键。
+- 验证：`npm run typecheck`、`npm run lint` 通过；只改 `lib/dashboard.ts`、`app/(workspace)/u/[id]/page.tsx`、本文件，未动导出路由、statistics、schema、依赖或登录页。
+- 数据验收边界：当前库无学生+老师双角色账号，也无同项目重复 `CONFIRMED` 指导关系，未造测试数据，因此这两类 UI 分支未做真实数据 HTTP 验收。
+- 下一步：S7 组队接入 AI 问答。
+
+## 2026-11-08 组队/个人中心 · S5 个人中心二期（简介/技能/可见性开关）
+
+- commit `cc05bfa`（5 文件，+299/−12）：`User` 追加 `bio` / `avatarUrl` / `skills` / `showRecords` / `showAwards` 五个字段（`prisma validate` 通过、`db:push` 已同步）；新增 `PATCH /api/profile` 与 `components/profile/profile-form.tsx`；`/profile` 挂表单；`/u/[id]` 加简介与技能区块，并按开关**在查询层短路**。
+- 设计取舍：**未加 `showContact`**。它与 S1 定下的「手机号/邮箱永不出现在公开主页」红线冲突，需单独决策；头像只存 URL，不做上传。
+- 运行时验证（dev 3000，A=孙嘉禾 / B=周浩然）：简介与技能能存能显示；`showRecords` + `showAwards` 同时关闭后，他人主页的参赛记录段、获奖段、项目名**全部消失**（服务端未查询），重新开启后恢复；`AuditLog.detail` 只有 `{"changedFields":[...]}`，**无简介原文**；测试数据已重置（`dirty users = 0`）。
+- 排障记录：Windows 上 `prisma generate` 报 `EPERM rename query_engine-windows.dll.node`，原因是 dev 进程占用 DLL —— 先停 dev 再 generate，然后重启 dev。
+- 下一步：收尾三项（⑬ 获奖口径统一、⑭ 多角色主页、⑯ 老师时间线去重）→ 最后 S7 组队接入 AI 问答。
+
+## 2026-11-08 组队/个人中心 · S6 成团 → 报名预填
+
+- commit `2c9c530`（4 文件，+74/−3）：`lib/apply.ts` 新增 `getTeamAcceptedMembers(teamPostId, viewerId)`；`/apply` 读 `teamPostId` 并传 `initialMembers`；`apply-form` 加可选 prop（仅在无 `initialValue` 时生效，编辑已有项目不受影响）；`/teams/[id]` 对作者与已接受成员显示「去报名」。
+- **Lead 发现并当场修复越权**：初版 helper 不校验访问者，任意登录学生可用别人的 `teamPostId` 把已接受成员姓名/手机号/邮箱读进报名表。已加守卫：仅帖子作者或 `ACCEPTED` 成员可读，否则返回空数组。
+- 运行时验证（dev 3000）：作者能看到成员姓名+手机号；已接受成员可读；**无关学生两者都拿不到**；不带 `teamPostId` 的 `/apply` 行为与改动前一致。
+- 未触碰：提交校验、必填规则、`submitProject`、schema、接口。测试数据已清理（`TeamPost=0`、`TeamJoinRequest=0`）。
+- 下一步：S5 个人中心二期（`User` 加 6 个可空字段，**需用户批准**）→ 最后 S7 组队接入 AI 问答。
+
+## 2026-11-08 组队/个人中心 · S4 组队前端 4 页
+
+- commit `425f54f`（10 文件）：`/teams`（广场，筛选+卡片+空态+分页）、`/teams/new`（发布表单）、`/teams/[id]`（详情+角色化操作）、`/my/teams`（三个 tab）；组件 `components/teams/{team-form,team-actions,my-teams}.tsx`；改 `sidebar`（学生「组队广场」）、`breadcrumbs`（3 条路由映射）、`status-badge`（新增 `scope="team"`）。
+- 分工：作者看「管理申请/关闭招募」，他人看「申请加入」，管理员看「下架」；配色仍走 `StatusBadge`，页面内无自写状态配色（只有错误/警示条用红/琥珀底）。
+- Lead HTTP 验收（dev 3000）：`/teams`、`/teams/new`、`/teams/[id]`、`/my/teams` 均 200 且渲染出真实数据；角色化视图三态正确（B 学生看到「申请加入」、申请 201、管理员看到「下架」）。测试数据已清理（`TeamPost=0`、`TeamJoinRequest=0`）。
+- 纪律偏差：本阶段 7 个文件共 **1231 行**，超行预算（700）约 76%；验收时按"能跑通"放行，但 S5/S6 必须收敛到预算内。
+- 下一步：S5 个人中心二期（`User` 加 6 个可空字段，**需用户批准**）。
+
+## 2026-11-08 组队/个人中心 · S2 schema + S3 后端接口
+
+- S2（commit `31a7c09`）：新增 `TeamPost`、`TeamJoinRequest` + `TeamPostStatus`/`TeamJoinStatus` 两个枚举，`schema.prisma` **+66 行、0 删除**；`prisma validate` 通过；用户执行 `db:push` + `db:generate` 后库里 32 表、两新表 0 行，`User` 872 / `Project` 258 未变。改前已备份 `tmp/dev.db.before-s2.bak`。
+- S3（commit `bffc5b6`）：6 个路由（列表/详情+编辑+关闭+下架/申请/申请列表/审批/我的组队）+ `lib/presentation.ts` 5 条审计中文，共 701 行。发布/申请限学生，关帖/审批限作者或管理员，全部走 `$transaction` + `AuditLog`。
+- **Lead 独立 HTTP 补测**（dev 3000，学生 A/B + 管理员）全绿：
+  - `403` 非学生发帖；`422` 申请自己的帖；`409` 重复申请；`403` 非作者审批；`403` 非作者看申请列表
+  - `201` 建帖；`200` 详情；接受后 `currentCount=2`
+  - `404` 下架不存在的 id；`200` 管理员下架；`409` 重复下架；`404` 下架后非管理员看详情；`200` 管理员仍可见
+  - 测试数据已清理：`TeamPost=0`、`TeamJoinRequest=0`、测试审计已删
+- 排障记录两条（避免重复踩）：
+  1. `.next` 缓存损坏（`vendor-chunks/bcryptjs.js` ENOENT）会让**动态路由整个 500 且返回体为空**，`Remove-Item .next` 后重启即恢复；不是代码问题。
+  2. PowerShell 里 `'{"a":1}' | ConvertTo-Json` 会二次转义成 JSON 字符串，服务端判 422；测试脚本必须直接把 JSON 文本写进请求体。
+- 下一步：S4 组队前端 4 页（广场/发布/详情/我的组队）。
+
+## 2026-11-08 组队/个人中心 · S1 个人中心只读页（Kimi 执行，Lead 验收）
+
+- commit `9786b36`（5 文件，+386/−1）：新增 `/u/[id]` 公开主页、`/profile` 我的资料（只读）；改 `breadcrumbs.tsx`（补 `/profile`、`/u/` 映射）、`sidebar.tsx`（学生/老师导航加「个人中心」）、`user-menu.tsx`（加「个人中心」链接）。
+- 复用：`StatusBadge` / `EmptyState` / `Button`+`ButtonArrow` / `BreadcrumbTitle` / `formatDate` / `awardWhereForRole`；无新依赖、未动 `prisma`/`lib`/`app/api`、无 mock 数据。
+- 口径：学生记录排除 `DRAFT`/`REJECTED`/`WITHDRAWN`；老师仅 `CONFIRMED`；学号只显示后 4 位；手机/邮箱/身份证/银行卡不查询、不渲染；他人访问无编辑入口。
+- 验收：Lead 独立复跑 `tsc --noEmit`、`next lint` 均 0 错误；`npm run build` 通过（用户终端，路由表含 `/profile`、`/u/[id]`），工作区干净。
+- 遗留（已记入 Kimi 提示词第 4 节）：⑬ 获奖口径四处不同源；⑭ 主页按主角色判定，多身份账号信息不全；⑮ 获奖按查看者角色过滤；⑯ 老师时间线可能重复。
+- 修正（同日）：`/u/[id]` 获奖查询由 `AwardRecord` 改为 `Award`（与 `lib/statistics.ts:86` 看板同源），移除状态徽章与 `awardWhereForRole` 过滤；`AwardRecord` 当前 0 行、`Award` 2 行，`lib/admin-awards.ts:110` 只 `award.upsert` 不写 `AwardRecord` → ⑬ 结论坐实，需另开 PR 统一四处口径。⑮ 随本次改口径自然消解。
+- 下一步：S2 组队数据模型（`TeamPost` + `TeamJoinRequest`），**需用户批准 schema 变更**，在新会话执行。
+
+## 2026-11-08 本地集成：feat/ui-polish + pr-4（统一数据源问答）
+
+- 集成分支 `integration/ui-polish-qa`，基于 `jinhui/main c2116ef`：先合 `feat/ui-polish`（0 冲突），再合 `pr-4 / feat/knowledge-qa 2015398`。
+- pr-4 带来的能力：问答不再单独维护资料，直接读赛事配置 + 通知/规程附件；全平台默认范围、候选澄清、配置类直答不调模型、附件自动解析/索引/替换、引用校验、学生禁止管理、旧知识接口 410。
+- 冲突解决（5 个文件）：
+  - `assistant/page.tsx`、`assistant-chat.tsx` 采用 pr-4 能力，外壳与按钮统一为 ui-polish 风格；
+  - `competitions/[id]/page.tsx` 同时保留返回筛选参数与 `syncPendingAttachments`；
+  - `competition-management.tsx` 以 ui-polish 布局为底，补「问答状态 / 重新解析 / 完整替换旧版」；
+  - `login-form.tsx` 保留 ui-polish 输入体验 + pr-4 身份复核（`window.location.replace` 重建客户端缓存）。
+- 集成修复：
+  - **重定向死循环**：`db:seed` 重建账号后旧 JWT 仍有效，页面查库失败跳 `/login`，middleware 又踢回 `/dashboard`。改为 middleware 不再凭 JWT 重定向登录页，由登录页 `getActiveUser()` 决定。
+  - 无效 `competitionId` 因 `(workspace)/loading.tsx` 流式渲染返回 200：页面校验保留，回归脚本改为「200/404 均可，但内容必须是 404 页」。
+  - 侧栏删除重复「AI 助手」入口，统一为单一「赛事 AI 问答」板块（页面用 ui-polish 外壳 + pr-4 能力）。
+- schema：`CompetitionAttachment` 新增 `knowledgeStatus / knowledgeError / knowledgeIndexedAt / replacesAttachmentId`，`KbDocument` 扩展；已备份 `tmp/dev.db.before-integration.bak` 后 `db push`。
+- 验证：`tsc --noEmit`、`next lint`、`npm run build` 通过；`scripts/verify-platform-assistant.cjs` 5 组 PASS（含澄清、配置直答、附件解析/替换、权限、下架失效），模型协议调用 13 次。
+- P3 回归（seed + demo:all 大数据两轮）：
+  - 基础：草稿学生不可见、发布可见、窗口「报名中」、下架隐藏；审核卡片/展开、获奖导出（管理员 200 xlsx、学生 403）、报名页「未上传」提示、问答单板块、配置类问答 `mode=configuration` 且返回来源、详情问答状态/替换入口、学生知识接口 403。
+  - 大数据（872 账号 / 258 项目）：800 学生账号登录、「我的项目」、审核 258 条分页、看板、获奖导出（2 条仅已录奖项）、抽样导入项目详情、教师端均正常；dev 热态耗时约 155–289ms/页，配置问答约 151ms。
+- 已知取舍：`(workspace)/loading.tsx` 的 Suspense 流式渲染下，`notFound()` 页面内容正确但 HTTP 状态为 200（草稿/下架详情、无效问答赛事）；尝试 `generateMetadata` 提前校验也无法改变状态码，已回退，保留骨架屏与 404 内容。
+
 ## 2026-11-06 获奖名单导出 + 审核列表卡片化
 
 - 获奖名单导出：`/admin/awards` 右上角新增「导出获奖名单」按钮，链接自动带当前筛选（赛事/学院/奖项等级）。

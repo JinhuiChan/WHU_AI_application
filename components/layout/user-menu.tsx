@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { roleLabels } from "@/lib/presentation";
 
 import { useEffect, useRef, useState } from "react";
@@ -41,13 +43,12 @@ export function UserMenu({ user }: { user: AuthUser }) {
 
   return (
     <div ref={containerRef} className="relative shrink-0">
-      <button
+      <Button variant="outline" size="default"
         type="button"
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
-        className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm hover:bg-slate-50"
-      >
+        className="gap-2" >
         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 text-blue-600">
           <UserRound size={17} aria-hidden="true" />
         </span>
@@ -56,24 +57,29 @@ export function UserMenu({ user }: { user: AuthUser }) {
           <span className="block text-xs text-slate-500">{roleLabels[user.role] ?? "普通用户"}</span>
         </span>
         <ChevronDown size={15} className="text-slate-400" aria-hidden="true" />
-      </button>
+      </Button>
       {open ? (
-        <div role="menu" className="absolute right-0 top-12 w-64 rounded-lg border border-slate-200 bg-white p-2 shadow-lg">
+        <div role="menu" className="absolute right-0 top-12 w-64 rounded-xl border border-slate-200 bg-white p-2 shadow-sm">
           <div className="border-b border-slate-100 px-3 py-3">
             <p className="font-medium text-slate-800">{user.name}</p>
             <p className="mt-1 text-xs text-slate-500">{user.phone}</p>
           </div>
-          {error ? <p className="px-3 py-2 text-xs text-red-600">{error}</p> : null}
-          <button
+          {error ? <p role="alert" className="px-3 py-2 text-xs text-red-600">{error}</p> : null}
+          <Button asChild variant="ghost" size="sm" className="w-full justify-start gap-2">
+            <Link href="/profile" role="menuitem" onClick={() => setOpen(false)}>
+              <UserRound size={16} aria-hidden="true" />
+              个人中心
+            </Link>
+          </Button>
+          <Button variant="outline" size="default"
             type="button"
             role="menuitem"
             disabled={loading}
             onClick={logout}
-            className="mt-1 flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-60"
-          >
+            className="mt-1 w-full gap-2" >
             <LogOut size={16} aria-hidden="true" />
             {loading ? "退出中…" : "退出登录"}
-          </button>
+          </Button>
         </div>
       ) : null}
     </div>

@@ -21,7 +21,7 @@ export function StatisticsCharts({ byTrack, byStage, byAward }: Pick<StatisticsS
   const hasTrackData = byTrack.some((item) => item.projectCount > 0);
   return (
     <div className="grid gap-5 xl:grid-cols-3">
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="text-sm font-semibold text-slate-900">赛道分布</h2>
         <p className="mt-1 text-xs text-slate-500">项目数与当前筛选内占比</p>
         <div className="mt-4 h-72" aria-label="赛道分布饼图">
@@ -39,7 +39,7 @@ export function StatisticsCharts({ byTrack, byStage, byAward }: Pick<StatisticsS
         </div>
       </section>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="text-sm font-semibold text-slate-900">阶段分布</h2>
         <p className="mt-1 text-xs text-slate-500">校赛、省赛、国赛项目数</p>
         <div className="mt-4 h-72" aria-label="阶段分布柱状图">
@@ -55,7 +55,7 @@ export function StatisticsCharts({ byTrack, byStage, byAward }: Pick<StatisticsS
         </div>
       </section>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="text-sm font-semibold text-slate-900">奖项分布</h2>
         <p className="mt-1 text-xs text-slate-500">Award 表中的金、银、铜与优秀奖</p>
         <div className="mt-4 h-72" aria-label="奖项分布柱状图">

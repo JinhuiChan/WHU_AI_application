@@ -2,6 +2,7 @@
 
 import { FormEvent, useRef, useState } from "react";
 import { Bot, Send, UserRound } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import type { ApiResponse } from "@/types/api";
 import type { AssistantResult } from "@/types/assistant";
 
@@ -42,7 +43,7 @@ export function AssistantChat({ competitionId }: { competitionId?: string }) {
     <div className="space-y-4">
       <div className="space-y-4" aria-live="polite">
         {!exchanges.length && (
-          <div className="rounded-xl bg-slate-50 px-5 py-8 text-center">
+          <div className="rounded-xl border border-slate-200 bg-slate-50/60 px-5 py-8 text-center">
             <Bot size={28} className="mx-auto text-blue-600" aria-hidden="true" />
             <p className="mt-3 font-medium text-slate-800">问一问平台赛事</p>
             <p className="mt-2 text-sm text-slate-500">可询问报名状态、比较多场赛事，或查询通知中的具体规则。</p>
@@ -61,9 +62,8 @@ export function AssistantChat({ competitionId }: { competitionId?: string }) {
               </p>
               <p className="whitespace-pre-wrap text-sm leading-7 text-slate-800">{result.answer}</p>
               {result.candidates && <div className="mt-3 flex flex-wrap gap-2">
-                {result.candidates.map((candidate) => <button key={candidate.id} type="button" disabled={pending}
-                  className="rounded-lg border border-blue-200 px-3 py-2 text-sm text-blue-700 disabled:opacity-50"
-                  onClick={() => void ask(asked, candidate.id)}>{candidate.year} · {candidate.name}</button>)}
+                {result.candidates.map((candidate) => <Button key={candidate.id} type="button" variant="outline" size="sm" disabled={pending}
+                  onClick={() => void ask(asked, candidate.id)}>{candidate.year} · {candidate.name}</Button>)}
               </div>}
               {result.sources.map((source) => (
                 <details key={source.id} className="mt-3 rounded-lg bg-slate-50 p-3 text-sm">
@@ -84,20 +84,18 @@ export function AssistantChat({ competitionId }: { competitionId?: string }) {
         ))}
       </div>
       <div className="flex flex-wrap gap-2">
-        {suggestions.map((item) => <button key={item} type="button" disabled={pending} onClick={() => setQuestion(item)}
-          className="rounded-full border border-slate-200 px-3 py-1.5 text-xs text-slate-600 hover:border-blue-400 disabled:opacity-50">{item}</button>)}
+        {suggestions.map((item) => <Button key={item} type="button" variant="outline" size="sm" disabled={pending} onClick={() => setQuestion(item)}>{item}</Button>)}
       </div>
       <form onSubmit={submitQuestion}>
-        <label htmlFor="assistant-question" className="mb-2 block text-sm font-medium">你的问题</label>
+        <label htmlFor="assistant-question" className="mb-2 block text-sm font-medium text-slate-700">你的问题</label>
         <textarea id="assistant-question" value={question} onChange={(event) => setQuestion(event.target.value)}
           maxLength={500} rows={3} required placeholder="例如：现在有哪些比赛还能报名？"
-          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none" />
-        <div className="mt-2 flex items-center justify-between gap-3">
+          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-100" />
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs text-slate-500">{pending ? "正在查找依据并生成回答…" : "可在问题中写明比赛和年份；未选范围时咨询全部已发布赛事"}</p>
-          <button type="submit" disabled={pending || !question.trim()}
-            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white disabled:opacity-50">
+          <Button type="submit" disabled={pending || !question.trim()}>
             <Send size={16} aria-hidden="true" />{pending ? "回答中…" : "发送"}
-          </button>
+          </Button>
         </div>
         {error && <p role="alert" className="mt-2 text-sm text-red-600">{error}</p>}
       </form>

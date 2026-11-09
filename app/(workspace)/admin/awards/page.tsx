@@ -59,7 +59,7 @@ export default async function AdminAwardsPage({ searchParams }: PageProps) {
   const exportHref = `/api/export/awards-list${exportQuery ? `?${exportQuery}` : ""}`;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold text-slate-900">奖项录入</h1>
@@ -68,7 +68,7 @@ export default async function AdminAwardsPage({ searchParams }: PageProps) {
         <div className="text-right">
           <a
             href={exportHref}
-            className="inline-flex h-10 items-center rounded-md bg-blue-600 px-5 text-sm font-medium text-white hover:bg-blue-700"
+            className="inline-flex h-10 items-center rounded-lg bg-blue-600 px-5 text-sm font-medium text-white hover:bg-blue-700"
           >
             导出获奖名单
           </a>

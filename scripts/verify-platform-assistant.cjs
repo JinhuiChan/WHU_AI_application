@@ -77,7 +77,15 @@ async function main() {
   const ask = async (question, competitionId) => (await req('/api/assistant/ask', { cookie: student, body: { question, ...(competitionId ? { competitionId } : {}) } })).data;
   await req('/api/assistant/ask', { body: { question: '有哪些比赛？' }, status: 401 });
   await req('/api/assistant/ask', { cookie: student, body: { question: '' }, status: 422 });
-  await req('/assistant?competitionId=missing', { cookie: student, status: 404 });
+  // 工作区存在 loading.tsx（Suspense 边界），页面内 notFound() 触发时响应头可能已按 200 发出；
+  // 因此这里接受 200/404 两种状态，但内容必须是 404 页，且绝不能渲染成正常问答页。
+  {
+    const missing = await fetch(base + '/assistant?competitionId=missing', { headers: { Cookie: student }, redirect: 'manual' });
+    const missingHtml = await missing.text();
+    assert.ok([200, 404].includes(missing.status), '/assistant?competitionId=missing status: ' + missing.status);
+    assert.ok(missingHtml.includes('页面或数据不存在'), '/assistant?competitionId=missing 未渲染 404 页');
+    assert.ok(!missingHtml.includes('全部已发布赛事'), '/assistant?competitionId=missing 渲染成了正常问答页');
+  }
   for (const cookie of [admin, student]) {
     const html = (await req('/assistant', { cookie })).data;
     assert.ok(html.includes('全部已发布赛事'));

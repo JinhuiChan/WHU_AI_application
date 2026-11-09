@@ -2,15 +2,66 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 设计变量：新增语义 token，不改任何已有 Tailwind 类名的解析结果。
+   新代码可直接用 var(--xxx) 或 bg-surface / text-ink / border-line 等语义类。 */
 :root {
   --background: #f8fafc;
   --foreground: #0f172a;
+
+  --surface: #ffffff;
+  --surface-subtle: #f8fafc;
+  --surface-muted: #f1f5f9;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+
+  --ink: #0f172a;
+  --ink-muted: #334155;
+  --ink-subtle: #64748b;
+  --ink-faint: #94a3b8;
+
+  --brand: #2563eb;
+  --brand-strong: #1d4ed8;
+  --brand-soft: #dbeafe;
+  --danger: #dc2626;
+  --danger-strong: #b91c1c;
+  --success: #059669;
+
+  --radius-card: 12px;
+  --radius-control: 8px;
+  --radius-pill: 9999px;
+  --space-block: 16px;
+  --text-title: 22px;
+  --text-label: 14px;
+  --text-body: 14px;
+  --text-note: 12px;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: var(--font-geist-sans), "Microsoft YaHei", "PingFang SC", sans-serif;
+}
+
+@layer base {
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [role="button"]:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+  }
+}
+
+@keyframes login-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @layer utilities {
@@ -20,5 +71,176 @@ body {
 
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .login-fade-up {
+    animation: login-fade-up 520ms ease-out both;
+  }
+
+  .font-rounded {
+    font-family: var(--font-geist-sans), "Yuanti SC", "YouYuan", "幼圆", "SimYou", "Microsoft YaHei", "PingFang SC", sans-serif;
+  }
+
+  .fade-up {
+    animation: login-fade-up 480ms ease-out both;
+  }
+}
+
+@keyframes page-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 全站入场：页面级区块 + 顶层网格里的卡片，按出现顺序依次淡入。
+   PageTransition 用 pathname 做 key，导航时重挂载内容区，动画每次都会重播。 */
+.page-enter > * > *,
+.page-enter > * > .grid > * {
+  animation: page-fade-up 460ms ease-out both;
+}
+
+.page-enter > * > *:nth-child(1),
+.page-enter > * > .grid > *:nth-child(1) { animation-delay: 0ms; }
+.page-enter > * > *:nth-child(2),
+.page-enter > * > .grid > *:nth-child(2) { animation-delay: 60ms; }
+.page-enter > * > *:nth-child(3),
+.page-enter > * > .grid > *:nth-child(3) { animation-delay: 120ms; }
+.page-enter > * > *:nth-child(4),
+.page-enter > * > .grid > *:nth-child(4) { animation-delay: 180ms; }
+.page-enter > * > *:nth-child(5),
+.page-enter > * > .grid > *:nth-child(5) { animation-delay: 240ms; }
+.page-enter > * > *:nth-child(6),
+.page-enter > * > .grid > *:nth-child(6) { animation-delay: 300ms; }
+.page-enter > * > *:nth-child(7),
+.page-enter > * > .grid > *:nth-child(7) { animation-delay: 360ms; }
+.page-enter > * > *:nth-child(8),
+.page-enter > * > .grid > *:nth-child(8) { animation-delay: 420ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .login-fade-up,
+  .fade-up,
+  .page-enter > * > *,
+  .page-enter > * > .grid > * {
+    animation: none;
+  }
+}
+
+/* 全站文字层级：只作用于工作区（.page-enter 内），登录页与注册页不受影响。
+   用类名精确定位，避免把统计卡的 .text-xs 小标签误当成标题。 */
+.page-enter h1.text-xl {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.page-enter :is(h2, h3):not(.text-xs):not(.text-slate-500) {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.page-enter .text-3xl.font-semibold {
+  font-weight: 700;
+}
+
+/* 指标 / 字段小标签（L3b）：像小标题一样的标签统一标黑、加大、加粗。
+   这里同时是「字体插槽」：以后要换正式中文字体，只改下面这一处 font-family。
+   用显式类名 + 结构选择器命中，不碰 .mt-1 说明文字、表格单元格与快捷入口副标题。 */
+.page-enter .t-label,
+.page-enter :is(h2, h3, dt).text-xs.text-slate-500,
+.page-enter .rounded-lg.bg-slate-50 > div.text-xs.text-slate-500 {
+  font-family: var(--font-geist-sans), "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.1px;
+}
+
+/* 表头同样标黑提字重，但保持 12px，避免 1800px 宽表被撑得更挤 */
+.page-enter thead.text-xs.text-slate-500 th {
+  font-weight: 600;
+  color: var(--ink-muted);
+}
+
+/* 待办 / 异常数字标红：只按语义标签命中，克制使用，不与错误提示混用 */
+.page-enter .t-warn {
+  box-shadow: inset 3px 0 0 var(--danger);
+}
+
+.page-enter .t-warn h2.t-label.text-xs.text-slate-500 {
+  color: var(--danger-strong);
+  font-weight: 700;
+}
+
+.page-enter .t-warn-value {
+  color: var(--danger);
+}
+
+/* 宽表横向滚动时固定首列：只命中设了 min-w-[...] 的宽表，小表格不受影响。
+   sticky 元素必须有显式背景，否则滚动时下方单元格会透出来；表头层级更高，
+   hover 行首列跟随浅灰，右侧细线让「这一列是钉住的」看得出来。 */
+.page-enter .overflow-x-auto table[class*="min-w-"] > thead > tr > th:first-child,
+.page-enter .overflow-x-auto table[class*="min-w-"] > tbody > tr > td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--surface);
+  box-shadow: inset -1px 0 0 var(--border);
+}
+
+.page-enter .overflow-x-auto table[class*="min-w-"] > thead > tr > th:first-child {
+  z-index: 2;
+  background: var(--surface-subtle);
+}
+
+.page-enter .overflow-x-auto table[class*="min-w-"] > tbody > tr:hover > td:first-child {
+  background: var(--surface-subtle);
+}
+
+/* 操作列右侧固定：与首列对称，宽表横滚时操作按钮始终可见。 */
+.page-enter .overflow-x-auto table[class*="min-w-"] > thead > tr > th:last-child,
+.page-enter .overflow-x-auto table[class*="min-w-"] > tbody > tr > td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 1;
+  background: var(--surface);
+  box-shadow: inset 1px 0 0 var(--border);
+}
+
+.page-enter .overflow-x-auto table[class*="min-w-"] > thead > tr > th:last-child {
+  z-index: 2;
+  background: var(--surface-subtle);
+}
+
+.page-enter .overflow-x-auto table[class*="min-w-"] > tbody > tr:hover > td:last-child {
+  background: var(--surface-subtle);
+}
+
+/* 表格行 hover 统一：原先只有赛事页写了，其余宽表补齐 */
+.page-enter .overflow-x-auto table[class*="min-w-"] > tbody > tr:hover {
+  background: var(--surface-subtle);
+}
+
+/* 段落级空态：轻量占位条，不放大成大空态卡，也不误伤普通说明文字 */
+.page-enter .inline-empty {
+  border-left: 2px solid var(--border);
+  border-radius: 0 var(--radius-control) var(--radius-control) 0;
+  background: var(--surface-subtle);
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--ink-subtle);
+}
+
+/* React Bits 文字动效：系统开启「减少动态效果」时直接锁定终态。
+   MotionConfig reducedMotion="user" 只自动关闭位移，模糊与透明度仍可能变化，这里补一层强制降级。 */
+@media (prefers-reduced-motion: reduce) {
+  .blur-text span[aria-hidden="true"] {
+    filter: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }

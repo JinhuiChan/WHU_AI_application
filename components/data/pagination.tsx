@@ -24,19 +24,25 @@ export function Pagination({ basePath, query, total, page, pageSize }: Paginatio
       <span>共 {total} 条，每页 {pageSize} 条</span>
       <div className="flex items-center gap-3">
         {page > 1 ? (
-          <Link href={pageHref(basePath, query, page - 1)} className="rounded-md border border-slate-300 px-3 py-2 hover:bg-slate-50">
+          <Link
+            href={pageHref(basePath, query, page - 1)}
+            className="rounded-full border border-slate-300 px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50"
+          >
             上一页
           </Link>
         ) : (
-          <span className="cursor-not-allowed rounded-md border border-slate-200 px-3 py-2 text-slate-300">上一页</span>
+          <span className="cursor-not-allowed rounded-full border border-slate-200 px-4 py-2 text-sm text-slate-300">上一页</span>
         )}
         <span>第 {page} / {totalPages} 页</span>
         {page < totalPages ? (
-          <Link href={pageHref(basePath, query, page + 1)} className="rounded-md border border-slate-300 px-3 py-2 hover:bg-slate-50">
+          <Link
+            href={pageHref(basePath, query, page + 1)}
+            className="rounded-full border border-slate-300 px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50"
+          >
             下一页
           </Link>
         ) : (
-          <span className="cursor-not-allowed rounded-md border border-slate-200 px-3 py-2 text-slate-300">下一页</span>
+          <span className="cursor-not-allowed rounded-full border border-slate-200 px-4 py-2 text-sm text-slate-300">下一页</span>
         )}
       </div>
     </div>

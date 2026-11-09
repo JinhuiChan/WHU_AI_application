@@ -1,3 +1,6 @@
+import { BackLink } from "@/components/data/list-link";
+import { firstParam } from "@/lib/list-query";
+import { StatusBadge } from "@/components/ui/status-badge";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -11,9 +14,10 @@ export const metadata: Metadata = { title: "项目全貌" };
 
 type PageProps = {
   params: { id: string };
+  searchParams?: Record<string, string | string[] | undefined>;
 };
 
-export default async function ProjectDetailPage({ params }: PageProps) {
+export default async function ProjectDetailPage({ params, searchParams }: PageProps) {
   const user = await getActiveUser();
   if (!user) redirect("/login");
   const project = await getProjectDetail(params.id, user.role);
@@ -23,37 +27,37 @@ export default async function ProjectDetailPage({ params }: PageProps) {
     <div className="space-y-6">
       <BreadcrumbTitle label={project.name} />
       <div>
-        <Link href="/projects" className="text-sm text-blue-600 hover:underline">返回项目列表</Link>
+        <BackLink to={firstParam(searchParams?.from)} fallback="/projects" label="返回项目列表" />
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <h1 className="max-w-4xl text-xl font-semibold text-slate-900">{project.name}</h1>
           <span className="rounded-full bg-blue-50 px-2 py-1 text-xs text-blue-700">{project.year}</span>
-          <span className="rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-600">{projectStatusLabels[project.status]}</span>
+          <StatusBadge status={project.status} scope="project">{projectStatusLabels[project.status]}</StatusBadge>
         </div>
       </div>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-sm font-semibold text-slate-900">基本信息</h2>
         <dl className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
-          <div><dt className="text-xs text-slate-500">所属学院</dt><dd className="mt-1 text-slate-900">{project.college}</dd></div>
-          <div><dt className="text-xs text-slate-500">赛年</dt><dd className="mt-1 text-slate-900">{project.year}</dd></div>
-          <div><dt className="text-xs text-slate-500">项目状态</dt><dd className="mt-1 text-slate-900">{projectStatusLabels[project.status]}</dd></div>
-          <div><dt className="text-xs text-slate-500">创建时间</dt><dd className="mt-1 text-slate-900">{formatDate(project.createdAt)}</dd></div>
+          <div><dt className="text-sm text-slate-500">所属学院</dt><dd className="mt-1 text-slate-900">{project.college}</dd></div>
+          <div><dt className="text-sm text-slate-500">赛年</dt><dd className="mt-1 text-slate-900">{project.year}</dd></div>
+          <div><dt className="text-sm text-slate-500">项目状态</dt><dd className="mt-1 text-slate-900"><StatusBadge status={project.status} scope="project">{projectStatusLabels[project.status]}</StatusBadge></dd></div>
+          <div><dt className="text-sm text-slate-500">创建时间</dt><dd className="mt-1 text-slate-900">{formatDate(project.createdAt)}</dd></div>
         </dl>
         <div className="mt-4 border-t border-slate-100 pt-4">
           <h3 className="text-xs text-slate-500">项目别名与编号</h3>
           {project.aliases.length ? (
             <div className="mt-2 flex flex-wrap gap-2">
               {project.aliases.map((alias) => (
-                <span key={alias.id} className="rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-600">
+                <span key={alias.id} className="rounded-lg bg-slate-100 px-2 py-1 text-xs text-slate-600">
                   {aliasTypeLabels[alias.aliasType]}：{alias.aliasValue}
                 </span>
               ))}
             </div>
-          ) : <p className="mt-2 text-sm text-slate-400">暂无别名或编号</p>}
+          ) : <p className="mt-2 text-sm text-slate-400 inline-empty">暂无别名或编号</p>}
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="border-b border-slate-200 px-5 py-4"><h2 className="text-sm font-semibold text-slate-900">获奖记录（{project.awards.length}）</h2></div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1050px] text-left text-sm">
@@ -89,7 +93,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="border-b border-slate-200 px-5 py-4"><h2 className="text-sm font-semibold text-slate-900">当前成员（{project.members.length}）</h2></div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[700px] text-left text-sm">

@@ -1,3 +1,4 @@
+import { StatusBadge } from "@/components/ui/status-badge";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -23,13 +24,13 @@ export default async function TeacherPage() {
   const rows = await listTeacherProjects(user);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div>
         <h1 className="text-xl font-semibold text-slate-900">我指导的项目</h1>
         <p className="mt-1 text-sm text-slate-500">确认指导关系后，学生报名信息中的指导老师一栏才视为有效。</p>
       </div>
 
-      <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[980px] text-left text-sm">
             <thead className="bg-slate-50 text-xs text-slate-500">
@@ -54,7 +55,7 @@ export default async function TeacherPage() {
                   <td className="max-w-56 px-4 py-3 text-xs">{row.competitionName}<br /><span className="text-slate-500">{row.trackName}</span></td>
                   <td className="px-4 py-3">{row.college}</td>
                   <td className="px-4 py-3">{row.memberCount}</td>
-                  <td className="px-4 py-3 text-xs">{projectStatusLabels[row.status]}</td>
+                  <td className="px-4 py-3 text-xs"><StatusBadge status={row.status} scope="project">{projectStatusLabels[row.status]}</StatusBadge></td>
                   <td className="px-4 py-3 text-xs">
                     <span
                       className={

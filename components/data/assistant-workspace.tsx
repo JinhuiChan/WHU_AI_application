@@ -54,9 +54,9 @@ export function AssistantWorkspace({ competitionId, competitions, viewer, childr
   }, [viewer.id, viewer.role, competitionId, retry]);
   const current = competitions.find((item) => item.id === competitionId);
   return <>
-    <section className="rounded-xl border border-slate-200 bg-white p-5">
-      <label className="block text-sm font-medium">优先咨询赛事（可选）
-        <select value={competitionId ?? ""} disabled={pending || checking} className="mt-2 block w-full rounded-lg border border-slate-300 px-3 py-2 disabled:opacity-50" onChange={(event) => {
+    <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <label className="block text-sm font-medium text-slate-700">优先咨询赛事（可选）
+        <select value={competitionId ?? ""} disabled={pending || checking} className="mt-2 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100 disabled:opacity-50" onChange={(event) => {
           const next = event.target.value;
           if (next === (competitionId ?? "")) return;
           event.currentTarget.value = competitionId ?? "";

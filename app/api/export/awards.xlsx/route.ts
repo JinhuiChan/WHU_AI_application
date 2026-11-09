@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
         competitionLevelLabels[row.competition.level],
         awardLevelLabels[row.awardLevel],
         awardStatusLabels[row.status],
-        evidenceTypeLabels[row.evidenceType],
+        row.evidenceType ? evidenceTypeLabels[row.evidenceType] : "",
         row.evidenceRef,
         row.verifier.name,
         row.verifiedAt.toISOString(),

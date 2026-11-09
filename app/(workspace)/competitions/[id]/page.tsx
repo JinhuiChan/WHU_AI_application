@@ -5,10 +5,12 @@ import { CompetitionDeleteButton } from "@/components/admin/competition-delete-b
 import { CompetitionManagement } from "@/components/admin/competition-management";
 import { CompetitionPublishButton } from "@/components/admin/competition-publish-button";
 import { TrackEditor } from "@/components/admin/track-editor";
+import { BackLink } from "@/components/data/list-link";
 import { BreadcrumbTitle } from "@/components/layout/breadcrumbs";
 import { getActiveUser } from "@/lib/auth.server";
 import { getCompetitionDetail } from "@/lib/competitions";
 import { loadScopedLabels } from "@/lib/dict-labels";
+import { firstParam } from "@/lib/list-query";
 import { syncPendingAttachments } from "@/lib/attachment-knowledge";
 import { prisma } from "@/lib/prisma";
 import { awardLevelLabels, awardStatusLabels, competitionLevelLabels, dataSourceTypeLabels, formatDate, formatDateTime, publishStatusLabels } from "@/lib/presentation";
@@ -18,9 +20,10 @@ export const dynamic = "force-dynamic";
 
 type PageProps = {
   params: { id: string };
+  searchParams?: Record<string, string | string[] | undefined>;
 };
 
-export default async function CompetitionDetailPage({ params }: PageProps) {
+export default async function CompetitionDetailPage({ params, searchParams }: PageProps) {
   const user = await getActiveUser();
   if (!user) redirect("/login");
   const competition = await getCompetitionDetail(params.id, user.role);
@@ -68,12 +71,20 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
 
   const topTracks = tracks.filter((track) => !track.parentId);
   const childrenOf = (id: string) => tracks.filter((track) => track.parentId === id);
+  // 宣传片在赛事简介页里播放，不作为「赛事文件」给学生下载
+  const documents = attachments.filter(
+    (file) => file.kind !== "VIDEO" && !/\.(mp4|webm|mov|m4v|ogv)$/i.test(file.fileName),
+  );
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <BreadcrumbTitle label={competition.name} />
       <div>
-        <Link href="/competitions" className="text-sm text-blue-600 hover:underline">返回赛事列表</Link>
+        <div className="flex flex-wrap items-center gap-3 text-sm">
+          <BackLink to={firstParam(searchParams?.from)} fallback="/competitions" label="返回赛事列表" />
+          <span aria-hidden="true" className="text-slate-300">·</span>
+          <Link href={`/intro/${competition.id}`} className="text-blue-600 hover:underline">查看赛事简介</Link>
+        </div>
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <h1 className="text-xl font-semibold text-slate-900">{competition.name}</h1>
           <span className="rounded-full bg-blue-50 px-2 py-1 text-xs text-blue-700">{competitionLevelLabels[competition.level]}</span>
@@ -94,18 +105,18 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
         />
       ) : null}
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-sm font-semibold text-slate-900">赛事信息</h2>
         <dl className="grid grid-cols-2 gap-4 text-sm md:grid-cols-5">
-          <div><dt className="text-xs text-slate-500">赛年</dt><dd className="mt-1 text-slate-900">{competition.year}</dd></div>
-          <div><dt className="text-xs text-slate-500">等级</dt><dd className="mt-1 text-slate-900">{competitionLevelLabels[competition.level]}</dd></div>
-          <div><dt className="text-xs text-slate-500">系列标识</dt><dd className="mt-1 break-all text-slate-900">{competition.seriesId}</dd></div>
-          <div><dt className="text-xs text-slate-500">主办方</dt><dd className="mt-1 text-slate-900">{competition.organizer ?? "—"}</dd></div>
-          <div><dt className="text-xs text-slate-500">创建时间</dt><dd className="mt-1 text-slate-900">{formatDate(competition.createdAt)}</dd></div>
+          <div><dt className="text-sm text-slate-500">赛年</dt><dd className="mt-1 text-slate-900">{competition.year}</dd></div>
+          <div><dt className="text-sm text-slate-500">等级</dt><dd className="mt-1 text-slate-900">{competitionLevelLabels[competition.level]}</dd></div>
+          <div><dt className="text-sm text-slate-500">系列标识</dt><dd className="mt-1 break-all text-slate-900">{competition.seriesId}</dd></div>
+          <div><dt className="text-sm text-slate-500">主办方</dt><dd className="mt-1 text-slate-900">{competition.organizer ?? "—"}</dd></div>
+          <div><dt className="text-sm text-slate-500">创建时间</dt><dd className="mt-1 text-slate-900">{formatDate(competition.createdAt)}</dd></div>
         </dl>
       </section>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-sm font-semibold text-slate-900">报名</h2>
           <span className={`rounded-full px-3 py-1 text-xs ${applyState.tone}`}>{applyState.label}</span>
@@ -116,20 +127,20 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
         <div className="mt-4 flex flex-wrap items-center gap-3">
           {user.role === "STUDENT" ? (
             applyOpen ? (
-              <Link href={`/apply?competitionId=${competition.id}`} className="rounded-md bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700">
+              <Link href={`/apply?competitionId=${competition.id}`} className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700">
                 我要报名
               </Link>
             ) : (
-              <span className="rounded-md bg-slate-100 px-5 py-2 text-sm text-slate-500">{applyWindow && !applyWindow.enabled ? "报名未开放" : "当前不在报名时间内"}</span>
+              <span className="rounded-lg bg-slate-100 px-5 py-2 text-sm text-slate-500">{applyWindow && !applyWindow.enabled ? "报名未开放" : "当前不在报名时间内"}</span>
             )
           ) : (
             <span className="text-sm text-slate-500">仅参赛学生可报名</span>
           )}
-          <Link href="/my" className="rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">我的项目</Link>
+          <Link href="/my" className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">我的项目</Link>
         </div>
       </section>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-sm font-semibold text-slate-900">时间安排</h2>
         {windows.length ? (
           <ul className="space-y-2 text-sm text-slate-700">
@@ -145,7 +156,7 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
         )}
       </section>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-sm font-semibold text-slate-900">赛道与组别</h2>
         {user.role === "ADMIN" ? <TrackEditor competitionId={competition.id} /> : null}
         {user.role === "ADMIN" ? null : (
@@ -153,7 +164,7 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
         {topTracks.length ? (
           <div className="space-y-3">
             {topTracks.map((track) => (
-              <div key={track.id} className="rounded-md border border-slate-100 bg-slate-50 px-3 py-2">
+              <div key={track.id} className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2">
                 <p className="text-sm font-medium text-slate-900">{track.name}</p>
                 {childrenOf(track.id).length ? (
                   childrenOf(track.id).map((child) => (
@@ -177,12 +188,12 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
       </section>
 
       {user.role !== "ADMIN" ? (
-        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="mb-1 text-sm font-semibold text-slate-900">赛事文件</h2>
           <p className="mb-4 text-xs text-slate-500">报名前请先阅读通知与规程，确认所在赛道与组别。</p>
-          {attachments.length ? (
+          {documents.length ? (
             <ul className="divide-y divide-slate-100">
-              {attachments.map((file) => (
+              {documents.map((file) => (
                 <li key={file.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
                   <div>
                     <p className="text-sm text-slate-900">{file.title}</p>
@@ -190,19 +201,19 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
                     {file.knowledgeStatus === "REPLACED" && <p className="text-xs text-slate-500">已被新版替换，仅供历史查阅</p>}
                     <p className="text-xs text-slate-500">{file.kind === "RULE" ? "规程" : file.kind === "TEMPLATE" ? "模板" : "通知"} · {file.fileName}</p>
                   </div>
-                  <a href={file.filePath} target="_blank" rel="noreferrer" className="rounded-md border border-slate-300 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50">
+                  <a href={file.filePath} target="_blank" rel="noreferrer" className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50">
                     查看 / 下载
                   </a>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-slate-500">暂无赛事文件</p>
+            <p className="text-sm text-slate-500 inline-empty">暂无赛事文件</p>
           )}
         </section>
       ) : null}
 
-      <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="border-b border-slate-200 px-5 py-4">
           <h2 className="text-sm font-semibold text-slate-900">获奖名单（{competition.awards.length}）</h2>
           <p className="mt-1 text-xs text-slate-500">来源与核验信息按获奖记录展示，未登记来源时明确标注。</p>
@@ -253,7 +264,7 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
       </section>
 
       {user.role === "ADMIN" ? (
-        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 className="text-sm font-semibold text-slate-900">发布状态</h2>
@@ -278,7 +289,7 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
       ) : null}
 
       {user.role === "ADMIN" ? (
-        <section className="rounded-lg border border-red-200 bg-white p-5 shadow-sm">
+        <section className="rounded-xl border border-red-200 bg-white p-5 shadow-sm">
           <h2 className="text-sm font-semibold text-red-700">危险操作</h2>
           <p className="mt-1 text-xs text-slate-500">误建的赛事可在这里删除；已有项目报名或奖项记录的赛事不允许删除（接口会拦截）。</p>
           <div className="mt-3">

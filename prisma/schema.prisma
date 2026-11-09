@@ -186,6 +186,11 @@ model User {
   createdAt             DateTime            @default(now())
   updatedAt             DateTime            @default(now()) @updatedAt
   deletedAt             DateTime?
+  bio                   String?
+  avatarUrl             String?
+  skills                String              @default("")
+  showRecords           Boolean             @default(true)
+  showAwards            Boolean             @default(true)
   extraRoles            UserRoleLink[]
   ownedProjects         Project[]           @relation("ProjectOwner")
   teamMemberships       TeamMember[]        @relation("MemberUser")
@@ -209,6 +214,9 @@ model User {
   anomalies             Anomaly[]
   importBatches         ImportBatch[]
   kbDocuments           KbDocument[]
+  teamPosts             TeamPost[]          @relation("TeamPostAuthor")
+  teamJoinRequests      TeamJoinRequest[]   @relation("TeamJoinApplicant")
+  handledJoins          TeamJoinRequest[]   @relation("TeamJoinHandler")
 }
 
 model Competition {
@@ -231,6 +239,7 @@ model Competition {
   formTemplates FormTemplate[]
   awards       Award[]
   awardRecords AwardRecord[]
+  teamPosts    TeamPost[]
 
   @@unique([name, year])
 }
@@ -250,6 +259,7 @@ model Track {
   children      Track[]      @relation("TrackHierarchy")
   projects      Project[]
   dictOptions   DictOption[]
+  teamPosts     TeamPost[]
 
   @@unique([competitionId, parentId, name])
   @@index([competitionId, enabled])
@@ -757,5 +767,66 @@ model UserRoleLink {
 
   @@id([userId, role])
   @@index([role])
+}
+
+enum TeamPostStatus {
+  RECRUITING
+  FULL
+  CLOSED
+  EXPIRED
+}
+
+enum TeamJoinStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  CANCELLED
+  LEFT
+}
+
+model TeamPost {
+  id            String         @id @default(uuid())
+  authorId      String
+  competitionId String?
+  trackId       String?
+  title         String
+  summary       String
+  expectation   String?
+  skills        String         @default("")
+  memberLimit   Int            @default(5)
+  currentCount  Int            @default(1)
+  requirement   String         @default("全部")
+  contact       String?
+  status        TeamPostStatus @default(RECRUITING)
+  expiresAt     DateTime
+  removedBy     String?
+  removedReason String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @default(now()) @updatedAt
+  author        User           @relation("TeamPostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  competition   Competition?   @relation(fields: [competitionId], references: [id], onDelete: SetNull)
+  track         Track?         @relation(fields: [trackId], references: [id], onDelete: SetNull)
+  requests      TeamJoinRequest[]
+
+  @@index([status, createdAt])
+  @@index([competitionId, status])
+  @@index([authorId])
+}
+
+model TeamJoinRequest {
+  id        String         @id @default(uuid())
+  postId    String
+  userId    String
+  message   String
+  status    TeamJoinStatus @default(PENDING)
+  handledAt DateTime?
+  handledBy String?
+  createdAt DateTime       @default(now())
+  post      TeamPost       @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User           @relation("TeamJoinApplicant", fields: [userId], references: [id], onDelete: Cascade)
+  handler   User?          @relation("TeamJoinHandler", fields: [handledBy], references: [id], onDelete: SetNull)
+
+  @@unique([postId, userId, status])
+  @@index([userId, status])
 }
 

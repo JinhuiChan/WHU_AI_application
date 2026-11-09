@@ -8,8 +8,13 @@ import { ChevronRight } from "lucide-react";
 const pageNames: Record<string, string> = {
   "/dashboard": "看板",
   "/competitions": "赛事",
+  "/intro": "赛事简介",
   "/projects": "项目",
   "/my": "我的项目",
+  "/teams": "组队广场",
+  "/teams/new": "发布组队帖",
+  "/my/teams": "我的组队",
+  "/profile": "我的资料",
   "/apply": "报名表",
   "/teacher": "指导项目",
   "/review": "报名审核",
@@ -24,11 +29,15 @@ const pageNames: Record<string, string> = {
   "/admin/logs": "审计日志",
 };
 
-const detailSections: { prefix: string; parent: { href: string; label: string }; current: string }[] = [
+const detailSections: { prefix: string; parent?: { href: string; label: string }; current: string }[] = [
   { prefix: "/competitions/", parent: { href: "/competitions", label: "赛事" }, current: "赛事详情" },
+  { prefix: "/intro/", parent: { href: "/intro", label: "赛事简介" }, current: "赛事介绍" },
   { prefix: "/projects/", parent: { href: "/projects", label: "项目" }, current: "项目全貌" },
+  { prefix: "/teams/", parent: { href: "/teams", label: "组队广场" }, current: "组队详情" },
+  { prefix: "/my/teams", current: "我的组队" },
   { prefix: "/my/", parent: { href: "/my", label: "我的项目" }, current: "项目详情" },
   { prefix: "/review/", parent: { href: "/review", label: "报名审核" }, current: "审核项目详情" },
+  { prefix: "/u/", current: "个人主页" },
 ];
 
 // 详情页用真实名称覆盖「XX详情」：客户端共享状态，BreadcrumbTitle 挂载写入、卸载清空
