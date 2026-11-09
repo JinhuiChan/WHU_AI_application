@@ -138,7 +138,7 @@ export async function answerTeamRecruitmentQuestion(question: string, competitio
     `截至 ${date}，当前有以下在招队伍：`,
     ...selectedSummaries.map((summary, index) => `${index + 1}. ${summary}`),
     ...(hasMore ? ["另有更多，请到组队广场查看。"] : []),
-    "以组队广场实时信息为准，请前往[组队广场](/teams)发布或查看。",
+    "以组队广场实时信息为准，请前往组队广场（/teams）发布或查看。",
   ].join("\n");
   return { answer, evidence: null, handoff: false, sources: [], mode: "generated" };
 }
