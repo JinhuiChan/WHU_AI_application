@@ -2,6 +2,12 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-09 组队：待处理申请红点提醒
+
+- commit `5eecff4`（3 文件 +37/−5）：学生导航新增「我的组队」→ `/my/teams`；`lib/pending.ts` 新增 `getTeamPendingRequests(userId)`（统计我发布的、未下架帖子中 `status=PENDING` 的申请）；`AppShell` 统一产出 `{review, changes, teamRequests}`；`Sidebar` 在「我的组队」右侧渲染红色数字 + 悬停提示「待处理入队申请 N 条」。
+- 实测（用户真实数据）：其帖子「校园低碳调度系统…」收到 1 条 PENDING 申请 → 侧栏红点 1；婉拒后归 0。测试帖与申请已删除，仅保留用户自己的 1 帖 1 申请。
+- 口径：红点只统计「我作为发帖人收到的待处理申请」，不含我发出的申请；下架帖不计。
+
 ## 2026-11-09 组队/个人中心 · S7 组队接入 AI 问答（S1–S7 全闭环）
 
 - commit `f7745c7` + `73962f1`：新增 `lib/team-context.ts`（144 行）；`lib/assistant.ts` 只加 2 行分流。方案取 **C 混合**：招募规则继续走原知识库，在招队伍**实时查询注入**（静态入库会立刻过期）。
