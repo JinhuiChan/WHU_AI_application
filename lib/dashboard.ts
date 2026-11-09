@@ -196,7 +196,8 @@ export async function listAwardExportRows(year: number, role: Role) {
   });
   return rows.map((row) => ({
     awardLevel: row.awardLevel,
-    evidenceType: "URL" as const,
+    // Award 表没有佐证字段：不伪造类型，留空，导出侧显示为空单元格
+    evidenceType: "" as const,
     evidenceRef: "",
     status: "PUBLISHED" as const,
     verifiedAt: row.updatedAt,

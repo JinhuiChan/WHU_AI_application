@@ -156,7 +156,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
             },
           },
         },
-        orderBy: [{ confirmedAt: "desc" }, { createdAt: "desc" }],
+        orderBy: [{ confirmedAt: "desc" }, { createdAt: "desc" }, { id: "asc" }],
       }) : Promise.resolve([]),
       profile.showAwards ? prisma.award.findMany({
         where: {
