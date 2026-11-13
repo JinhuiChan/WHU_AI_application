@@ -58,6 +58,45 @@ npm run build
 
 `npm ci` 与 `prisma generate` 必须在 Linux 上运行；Windows 生成的 Prisma 引擎不能搬来使用。首次搭环境使用 `prisma migrate deploy` 应用仓库基线，不要用 `db push` 或 `migrate reset` 代替。
 
+### 已有数据库（此前用 `db push` 建的）必须先做基线登记
+
+如果服务器上**已经有一个能跑的库**（32 张表、有真实数据，但里面**没有** `_prisma_migrations` 表），
+直接执行 `npx prisma migrate deploy` 会失败：
+
+```
+Error: table `User` already exists
+```
+
+原因：基线迁移 `20261113000000_init` 是一份从空库生成的全量 `CREATE TABLE`，
+在已有库上重放必然撞表。**这种情况下不能 deploy，要先登记基线。**
+
+先判断走哪条路：
+
+```bash
+cd /srv/kesai/current
+npx prisma migrate status
+```
+
+- 输出 `Database schema is up to date` → 已经登记过，不用处理
+- 输出 `20261113000000_init` 为 pending / `0 migrations have been applied`
+  → 说明库里没有迁移记录，按下面登记
+
+```bash
+# 只写入"_prisma_migrations 里标记为已应用"，不动任何表和数据
+npx prisma migrate resolve --applied 20261113000000_init
+
+# 复查
+npx prisma migrate status
+```
+
+登记完成后再进入第 2 节的 `npm run build`。
+
+> 执行 `migrate resolve` **之前先备份库**（见第 7 节），这一步虽然只写迁移记录表，
+> 但数据库文件一旦被误操作很难回退。
+>
+> 完成基线登记后，今后的 schema 变更统一走：本地 `prisma migrate dev` 生成迁移 →
+> 服务器 `prisma migrate deploy` 应用，不再使用 `db push`。
+
 ## 3. 数据隔离、软链与盖章件搬迁
 
 每次交付后确认以下链接仍指向持久化目录：

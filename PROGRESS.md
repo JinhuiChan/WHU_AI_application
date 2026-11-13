@@ -7,7 +7,8 @@
 - `lib/review.ts` 的 `getAuditPreflight` 在查 `teamMembers` 时补 `where: { leftAt: null }`，与 `canAccessProject` 同口径。此前已退队成员会被算进「学号重复」和「负责人手机号」判断，产生 amber 误报。仅此一行，预检逻辑与阻断语义未变。
 - 本地把 `public/uploads/sealed/12fe217b-.../` 下 2 个 PNG（58,170B / 68,376B）搬到 `storage/sealed/`，与 S1 的新 `sealedDirectory` 对齐，否则本地这 2 个盖章件下载 404。两处均在 .gitignore 内，不产生 git 变更。**服务器上线需按 `docs/deploy.md` 做同样搬迁，且必须与 `git pull` 同批**：只上代码则老文件 404，只搬文件则新上传仍写回 `public/uploads/sealed`。
 - 构建已由用户执行通过：`npm run build` 成功，`BUILD_ID=yiczkTm6n74_O-79-YgJb`，`/api/health` 与 `/api/review/[id]/preflight` 均已编译进 `app-path-routes-manifest.json`。
-- 验证：`tsc.cmd --noEmit` 0 错误；`npm.cmd run lint` 0 错误 0 警告。未 push。
+- 验证：`tsc.cmd --noEmit` 0 错误；`npm.cmd run lint` 0 错误 0 警告。已 push 到 `origin/integration/ui-polish-qa`（`3d30ad6..6a034b6`，18 个提交）。
+- 补 `docs/deploy.md` 关键缺口：服务器上已有由 `db push` 建出的库（有 32 表、真实数据，但**没有** `_prisma_migrations`），直接跑 `migrate deploy` 会因 `0_init` 重放而报 `table User already exists`。正确做法是先 `npx prisma migrate resolve --applied 20261113000000_init` 登记基线（只写迁移记录、不动数据），判据用 `npx prisma migrate status`。
 
 ## 2026-11-13 C 阶段 S7 · 审核规则预检（只提示，不阻断）
 
