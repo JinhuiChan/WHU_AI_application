@@ -2,6 +2,14 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-13 进度条收为三阶段 + 修驳回层级错位
+
+- `components/project/project-progress.tsx`：进度轴由 5 段收为 3 段（提交 / 学院初审 / 学校终审）。依据：`nextStatus()` 只产出 `PENDING`/`COLLEGE_REVIEW`/`SCHOOL_FINAL`/`REJECTED`，`PROVINCE_ADVANCED` 与 `NATIONAL_ADVANCED` 在**全库没有写入路径**（只在文案、筛选、统计、录奖资格里被读取），画出来永远是灰色。
+- 顺带修 S6 遗留缺陷：驳回时 `current` 曾固定取 `config.current=1`，导致**学校终审驳回也会把「已驳回」标签挂在「学院初审」下面**。改为按 `rejectedStage` 取 1 / 2 / -1。
+- 那两个状态若真出现（需手工改库），表现改为三段全亮 + 末端绿字「已晋级省赛 / 已晋级国赛」，不再错位；为此把末端标签颜色从"只分灰/红"改为按状态取色。
+- 同步更新 README 与 `docs/服务器上线步骤.md` 里的"五阶段"表述。
+- 验证：`tsc.cmd --noEmit` 0 错误；`npm.cmd run lint` 0 错误 0 警告。未跑 build/dev。
+
 ## 2026-11-13 文档收口 · README 重写 + 服务器上线手册
 
 - 重写 `README.md`（132 → 约 240 行）：补上组队板块、个人中心、AI 问答、五阶段进度条、审核预检等本轮新增能力；补全演示账号（5 个）、真实路由表（28 条，来自 `app/(workspace)` 实际页面）、C 阶段四项安全设计（盖章件收口 / 登录限流 / 安全响应头 / 健康检查）。

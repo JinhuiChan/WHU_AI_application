@@ -9,7 +9,10 @@ type StatusConfig = {
   tone: StepTone;
 };
 
-const STEPS = ["提交", "学院初审", "学校终审", "省级晋级", "国家级晋级"];
+// 只展示系统真正能推进到的阶段：nextStatus() 仅产出 PENDING/COLLEGE_REVIEW/SCHOOL_FINAL/REJECTED，
+// PROVINCE_ADVANCED 与 NATIONAL_ADVANCED 没有任何写入路径（只会被读取），
+// 画出来也永远是灰色，因此不纳入进度轴。
+const STEPS = ["提交", "学院初审", "学校终审"];
 
 const STATUS_CONFIG: Record<RegistrationStatus, StatusConfig> = {
   DRAFT: { current: 0, completed: 0, label: "未提交", tone: "draft" },
@@ -17,8 +20,8 @@ const STATUS_CONFIG: Record<RegistrationStatus, StatusConfig> = {
   COLLEGE_REVIEW: { current: 2, completed: 2, label: "待校级终审", tone: "info" },
   SCHOOL_FINAL: { current: 2, completed: 3, label: "校内终审通过", tone: "success" },
   REJECTED: { current: 1, completed: 1, label: "已驳回", tone: "danger" },
-  PROVINCE_ADVANCED: { current: 3, completed: 4, label: "已晋级省赛", tone: "success" },
-  NATIONAL_ADVANCED: { current: 4, completed: 5, label: "已晋级国赛", tone: "success" },
+  PROVINCE_ADVANCED: { current: -1, completed: 3, label: "已晋级省赛", tone: "success" },
+  NATIONAL_ADVANCED: { current: -1, completed: 3, label: "已晋级国赛", tone: "success" },
   WITHDRAWN: { current: -1, completed: 0, label: "已撤回", tone: "neutral" },
 };
 
@@ -57,9 +60,20 @@ export function ProjectProgress({
         ? [1]
         : [1, 2]
     : [];
-  const current = status === "REJECTED" && !rejectedStage ? -1 : config.current;
+  // 驳回时"当前段"必须跟着驳回层级走；否则会拿 REJECTED 的默认 current=1，
+  // 把标签错误地挂在「学院初审」下面（学校驳回也会显示在学院段）。
+  const rejectedIndex = rejectedStage === "SCHOOL" ? 2 : rejectedStage === "COLLEGE" ? 1 : -1;
+  const current = status === "REJECTED" ? rejectedIndex : config.current;
   const completed = status === "REJECTED" && rejectedStage === "SCHOOL" ? 2 : config.completed;
-  const endLabel = status === "WITHDRAWN" || (status === "REJECTED" && !rejectedStage) ? config.label : null;
+  const endLabel =
+    status === "WITHDRAWN" ||
+    (status === "REJECTED" && !rejectedStage) ||
+    status === "PROVINCE_ADVANCED" ||
+    status === "NATIONAL_ADVANCED"
+      ? config.label
+      : null;
+  const endLabelTone =
+    status === "WITHDRAWN" ? "text-ink-faint" : status === "REJECTED" ? "text-red-700" : "text-emerald-700";
   const rejectedLineEnd = rejectedSteps.length > 0 ? rejectedSteps[rejectedSteps.length - 1] : -1;
 
   function toneForStep(index: number): StepTone {
@@ -78,8 +92,8 @@ export function ProjectProgress({
 
   return (
     <div className="overflow-x-auto">
-      <div className="min-w-[520px] rounded-card border border-line bg-surface px-3 py-3">
-        <ol aria-label="项目进度" className="grid grid-cols-5">
+      <div className="min-w-[320px] rounded-card border border-line bg-surface px-3 py-3">
+        <ol aria-label="项目进度" className="grid grid-cols-3">
           {STEPS.map((step, index) => {
             const tone = toneForStep(index);
             return (
@@ -97,7 +111,7 @@ export function ProjectProgress({
             );
           })}
         </ol>
-        {endLabel ? <p className={`mt-2 text-right text-xs font-medium ${status === "WITHDRAWN" ? "text-ink-faint" : "text-red-700"}`}>{endLabel}</p> : null}
+        {endLabel ? <p className={`mt-2 text-right text-xs font-medium ${endLabelTone}`}>{endLabel}</p> : null}
       </div>
     </div>
   );
