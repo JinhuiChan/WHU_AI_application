@@ -2,6 +2,16 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-13 D 阶段 S11 · 确认一半指导关系（仅脚本）
+
+- 新增默认 dry-run 的确认脚本，按 projectId 升序选取前 ceil(N/2) 个未确认项目。
+- --apply 先复制并校验 db 大小，再导出原始 CSV，最后事务更新且带 confirmStatus 幂等条件。
+- Dry-run：`bash scripts/confirm-half-teachers.sh --db /srv/kesai/shared/data/app.db`
+- Apply：`bash scripts/confirm-half-teachers.sh --db /srv/kesai/shared/data/app.db --apply`
+- 验证：`sqlite3 /srv/kesai/shared/data/app.db "select confirmStatus, count(*) from Teacher group by confirmStatus;"`
+- 回滚：脚本头部给出同一 CSV 可重复执行的完整 sqlite3 命令。
+- 验证：Git bash -n 无输出；tsc/lint 全绿。脚本未执行，未连接任何数据库，未 push。
+
 ## 2026-11-13 D 阶段 S10 · 部署脚本入库
 
 - 新增 scripts/deploy-server.sh，正文经 cmp 与服务器验证版一致，仅补用途、两种用法和前置条件注释。
