@@ -2,6 +2,13 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-13 C 阶段 S5 · 自检脚本 + 部署文档
+
+- 新增纯 HTTP `scripts/smoke.cjs` 共 10 项检查：锁定测试默认 SKIP，仅 `--include-lockout` 执行并打印警告；无本人帖子时第 9 项 SKIP，不造数据；任一 FAIL 退出码为 1。
+- 新增 `docs/deploy.md`，覆盖 Linux 依赖与 Prisma 引擎、数据软链、盖章件同批搬迁、有效 HTTPS/HSTS、systemd/Nginx、首次 migrate deploy、构建门禁及回滚。
+- `package.json` 仅新增 `smoke` script，依赖未改。
+- 验证：`tsc.cmd --noEmit` 0 错误；`npm.cmd run lint` 0 错误 0 警告；`node --check scripts/smoke.cjs` 通过。未启动服务或执行实时冒烟，未跑 build/dev，未 push。
+
 ## 2026-11-13 C 阶段 S4 · migrations 基线 + 导入源文件清理
 
 - 由指定 `prisma migrate diff` 命令原样生成 698 行 SQLite 基线 SQL，并新增 `migration_lock.toml`；未手写 SQL，未执行 `migrate dev/deploy/reset`，未修改 schema。
