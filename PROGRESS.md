@@ -2,6 +2,19 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-13 界面与权限收口（8 个提交，均为用户实测发现的问题）
+
+- `d31162f` **弹窗错乱**：`.page-enter > * > *` 的入场动画用 `both` 保留终态 `transform`，给 `fixed` 弹窗造了包含块，弹窗被"关"进区块、遮罩只盖半屏（新建赛事/驳回/添加成员全中）。改为 `backwards` + `:has([role="dialog"])` 跳过动画。**以后加动画注意：不能给弹窗祖先留非 none 的 transform。**
+- `14403d5` **赛事简介出现草稿**：`/intro` 原按身份放行（管理员看全部）。改为一律只展示 `PUBLISHED`，管理员预览走 `/competitions`；页内加说明。
+- `ba3eb1c` **奖项录入列全量项目**：保存时校验 `eligibleStatuses`，列表查询却只有 `{deletedAt:null}`。列表改为同一口径（`OR: eligible 状态 / 已有奖项`），258 → 8 条。
+- `6f03af8` **用户管理三类分组**：`listManagedUsers(scope)` 按"主角色或附加角色命中"过滤，学生 818 / 教师 53 / 管理员 1；多身份在两个分类重复出现；管理员注册申请（`approvalStatus=PENDING ∧ role=ADMIN`）在侧栏「用户管理」与页内 tab 出红点，有申请时默认落在管理员分类。
+- `cad0fbb` **切 tab 列表不刷新**：客户端组件 `useState(initialUsers)` 初值只算一次，`?role=` 变化时实例被复用。加 `key={activeRole}` 强制重挂载。**同类隐患：凡是用 props 初始化 state 的组件都要考虑 key 或同步。**
+- `ba2b0e5` **双身份**：后端 `UserRoleLink` 一直支持，但前端只有单主角色下拉。改为三个身份按钮多选 → `UPDATE_ROLES`（按集合同步：主角色保留、其余写附加角色、审计记录前后集合）。
+- `732e907` **教师点项目名 403**：`/teacher` 把项目名链到了 `/review/{id}`（管理员审核页）。改链 `/projects/{id}`；教师页准入改按 `roles.includes("TEACHER")`；新增 `/forbidden` 友好页，中间件页面级拒绝统一 `rewrite` 到它。
+- `6bc0949` **项目详情显示负责人联系方式**：`TeamMember.phone/email` 已在库（258/258 有手机号），只在教师/管理员视角渲染负责人那一行，学生视角不渲染。
+
+**纪律提醒**：本轮全部改动 `tsc` + `lint` 均 0 错误；**未跑 build、未 push、未改 schema**。
+
 ## 2026-11-09 组队：待处理申请红点提醒
 
 - commit `5eecff4`（3 文件 +37/−5）：学生导航新增「我的组队」→ `/my/teams`；`lib/pending.ts` 新增 `getTeamPendingRequests(userId)`（统计我发布的、未下架帖子中 `status=PENDING` 的申请）；`AppShell` 统一产出 `{review, changes, teamRequests}`；`Sidebar` 在「我的组队」右侧渲染红色数字 + 悬停提示「待处理入队申请 N 条」。
