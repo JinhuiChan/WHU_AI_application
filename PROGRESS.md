@@ -2,6 +2,12 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-13 C 阶段 S4 · migrations 基线 + 导入源文件清理
+
+- 由指定 `prisma migrate diff` 命令原样生成 698 行 SQLite 基线 SQL，并新增 `migration_lock.toml`；未手写 SQL，未执行 `migrate dev/deploy/reset`，未修改 schema。
+- 导入源文件写入前按 `mtime` 清理 7 天前的普通文件；清理异常仅 `console.error`，不阻断导入，业务校验逻辑未改。
+- 验证：`tsc.cmd --noEmit` 0 错误；`npm.cmd run lint` 0 错误 0 警告。`git status --short` 无 `*.db` 或 schema 改动，未跑 build/dev，未 push。
+
 ## 2026-11-13 C 阶段 S3 · 安全响应头 + `/api/health`
 
 - `next.config.mjs` 全站返回四项安全响应头，HSTS 仅生产环境启用；明确不配置 CSP，避免 Next 内联脚本被拦截。
