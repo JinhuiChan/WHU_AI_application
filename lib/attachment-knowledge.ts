@@ -13,7 +13,7 @@ async function indexAttachment(id: string, retry: boolean) {
   if (!source || source.knowledgeStatus === "REPLACED" || (!retry && source.knowledgeStatus !== "PENDING")) return;
   if (!["NOTICE", "RULE"].includes(source.kind) || source.filePath.startsWith("/samples/")) {
     await prisma.$transaction([
-      prisma.competitionAttachment.update({ where: { id }, data: { knowledgeStatus: "SKIPPED", knowledgeError: source.filePath.startsWith("/samples/") ? "内置演示附件不作为正式问答依据" : "模板文件仅供下载，不作为规则依据" } }),
+      prisma.competitionAttachment.update({ where: { id }, data: { knowledgeStatus: "SKIPPED", knowledgeError: source.kind === "VIDEO" ? "宣传片不参与问答解析" : source.filePath.startsWith("/samples/") ? "内置演示附件不作为正式问答依据" : "模板文件仅供下载，不作为规则依据" } }),
       prisma.kbDocument.updateMany({ where: { sourceAttachmentId: id }, data: { isActive: false } }),
     ]);
     return;

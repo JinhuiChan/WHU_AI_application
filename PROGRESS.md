@@ -2,6 +2,13 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-13 D 阶段 S8 · 放开宣传片上传
+
+- 上传接口新增 mp4/webm 扩展名、MIME、魔数和 VIDEO 类型校验；20MB 上限及既有同步流程不变。
+- 视频经既有 kind 门禁置为 SKIPPED，专用提示「宣传片不参与问答解析」，不进入 readKnowledgeAttachment。
+- 文档已有 client_max_body_size 25m，未重复添加；服务器需核查 /etc/nginx/sites-enabled/kesai-public。
+- 验证：tsc.cmd --noEmit 0 错误；npm.cmd run lint 0 错误 0 警告。未跑 build/dev，未实际上传视频，未 push。
+
 ## 2026-11-13 进度条收为三阶段 + 修驳回层级错位
 
 - `components/project/project-progress.tsx`：进度轴由 5 段收为 3 段（提交 / 学院初审 / 学校终审）。依据：`nextStatus()` 只产出 `PENDING`/`COLLEGE_REVIEW`/`SCHOOL_FINAL`/`REJECTED`，`PROVINCE_ADVANCED` 与 `NATIONAL_ADVANCED` 在**全库没有写入路径**（只在文案、筛选、统计、录奖资格里被读取），画出来永远是灰色。
