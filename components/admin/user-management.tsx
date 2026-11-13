@@ -17,9 +17,11 @@ function roleDrafts(users: ManagedUser[]): Record<string, Role> {
 export function UserManagement({
   initialUsers,
   currentUserId,
+  activeRole,
 }: {
   initialUsers: ManagedUser[];
   currentUserId: string;
+  activeRole: Role;
 }) {
   const router = useRouter();
   const [users, setUsers] = useState(initialUsers);
@@ -42,8 +44,10 @@ export function UserManagement({
       if (!response.ok || result.code !== 0) {
         throw new Error(result.message || "操作失败");
       }
-      setUsers(result.data);
-      setDraftRoles(roleDrafts(result.data));
+      // 接口返回的是全量列表，这里按当前分类过滤，避免操作后突然冒出其他身份的人
+      const scoped = result.data.filter((item) => item.roles.includes(activeRole));
+      setUsers(scoped);
+      setDraftRoles(roleDrafts(scoped));
       setNotice(result.message);
       router.refresh();
     } catch (caught: unknown) {
@@ -71,6 +75,13 @@ export function UserManagement({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
+            {users.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="px-4 py-10 text-center text-sm text-slate-500">
+                  该分类下暂无账号。
+                </td>
+              </tr>
+            ) : null}
             {users.map((user) => {
               const pending = pendingId === user.id;
               const isCurrentUser = user.id === currentUserId;

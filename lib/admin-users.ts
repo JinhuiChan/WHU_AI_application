@@ -1,12 +1,20 @@
+import type { Prisma, Role } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import type { ManagedUser } from "@/types/user";
 
-export async function listManagedUsers(): Promise<ManagedUser[]> {
+/** 某一类身份的口径：主角色或附加角色命中即算（多身份用户会在多个分类里出现） */
+function scopeWhere(scope: Role): Prisma.UserWhereInput {
+  return {
+    deletedAt: null,
+    OR: [{ role: scope }, { extraRoles: { some: { role: scope } } }],
+  };
+}
+
+export async function listManagedUsers(scope?: Role): Promise<ManagedUser[]> {
   const users = await prisma.user.findMany({
-    where: { deletedAt: null },
+    where: scope ? scopeWhere(scope) : { deletedAt: null },
     // 待审核的排最前面，方便管理员先处理注册申请
     orderBy: [{ approvalStatus: "asc" }, { createdAt: "asc" }],
-
     select: {
       id: true,
       phone: true,
@@ -48,7 +56,24 @@ export async function listManagedUsers(): Promise<ManagedUser[]> {
       approvedAt: user.approvedAt?.toISOString() ?? approval?.createdAt.toISOString() ?? null,
       approvedBy: user.approvedBy ?? approval?.actor.name ?? null,
       approvalStatus: user.approvalStatus,
-      roles: [...new Set<import("@prisma/client").Role>([user.role, ...user.extraRoles.map((item) => item.role)])],
+      roles: [...new Set<Role>([user.role, ...user.extraRoles.map((item) => item.role)])],
     };
+  });
+}
+
+/** 三个分类各自的人数（含多身份重复计数） */
+export async function countManagedUsers(): Promise<Record<"STUDENT" | "TEACHER" | "ADMIN", number>> {
+  const [student, teacher, admin] = await Promise.all([
+    prisma.user.count({ where: scopeWhere("STUDENT") }),
+    prisma.user.count({ where: scopeWhere("TEACHER") }),
+    prisma.user.count({ where: scopeWhere("ADMIN") }),
+  ]);
+  return { STUDENT: student, TEACHER: teacher, ADMIN: admin };
+}
+
+/** 待管理员审核的管理员注册申请（用于侧栏红点） */
+export async function countPendingAdminRegistrations(): Promise<number> {
+  return prisma.user.count({
+    where: { deletedAt: null, approvalStatus: "PENDING", role: "ADMIN" },
   });
 }

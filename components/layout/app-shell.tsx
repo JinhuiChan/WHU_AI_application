@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { AuthUser } from "@/lib/auth";
 import { getPendingBadges, getTeamPendingRequests } from "@/lib/pending";
+import { countPendingAdminRegistrations } from "@/lib/admin-users";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { PageTransition } from "@/components/layout/page-transition";
 import { Sidebar } from "@/components/layout/sidebar";
@@ -9,14 +10,16 @@ import { UserMenu } from "@/components/layout/user-menu";
 export async function AppShell({ user, children }: { user: AuthUser; children: ReactNode }) {
   const isAdmin = user.roles.includes("ADMIN");
   const isStudent = user.roles.includes("STUDENT");
-  const [adminBadges, teamRequests] = await Promise.all([
+  const [adminBadges, teamRequests, adminUsers] = await Promise.all([
     isAdmin ? getPendingBadges() : Promise.resolve(null),
     isStudent ? getTeamPendingRequests(user.id) : Promise.resolve(0),
+    isAdmin ? countPendingAdminRegistrations() : Promise.resolve(0),
   ]);
   const badges = {
     review: adminBadges?.review ?? 0,
     changes: adminBadges?.changes ?? 0,
     teamRequests,
+    adminUsers,
   };
   return (
     <div className="min-h-screen bg-slate-50">
