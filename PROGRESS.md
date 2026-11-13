@@ -2,6 +2,13 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-13 C 阶段 S3 · 安全响应头 + `/api/health`
+
+- `next.config.mjs` 全站返回四项安全响应头，HSTS 仅生产环境启用；明确不配置 CSP，避免 Next 内联脚本被拦截。
+- 新增动态 `/api/health`：复用现有 `prisma` 执行 `SELECT 1`，成功返回 `{status:"ok",db:"ok",ts}`，失败返回固定 `degraded` 响应与 503，不暴露异常详情。
+- `middleware.ts` 仅修改第 31 行提前放行 `/api/health`，供无会话监控探活；其余访问控制与 matcher 未改。
+- 验证：`tsc.cmd --noEmit` 0 错误；`npm.cmd run lint` 0 错误 0 警告。未跑 build/dev，未 push，未发起 HTTP 探活。
+
 ## 2026-11-13 C 阶段 S2 · 登录限流 + Cookie secure
 
 - 新增内存滑动窗口：只计失败、不计尝试；手机号存在的失败按 `login:${phone}` 限 5 次/15 分钟，全部登录失败按 `login-ip:${ip}` 限 20 次/15 分钟；超限返回 429，成功登录清空两个桶。
