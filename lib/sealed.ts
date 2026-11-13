@@ -4,7 +4,7 @@ import type { AuthUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import type { SealedFileView } from "@/types/sealed";
 
-export const sealedDirectory = path.join(process.cwd(), "public", "uploads", "sealed");
+export const sealedDirectory = path.join(process.cwd(), "storage", "sealed");
 
 export class SealedError extends Error {
   constructor(public status: number, message: string) {
