@@ -1,6 +1,7 @@
 import { detailHref, listHref } from "@/components/data/list-link";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button, ButtonArrow } from "@/components/ui/button";
+import { ProjectProgress } from "@/components/project/project-progress";
 import { StatusBadge } from "@/components/ui/status-badge";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -175,6 +176,7 @@ export default async function MyProjectsPage({ searchParams }: PageProps) {
                   <td className="px-4 py-3 text-slate-600">{project.competitionName} / {project.trackName}</td>
                   <td className="px-4 py-3">
                     <StatusBadge status={project.reviewStatus}>{registrationStatusLabels[project.reviewStatus]}</StatusBadge>
+                    <div className="mt-2"><ProjectProgress status={project.reviewStatus} /></div>
                   </td>
                   <td className="max-w-56 px-4 py-3 text-slate-600">{project.rejectedReason ?? "—"}</td>
                   <td className="px-4 py-3 text-slate-600">{formatDateTime(project.updatedAt.toISOString())}</td>

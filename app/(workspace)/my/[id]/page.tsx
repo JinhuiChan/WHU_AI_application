@@ -1,5 +1,6 @@
 import { BackLink } from "@/components/data/list-link";
 import { firstParam } from "@/lib/list-query";
+import { ProjectProgress } from "@/components/project/project-progress";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Button, ButtonArrow } from "@/components/ui/button";
 import type { Metadata } from "next";
@@ -14,6 +15,7 @@ import { getActiveUser } from "@/lib/auth.server";
 import { getChangeRequestPanel } from "@/lib/change";
 import { formatDateTime, projectStatusLabels } from "@/lib/presentation";
 import { canExportFullForm, currentSealedFileId, listSealedFiles } from "@/lib/sealed";
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = { title: "项目详情" };
 export const dynamic = "force-dynamic";
@@ -33,6 +35,13 @@ export default async function MyProjectPage({ params, searchParams }: PageProps)
   if (user.role !== "STUDENT") redirect("/dashboard");
   const project = await getMyProject(params.id, user.id);
   if (!project) notFound();
+  const latestRejectedReview = project.reviewStatus === "REJECTED"
+    ? await prisma.review.findFirst({
+        where: { projectId: params.id, result: "REJECTED" },
+        orderBy: { createdAt: "desc" },
+        select: { level: true },
+      })
+    : null;
   const form = project.formInput;
   const sealedFiles = await listSealedFiles(params.id);
   const currentFileId = currentSealedFileId(sealedFiles);
@@ -49,6 +58,7 @@ export default async function MyProjectPage({ params, searchParams }: PageProps)
           {project.canEdit ? <Link href={`/apply?projectId=${project.id}`} className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white">编辑</Link> : null}
         </div>
       </div>
+      <ProjectProgress status={project.reviewStatus} rejectedStage={latestRejectedReview?.level} />
       {project.rejectedReason ? (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
           <p className="min-w-0 text-sm text-red-800">

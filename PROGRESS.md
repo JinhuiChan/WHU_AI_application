@@ -2,6 +2,13 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-13 C 阶段 S6 · 项目进度条
+
+- 新增服务端 `ProjectProgress`，以现有 surface/ink/brand/line 与 StatusBadge 配色渲染 5 段轴，无动画、无新增依赖。
+- 列表每行只传 `reviewStatus`，驳回时学院初审与学校终审双节点标红，不查询 Review、不产生 N+1，也不猜级别。
+- 详情仅在 REJECTED 时查询最近一次驳回的 `level` 并精确标红；WITHDRAWN 整体灰，DRAFT 只亮第一段。
+- 验证：`tsc.cmd --noEmit` 0 错误；`npm.cmd run lint` 0 错误 0 警告。未跑 build/dev，未做页面运行时验证，未 push。
+
 ## 2026-11-13 C 阶段 S5 · 自检脚本 + 部署文档
 
 - 新增纯 HTTP `scripts/smoke.cjs` 共 10 项检查：锁定测试默认 SKIP，仅 `--include-lockout` 执行并打印警告；无本人帖子时第 9 项 SKIP，不造数据；任一 FAIL 退出码为 1。
