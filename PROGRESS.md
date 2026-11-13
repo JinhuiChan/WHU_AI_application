@@ -2,6 +2,13 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-13 文档收口 · README 重写 + 服务器上线手册
+
+- 重写 `README.md`（132 → 约 240 行）：补上组队板块、个人中心、AI 问答、五阶段进度条、审核预检等本轮新增能力；补全演示账号（5 个）、真实路由表（28 条，来自 `app/(workspace)` 实际页面）、C 阶段四项安全设计（盖章件收口 / 登录限流 / 安全响应头 / 健康检查）。
+- 新增 `docs/服务器上线步骤.md`：12 步操作手册（勘察 → 备份 → 数据软链 → 盖章件同批搬迁 → 拉代码与 Prisma 引擎 → 基线登记 → 构建重启 → systemd → Nginx/HTTPS → 验证清单 → 回滚 → 故障排查表），每步含判断标准与"只做一半会怎样"。与 `docs/deploy.md`（原理参考）分工：这份照敲，那份查原理。
+- 三条反复强调的硬顺序写进 README 第八节：数据三处软链、盖章件搬迁必须与 `git pull` 同批、已有库先 `migrate resolve` 不能 `migrate deploy`、先打通 HTTPS 再验登录。
+- 仅文档改动，无代码变更。`tsc.cmd --noEmit` 0 错误；`npm.cmd run lint` 0 错误 0 警告。
+
 ## 2026-11-13 C 阶段收尾 · 预检排除退队成员 + 本地盖章件搬迁
 
 - `lib/review.ts` 的 `getAuditPreflight` 在查 `teamMembers` 时补 `where: { leftAt: null }`，与 `canAccessProject` 同口径。此前已退队成员会被算进「学号重复」和「负责人手机号」判断，产生 amber 误报。仅此一行，预检逻辑与阻断语义未变。
