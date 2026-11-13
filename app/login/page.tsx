@@ -108,7 +108,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               className="inline-flex h-11 w-full items-center justify-center rounded-full border border-slate-300 bg-white text-sm font-medium text-slate-700 transition duration-[160ms] hover:bg-slate-50 active:scale-[0.97] motion-reduce:active:scale-100"
               href="/register"
             >
-              学生注册
+              注册
             </Link>
           </div>
 
