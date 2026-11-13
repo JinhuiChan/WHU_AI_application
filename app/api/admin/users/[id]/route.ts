@@ -28,7 +28,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     const action = "action" in body ? body.action : undefined;
     const target = await prisma.user.findFirst({
       where: { id: params.id, deletedAt: null },
-      select: { id: true, role: true },
+      select: { id: true, role: true, extraRoles: { select: { role: true } } },
     });
     if (!target) {
       return apiError(404, "用户不存在");
@@ -74,6 +74,45 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
         }, transaction);
       });
       return apiSuccess(await listManagedUsers(), "已驳回该注册申请");
+    }
+
+    if (action === "UPDATE_ROLES") {
+      const raw = "roles" in body ? (body as Record<string, unknown>).roles : undefined;
+      const allowed = ["ADMIN", "STUDENT", "TEACHER"] as const;
+      const picked = Array.isArray(raw)
+        ? [...new Set(raw.filter((item): item is string => typeof item === "string" && (allowed as readonly string[]).includes(item)))]
+        : [];
+      if (!picked.length) return apiError(422, "至少要保留一个身份");
+      if (target.id === authorization.user.id) {
+        return apiError(409, "不能修改当前登录账号的身份");
+      }
+      // 主角色优先保持不变；被取消时取勾选顺序里的第一个
+      const nextRole = picked.includes(target.role) ? target.role : (picked[0] as "ADMIN" | "STUDENT" | "TEACHER");
+      const current = [...new Set([target.role, ...target.extraRoles.map((item) => item.role)])].filter(
+        (item) => item !== "USER",
+      );
+      const unchanged =
+        current.length === picked.length && picked.every((item) => current.includes(item as (typeof current)[number]));
+      if (unchanged) return apiError(409, "身份没有变化");
+      await prisma.$transaction(async (transaction) => {
+        await transaction.user.update({ where: { id: target.id }, data: { role: nextRole } });
+        await transaction.userRoleLink.deleteMany({ where: { userId: target.id } });
+        const extras = picked
+          .filter((item) => item !== nextRole)
+          .map((item) => ({ userId: target.id, role: item as "ADMIN" | "STUDENT" | "TEACHER" | "USER", grant: "ADMIN_GRANT" }));
+        if (extras.length) await transaction.userRoleLink.createMany({ data: extras });
+        await writeAuditLog(
+          {
+            actorId: authorization.user.id,
+            action: "USER_ROLE_UPDATED",
+            targetType: "User",
+            targetId: target.id,
+            detail: { previousRoles: current, nextRoles: picked, primaryRole: nextRole },
+          },
+          transaction,
+        );
+      });
+      return apiSuccess(await listManagedUsers(), "身份已更新");
     }
 
     if (action === "UPDATE_ROLE") {
