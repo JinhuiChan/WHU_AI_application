@@ -2,6 +2,13 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-13 C 阶段收尾 · 预检排除退队成员 + 本地盖章件搬迁
+
+- `lib/review.ts` 的 `getAuditPreflight` 在查 `teamMembers` 时补 `where: { leftAt: null }`，与 `canAccessProject` 同口径。此前已退队成员会被算进「学号重复」和「负责人手机号」判断，产生 amber 误报。仅此一行，预检逻辑与阻断语义未变。
+- 本地把 `public/uploads/sealed/12fe217b-.../` 下 2 个 PNG（58,170B / 68,376B）搬到 `storage/sealed/`，与 S1 的新 `sealedDirectory` 对齐，否则本地这 2 个盖章件下载 404。两处均在 .gitignore 内，不产生 git 变更。**服务器上线需按 `docs/deploy.md` 做同样搬迁，且必须与 `git pull` 同批**：只上代码则老文件 404，只搬文件则新上传仍写回 `public/uploads/sealed`。
+- 构建已由用户执行通过：`npm run build` 成功，`BUILD_ID=yiczkTm6n74_O-79-YgJb`，`/api/health` 与 `/api/review/[id]/preflight` 均已编译进 `app-path-routes-manifest.json`。
+- 验证：`tsc.cmd --noEmit` 0 错误；`npm.cmd run lint` 0 错误 0 警告。未 push。
+
 ## 2026-11-13 C 阶段 S7 · 审核规则预检（只提示，不阻断）
 
 - 新增只读 `getAuditPreflight`：复用 `assertTeachersConfirmed` 并把 422 转为 error 项，检查盖章件、重复学号、负责人手机号与学院一致性；不改原门槛签名或语义。

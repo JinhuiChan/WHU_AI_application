@@ -537,7 +537,7 @@ export async function getAuditPreflight(projectId: string): Promise<AuditPreflig
       id: true,
       college: true,
       owner: { select: { college: true, phone: true } },
-      teamMembers: { select: { role: true, personNo: true, phone: true } },
+      teamMembers: { where: { leftAt: null }, select: { role: true, personNo: true, phone: true } },
     },
   });
   if (!project) throw new ReviewError(404, "项目不存在");
