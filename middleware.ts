@@ -11,11 +11,11 @@ function inPrefix(pathname: string, prefixes: string[]) {
   return prefixes.some((item) => pathname === item || pathname.startsWith(`${item}/`));
 }
 
-function denyPage(message: string) {
-  return new NextResponse(message, {
-    status: 403,
-    headers: { "Content-Type": "text/plain; charset=utf-8" },
-  });
+function denyPage(request: NextRequest, message: string) {
+  // 页面级拒绝统一渲染 /forbidden，避免用户看到一行裸文本、也没有返回入口
+  const url = new URL("/forbidden", request.url);
+  url.searchParams.set("reason", message);
+  return NextResponse.rewrite(url);
 }
 
 function isAdminPath(pathname: string) {
@@ -65,23 +65,23 @@ export async function middleware(request: NextRequest) {
     return apiError(403, "无权限访问管理接口");
   }
   if (isAdminPath(pathname) && !isAdmin) {
-    return denyPage("无权限访问该页面");
+    return denyPage(request, "无权限访问该页面");
   }
   if (
     inPrefix(pathname, ["/settings", "/review", "/import", "/api/settings", "/api/review", "/api/import"]) &&
     !isAdmin
   ) {
-    return pathname.startsWith("/api/") ? apiError(403, "无权限访问管理接口") : denyPage("无权限访问该页面");
+    return pathname.startsWith("/api/") ? apiError(403, "无权限访问管理接口") : denyPage(request, "无权限访问该页面");
   }
 
   // 学生侧：仅 STUDENT（ADMIN 可代看/代操作）
   if (inPrefix(pathname, ["/apply", "/my", "/api/apply", "/api/my"]) && !(roles.includes("STUDENT") || isAdmin)) {
-    return pathname.startsWith("/api/") ? apiError(403, "该接口仅参赛学生可调用") : denyPage("该页面仅参赛学生可访问");
+    return pathname.startsWith("/api/") ? apiError(403, "该接口仅参赛学生可调用") : denyPage(request, "该页面仅参赛学生可访问");
   }
 
   // 教师侧：仅 TEACHER（ADMIN 可代看）
   if (inPrefix(pathname, ["/teacher", "/api/teacher"]) && !(roles.includes("TEACHER") || isAdmin)) {
-    return pathname.startsWith("/api/") ? apiError(403, "该接口仅指导教师可调用") : denyPage("该页面仅指导教师可访问");
+    return pathname.startsWith("/api/") ? apiError(403, "该接口仅指导教师可调用") : denyPage(request, "该页面仅指导教师可访问");
   }
 
   // 只读角色（财务/审计）不得执行写操作
