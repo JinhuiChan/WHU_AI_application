@@ -136,6 +136,11 @@ export default async function MyProjectPage({ params, searchParams }: PageProps)
       </section>
 
       <SealedPanel projectId={params.id} files={sealedFiles} currentFileId={currentFileId} canExportSensitive={canExportSensitive} />
+      {canExportSensitive ? (
+        <div className="no-print flex justify-end print:hidden">
+          <a href={`/my/${project.id}/print`} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-blue-300 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50">打印报名表（PDF）</a>
+        </div>
+      ) : null}
       {changePanel ? <ChangeRequestPanel projectId={params.id} data={changePanel} /> : null}
       <DatasetExport scope="mine" buttonLabel="导出我的数据表" />
       <BackLink to={firstParam(searchParams?.from)} fallback="/my" label="返回我的项目" />

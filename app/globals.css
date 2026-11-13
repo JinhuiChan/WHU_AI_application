@@ -253,3 +253,24 @@ body {
     transform: none !important;
   }
 }
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+
+  .no-print,
+  nav,
+  aside,
+  header,
+  button {
+    display: none !important;
+  }
+
+  .page-enter > * > *,
+  .page-enter > * > .grid > * {
+    animation: none !important;
+    transform: none !important;
+  }
+}

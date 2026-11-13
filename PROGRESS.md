@@ -2,6 +2,14 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-13 D 阶段 S12 · 报名表 A4 打印页
+
+- 抽取纯 buildFormRows，xlsx 12 列写入与打印页共用标题、分节、签字位和水印；/api/export/form 未改。
+- 新增 A4 打印组件及 force-dynamic 服务端页面，window.print 调浏览器另存 PDF；详情入口新窗口打开。
+- 权限复用 canExportFullForm/canAccessProject，完整版沿用黄色确认条 + full=1 并记录敏感访问，默认脱敏。
+- globals 仅新增打印规则，隐藏 no-print/nav/aside/header/button，并禁用 page-enter 动画和位移。
+- 验证：tsc/lint 全绿；导出路由 diff 为空；mock 对比脱敏/完整 xlsx 工作表一致。未跑 build/dev、浏览器打印或实际下载，未 push。
+
 ## 2026-11-13 D 阶段 S11 · 确认一半指导关系（仅脚本）
 
 - 新增默认 dry-run 的确认脚本，按 projectId 升序选取前 ceil(N/2) 个未确认项目。
