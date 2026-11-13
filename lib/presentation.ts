@@ -115,6 +115,7 @@ export const anomalyResolutionLabels = {
 
 export const auditActionLabels: Record<string, string> = {
   LOGIN: "登录",
+  LOGIN_FAILED: "登录失败",
   LOGOUT: "退出登录",
   USER_APPROVED: "审核用户",
   USER_ROLE_UPDATED: "修改用户角色",

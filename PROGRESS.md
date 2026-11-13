@@ -1,5 +1,15 @@
 # PROGRESS
 
+> 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
+
+## 2026-11-13 C 阶段 S2 · 登录限流 + Cookie secure
+
+- 新增内存滑动窗口：只计失败、不计尝试；手机号存在的失败按 `login:${phone}` 限 5 次/15 分钟，全部登录失败按 `login-ip:${ip}` 限 20 次/15 分钟；超限返回 429，成功登录清空两个桶。
+- 已存在用户的密码错误、待审核、驳回登录写 `LOGIN_FAILED`，actor/target 均为该用户；手机号不存在不写审计，仅记录中间四位脱敏的 `console.warn`，不含密码、哈希或请求头原文。
+- Cookie `secure` 按 `x-forwarded-proto` → `request.nextUrl.protocol` → `NODE_ENV` 回退，其余属性不变。
+- 验证：`tsc.cmd --noEmit` 0 错误；`npm.cmd run lint` 0 错误 0 警告。未跑 build/dev，未 push。
+- 限制：同一 IP 大量并发成功登录不会被误伤；多实例各自计数会分散限流，需改用 Redis 等共享存储。
+
 ## 2026-11-13 C 阶段 S1 · 盖章件 URL 收口
 
 - `sealedDirectory` 从 `public/uploads/sealed` 迁至 `storage/sealed`；`.gitignore` 新增 `storage/sealed/`，保留 `storage/imports/`。
@@ -7,8 +17,6 @@
 - 全文搜索确认不再有 `public` + `uploads` + `sealed` 的物理路径拼接。
 - 验证：`tsc.cmd --noEmit` 0 错误；`npm.cmd run lint` 0 错误 0 警告。未跑 build/dev，未 push。
 - 部署时需人工将既有盖章件从 `public/uploads/sealed` 一次性搬到 `storage/sealed`。
-
-> 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
 ## 2026-11-13 界面与权限收口（8 个提交，均为用户实测发现的问题）
 
