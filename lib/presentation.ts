@@ -47,6 +47,14 @@ export const registrationStatusLabels: Record<RegistrationStatus, string> = {
   WITHDRAWN: "已撤回",
 };
 
+export const auditPreflightMessages = {
+  sealedFileMissing: "盖章件未上传",
+  sealedFinalRejected: "最终版盖章件已被驳回",
+  duplicateStudentNo: "团队成员学号重复",
+  leaderPhoneMissing: "负责人手机号为空",
+  leaderCollegeMismatch: "项目所属学院与负责人学院不一致",
+} as const;
+
 export const awardLevelLabels: Record<AwardLevel, string> = {
   S: "S",
   A: "A",

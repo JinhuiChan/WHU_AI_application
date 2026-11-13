@@ -2,6 +2,13 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-13 C 阶段 S7 · 审核规则预检（只提示，不阻断）
+
+- 新增只读 `getAuditPreflight`：复用 `assertTeachersConfirmed` 并把 422 转为 error 项，检查盖章件、重复学号、负责人手机号与学院一致性；不改原门槛签名或语义。
+- 新增动态管理员预检 API；工作台按卡片点击「重新预检」，error 红条、warn 琥珀条、无问题 emerald 条，不自动整页请求。
+- 预检不参与单条或批量通过决策，原 `reviewProject` 422 门槛与批量委托路径保持不变，未改已有查询 where。
+- 验证：`tsc.cmd --noEmit` 0 错误；`npm.cmd run lint` 0 错误 0 警告。未跑 build/dev，未做 API 或页面运行时验证，未 push。
+
 ## 2026-11-13 C 阶段 S6 · 项目进度条
 
 - 新增服务端 `ProjectProgress`，以现有 surface/ink/brand/line 与 StatusBadge 配色渲染 5 段轴，无动画、无新增依赖。

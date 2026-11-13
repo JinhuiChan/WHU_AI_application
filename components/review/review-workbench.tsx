@@ -10,6 +10,7 @@ import type { RegistrationStatus, ReviewLevel } from "@prisma/client";
 import { BatchActionBar } from "@/components/review/batch-action-bar";
 import { RejectDialog } from "@/components/review/reject-dialog";
 import { formatDateTime, registrationStatusLabels } from "@/lib/presentation";
+import type { AuditPreflightIssue } from "@/lib/review";
 import type { ApiResponse } from "@/types/api";
 import type {
   ReviewBatchResult,
@@ -21,6 +22,12 @@ import type {
 type RejectTarget =
   | { kind: "single"; projectId: string; projectName: string; level: ReviewLevel }
   | { kind: "batch" };
+
+type PreflightState = {
+  loading: boolean;
+  items: AuditPreflightIssue[];
+  error: string;
+};
 
 function levelForStatus(status: RegistrationStatus): ReviewLevel | null {
   if (status === "PENDING") return "COLLEGE";
@@ -51,6 +58,7 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [failed, setFailed] = useState<ReviewBatchResult["failed"]>([]);
+  const [preflights, setPreflights] = useState<Record<string, PreflightState>>({});
   const visibleIds = data.list.map((item) => item.id);
   const allVisibleSelected = visibleIds.length > 0 && visibleIds.every((id) => selectedIds.includes(id));
 
@@ -136,6 +144,32 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
     }
   }
 
+  async function runPreflight(projectId: string) {
+    setPreflights((current) => ({
+      ...current,
+      [projectId]: { loading: true, items: [], error: "" },
+    }));
+    try {
+      const response = await fetch(`/api/review/${encodeURIComponent(projectId)}/preflight`, { cache: "no-store" });
+      const result = await response.json() as ApiResponse<AuditPreflightIssue[] | null>;
+      const items = result.data;
+      if (!response.ok || result.code !== 0 || !items) throw new Error(result.message || "预检失败，请稍后重试");
+      setPreflights((current) => ({
+        ...current,
+        [projectId]: { loading: false, items, error: "" },
+      }));
+    } catch (caught) {
+      setPreflights((current) => ({
+        ...current,
+        [projectId]: {
+          loading: false,
+          items: [],
+          error: caught instanceof Error ? caught.message : "预检失败，请稍后重试",
+        },
+      }));
+    }
+  }
+
   return (
     <div className="space-y-4">
       <BatchActionBar
@@ -195,6 +229,7 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
         {data.list.map((item) => {
           const level = levelForStatus(item.status);
           const open = expanded.includes(item.id);
+          const preflight = preflights[item.id];
           return (
             <article
               key={item.id}
@@ -230,6 +265,9 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
                   </dl>
                 </div>
                 <div className="flex flex-col items-stretch gap-2">
+                  <Button variant="outline" size="sm" type="button" disabled={preflight?.loading} onClick={() => void runPreflight(item.id)}>
+                    {preflight?.loading ? "预检中…" : "重新预检"}
+                  </Button>
                   <Button variant="outline" size="sm"
                     type="button"
                     onClick={() => setExpanded((current) => open ? current.filter((id) => id !== item.id) : [...current, item.id])} >
@@ -253,6 +291,23 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
                   ) : null}
                 </div>
               </div>
+
+              {preflight && !preflight.loading ? (
+                <div className="space-y-2 border-t border-slate-100 px-4 py-3">
+                  {preflight.error ? <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">{preflight.error}</div> : null}
+                  {!preflight.error && preflight.items.length === 0 ? <div role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">预检未发现问题</div> : null}
+                  {preflight.items.map((issue) => (
+                    <div
+                      key={issue.code}
+                      role={issue.level === "error" ? "alert" : "status"}
+                      className={`rounded-lg border px-3 py-2 text-xs ${issue.level === "error" ? "border-red-200 bg-red-50 text-red-700" : "border-amber-200 bg-amber-50 text-amber-700"}`}
+                    >
+                      <span className="mr-2 font-medium">{issue.level === "error" ? "错误" : "提醒"}</span>
+                      {issue.message}
+                    </div>
+                  ))}
+                </div>
+              ) : null}
 
               {open ? (
                 <div className="space-y-6 border-t border-slate-100 bg-slate-50/40 px-4 py-4 text-xs">
