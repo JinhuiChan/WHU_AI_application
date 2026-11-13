@@ -176,6 +176,8 @@ npm.cmd run dev
 
 **照着 [docs/服务器上线步骤.md](docs/服务器上线步骤.md) 一步步做**，那份是操作手册；[docs/deploy.md](docs/deploy.md) 是原理与完整参考配置。
 
+构建与切换不再手工粘贴 `/root/kesai-deploy.sh`，统一使用仓库内的 [`scripts/deploy-server.sh`](scripts/deploy-server.sh)。
+
 四个最容易出事的点，务必先知道：
 
 1. **数据必须放在仓库外并软链进来**：`.env`、`prisma/dev.db`、`public/uploads`、`storage/sealed`——否则一次部署就丢用户数据

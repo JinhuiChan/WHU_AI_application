@@ -2,6 +2,14 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-13 D 阶段 S10 · 部署脚本入库
+
+- 新增 scripts/deploy-server.sh，正文经 cmp 与服务器验证版一致，仅补用途、两种用法和前置条件注释。
+- 无参数只构建新 release；switch 切 current、重启、健康检查并打印回滚命令。
+- 保留 app.env 不覆盖、ln -sfn、storage/sealed、仅 migrate resolve 及 last/prev release 记录。
+- README 第八节改为指向入库脚本，不再手工粘贴 /root/kesai-deploy.sh。
+- 验证：Git bash -n 无输出；tsc/lint 全绿。未执行部署脚本，未跑 build/dev，未 push。
+
 ## 2026-11-13 D 阶段 S9 · 组别/类别文案与解析预览
 
 - 新增模块级 parseLabels，保存与实时预览共用同一解析规则；支持分隔符、去空白和去空项行为不变。
