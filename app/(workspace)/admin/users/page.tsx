@@ -90,7 +90,8 @@ export default async function UsersPage({ searchParams }: { searchParams?: Recor
         </p>
       ) : null}
 
-      <UserManagement initialUsers={users} currentUserId={user.id} activeRole={activeRole as Role} />
+      {/* key 必须带 activeRole：否则切换分类时客户端组件被复用，useState 仍持有上一类的列表 */}
+      <UserManagement key={activeRole} initialUsers={users} currentUserId={user.id} activeRole={activeRole as Role} />
     </div>
   );
 }
