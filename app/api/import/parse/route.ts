@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
-    const authorization = await requireApiAdmin();
+    const authorization = await requireApiAdmin({ activeIdentity: true });
     if (!authorization.ok) return authorization.response;
 
     let formData: FormData;
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     } catch {
       return apiError(422, "请以 multipart/form-data 上传文件");
     }
-    const result = await parseImportFile(getImportFile(formData));
+    const result = await parseImportFile(getImportFile(formData), authorization.user.id);
     return apiSuccess(result, `识别出 ${result.columns.length} 列，自动匹配 ${Object.keys(result.suggestedMapping).length} 个系统字段`);
   } catch (error) {
     if (error instanceof ImportFileError) {

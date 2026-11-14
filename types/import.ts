@@ -150,6 +150,15 @@ export type ImportMapping = Partial<Record<ImportSystemFieldKey, string>>;
 export type ImportFileType = "xlsx" | "docx" | "pdf";
 export type ImportStage = "SCHOOL" | "PROVINCE";
 
+export type ImportEvidenceBlock = { id: string; text: string; page: number | null; section: string };
+export type ImportRecognition = {
+  mode: "ai";
+  warnings: string[];
+  blocks: ImportEvidenceBlock[];
+  rowSources: Record<string, string[]>;
+};
+export type ImportReviewedRow = { rowNo: number; values: string[] };
+
 export type ImportParseResult = {
   fileName: string;
   fileType: ImportFileType;
@@ -160,6 +169,8 @@ export type ImportParseResult = {
   requiresConfirm: boolean;
   totalRows: number;
   sourceKey: string;
+  recognition?: ImportRecognition;
+  draftRows?: ImportReviewedRow[];
 };
 
 export type ImportMappingSaveInput = {
@@ -170,6 +181,7 @@ export type ImportMappingSaveInput = {
   mapping: ImportMapping;
   sourceKey: string;
   confirmed: boolean;
+  reviewedRows?: ImportReviewedRow[];
 };
 
 export type ImportMappingSaveResult = {

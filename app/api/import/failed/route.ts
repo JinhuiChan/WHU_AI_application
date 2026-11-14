@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   try {
-    const authorization = await requireApiAdmin();
+    const authorization = await requireApiAdmin({ activeIdentity: true });
     if (!authorization.ok) return authorization.response;
     const batchId = request.nextUrl.searchParams.get("batchId")?.trim() ?? "";
     if (!batchId) return apiError(422, "请提供批次号 batchId");

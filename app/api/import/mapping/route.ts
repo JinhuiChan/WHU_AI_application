@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
-    const authorization = await requireApiAdmin();
+    const authorization = await requireApiAdmin({ activeIdentity: true });
     if (!authorization.ok) return authorization.response;
 
     let body: unknown;

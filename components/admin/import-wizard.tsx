@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import LatticeLoader from "@/components/react-bits/LatticeLoader";
 import StepperIndicator from "@/components/react-bits/StepperIndicator";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { ApiResponse } from "@/types/api";
 import {
   importSystemFields,
@@ -14,6 +14,7 @@ import {
   type ImportParseResult,
   type ImportStage,
   type ImportSystemFieldKey,
+  type ImportReviewedRow,
 } from "@/types/import";
 
 const steps = ["选择赛事并上传", "字段映射与预览", "入库报告"];
@@ -61,6 +62,22 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
   const [savedBatchId, setSavedBatchId] = useState("");
   const [confirmed, setConfirmed] = useState(false);
   const [commitResult, setCommitResult] = useState<ImportCommitResult | null>(null);
+  const [reviewRows, setReviewRows] = useState<ImportReviewedRow[]>([]);
+  const [reviewPage, setReviewPage] = useState(0);
+  const nextReviewRow = useRef(1);
+  const aiRecognized = parseResult?.recognition?.mode === "ai";
+  const visibleRows = aiRecognized ? reviewRows.slice(reviewPage * 20, reviewPage * 20 + 20) : (parseResult?.previewRows ?? []).map((values, index) => ({ values, rowNo: parseResult?.previewRowNumbers[index] ?? index + 2 }));
+
+  function invalidateReview() {
+    setConfirmed(false); setSavedBatchId(""); setCommitResult(null); setNotice("");
+  }
+
+  function editCell(rowNo: number, column: string, value: string) {
+    const index = parseResult?.columns.indexOf(column) ?? -1;
+    if (index < 0) return;
+    setReviewRows((rows) => rows.map((row) => row.rowNo === rowNo ? { ...row, values: row.values.map((cell, at) => at === index ? value : cell) } : row));
+    invalidateReview();
+  }
 
   const missingRequired = importSystemFields.filter((field) => field.required && !mapping[field.key]);
   const mappedColumns = Object.values(mapping).filter((column): column is string => Boolean(column));
@@ -76,10 +93,12 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
     setSavedBatchId("");
     setConfirmed(false);
     setCommitResult(null);
+    setReviewRows([]); setReviewPage(0);
     setInputKey((value) => value + 1);
   }
 
   function updateMapping(field: ImportSystemFieldKey, column: string) {
+    setConfirmed(false);
     setMapping((current) => {
       const next = { ...current };
       if (column) next[field] = column;
@@ -124,6 +143,9 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
       }
       setParseResult(result.data);
       setMapping(result.data.suggestedMapping);
+      const rows = result.data.draftRows ?? [];
+      setReviewRows(rows); setReviewPage(0); setConfirmed(false);
+      nextReviewRow.current = Math.max(0, ...rows.map((row) => row.rowNo)) + 1;
       setSavedBatchId("");
       setStep(2);
     } catch (caught: unknown) {
@@ -147,6 +169,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
       setError("请先人工核对 Word/PDF 解析结果并勾选确认");
       return;
     }
+    if (aiRecognized && !reviewRows.length) { setError("请至少保留或补充一行数据"); return; }
 
     setPending("save");
     setError("");
@@ -163,6 +186,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
           mapping,
           sourceKey: parseResult.sourceKey,
           confirmed,
+          ...(aiRecognized ? { reviewedRows: reviewRows } : {}),
         }),
       });
       const result = (await response.json()) as ApiResponse<ImportMappingSaveResult | null>;
@@ -215,7 +239,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
       {step === 1 ? (
         <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="font-medium text-slate-900">上传赛事报名数据</h2>
-          <p className="mt-1 text-sm leading-6 text-slate-500">支持 xlsx、docx、pdf，单个文件不超过 20MB。上传后先解析和映射，不会直接写入报名数据。</p>
+          <p className="mt-1 text-sm leading-6 text-slate-500">支持 xlsx、docx、pdf，单个文件不超过 20MB。Word/PDF 上传后由学校 AI 识别项目和人员信息，先核对修改、再确认入库；Excel 沿用表格解析。扫描件需先完成文字识别。</p>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             <label className="text-sm font-medium text-slate-700">
               选择赛事
@@ -257,7 +281,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
                 doneLabel="解析完成"
                 errorLabel="解析失败"
                 fontSize={13}
-                label="正在解析文件"
+                label={file && /\.(docx|pdf)$/i.test(file.name) ? "正在读取文档并识别报名数据…" : "正在解析文件"}
               />
             </div>
           ) : (
@@ -285,18 +309,22 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
             <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
               <div className="rounded-lg bg-slate-50 p-4"><div className="text-xs text-slate-500">识别列数</div><div className="mt-1 text-2xl font-semibold text-slate-900">{parseResult.columns.length}</div></div>
               <div className="rounded-lg bg-blue-50 p-4"><div className="text-xs text-blue-700">自动匹配字段</div><div className="mt-1 text-2xl font-semibold text-blue-700">{Object.keys(parseResult.suggestedMapping).length}</div></div>
-              <div className="rounded-lg bg-slate-50 p-4"><div className="text-xs text-slate-500">数据总行数</div><div className="mt-1 text-2xl font-semibold text-slate-900">{parseResult.totalRows}</div></div>
-              <div className="rounded-lg bg-slate-50 p-4"><div className="text-xs text-slate-500">映射预览</div><div className="mt-1 text-2xl font-semibold text-slate-900">前 {parseResult.previewRows.length} 行</div></div>
+              <div className="rounded-lg bg-slate-50 p-4"><div className="text-xs text-slate-500">{aiRecognized ? "待确认行数" : "数据总行数"}</div><div className="mt-1 text-2xl font-semibold text-slate-900">{aiRecognized ? reviewRows.length : parseResult.totalRows}</div></div>
+              <div className="rounded-lg bg-slate-50 p-4"><div className="text-xs text-slate-500">{aiRecognized ? "分页核对全部数据" : "映射预览"}</div><div className="mt-1 text-2xl font-semibold text-slate-900">{aiRecognized ? `第 ${reviewPage + 1} 页` : `前 ${parseResult.previewRows.length} 行`}</div></div>
             </div>
             {parseResult.requiresConfirm ? (
               <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-800">
-                <p>此 Word/PDF 解析结果已标记为 <strong>requiresConfirm=true</strong>，入库前必须人工核对。</p>
+                <p>识别结果尚未入库。请对照原文核对全部数据；可在下方修改、删除误识别行或补充遗漏行，修改后需重新确认。</p>
                 <label className="mt-2 flex items-center gap-2 font-medium">
                   <input type="checkbox" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} disabled={pending !== null} />
-                  我已逐行核对解析文本与映射预览
+                  我已核对全部识别行及其与原文的对应关系
                 </label>
               </div>
             ) : null}
+            {parseResult.recognition && <>
+              {parseResult.recognition.warnings.length > 0 && <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-amber-800">{parseResult.recognition.warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul>}
+              <details className="mt-3 rounded-lg bg-slate-50 p-3 text-sm"><summary className="cursor-pointer text-blue-700">查看文档提取原文，核对是否有遗漏</summary><div className="mt-3 max-h-80 space-y-3 overflow-auto">{parseResult.recognition.blocks.map((block) => <div key={block.id}><p className="font-medium">{block.id}{block.page ? ` · 第 ${block.page} 页` : ""} · {block.section}</p><p className="whitespace-pre-wrap break-words text-slate-600">{block.text}</p></div>)}</div></details>
+            </>}
           </section>
 
           <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -339,31 +367,41 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
           <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
             <div className="border-b border-slate-100 px-5 py-4">
               <h3 className="font-medium text-slate-900">映射结果预览</h3>
-              <p className="mt-1 text-xs text-slate-500">仅显示前 20 行；学号须为 6–20 位数字、手机号 11 位，入学/毕业年份须为数字；续行不重复校验项目必填项。</p>
+              <p className="mt-1 text-xs text-slate-500">{aiRecognized ? "每页20行，可翻页核对和直接修改全部识别数据。" : "仅显示前20行。"}学号须为6–20位数字、手机号11位，入学/毕业年份须为数字；续行不重复校验项目必填项。</p>
+              {aiRecognized && <div className="mt-3 flex flex-wrap items-center gap-3">
+                <Button type="button" variant="outline" size="sm" disabled={pending !== null || reviewPage === 0} onClick={() => setReviewPage((page) => page - 1)}>上一页</Button>
+                <span className="text-xs text-slate-500">{reviewPage + 1} / {Math.max(1, Math.ceil(reviewRows.length / 20))}</span>
+                <Button type="button" variant="outline" size="sm" disabled={pending !== null || (reviewPage + 1) * 20 >= reviewRows.length} onClick={() => setReviewPage((page) => page + 1)}>下一页</Button>
+                <Button type="button" variant="outline" size="sm" disabled={pending !== null || reviewRows.length >= 1000} onClick={() => { const rowNo = nextReviewRow.current++; setReviewRows((rows) => [...rows, { rowNo, values: parseResult.columns.map(() => "") }]); setReviewPage(Math.floor(reviewRows.length / 20)); invalidateReview(); }}>补充一行</Button>
+              </div>}
+              {aiRecognized && <details className="mt-3 text-xs text-slate-500"><summary className="cursor-pointer">修改成员、指导老师的填写格式</summary><p className="mt-2">每人一行，英文逗号分隔，缺失项保留空位。成员：校内（是/否）,姓名,学号,培养阶段,培养单位,专业,性别,民族,入学年,毕业年,手机号,邮箱。指导老师：校内（是/否）,姓名,工号,性别,手机号,学校,单位,职称,邮箱。</p></details>}
             </div>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1800px] table-fixed text-left text-xs">
                 <thead className="bg-slate-50 text-slate-500">
                   <tr>
-                    <th className="sticky left-0 z-10 w-16 bg-slate-50 px-3 py-3 text-right font-medium">行号</th>
+                    <th className="sticky left-0 z-10 w-32 bg-slate-50 px-3 py-3 font-medium">行号与原文</th>
                     {importSystemFields.map((field) => <th key={field.key} className="w-44 px-3 py-3 font-medium">{field.label}{field.required ? " *" : ""}</th>)}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {parseResult.previewRows.map((row, rowIndex) => {
+                  {visibleRows.map(({ values: row, rowNo }) => {
                     const continuation = !mappedValue(row, parseResult.columns, mapping, "projectName") && Boolean(
                       mappedValue(row, parseResult.columns, mapping, "members") || mappedValue(row, parseResult.columns, mapping, "teachers"),
                     );
                     return (
-                      <tr key={parseResult.previewRowNumbers[rowIndex] ?? rowIndex + 2} className="align-top">
-                        <td className="sticky left-0 z-10 bg-white px-3 py-3 text-right text-slate-500">{parseResult.previewRowNumbers[rowIndex] ?? rowIndex + 2}</td>
+                      <tr key={rowNo} className="align-top">
+                        <td className="sticky left-0 z-10 bg-white px-3 py-3 text-slate-500">{rowNo}
+                          {aiRecognized && <><details className="mt-2"><summary className="cursor-pointer text-blue-700">原文</summary><div className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap break-words">{(parseResult.recognition?.rowSources[String(rowNo)] ?? []).length ? parseResult.recognition?.blocks.filter((block) => parseResult.recognition?.rowSources[String(rowNo)]?.includes(block.id)).map((block) => <p key={block.id} className="mb-2">{block.id}{block.page ? ` 第${block.page}页` : ""}：{block.text}</p>) : "人工补充行，请自行对照原文。"}</div></details>
+                          <button type="button" disabled={pending !== null} className="mt-2 text-red-600 hover:underline" onClick={() => { setReviewRows((rows) => rows.filter((item) => item.rowNo !== rowNo)); setReviewPage(Math.min(reviewPage, Math.max(0, Math.ceil((reviewRows.length - 1) / 20) - 1))); invalidateReview(); }}>删除此行</button></>}
+                        </td>
                         {importSystemFields.map((field) => {
                           const column = mapping[field.key];
                           const value = mappedValue(row, parseResult.columns, mapping, field.key);
                           const issue = previewCellIssue(field, value, Boolean(column), continuation);
                           return (
                             <td key={field.key} className={`px-3 py-3 ${issue ? "bg-red-50 text-red-700" : "text-slate-700"}`}>
-                              <div className="max-h-20 overflow-hidden whitespace-pre-wrap break-words">{column ? value || "—" : "未映射"}</div>
+                              {aiRecognized && column ? <textarea aria-label={`第${rowNo}行${field.label}`} value={value} disabled={pending !== null} rows={field.key === "members" || field.key === "teachers" ? 3 : 2} maxLength={20000} onChange={(event) => editCell(rowNo, column, event.target.value)} className="w-full resize-y rounded border border-slate-200 bg-white p-2 text-xs text-slate-800 focus:border-blue-500 focus:outline-none" /> : <div className="max-h-20 overflow-hidden whitespace-pre-wrap break-words">{column ? value || "—" : "未映射"}</div>}
                               {issue ? <div className="mt-1 font-medium text-red-600">{issue}{issue === "类型错误" ? "：数字格式不正确" : ""}</div> : null}
                             </td>
                           );
@@ -377,7 +415,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
           </section>
 
           <section className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
-            <p className="text-sm leading-6 text-slate-500">保存仅写入 ImportBatch.mappingJson 与审计记录，不会创建或修改项目、成员、老师及奖项。</p>
+            <p className="text-sm leading-6 text-slate-500">保存会固定本次核对后的数据和映射，尚不写入报名记录；下一步确认后再入库。</p>
             <Button variant="default" size="sm" type="button" disabled={pending !== null || Boolean(savedBatchId)} onClick={saveMapping} className="shrink-0" >
               {pending === "save" ? "正在保存…" : savedBatchId ? "映射方案已保存" : "保存映射方案"}
             </Button>
