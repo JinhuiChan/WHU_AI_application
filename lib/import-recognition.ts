@@ -11,9 +11,12 @@ const teacherKeys = ["isInternal", "name", "staffNo", "gender", "phone", "school
 const compact = (value: string) => value.normalize("NFKC").replace(/\s+/g, "");
 const object = (value: unknown): value is Record<string, unknown> => !!value && typeof value === "object" && !Array.isArray(value);
 
-async function extract(buffer: Buffer, fileType: "docx" | "pdf"): Promise<ImportEvidenceBlock[]> {
+async function extract(buffer: Buffer, fileType: "docx" | "pdf" | "txt"): Promise<ImportEvidenceBlock[]> {
   const blocks: DocumentBlock[] = [];
-  if (fileType === "docx") {
+  if (fileType === "txt") {
+    const text = new TextDecoder("utf-8", { fatal: true }).decode(buffer);
+    blocks.push(...text.replace(/\r\n?/g, "\n").split("\n").filter((line) => line.trim()).map((text) => ({ text, page: null })));
+  } else if (fileType === "docx") {
     const result = await mammoth.convertToHtml({ buffer }, { includeDefaultStyleMap: true });
     blocks.push(...docxHtmlBlocks(result.value));
   } else {
@@ -83,12 +86,12 @@ function validateResult(raw: string, blocks: ImportEvidenceBlock[]) {
   return { rows, warnings };
 }
 
-export async function recognizeImportDocument(buffer: Buffer, fileType: "docx" | "pdf") {
+export async function recognizeImportDocument(buffer: Buffer, fileType: "docx" | "pdf" | "txt") {
   if (!process.env.LLM_API_KEY?.trim()) throw new ImportRecognitionError("尚未配置 AI 接口密钥，请联系管理员配置，或使用 Excel 导入");
   let blocks: ImportEvidenceBlock[];
   try { blocks = await extract(buffer, fileType); } catch (error) {
     if (error instanceof ImportRecognitionError) throw error;
-    throw new ImportRecognitionError("文档无法读取，请上传有效的 DOCX 或含文字的 PDF");
+    throw new ImportRecognitionError("资料无法读取，请上传有效的 DOCX、含文字的 PDF 或 UTF-8 文本");
   }
   const batches: ImportEvidenceBlock[][] = [];
   for (const block of blocks) {
@@ -140,7 +143,7 @@ export async function recognizeImportDocument(buffer: Buffer, fileType: "docx" |
   }
   const rows: RecognizedRow[] = [], warnings: string[] = [];
   for (const batch of batches) { const result = await run(batch); rows.push(...result.rows); warnings.push(...result.warnings); }
-  if (!rows.length) throw new ImportRecognitionError("未识别到可导入的报名项目记录，请上传项目名单或报名资料，而非赛事规则通知");
+  if (!rows.length) throw new ImportRecognitionError("未识别到可导入的报名项目记录，请提供项目名单或报名资料，而非赛事规则通知");
   if (rows.length > MAX_ROWS) throw new ImportRecognitionError("识别结果超过1000行，请分批上传");
   const positions = new Map(blocks.map((block, index) => [block.id, index]));
   rows.sort((a, b) => Math.min(...a.sourceIds.map((id) => positions.get(id)!)) - Math.min(...b.sourceIds.map((id) => positions.get(id)!)));

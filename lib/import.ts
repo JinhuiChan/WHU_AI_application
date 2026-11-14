@@ -22,7 +22,7 @@ import {
 
 const maxFileSize = 20 * 1024 * 1024;
 const previewRowCount = 20;
-const fileTypes: ImportFileType[] = ["xlsx", "docx", "pdf"];
+const fileTypes: ImportFileType[] = ["xlsx", "docx", "pdf", "txt"];
 const importSourceDirectory = path.join(process.cwd(), "storage", "imports");
 
 export type ImportSourceRow = {
@@ -88,7 +88,7 @@ export function getImportFile(formData: FormData) {
     throw new ImportFileError("请选择要上传的文件");
   }
   if (!getFileType(file.name)) {
-    throw new ImportFileError("仅支持 .xlsx、.docx、.pdf 格式文件");
+    throw new ImportFileError("仅支持 .xlsx、.docx、.pdf、.txt 格式文件");
   }
   if (file.size === 0) {
     throw new ImportFileError("上传文件不能为空");
@@ -227,10 +227,12 @@ async function parsePdf(buffer: Buffer): Promise<ParsedTable> {
 
 export async function parseImportData(file: File): Promise<ImportSourceData> {
   const fileType = getFileType(file.name);
-  if (!fileType) throw new ImportFileError("仅支持 .xlsx、.docx、.pdf 格式文件");
+  if (!fileType) throw new ImportFileError("仅支持 .xlsx、.docx、.pdf、.txt 格式文件");
   const buffer = Buffer.from(await file.arrayBuffer());
   const table = fileType === "xlsx"
     ? parseXlsx(buffer)
+    : fileType === "txt"
+      ? parseTextTable(new TextDecoder("utf-8", { fatal: true }).decode(buffer), "文本资料")
     : fileType === "docx"
       ? await parseDocx(buffer)
       : await parsePdf(buffer);
@@ -245,7 +247,7 @@ export async function parseImportData(file: File): Promise<ImportSourceData> {
 
 function sourcePath(sourceKey: string, fileName: string) {
   const fileType = getFileType(fileName);
-  if (!fileType || !/^[0-9a-f-]{36}\.(xlsx|docx|pdf)$/.test(sourceKey) || !sourceKey.endsWith(`.${fileType}`)) {
+  if (!fileType || !/^[0-9a-f-]{36}\.(xlsx|docx|pdf|txt)$/.test(sourceKey) || !sourceKey.endsWith(`.${fileType}`)) {
     throw new ImportFileError("导入源文件标识不正确，请重新上传");
   }
   const resolved = path.resolve(importSourceDirectory, sourceKey);
@@ -290,7 +292,7 @@ export async function readImportSource(sourceKey: string, fileName: string) {
 
 export async function parseImportFile(file: File, actorId: string): Promise<ImportParseResult> {
   const fileType = getFileType(file.name);
-  if (!fileType) throw new ImportFileError("仅支持 .xlsx、.docx、.pdf 格式文件");
+  if (!fileType) throw new ImportFileError("仅支持 .xlsx、.docx、.pdf、.txt 格式文件");
   let source: ImportSourceData;
   try {
     source = fileType === "xlsx" ? await parseImportData(file) : { fileName: file.name, fileType, requiresConfirm: true, ...await recognizeImportDocument(Buffer.from(await file.arrayBuffer()), fileType) };
@@ -316,7 +318,7 @@ export async function parseImportFile(file: File, actorId: string): Promise<Impo
 }
 
 function preparedPath(key: string) {
-  if (!/^(?:[0-9a-f-]{36}\.(?:xlsx|docx|pdf)\.parsed|[0-9a-f-]{36}\.reviewed)\.json$/.test(key)) throw new ImportMappingError("识别快照标识无效");
+  if (!/^(?:[0-9a-f-]{36}\.(?:xlsx|docx|pdf|txt)\.parsed|[0-9a-f-]{36}\.reviewed)\.json$/.test(key)) throw new ImportMappingError("识别快照标识无效");
   return path.join(importSourceDirectory, key);
 }
 
@@ -426,7 +428,7 @@ function parseMappingInput(body: unknown): ImportMappingSaveInput {
   const fileName = typeof body.fileName === "string" ? body.fileName.trim() : "";
   const fileType = fileName ? getFileType(fileName) : null;
   if (!fileName || fileName.length > 255 || !fileType) {
-    throw new ImportMappingError("请提供有效的 xlsx、docx 或 pdf 文件名");
+    throw new ImportMappingError("请提供有效的 xlsx、docx、pdf 或 txt 文件名");
   }
   if (typeof body.totalRows !== "number" || !Number.isInteger(body.totalRows) || body.totalRows < 1) {
     throw new ImportMappingError("数据行数必须为正整数");
@@ -440,7 +442,7 @@ function parseMappingInput(body: unknown): ImportMappingSaveInput {
   }
   const confirmed = body.confirmed === true;
   if (fileType !== "xlsx" && !confirmed) {
-    throw new ImportMappingError("Word/PDF 解析结果须经人工确认后才能保存并入库");
+    throw new ImportMappingError("文档或粘贴资料的识别结果须经人工确认后才能保存并入库");
   }
 
   const allowedKeys = new Set<string>(importSystemFields.map((field) => field.key));

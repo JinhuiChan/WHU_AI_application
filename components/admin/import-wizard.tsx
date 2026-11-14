@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import LatticeLoader from "@/components/react-bits/LatticeLoader";
 import StepperIndicator from "@/components/react-bits/StepperIndicator";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useRef, useState, type ClipboardEvent, type DragEvent } from "react";
 import type { ApiResponse } from "@/types/api";
 import {
   importSystemFields,
@@ -53,6 +53,10 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
   const [competitionId, setCompetitionId] = useState(competitions[0]?.id ?? "");
   const [stage, setStage] = useState<ImportStage>("SCHOOL");
   const [file, setFile] = useState<File | null>(null);
+  const [pastedText, setPastedText] = useState("");
+  const [dragActive, setDragActive] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const dragDepth = useRef(0);
   const [inputKey, setInputKey] = useState(0);
   const [parseResult, setParseResult] = useState<ImportParseResult | null>(null);
   const [mapping, setMapping] = useState<ImportMapping>({});
@@ -83,9 +87,55 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
   const mappedColumns = Object.values(mapping).filter((column): column is string => Boolean(column));
   const duplicateColumns = mappedColumns.filter((column, index) => mappedColumns.indexOf(column) !== index);
 
+  function fileIssue(candidate: File) {
+    if (!/\.(xlsx|docx|pdf|txt)$/i.test(candidate.name)) return "仅支持 .xlsx、.docx、.pdf、.txt 格式文件";
+    if (!candidate.size) return "文件不能为空";
+    if (candidate.size > maxFileSize) return "文件不能超过 20MB";
+    return "";
+  }
+
+  function chooseFiles(files: File[]) {
+    if (pending !== null || !files.length) return;
+    const issue = files.length > 1 ? "每次请拖入或粘贴一个文件，完成本批后再添加下一份" : fileIssue(files[0]);
+    setPastedText(""); setFile(issue ? null : files[0]); setError(issue); setNotice("");
+    setInputKey((value) => value + 1);
+  }
+
+  function chooseText(text: string) {
+    if (pending !== null) return;
+    if (text.trim() && text.trim().split(/\r?\n/).every((line) => /^(?:[A-Za-z]:[\\/]|file:\/\/).+\.(?:xlsx|docx|pdf|txt)\s*$/i.test(line.trim()))) {
+      setError("剪贴板中只有文件路径，未包含文件内容。请将文件拖入，或复制文档里的报名文字。"); return;
+    }
+    setPastedText(text); setNotice("");
+    const candidate = text.trim() ? new File([text], "粘贴报名资料.txt", { type: "text/plain;charset=utf-8" }) : null;
+    const issue = text.length > 180000 ? "粘贴文字最多18万字符，请分批导入" : candidate ? fileIssue(candidate) : "";
+    setFile(issue ? null : candidate); setError(issue);
+  }
+
+  function paste(event: ClipboardEvent<HTMLTextAreaElement>) {
+    const files = Array.from(event.clipboardData.files);
+    const items = files.length ? files : Array.from(event.clipboardData.items).filter((item) => item.kind === "file").map((item) => item.getAsFile()).filter((item): item is File => item !== null);
+    if (items.length) { event.preventDefault(); chooseFiles(items); }
+    else {
+      event.preventDefault();
+      const input = event.currentTarget;
+      chooseText(input.value.slice(0, input.selectionStart) + event.clipboardData.getData("text/plain") + input.value.slice(input.selectionEnd));
+    }
+  }
+
+  function drop(event: DragEvent<HTMLDivElement>) {
+    event.preventDefault(); dragDepth.current = 0; setDragActive(false);
+    if (pending !== null) return;
+    const files = Array.from(event.dataTransfer.files);
+    if (files.length) chooseFiles(files);
+    else if (event.dataTransfer.getData("text/plain").trim()) chooseText(event.dataTransfer.getData("text/plain"));
+    else setError("未收到可上传文件，请拖入单个文档，不支持文件夹");
+  }
+
   function reset() {
     setStep(1);
     setFile(null);
+    setPastedText(""); setDragActive(false); dragDepth.current = 0;
     setParseResult(null);
     setMapping({});
     setError("");
@@ -121,8 +171,8 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
       return;
     }
     const extension = file.name.toLowerCase().split(".").pop();
-    if (!extension || !["xlsx", "docx", "pdf"].includes(extension)) {
-      setError("仅支持 .xlsx、.docx、.pdf 格式文件");
+    if (!extension || !["xlsx", "docx", "pdf", "txt"].includes(extension)) {
+      setError("仅支持 .xlsx、.docx、.pdf、.txt 格式文件");
       return;
     }
     if (file.size > maxFileSize) {
@@ -166,7 +216,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
       return;
     }
     if (parseResult.requiresConfirm && !confirmed) {
-      setError("请先人工核对 Word/PDF 解析结果并勾选确认");
+      setError("请先核对识别结果并勾选确认");
       return;
     }
     if (aiRecognized && !reviewRows.length) { setError("请至少保留或补充一行数据"); return; }
@@ -239,7 +289,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
       {step === 1 ? (
         <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="font-medium text-slate-900">上传赛事报名数据</h2>
-          <p className="mt-1 text-sm leading-6 text-slate-500">支持 xlsx、docx、pdf，单个文件不超过 20MB。Word/PDF 上传后由学校 AI 识别项目和人员信息，先核对修改、再确认入库；Excel 沿用表格解析。扫描件需先完成文字识别。</p>
+          <p className="mt-1 text-sm leading-6 text-slate-500">可选择、拖入或粘贴文件，也可直接粘贴报名文字。Word、PDF和文字由学校 AI 识别，先核对修改、再确认入库；Excel 沿用表格解析。单个文件不超过20MB，扫描件需先完成文字识别。</p>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             <label className="text-sm font-medium text-slate-700">
               选择赛事
@@ -258,21 +308,26 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
               </select>
             </label>
           </div>
-          <div className="mt-5 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-5">
-            <label className="block text-sm font-medium text-slate-700" htmlFor="import-file">选择报名数据文件</label>
+          <div onDragEnter={(event) => { event.preventDefault(); if (pending === null) { dragDepth.current++; setDragActive(true); } }} onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = pending === null ? "copy" : "none"; }} onDragLeave={(event) => { event.preventDefault(); dragDepth.current = Math.max(0, dragDepth.current - 1); if (!dragDepth.current) setDragActive(false); }} onDrop={drop}
+            className={`mt-5 rounded-xl border-2 border-dashed p-5 transition ${dragActive ? "border-blue-500 bg-blue-50" : "border-slate-300 bg-slate-50"}`}>
+            <p className="font-medium text-slate-800">{dragActive ? "松开即可添加文件" : "把文件拖到这里，或在下方粘贴"}</p>
+            <p className="mt-1 text-xs leading-5 text-slate-500">支持 DOCX、PDF、XLSX、TXT，每次一份。粘贴文件需要剪贴板中包含文件，复制路径不会上传文件。</p>
             <input
               key={inputKey}
+              ref={fileInput}
               id="import-file"
               type="file"
-              accept=".xlsx,.docx,.pdf"
+              accept=".xlsx,.docx,.pdf,.txt"
               disabled={pending !== null}
-              onChange={(event) => {
-                setFile(event.target.files?.[0] ?? null);
-                setError("");
-              }}
-              className="mt-3 block w-full text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:text-white hover:file:bg-blue-700"
+              onChange={(event) => chooseFiles(Array.from(event.target.files ?? []))}
+              className="hidden"
             />
-            {file ? <p className="mt-3 text-xs text-slate-500">已选择：{file.name}（{(file.size / 1024 / 1024).toFixed(2)} MB）</p> : null}
+            <Button type="button" variant="outline" size="sm" disabled={pending !== null} className="mt-3" onClick={() => fileInput.current?.click()}>选择文件</Button>
+            <label htmlFor="import-paste" className="mb-2 mt-4 block text-sm font-medium text-slate-700">粘贴文件或报名文字</label>
+            <textarea id="import-paste" value={pastedText} onPaste={paste} onChange={(event) => chooseText(event.target.value)} disabled={pending !== null} rows={5} maxLength={180000}
+              placeholder="点击这里按 Ctrl+V：可粘贴剪贴板中的文件，也可粘贴 Word、Excel 里的报名文字，例如项目名称、负责人、学号、学院等。"
+              className="w-full resize-y rounded-lg border border-slate-300 bg-white p-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
+            {file ? <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white px-3 py-2 text-sm" aria-live="polite"><span className="break-all text-blue-700">已添加：{file.name}（{(file.size / 1024 / 1024).toFixed(2)} MB）</span><button type="button" disabled={pending !== null} className="text-slate-500 hover:text-red-600" onClick={() => { setFile(null); setPastedText(""); setError(""); setInputKey((value) => value + 1); }}>移除</button></div> : null}
           </div>
           {pending === "parse" ? (
             <div className="mt-5 flex h-9 items-center">
@@ -281,7 +336,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
                 doneLabel="解析完成"
                 errorLabel="解析失败"
                 fontSize={13}
-                label={file && /\.(docx|pdf)$/i.test(file.name) ? "正在读取文档并识别报名数据…" : "正在解析文件"}
+                label={file && /\.(docx|pdf|txt)$/i.test(file.name) ? "正在读取资料并识别报名数据…" : "正在解析文件"}
               />
             </div>
           ) : (

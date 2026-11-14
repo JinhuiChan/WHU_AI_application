@@ -262,7 +262,7 @@ export async function commitImportBatch(batchId: string, actorId: string): Promi
   if (!batch.competitionId || !batch.competition) throw new ImportCommitError("批次未关联有效赛事");
   if (!metadata.sourceKey) throw new ImportCommitError("该批次没有源文件，请重新上传并保存映射");
   if (batch.fileType !== "xlsx" && !metadata.confirmed) {
-    throw new ImportCommitError("Word/PDF 解析结果尚未人工确认，不能入库");
+    throw new ImportCommitError("文档或粘贴资料的识别结果尚未人工确认，不能入库");
   }
 
   const source = await readImportBatchSource(batch.fileName, metadata, batch.importedBy);
@@ -564,6 +564,6 @@ export async function createImportFailedExport(batchId: string, watermarkNo: str
   XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet([[...source.columns, "错误列", "错误原因"], ...rows]), "失败行");
   XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet([["导出水印号", watermarkNo]]), "导出信息");
   const output = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" }) as Buffer;
-  const baseName = batch.fileName.replace(/\.(xlsx|docx|pdf)$/i, "").replace(/[<>:"/\\|?*\x00-\x1f]/g, "_") || "导入批次";
+  const baseName = batch.fileName.replace(/\.(xlsx|docx|pdf|txt)$/i, "").replace(/[<>:"/\\|?*\x00-\x1f]/g, "_") || "导入批次";
   return { output, rowCount: rows.length, fileName: `${baseName}_失败行.xlsx` };
 }

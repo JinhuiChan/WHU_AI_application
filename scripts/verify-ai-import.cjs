@@ -131,11 +131,18 @@ async function main() {
   console.log('PASS 修改、删行、补行固定入库；成员老师、部分失败、失败导出和重复提交，不再次调用AI');
 
   mode = 'valid';
-  for (const name of ['import-narrative.docx', 'import-projects.pdf', 'import-many.docx']) {
+  for (const name of ['import-narrative.docx', 'import-projects.pdf', 'import-many.docx', 'import-paste.txt']) {
     const result = await upload(name); const at = result.columns.indexOf('项目名称');
     assert.equal(result.draftRows.filter((row) => row.values[at]).length, name === 'import-many.docx' ? 25 : 2);
     if (name.endsWith('.pdf')) assert.ok(result.recognition.blocks.some((b) => b.page === 1));
     console.log('PASS 全量识别 ' + name + '，' + result.draftRows.length + '行');
+    if (name.endsWith('.txt')) {
+      const pastedBatch = await save(result, { reviewedRows: result.draftRows });
+      const atCommit = calls;
+      assert.equal((await req('/api/import/commit', { cookie: admin, body: { batchId: pastedBatch.batchId } })).data.success, 2);
+      assert.equal(calls, atCommit, '粘贴资料入库不得重复识别');
+      console.log('PASS 粘贴文字的确认快照与固定入库');
+    }
   }
   mode = 'invented'; sequence = 0; await upload('import-table.docx', admin, 422); assert.equal(sequence, 2);
   mode = 'repair'; sequence = 0; await upload('import-table.docx'); assert.equal(sequence, 2);

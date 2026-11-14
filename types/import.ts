@@ -147,7 +147,7 @@ export const importSystemFields = [
 
 export type ImportSystemFieldKey = (typeof importSystemFields)[number]["key"];
 export type ImportMapping = Partial<Record<ImportSystemFieldKey, string>>;
-export type ImportFileType = "xlsx" | "docx" | "pdf";
+export type ImportFileType = "xlsx" | "docx" | "pdf" | "txt";
 export type ImportStage = "SCHOOL" | "PROVINCE";
 
 export type ImportEvidenceBlock = { id: string; text: string; page: number | null; section: string };
