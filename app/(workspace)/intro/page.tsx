@@ -26,8 +26,10 @@ export default async function CompetitionIntroPage() {
   const user = await getActiveUser();
   if (!user) redirect("/login");
 
+  // 简介页是对外展示页：草稿/已下架一律不出现，管理员也不例外。
+  // 管理员需要预览草稿请走「赛事与报名」（/competitions，那里有发布状态列）或直接访问 /intro/{id}。
   const competitions = await prisma.competition.findMany({
-    where: user.role === "ADMIN" ? {} : { publishStatus: "PUBLISHED" },
+    where: { publishStatus: "PUBLISHED" },
     orderBy: [{ year: "desc" }, { name: "asc" }],
     select: {
       id: true,
@@ -51,6 +53,11 @@ export default async function CompetitionIntroPage() {
           <p className="mt-1 max-w-2xl text-sm text-slate-500">
             先弄清楚每个赛事是干什么的、有哪些赛道、要经过哪些环节，再决定报哪一个。点开卡片看完整介绍。
           </p>
+          {user.role === "ADMIN" ? (
+            <p className="mt-2 text-xs text-slate-400">
+              这里只展示已发布赛事；草稿与已下架赛事请在「赛事与报名」中查看或预览。
+            </p>
+          ) : null}
         </div>
         <Link
           href="/competitions"

@@ -67,11 +67,12 @@ const administration = [
   { href: "/admin/logs", label: "审计日志", icon: FileText },
 ];
 
-export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: number; changes: number; teamRequests: number } }) {
+export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: number; changes: number; teamRequests: number; adminUsers: number } }) {
   const pathname = usePathname();
   const navigation = navigationFor(roles);
   const pendingTodo = badges ? badges.review + badges.changes : 0;
   const teamRequests = badges?.teamRequests ?? 0;
+  const adminUsers = badges?.adminUsers ?? 0;
   const pendingTitle = badges ? `待审核项目 ${badges.review} 个 · 待审批变更 ${badges.changes} 条` : undefined;
   const mobileNavigation = [
     ...navigation.slice(0, 4),
@@ -144,6 +145,14 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
                         className="ml-auto rounded-full bg-red-600 px-1.5 text-[11px] font-medium leading-4 text-white"
                       >
                         {pendingTodo}
+                      </span>
+                    ) : null}
+                    {item.href === "/admin/users" && adminUsers > 0 ? (
+                      <span
+                        title={`待审核的管理员申请 ${adminUsers} 个`}
+                        className="ml-auto rounded-full bg-red-600 px-1.5 text-[11px] font-medium leading-4 text-white"
+                      >
+                        {adminUsers}
                       </span>
                     ) : null}
                   </Link>

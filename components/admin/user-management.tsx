@@ -8,22 +8,41 @@ import type { ApiResponse } from "@/types/api";
 import { formatDate } from "@/lib/presentation";
 import type { ManagedUser } from "@/types/user";
 
-type UserAction = { action: "APPROVE" } | { action: "REJECT" } | { action: "UPDATE_ROLE"; role: Role; roles: Role[] };
+type UserAction =
+  | { action: "APPROVE" }
+  | { action: "REJECT" }
+  | { action: "UPDATE_ROLES"; roles: Role[] };
 
-function roleDrafts(users: ManagedUser[]): Record<string, Role> {
-  return Object.fromEntries(users.map((user) => [user.id, user.role] as const));
+const IDENTITY_OPTIONS: Array<{ key: Role; label: string }> = [
+  { key: "STUDENT", label: "学生" },
+  { key: "TEACHER", label: "指导教师" },
+  { key: "ADMIN", label: "管理员" },
+];
+
+function pickIdentities(roles: Role[]): Role[] {
+  return IDENTITY_OPTIONS.map((option) => option.key).filter((key) => roles.includes(key));
+}
+
+function identityDrafts(users: ManagedUser[]): Record<string, Role[]> {
+  return Object.fromEntries(users.map((user) => [user.id, pickIdentities(user.roles)] as const));
+}
+
+function sameIdentities(a: Role[], b: Role[]): boolean {
+  return a.length === b.length && a.every((item) => b.includes(item));
 }
 
 export function UserManagement({
   initialUsers,
   currentUserId,
+  activeRole,
 }: {
   initialUsers: ManagedUser[];
   currentUserId: string;
+  activeRole: Role;
 }) {
   const router = useRouter();
   const [users, setUsers] = useState(initialUsers);
-  const [draftRoles, setDraftRoles] = useState<Record<string, Role>>(() => roleDrafts(initialUsers));
+  const [draftRoles, setDraftRoles] = useState<Record<string, Role[]>>(() => identityDrafts(initialUsers));
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -42,8 +61,10 @@ export function UserManagement({
       if (!response.ok || result.code !== 0) {
         throw new Error(result.message || "操作失败");
       }
-      setUsers(result.data);
-      setDraftRoles(roleDrafts(result.data));
+      // 接口返回的是全量列表，这里按当前分类过滤，避免操作后突然冒出其他身份的人
+      const scoped = result.data.filter((item) => item.roles.includes(activeRole));
+      setUsers(scoped);
+      setDraftRoles(identityDrafts(scoped));
       setNotice(result.message);
       router.refresh();
     } catch (caught: unknown) {
@@ -51,6 +72,14 @@ export function UserManagement({
     } finally {
       setPendingId(null);
     }
+  }
+
+  function toggleIdentity(userId: string, role: Role) {
+    setDraftRoles((current) => {
+      const picked = current[userId] ?? [];
+      const next = picked.includes(role) ? picked.filter((item) => item !== role) : [...picked, role];
+      return { ...current, [userId]: next };
+    });
   }
 
   return (
@@ -63,7 +92,7 @@ export function UserManagement({
             <tr>
               <th className="px-4 py-3 font-medium">用户</th>
               <th className="px-4 py-3 font-medium">手机号</th>
-              <th className="px-4 py-3 font-medium">角色</th>
+              <th className="px-4 py-3 font-medium">身份（可多选）</th>
               <th className="px-4 py-3 font-medium">审核状态</th>
               <th className="px-4 py-3 font-medium">审核信息</th>
               <th className="px-4 py-3 font-medium">创建时间</th>
@@ -71,10 +100,18 @@ export function UserManagement({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
+            {users.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="px-4 py-10 text-center text-sm text-slate-500">
+                  该分类下暂无账号。
+                </td>
+              </tr>
+            ) : null}
             {users.map((user) => {
               const pending = pendingId === user.id;
               const isCurrentUser = user.id === currentUserId;
-              const draftRole = draftRoles[user.id] ?? user.role;
+              const draft = draftRoles[user.id] ?? pickIdentities(user.roles);
+              const changed = !sameIdentities(draft, pickIdentities(user.roles));
               return (
                 <tr key={user.id} className="text-slate-700">
                   <td className="px-4 py-4">
@@ -86,29 +123,39 @@ export function UserManagement({
                   </td>
                   <td className="px-4 py-4">{user.phone}</td>
                   <td className="px-4 py-4">
-                    <select
-                      aria-label={`修改${user.name}的角色`}
-                      value={draftRole}
-                      disabled={pending || isCurrentUser}
-                      onChange={(event) => {
-                        const role = event.target.value;
-                        if (role === "ADMIN" || role === "STUDENT" || role === "TEACHER" || role === "USER") {
-                          setDraftRoles((current) => ({ ...current, [user.id]: role }));
-                        }
-                      }}
-                      className="h-9 rounded-lg border border-slate-300 bg-white px-2 text-xs disabled:bg-slate-100"
-                    >
-                      <option value="ADMIN">管理员</option>
-                      <option value="STUDENT">学生</option>
-                      <option value="TEACHER">指导教师</option>
-                      <option value="USER">普通用户</option>
-                    </select>
+                    <div className="flex flex-wrap gap-1.5">
+                      {IDENTITY_OPTIONS.map((option) => {
+                        const checked = draft.includes(option.key);
+                        return (
+                          <button
+                            key={option.key}
+                            type="button"
+                            aria-pressed={checked}
+                            disabled={pending || isCurrentUser}
+                            onClick={() => toggleIdentity(user.id, option.key)}
+                            title={isCurrentUser ? "不能修改当前登录账号的身份" : undefined}
+                            className={`h-7 rounded-full border px-2.5 text-xs transition disabled:cursor-not-allowed disabled:opacity-60 ${
+                              checked
+                                ? "border-blue-200 bg-blue-50 font-medium text-blue-700"
+                                : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
+                            }`}
+                          >
+                            {option.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <div className="mt-1 text-xs text-slate-400">
+                      {draft.length > 1 ? `多身份：${draft.map((item) => IDENTITY_OPTIONS.find((option) => option.key === item)?.label).join(" + ")}` : "单一身份"}
+                    </div>
                   </td>
                   <td className="px-4 py-4">
                     <span className={`inline-flex rounded-full px-2 py-1 text-xs ${user.approvalStatus === "APPROVED" ? "bg-green-50 text-green-700" : user.approvalStatus === "REJECTED" ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-700"}`}>
                       {user.approvalStatus === "APPROVED" ? "已审核" : user.approvalStatus === "REJECTED" ? "已驳回" : "待审核"}
                     </span>
-                    <div className="mt-1 text-xs text-slate-500">{user.roles.map((item) => (item === "ADMIN" ? "管理员" : item === "STUDENT" ? "学生" : item === "TEACHER" ? "指导教师" : "普通用户")).join(" + ")}</div>
+                    <div className="mt-1 text-xs text-slate-500">
+                      {user.roles.map((item) => (item === "ADMIN" ? "管理员" : item === "STUDENT" ? "学生" : item === "TEACHER" ? "指导教师" : "普通用户")).join(" + ")}
+                    </div>
                   </td>
                   <td className="px-4 py-4 text-xs text-slate-500">
                     {user.approvedBy ? <div>{user.approvedBy}</div> : "—"}
@@ -131,9 +178,9 @@ export function UserManagement({
                       </Button>
                       <Button variant="default" size="sm"
                         type="button"
-                        disabled={pending || isCurrentUser || draftRole === user.role}
-                        onClick={() => updateUser(user.id, { action: "UPDATE_ROLE", role: draftRole, roles: [...new Set<Role>([draftRole, ...user.roles])] })} >
-                        {pending ? "处理中…" : "保存角色"}
+                        disabled={pending || isCurrentUser || !changed || draft.length === 0}
+                        onClick={() => updateUser(user.id, { action: "UPDATE_ROLES", roles: draft })} >
+                        {pending ? "处理中…" : "保存身份"}
                       </Button>
                     </div>
                   </td>

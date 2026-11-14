@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, stat, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import mammoth from "mammoth";
 import pdfParse from "pdf-parse/lib/pdf-parse.js";
@@ -249,8 +249,24 @@ function sourcePath(sourceKey: string, fileName: string) {
   return resolved;
 }
 
+async function cleanupImportSources() {
+  try {
+    const files = await readdir(importSourceDirectory, { withFileTypes: true });
+    const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    for (const file of files) {
+      if (!file.isFile()) continue;
+      const filePath = path.join(importSourceDirectory, file.name);
+      const metadata = await stat(filePath);
+      if (metadata.mtimeMs < cutoff) await unlink(filePath);
+    }
+  } catch (error) {
+    console.error("清理导入源文件失败：", error);
+  }
+}
+
 async function storeImportSource(file: File, fileType: ImportFileType) {
   await mkdir(importSourceDirectory, { recursive: true });
+  await cleanupImportSources();
   const sourceKey = `${randomUUID()}.${fileType}`;
   await writeFile(sourcePath(sourceKey, file.name), Buffer.from(await file.arrayBuffer()), { flag: "wx" });
   return sourceKey;

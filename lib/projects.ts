@@ -192,6 +192,8 @@ export async function getProjectDetail(id: string, role: Role): Promise<ProjectD
           role: true,
           joinedAt: true,
           leftAt: true,
+          phone: true,
+          email: true,
         },
       },
       memberSnapshots: {

@@ -101,7 +101,16 @@ body {
    PageTransition 用 pathname 做 key，导航时重挂载内容区，动画每次都会重播。 */
 .page-enter > * > *,
 .page-enter > * > .grid > * {
-  animation: page-fade-up 460ms ease-out both;
+  /* 用 backwards 而不是 both：动画结束后不保留终态 transform。
+     transform 一旦残留（哪怕 translateY(0)），就会给 fixed 弹窗创建新的包含块，
+     弹窗会被"关"进区块里、遮罩只盖住半个屏（新建赛事/驳回/添加成员都受影响）。 */
+  animation: page-fade-up 460ms ease-out backwards;
+}
+
+/* 区块里存在弹窗时整体不做入场动画，彻底避免 transform 成为 fixed 的包含块 */
+.page-enter > * > *:has([role="dialog"]),
+.page-enter > * > .grid > *:has([role="dialog"]) {
+  animation: none;
 }
 
 .page-enter > * > *:nth-child(1),
@@ -241,6 +250,27 @@ body {
   .blur-text span[aria-hidden="true"] {
     filter: none !important;
     opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+
+  .no-print,
+  nav,
+  aside,
+  header,
+  button {
+    display: none !important;
+  }
+
+  .page-enter > * > *,
+  .page-enter > * > .grid > * {
+    animation: none !important;
     transform: none !important;
   }
 }

@@ -28,7 +28,12 @@ export async function getAdminAwardPage(filters: {
   page: number;
   pageSize: number;
 }): Promise<AdminAwardPage> {
-  const where: Prisma.ProjectWhereInput = { deletedAt: null };
+  // 列表与保存用同一口径：只列已通过校级终审及以上的项目。
+  // 已存在奖项的项目额外保留，避免终审状态变化后无法再修正旧奖项。
+  const where: Prisma.ProjectWhereInput = {
+    deletedAt: null,
+    OR: [{ status: { in: eligibleStatuses } }, { awards: { some: {} } }],
+  };
   if (filters.competitionId) where.competitionId = filters.competitionId;
   if (filters.college) where.college = filters.college;
   if (filters.level) where.awards = { some: { awardLevel: filters.level } };

@@ -9,7 +9,7 @@ import { prisma } from "@/lib/prisma";
 import { syncAttachment } from "@/lib/attachment-knowledge";
 
 type Context = { params: { id: string } };
-type Extension = "pdf" | "docx" | "doc" | "xlsx" | "jpg" | "jpeg" | "png" | "txt";
+type Extension = "pdf" | "docx" | "doc" | "xlsx" | "jpg" | "jpeg" | "png" | "txt" | "mp4" | "webm";
 
 const maxFileSize = 20 * 1024 * 1024;
 const mimeTypes: Record<Extension, string> = {
@@ -21,6 +21,8 @@ const mimeTypes: Record<Extension, string> = {
   jpeg: "image/jpeg",
   png: "image/png",
   txt: "text/plain",
+  mp4: "video/mp4",
+  webm: "video/webm",
 };
 
 function startsWith(buffer: Buffer, values: number[]) {
@@ -35,6 +37,8 @@ function validHeader(extension: Extension, buffer: Buffer) {
   if (extension === "docx" || extension === "xlsx") {
     return startsWith(buffer, [0x50, 0x4b, 0x03, 0x04]) || startsWith(buffer, [0x50, 0x4b, 0x05, 0x06]) || startsWith(buffer, [0x50, 0x4b, 0x07, 0x08]);
   }
+  if (extension === "mp4") return buffer.toString("ascii", 4, 8) === "ftyp";
+  if (extension === "webm") return startsWith(buffer, [0x1a, 0x45, 0xdf, 0xa3]);
   if (buffer.includes(0)) return false;
   try {
     new TextDecoder("utf-8", { fatal: true }).decode(buffer);
@@ -68,11 +72,11 @@ export async function POST(request: NextRequest, { params }: Context) {
     if (replacesAttachmentId && kind !== "NOTICE" && kind !== "RULE") return apiError(422, "仅通知或规程可替换旧版规则");
     const title = typeof titleValue === "string" ? titleValue.trim() : "";
     if (!title) return apiError(422, "请填写文件标题");
-    if (kind !== "NOTICE" && kind !== "RULE" && kind !== "TEMPLATE") return apiError(422, "文件类型不正确");
+    if (kind !== "NOTICE" && kind !== "RULE" && kind !== "TEMPLATE" && kind !== "VIDEO") return apiError(422, "文件类型不正确");
     if (!(file instanceof File)) return apiError(422, "请选择上传文件");
     if (file.size === 0 || file.size > maxFileSize) return apiError(422, "文件必须大于 0 且不超过 20MB");
     const extension = (file.name.split(".").pop() ?? "").toLowerCase() as Extension;
-    if (!Object.hasOwn(mimeTypes, extension)) return apiError(422, "仅支持 pdf/docx/doc/xlsx/jpg/jpeg/png/txt 文件");
+    if (!Object.hasOwn(mimeTypes, extension)) return apiError(422, "仅支持 pdf/docx/doc/xlsx/jpg/jpeg/png/txt/mp4/webm 文件");
     if (file.type !== mimeTypes[extension]) return apiError(422, "文件 MIME 与扩展名不匹配");
     const buffer = Buffer.from(await file.arrayBuffer());
     if (buffer.length === 0 || buffer.length > maxFileSize) return apiError(422, "文件大小不符合要求");

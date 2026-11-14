@@ -2,6 +2,142 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-14 修复：敏感字段占位密文导致导出 500
+
+- 现象：线上 `/api/export/form?full=0` 与 `full=1` **都**返回 500「导出报名表失败」，日志 `密文解密失败，密文可能已篡改或密钥不匹配`。
+- 根因：`prisma/seed.ts:321-322` 早期版本写死了 `DEV_ID_CIPHERTEXT_n` / `DEV_CARD_CIPHERTEXT_n` 占位字符串，不是 `v1:iv:tag:data` 格式，`decryptField()` 解析即抛错。本地库 **9 条身份证 + 9 条银行卡全部是占位值**（`PayeeBank` 共 19 行）。
+- 影响面比报名表更大：`lib/form-export.ts` 与 `lib/dataset-export.ts` 都裸调 `decryptField`，数据表导出同样会失败；`lib/apply.ts:435` 早有 try/catch 兜底（返回「密文不可用」），所以审核列表不受影响。
+- 修复 1（止血）：`sensitive()` 与 `sensitiveValue()` 按 `apply.ts` 同口径包 try/catch，单字段解密失败降级为「密文不可用」并 `console.warn`，不再让整份导出 500。
+- 修复 2（防复发）：`prisma/seed.ts` 改用 `encryptField()` 生成真实密文（18 位身份证 / 19 位卡号，按 `globalIndex` 确定性生成）。
+- 修复 3（回填）：新增 `scripts/fix-payee-ciphertexts.mjs`——默认 dry-run 只打印 SQL；`--apply` 先备份库并校验大小，再按 `rowid` 回填真实密文；幂等（`AND ... LIKE 'DEV!_%'`）；跑完打印剩余占位值数量与回滚命令。
+- 验证：`tsc.cmd --noEmit` 0 错误；`npm.cmd run lint` 0 错误 0 警告；`node --check` 通过。**未执行脚本、未连接生产库**。
+
+## 2026-11-13 D 阶段 S12 · 报名表 A4 打印页
+
+- 抽取纯 buildFormRows，xlsx 12 列写入与打印页共用标题、分节、签字位和水印；/api/export/form 未改。
+- 新增 A4 打印组件及 force-dynamic 服务端页面，window.print 调浏览器另存 PDF；详情入口新窗口打开。
+- 权限复用 canExportFullForm/canAccessProject，完整版沿用黄色确认条 + full=1 并记录敏感访问，默认脱敏。
+- globals 仅新增打印规则，隐藏 no-print/nav/aside/header/button，并禁用 page-enter 动画和位移。
+- 验证：tsc/lint 全绿；导出路由 diff 为空；mock 对比脱敏/完整 xlsx 工作表一致。未跑 build/dev、浏览器打印或实际下载，未 push。
+
+## 2026-11-13 D 阶段 S11 · 确认一半指导关系（仅脚本）
+
+- 新增默认 dry-run 的确认脚本，按 projectId 升序选取前 ceil(N/2) 个未确认项目。
+- --apply 先复制并校验 db 大小，再导出原始 CSV，最后事务更新且带 confirmStatus 幂等条件。
+- Dry-run：`bash scripts/confirm-half-teachers.sh --db /srv/kesai/shared/data/app.db`
+- Apply：`bash scripts/confirm-half-teachers.sh --db /srv/kesai/shared/data/app.db --apply`
+- 验证：`sqlite3 /srv/kesai/shared/data/app.db "select confirmStatus, count(*) from Teacher group by confirmStatus;"`
+- 回滚：脚本头部给出同一 CSV 可重复执行的完整 sqlite3 命令。
+- 验证：Git bash -n 无输出；tsc/lint 全绿。脚本未执行，未连接任何数据库，未 push。
+
+## 2026-11-13 D 阶段 S10 · 部署脚本入库
+
+- 新增 scripts/deploy-server.sh，正文经 cmp 与服务器验证版一致，仅补用途、两种用法和前置条件注释。
+- 无参数只构建新 release；switch 切 current、重启、健康检查并打印回滚命令。
+- 保留 app.env 不覆盖、ln -sfn、storage/sealed、仅 migrate resolve 及 last/prev release 记录。
+- README 第八节改为指向入库脚本，不再手工粘贴 /root/kesai-deploy.sh。
+- 验证：Git bash -n 无输出；tsc/lint 全绿。未执行部署脚本，未跑 build/dev，未 push。
+
+## 2026-11-13 D 阶段 S9 · 组别/类别文案与解析预览
+
+- 新增模块级 parseLabels，保存与实时预览共用同一解析规则；支持分隔符、去空白和去空项行为不变。
+- 两处标签明确支持一行一个或顿号/逗号；空结果不显示预览，超过 8 项仅展示前 8 项并标注等 N 项。
+- 未改保存接口或 admin-tracks 策略，未新增依赖或弹层。
+- 验证：tsc.cmd --noEmit 0 错误；npm.cmd run lint 0 错误 0 警告。未跑 build/dev，未做页面交互验证，未 push。
+
+## 2026-11-13 D 阶段 S8 · 放开宣传片上传
+
+- 上传接口新增 mp4/webm 扩展名、MIME、魔数和 VIDEO 类型校验；20MB 上限及既有同步流程不变。
+- 视频经既有 kind 门禁置为 SKIPPED，专用提示「宣传片不参与问答解析」，不进入 readKnowledgeAttachment。
+- 文档已有 client_max_body_size 25m，未重复添加；服务器需核查 /etc/nginx/sites-enabled/kesai-public。
+- 验证：tsc.cmd --noEmit 0 错误；npm.cmd run lint 0 错误 0 警告。未跑 build/dev，未实际上传视频，未 push。
+
+## 2026-11-13 进度条收为三阶段 + 修驳回层级错位
+
+- `components/project/project-progress.tsx`：进度轴由 5 段收为 3 段（提交 / 学院初审 / 学校终审）。依据：`nextStatus()` 只产出 `PENDING`/`COLLEGE_REVIEW`/`SCHOOL_FINAL`/`REJECTED`，`PROVINCE_ADVANCED` 与 `NATIONAL_ADVANCED` 在**全库没有写入路径**（只在文案、筛选、统计、录奖资格里被读取），画出来永远是灰色。
+- 顺带修 S6 遗留缺陷：驳回时 `current` 曾固定取 `config.current=1`，导致**学校终审驳回也会把「已驳回」标签挂在「学院初审」下面**。改为按 `rejectedStage` 取 1 / 2 / -1。
+- 那两个状态若真出现（需手工改库），表现改为三段全亮 + 末端绿字「已晋级省赛 / 已晋级国赛」，不再错位；为此把末端标签颜色从"只分灰/红"改为按状态取色。
+- 同步更新 README 与 `docs/服务器上线步骤.md` 里的"五阶段"表述。
+- 验证：`tsc.cmd --noEmit` 0 错误；`npm.cmd run lint` 0 错误 0 警告。未跑 build/dev。
+
+## 2026-11-13 文档收口 · README 重写 + 服务器上线手册
+
+- 重写 `README.md`（132 → 约 240 行）：补上组队板块、个人中心、AI 问答、五阶段进度条、审核预检等本轮新增能力；补全演示账号（5 个）、真实路由表（28 条，来自 `app/(workspace)` 实际页面）、C 阶段四项安全设计（盖章件收口 / 登录限流 / 安全响应头 / 健康检查）。
+- 新增 `docs/服务器上线步骤.md`：12 步操作手册（勘察 → 备份 → 数据软链 → 盖章件同批搬迁 → 拉代码与 Prisma 引擎 → 基线登记 → 构建重启 → systemd → Nginx/HTTPS → 验证清单 → 回滚 → 故障排查表），每步含判断标准与"只做一半会怎样"。与 `docs/deploy.md`（原理参考）分工：这份照敲，那份查原理。
+- 三条反复强调的硬顺序写进 README 第八节：数据三处软链、盖章件搬迁必须与 `git pull` 同批、已有库先 `migrate resolve` 不能 `migrate deploy`、先打通 HTTPS 再验登录。
+- 仅文档改动，无代码变更。`tsc.cmd --noEmit` 0 错误；`npm.cmd run lint` 0 错误 0 警告。
+
+## 2026-11-13 C 阶段收尾 · 预检排除退队成员 + 本地盖章件搬迁
+
+- `lib/review.ts` 的 `getAuditPreflight` 在查 `teamMembers` 时补 `where: { leftAt: null }`，与 `canAccessProject` 同口径。此前已退队成员会被算进「学号重复」和「负责人手机号」判断，产生 amber 误报。仅此一行，预检逻辑与阻断语义未变。
+- 本地把 `public/uploads/sealed/12fe217b-.../` 下 2 个 PNG（58,170B / 68,376B）搬到 `storage/sealed/`，与 S1 的新 `sealedDirectory` 对齐，否则本地这 2 个盖章件下载 404。两处均在 .gitignore 内，不产生 git 变更。**服务器上线需按 `docs/deploy.md` 做同样搬迁，且必须与 `git pull` 同批**：只上代码则老文件 404，只搬文件则新上传仍写回 `public/uploads/sealed`。
+- 构建已由用户执行通过：`npm run build` 成功，`BUILD_ID=yiczkTm6n74_O-79-YgJb`，`/api/health` 与 `/api/review/[id]/preflight` 均已编译进 `app-path-routes-manifest.json`。
+- 验证：`tsc.cmd --noEmit` 0 错误；`npm.cmd run lint` 0 错误 0 警告。已 push 到 `origin/integration/ui-polish-qa`（`3d30ad6..6a034b6`，18 个提交）。
+- 补 `docs/deploy.md` 关键缺口：服务器上已有由 `db push` 建出的库（有 32 表、真实数据，但**没有** `_prisma_migrations`），直接跑 `migrate deploy` 会因 `0_init` 重放而报 `table User already exists`。正确做法是先 `npx prisma migrate resolve --applied 20261113000000_init` 登记基线（只写迁移记录、不动数据），判据用 `npx prisma migrate status`。
+
+## 2026-11-13 C 阶段 S7 · 审核规则预检（只提示，不阻断）
+
+- 新增只读 `getAuditPreflight`：复用 `assertTeachersConfirmed` 并把 422 转为 error 项，检查盖章件、重复学号、负责人手机号与学院一致性；不改原门槛签名或语义。
+- 新增动态管理员预检 API；工作台按卡片点击「重新预检」，error 红条、warn 琥珀条、无问题 emerald 条，不自动整页请求。
+- 预检不参与单条或批量通过决策，原 `reviewProject` 422 门槛与批量委托路径保持不变，未改已有查询 where。
+- 验证：`tsc.cmd --noEmit` 0 错误；`npm.cmd run lint` 0 错误 0 警告。未跑 build/dev，未做 API 或页面运行时验证，未 push。
+
+## 2026-11-13 C 阶段 S6 · 项目进度条
+
+- 新增服务端 `ProjectProgress`，以现有 surface/ink/brand/line 与 StatusBadge 配色渲染 5 段轴，无动画、无新增依赖。
+- 列表每行只传 `reviewStatus`，驳回时学院初审与学校终审双节点标红，不查询 Review、不产生 N+1，也不猜级别。
+- 详情仅在 REJECTED 时查询最近一次驳回的 `level` 并精确标红；WITHDRAWN 整体灰，DRAFT 只亮第一段。
+- 验证：`tsc.cmd --noEmit` 0 错误；`npm.cmd run lint` 0 错误 0 警告。未跑 build/dev，未做页面运行时验证，未 push。
+
+## 2026-11-13 C 阶段 S5 · 自检脚本 + 部署文档
+
+- 新增纯 HTTP `scripts/smoke.cjs` 共 10 项检查：锁定测试默认 SKIP，仅 `--include-lockout` 执行并打印警告；无本人帖子时第 9 项 SKIP，不造数据；任一 FAIL 退出码为 1。
+- 新增 `docs/deploy.md`，覆盖 Linux 依赖与 Prisma 引擎、数据软链、盖章件同批搬迁、有效 HTTPS/HSTS、systemd/Nginx、首次 migrate deploy、构建门禁及回滚。
+- `package.json` 仅新增 `smoke` script，依赖未改。
+- 验证：`tsc.cmd --noEmit` 0 错误；`npm.cmd run lint` 0 错误 0 警告；`node --check scripts/smoke.cjs` 通过。未启动服务或执行实时冒烟，未跑 build/dev，未 push。
+
+## 2026-11-13 C 阶段 S4 · migrations 基线 + 导入源文件清理
+
+- 由指定 `prisma migrate diff` 命令原样生成 698 行 SQLite 基线 SQL，并新增 `migration_lock.toml`；未手写 SQL，未执行 `migrate dev/deploy/reset`，未修改 schema。
+- 导入源文件写入前按 `mtime` 清理 7 天前的普通文件；清理异常仅 `console.error`，不阻断导入，业务校验逻辑未改。
+- 验证：`tsc.cmd --noEmit` 0 错误；`npm.cmd run lint` 0 错误 0 警告。`git status --short` 无 `*.db` 或 schema 改动，未跑 build/dev，未 push。
+
+## 2026-11-13 C 阶段 S3 · 安全响应头 + `/api/health`
+
+- `next.config.mjs` 全站返回四项安全响应头，HSTS 仅生产环境启用；明确不配置 CSP，避免 Next 内联脚本被拦截。
+- 新增动态 `/api/health`：复用现有 `prisma` 执行 `SELECT 1`，成功返回 `{status:"ok",db:"ok",ts}`，失败返回固定 `degraded` 响应与 503，不暴露异常详情。
+- `middleware.ts` 仅修改第 31 行提前放行 `/api/health`，供无会话监控探活；其余访问控制与 matcher 未改。
+- 验证：`tsc.cmd --noEmit` 0 错误；`npm.cmd run lint` 0 错误 0 警告。未跑 build/dev，未 push，未发起 HTTP 探活。
+
+## 2026-11-13 C 阶段 S2 · 登录限流 + Cookie secure
+
+- 新增内存滑动窗口：只计失败、不计尝试；手机号存在的失败按 `login:${phone}` 限 5 次/15 分钟，全部登录失败按 `login-ip:${ip}` 限 20 次/15 分钟；超限返回 429，成功登录清空两个桶。
+- 已存在用户的密码错误、待审核、驳回登录写 `LOGIN_FAILED`，actor/target 均为该用户；手机号不存在不写审计，仅记录中间四位脱敏的 `console.warn`，不含密码、哈希或请求头原文。
+- Cookie `secure` 按 `x-forwarded-proto` → `request.nextUrl.protocol` → `NODE_ENV` 回退，其余属性不变。
+- 验证：`tsc.cmd --noEmit` 0 错误；`npm.cmd run lint` 0 错误 0 警告。未跑 build/dev，未 push。
+- 限制：同一 IP 大量并发成功登录不会被误伤；多实例各自计数会分散限流，需改用 Redis 等共享存储。
+
+## 2026-11-13 C 阶段 S1 · 盖章件 URL 收口
+
+- `sealedDirectory` 从 `public/uploads/sealed` 迁至 `storage/sealed`；`.gitignore` 新增 `storage/sealed/`，保留 `storage/imports/`。
+- 数据库 `SealedFile.filePath` 保持 `/uploads/sealed/...` 逻辑路径；`resolveSealedFilePath()` 继续剥离前缀并解析到 `sealedDirectory`，不做数据迁移。
+- 全文搜索确认不再有 `public` + `uploads` + `sealed` 的物理路径拼接。
+- 验证：`tsc.cmd --noEmit` 0 错误；`npm.cmd run lint` 0 错误 0 警告。未跑 build/dev，未 push。
+- 部署时需人工将既有盖章件从 `public/uploads/sealed` 一次性搬到 `storage/sealed`。
+
+## 2026-11-13 界面与权限收口（8 个提交，均为用户实测发现的问题）
+
+- `d31162f` **弹窗错乱**：`.page-enter > * > *` 的入场动画用 `both` 保留终态 `transform`，给 `fixed` 弹窗造了包含块，弹窗被"关"进区块、遮罩只盖半屏（新建赛事/驳回/添加成员全中）。改为 `backwards` + `:has([role="dialog"])` 跳过动画。**以后加动画注意：不能给弹窗祖先留非 none 的 transform。**
+- `14403d5` **赛事简介出现草稿**：`/intro` 原按身份放行（管理员看全部）。改为一律只展示 `PUBLISHED`，管理员预览走 `/competitions`；页内加说明。
+- `ba3eb1c` **奖项录入列全量项目**：保存时校验 `eligibleStatuses`，列表查询却只有 `{deletedAt:null}`。列表改为同一口径（`OR: eligible 状态 / 已有奖项`），258 → 8 条。
+- `6f03af8` **用户管理三类分组**：`listManagedUsers(scope)` 按"主角色或附加角色命中"过滤，学生 818 / 教师 53 / 管理员 1；多身份在两个分类重复出现；管理员注册申请（`approvalStatus=PENDING ∧ role=ADMIN`）在侧栏「用户管理」与页内 tab 出红点，有申请时默认落在管理员分类。
+- `cad0fbb` **切 tab 列表不刷新**：客户端组件 `useState(initialUsers)` 初值只算一次，`?role=` 变化时实例被复用。加 `key={activeRole}` 强制重挂载。**同类隐患：凡是用 props 初始化 state 的组件都要考虑 key 或同步。**
+- `ba2b0e5` **双身份**：后端 `UserRoleLink` 一直支持，但前端只有单主角色下拉。改为三个身份按钮多选 → `UPDATE_ROLES`（按集合同步：主角色保留、其余写附加角色、审计记录前后集合）。
+- `732e907` **教师点项目名 403**：`/teacher` 把项目名链到了 `/review/{id}`（管理员审核页）。改链 `/projects/{id}`；教师页准入改按 `roles.includes("TEACHER")`；新增 `/forbidden` 友好页，中间件页面级拒绝统一 `rewrite` 到它。
+- `6bc0949` **项目详情显示负责人联系方式**：`TeamMember.phone/email` 已在库（258/258 有手机号），只在教师/管理员视角渲染负责人那一行，学生视角不渲染。
+
+**纪律提醒**：本轮全部改动 `tsc` + `lint` 均 0 错误；**未跑 build、未 push、未改 schema**。
+
 ## 2026-11-09 组队：待处理申请红点提醒
 
 - commit `5eecff4`（3 文件 +37/−5）：学生导航新增「我的组队」→ `/my/teams`；`lib/pending.ts` 新增 `getTeamPendingRequests(userId)`（统计我发布的、未下架帖子中 `status=PENDING` 的申请）；`AppShell` 统一产出 `{review, changes, teamRequests}`；`Sidebar` 在「我的组队」右侧渲染红色数字 + 悬停提示「待处理入队申请 N 条」。

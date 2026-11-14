@@ -23,6 +23,9 @@ export default async function ProjectDetailPage({ params, searchParams }: PagePr
   const project = await getProjectDetail(params.id, user.role);
   if (!project) notFound();
 
+  // 联系方式只在教师/管理员视角展示（教师确认指导关系、管理员核验时需要联系负责人）
+  const canSeeContact = user.roles.includes("TEACHER") || user.roles.includes("ADMIN");
+
   return (
     <div className="space-y-6">
       <BreadcrumbTitle label={project.name} />
@@ -102,18 +105,38 @@ export default async function ProjectDetailPage({ params, searchParams }: PagePr
                 <th className="px-4 py-3 font-medium">姓名</th>
                 <th className="px-4 py-3 font-medium">学号</th>
                 <th className="px-4 py-3 font-medium">角色</th>
+                {canSeeContact ? <th className="px-4 py-3 font-medium">负责人联系方式</th> : null}
                 <th className="px-4 py-3 font-medium">加入时间</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {project.members.map((member) => (
-                <tr key={member.id} className="text-slate-700">
-                  <td className="px-4 py-3 font-medium text-slate-900">{member.name}</td>
-                  <td className="px-4 py-3">{member.personNo}</td>
-                  <td className="px-4 py-3">{memberRoleLabels[member.role]}</td>
-                  <td className="px-4 py-3">{formatDate(member.joinedAt)}</td>
-                </tr>
-              ))}
+              {project.members.map((member) => {
+                const isLeader = member.role === "LEADER";
+                return (
+                  <tr key={member.id} className="text-slate-700">
+                    <td className="px-4 py-3 font-medium text-slate-900">{member.name}</td>
+                    <td className="px-4 py-3">{member.personNo}</td>
+                    <td className="px-4 py-3">{memberRoleLabels[member.role]}</td>
+                    {canSeeContact ? (
+                      <td className="px-4 py-3 text-xs">
+                        {isLeader ? (
+                          member.phone || member.email ? (
+                            <div className="space-y-0.5">
+                              {member.phone ? <div className="text-slate-900">{member.phone}</div> : null}
+                              {member.email ? <div className="text-slate-500">{member.email}</div> : null}
+                            </div>
+                          ) : (
+                            <span className="text-slate-400">未填写</span>
+                          )
+                        ) : (
+                          <span className="text-slate-300">—</span>
+                        )}
+                      </td>
+                    ) : null}
+                    <td className="px-4 py-3">{formatDate(member.joinedAt)}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

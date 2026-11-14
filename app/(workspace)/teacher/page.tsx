@@ -19,7 +19,8 @@ const CONFIRM_LABELS: Record<string, string> = {
 export default async function TeacherPage() {
   const user = await getActiveUser();
   if (!user) redirect("/login");
-  if (user.role !== "TEACHER") redirect("/dashboard");
+  // 多身份用户（如教师 + 管理员）只要拥有 TEACHER 身份就该能进；按当前身份判断会把人挡在外面
+  if (!user.roles.includes("TEACHER")) redirect("/dashboard");
 
   const rows = await listTeacherProjects(user);
 
@@ -48,7 +49,8 @@ export default async function TeacherPage() {
               {rows.map((row) => (
                 <tr key={row.id} className="align-top text-slate-700">
                   <td className="max-w-64 px-4 py-3">
-                    <Link href={`/review/${row.projectId}`} className="font-medium text-slate-900 hover:text-blue-600">
+                    {/* 教师只能看项目详情；/review/{id} 是管理员审核页，链过去会被中间件拦成 403 */}
+                    <Link href={`/projects/${row.projectId}`} className="font-medium text-slate-900 hover:text-blue-600">
                       {row.projectName}
                     </Link>
                   </td>

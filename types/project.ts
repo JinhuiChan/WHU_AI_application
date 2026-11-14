@@ -49,6 +49,9 @@ export type ProjectMember = {
   role: MemberRole;
   joinedAt: string;
   leftAt: string | null;
+  /** 负责人联系方式：只在教师/管理员视角渲染，学生视角不显示 */
+  phone: string | null;
+  email: string | null;
 };
 
 export type SnapshotMember = {

@@ -9,8 +9,9 @@ import { writeAuditLog } from "@/lib/audit";
 import { globalLabel, loadScopedLabels, trackLabel } from "@/lib/dict-labels";
 import type { ScopedLabels } from "@/lib/dict-labels";
 import { optionalText, pageParams } from "@/lib/list-query";
-import { registrationStatusLabels } from "@/lib/presentation";
+import { auditPreflightMessages, registrationStatusLabels } from "@/lib/presentation";
 import { prisma } from "@/lib/prisma";
+import { listSealedFiles } from "@/lib/sealed";
 import type {
   ReviewBatchResult,
   ReviewDetail,
@@ -520,4 +521,64 @@ export async function batchReviewProjects(input: {
     }
   }
   return { success, failed };
+}
+
+export type AuditPreflightIssue = {
+  level: "error" | "warn";
+  code: string;
+  message: string;
+};
+
+export async function getAuditPreflight(projectId: string): Promise<AuditPreflightIssue[]> {
+  if (!projectId) throw new ReviewError(422, "项目 ID 不能为空");
+  const project = await prisma.project.findFirst({
+    where: { id: projectId, deletedAt: null },
+    select: {
+      id: true,
+      college: true,
+      owner: { select: { college: true, phone: true } },
+      teamMembers: { where: { leftAt: null }, select: { role: true, personNo: true, phone: true } },
+    },
+  });
+  if (!project) throw new ReviewError(404, "项目不存在");
+
+  const issues: AuditPreflightIssue[] = [];
+  try {
+    await assertTeachersConfirmed(prisma, projectId);
+  } catch (error) {
+    if (!(error instanceof ReviewError) || error.status !== 422) throw error;
+    issues.push({ level: "error", code: "TEACHERS_UNCONFIRMED", message: error.message });
+  }
+
+  const sealedFiles = await listSealedFiles(projectId);
+  if (sealedFiles.length === 0) {
+    issues.push({ level: "error", code: "SEALED_FILE_MISSING", message: auditPreflightMessages.sealedFileMissing });
+  }
+  if (sealedFiles.some((file) => file.isFinal && file.reviewResult === "REJECTED")) {
+    issues.push({ level: "error", code: "SEALED_FINAL_REJECTED", message: auditPreflightMessages.sealedFinalRejected });
+  }
+
+  const seenStudentNos = new Set<string>();
+  const hasDuplicateStudentNo = project.teamMembers.some((member) => {
+    const studentNo = member.personNo?.trim();
+    if (!studentNo) return false;
+    if (seenStudentNos.has(studentNo)) return true;
+    seenStudentNos.add(studentNo);
+    return false;
+  });
+  if (hasDuplicateStudentNo) {
+    issues.push({ level: "warn", code: "DUPLICATE_STUDENT_NO", message: auditPreflightMessages.duplicateStudentNo });
+  }
+
+  const leader = project.teamMembers.find((member) => member.role === "LEADER") ?? project.teamMembers[0];
+  if (!(leader?.phone || project.owner?.phone || "").trim()) {
+    issues.push({ level: "warn", code: "LEADER_PHONE_MISSING", message: auditPreflightMessages.leaderPhoneMissing });
+  }
+  const projectCollege = project.college.trim();
+  const leaderCollege = project.owner?.college?.trim() ?? "";
+  if (projectCollege && leaderCollege && projectCollege !== leaderCollege) {
+    issues.push({ level: "warn", code: "LEADER_COLLEGE_MISMATCH", message: auditPreflightMessages.leaderCollegeMismatch });
+  }
+
+  return issues;
 }

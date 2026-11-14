@@ -23,6 +23,19 @@ function activeLabels(options: OptionView[]) {
   return options.filter((item) => item.enabled).sort((a, b) => a.sortOrder - b.sortOrder).map((item) => item.label);
 }
 
+function parseLabels(draft: string): string[] {
+  return draft.split(/[、,，;；\n]/).map((item) => item.trim()).filter(Boolean);
+}
+
+function LabelPreview({ labels }: { labels: string[] }) {
+  if (!labels.length) return null;
+  return (
+    <p className="mt-1 text-xs text-slate-500">
+      将保存为 {labels.length} 项：{labels.slice(0, 8).join(" / ")}{labels.length > 8 ? ` 等 ${labels.length} 项` : ""}
+    </p>
+  );
+}
+
 export function TrackEditor({ competitionId }: { competitionId: string }) {
   const [tracks, setTracks] = useState<TrackNode[]>([]);
   const [loading, setLoading] = useState(true);
@@ -119,7 +132,7 @@ export function TrackEditor({ competitionId }: { competitionId: string }) {
 
   async function saveOptions(node: TrackNode, kind: "GROUP" | "CATEGORY") {
     const draft = kind === "GROUP" ? groupDraft[node.id] ?? "" : categoryDraft[node.id] ?? "";
-    const labels = draft.split(/[、,，;；\n]/).map((item) => item.trim()).filter(Boolean);
+    const labels = parseLabels(draft);
     await call(`/api/admin/tracks/${node.id}/options`, {
       method: "PUT",
       headers: { "content-type": "application/json" },
@@ -128,6 +141,8 @@ export function TrackEditor({ competitionId }: { competitionId: string }) {
   }
 
   function renderNode(node: TrackNode, depth: number) {
+    const groupLabels = parseLabels(groupDraft[node.id] ?? "");
+    const categoryLabels = parseLabels(categoryDraft[node.id] ?? "");
     return (
       <div key={node.id} className={`rounded-lg border border-slate-200 p-3 ${depth ? "ml-6 mt-2" : "mt-3"}`}>
         <div className="flex flex-wrap items-center gap-2">
@@ -145,21 +160,23 @@ export function TrackEditor({ competitionId }: { competitionId: string }) {
         </div>
         <div className="mt-2 grid gap-2 md:grid-cols-2">
           <div>
-            <label className="text-sm text-slate-600">组别（用「、」分隔）</label>
+            <label className="text-sm text-slate-600">组别（一行一个，或用顿号 / 逗号分隔）</label>
             <textarea
               className="mt-1 h-16 w-full rounded-lg border border-slate-300 px-2 py-1 text-sm"
               value={groupDraft[node.id] ?? ""}
               onChange={(event) => setGroupDraft((current) => ({ ...current, [node.id]: event.target.value }))}
             />
+            <LabelPreview labels={groupLabels} />
             <Button variant="default" size="sm" type="button" disabled={pending !== ""} onClick={() => void saveOptions(node, "GROUP")} className="mt-1" >保存组别</Button>
           </div>
           <div>
-            <label className="text-sm text-slate-600">类别（用「、」分隔）</label>
+            <label className="text-sm text-slate-600">类别（一行一个，或用顿号 / 逗号分隔）</label>
             <textarea
               className="mt-1 h-16 w-full rounded-lg border border-slate-300 px-2 py-1 text-sm"
               value={categoryDraft[node.id] ?? ""}
               onChange={(event) => setCategoryDraft((current) => ({ ...current, [node.id]: event.target.value }))}
             />
+            <LabelPreview labels={categoryLabels} />
             <Button variant="default" size="sm" type="button" disabled={pending !== ""} onClick={() => void saveOptions(node, "CATEGORY")} className="mt-1" >保存类别</Button>
           </div>
         </div>
