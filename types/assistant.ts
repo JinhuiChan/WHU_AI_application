@@ -25,5 +25,6 @@ export type AssistantSource = AssistantEvidence & {
   competitionId?: string;
   competitionName?: string;
   kind?: "configuration" | "attachment";
+  attachmentKind?: string;
   snapshot?: string;
 };

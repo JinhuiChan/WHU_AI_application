@@ -2,6 +2,7 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { competitionYears, namedCompetition, publishedCompetitionContext } from "@/lib/competition-context";
 import type { AssistantResult } from "@/types/assistant";
+import { documentIntent } from "@/lib/document-intent";
 
 export const TEAM_HANDOFF_ANSWER = "目前没有符合条件的在招队伍，可以到组队广场发布或查看。";
 const TEAM_INTENT = /组队|队友|队伍|招募|缺人|找队友|加队/;
@@ -10,7 +11,7 @@ const ALL_COMPETITIONS = /(?:所有|全部|各(?:场|个)?)(?:已发布)?(?:赛�
 const MAX_TEAM_POSTS = 8;
 
 export function isTeamRecruitmentQuestion(question: string) {
-  return TEAM_INTENT.test(question) && !TEAM_RULE_QUESTION.test(question);
+  return TEAM_INTENT.test(question) && !TEAM_RULE_QUESTION.test(question) && !documentIntent(question);
 }
 
 const recruitingPostSelect = {

@@ -257,7 +257,7 @@ export function CompetitionManagement({ competition, attachments, initialWindow 
       <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 id="competition-files" className="text-sm font-semibold text-slate-900">赛事文件与问答依据</h2>
         <p className="mt-2 text-xs leading-5 text-slate-500">
-          通知、规程上传后自动解析供问答使用，无须另行发布。模板和内置演示文件不作为规则依据；图片、扫描件及旧版 DOC 需换成含文字的 PDF、DOCX 或 TXT。
+          通知、规程上传后自动解析章节和段落供问答使用，无须另行发布。DOCX 保留表格字段对应；模板仅用于填表说明，不作为资格规则。支持含文字的 PDF、DOCX 和 TXT；扫描件需先完成 OCR，旧版 DOC 需转换格式。复杂 PDF 表格及分栏排版请上传 DOCX 核对。
           替换旧版仅在新文件解析成功后生效。宣传片请用上面的独立入口。
         </p>
         <form

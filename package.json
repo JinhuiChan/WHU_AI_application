@@ -22,7 +22,8 @@
     "demo:import": "tsx --env-file=.env scripts/import-demo-data.ts",
     "demo:link": "tsx --env-file=.env scripts/link-demo-import.ts",
     "demo:all": "npm run db:seed:accounts && npm run demo:generate && npm run demo:sync && npm run demo:import && npm run demo:link",
-    "smoke": "node scripts/smoke.cjs"
+    "smoke": "node scripts/smoke.cjs",
+    "test:documents": "node --import tsx scripts/verify-document-parsing.ts"
   },
   "prisma": {
     "seed": "tsx --env-file=.env prisma/seed.ts"
@@ -38,6 +39,7 @@
     "mammoth": "1.13.0",
     "motion": "^14.10.1",
     "next": "14.2.35",
+    "parse5": "7.3.0",
     "pdf-parse": "1.1.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
