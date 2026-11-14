@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { FileDropZone } from "@/components/ui/file-drop-zone";
 import { useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
@@ -228,13 +229,16 @@ export function CompetitionManagement({ competition, attachments, initialWindow 
               placeholder="选择文件后自动填入文件名，可修改"
             />
           </label>
-          <label className="text-sm text-slate-600">视频文件
+          <div className="min-w-0 text-sm text-slate-600"><label htmlFor="competition-video-file">视频文件</label>
+            <FileDropZone label="视频文件">
             <input
+              id="competition-video-file"
               ref={videoRef}
               name="file"
               type="file"
               required
               accept="video/mp4,video/webm,video/quicktime"
+              disabled={pending === "video"}
               onChange={(event) => {
                 const picked = event.target.files?.[0];
                 if (picked && videoTitleRef.current && !videoTitleRef.current.value.trim()) {
@@ -243,7 +247,8 @@ export function CompetitionManagement({ competition, attachments, initialWindow 
               }}
               className="mt-1 block w-full text-sm file:mr-2 file:rounded file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:text-blue-700"
             />
-          </label>
+            </FileDropZone>
+          </div>
           <Button type="submit" variant="default" size="sm" disabled={pending === "video"}>
             {pending === "video" ? "上传中…" : "上传宣传片"}
           </Button>
@@ -277,7 +282,7 @@ export function CompetitionManagement({ competition, attachments, initialWindow 
         >
           <label className="text-sm text-slate-600">标题<input name="title" ref={titleRef} className={fieldClass} required maxLength={120} placeholder="选择文件后自动填入文件名，可修改" /></label>
           <label className="text-sm text-slate-600">类型<select name="kind" className={fieldClass} defaultValue="NOTICE"><option value="NOTICE">通知</option><option value="RULE">规程</option><option value="TEMPLATE">模板</option></select></label>
-          <label className="text-sm text-slate-600">文件<input ref={fileRef} name="file" type="file" required accept=".pdf,.docx,.doc,.xlsx,.jpg,.jpeg,.png,.txt" onChange={(event) => { const picked = event.target.files?.[0]; if (picked && titleRef.current && !titleRef.current.value.trim()) { titleRef.current.value = picked.name.replace(/\.[^.]+$/, ""); } }} className="mt-1 block w-full text-sm file:mr-2 file:rounded file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:text-blue-700" /></label>
+          <div className="min-w-0 text-sm text-slate-600"><label htmlFor="competition-document-file">文件</label><FileDropZone label="赛事文件"><input id="competition-document-file" ref={fileRef} name="file" type="file" required disabled={pending === "upload"} accept=".pdf,.docx,.doc,.xlsx,.jpg,.jpeg,.png,.txt" onChange={(event) => { const picked = event.target.files?.[0]; if (picked && titleRef.current && !titleRef.current.value.trim()) { titleRef.current.value = picked.name.replace(/\.[^.]+$/, ""); } }} className="mt-1 block w-full text-sm file:mr-2 file:rounded file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:text-blue-700" /></FileDropZone></div>
           <label className="text-sm text-slate-600">完整替换旧版（可选）
             <select name="replacesAttachmentId" className={fieldClass} defaultValue="">
               <option value="">新增独立资料</option>
