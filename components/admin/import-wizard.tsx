@@ -311,6 +311,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
           <div onDragEnter={(event) => { event.preventDefault(); if (pending === null) { dragDepth.current++; setDragActive(true); } }} onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = pending === null ? "copy" : "none"; }} onDragLeave={(event) => { event.preventDefault(); dragDepth.current = Math.max(0, dragDepth.current - 1); if (!dragDepth.current) setDragActive(false); }} onDrop={drop}
             className={`mt-5 rounded-xl border-2 border-dashed p-5 transition ${dragActive ? "border-blue-500 bg-blue-50" : "border-slate-300 bg-slate-50"}`}>
             <p className="font-medium text-slate-800">{dragActive ? "松开即可添加文件" : "把文件拖到这里，或在下方粘贴"}</p>
+            {file ? <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white px-3 py-2 text-sm" aria-live="polite"><span className="break-all text-blue-700">已添加：{file.name}（{(file.size / 1024 / 1024).toFixed(2)} MB）</span><button type="button" disabled={pending !== null} className="text-slate-500 hover:text-red-600" onClick={() => { setFile(null); setPastedText(""); setError(""); setInputKey((value) => value + 1); }}>移除</button></div> : null}
             <p className="mt-1 text-xs leading-5 text-slate-500">支持 DOCX、PDF、XLSX、TXT，每次一份。粘贴文件需要剪贴板中包含文件，复制路径不会上传文件。</p>
             <input
               key={inputKey}
@@ -327,7 +328,6 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
             <textarea id="import-paste" value={pastedText} onPaste={paste} onChange={(event) => chooseText(event.target.value)} disabled={pending !== null} rows={5} maxLength={180000}
               placeholder="点击这里按 Ctrl+V：可粘贴剪贴板中的文件，也可粘贴 Word、Excel 里的报名文字，例如项目名称、负责人、学号、学院等。"
               className="w-full resize-y rounded-lg border border-slate-300 bg-white p-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
-            {file ? <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white px-3 py-2 text-sm" aria-live="polite"><span className="break-all text-blue-700">已添加：{file.name}（{(file.size / 1024 / 1024).toFixed(2)} MB）</span><button type="button" disabled={pending !== null} className="text-slate-500 hover:text-red-600" onClick={() => { setFile(null); setPastedText(""); setError(""); setInputKey((value) => value + 1); }}>移除</button></div> : null}
           </div>
           {pending === "parse" ? (
             <div className="mt-5 flex h-9 items-center">
