@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { PrismaClient } from "@prisma/client";
 import type { Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { encryptField } from "../lib/crypto";
 
 const prisma = new PrismaClient();
 const baseDate = new Date("2026-03-10T08:00:00.000Z");
@@ -318,8 +319,10 @@ async function main() {
           boundFinancePlatform: globalIndex % 2 === 0,
           organization: college,
           phone: owner.phone,
-          idCardEncrypted: globalIndex % 2 === 0 ? null : `DEV_ID_CIPHERTEXT_${globalIndex + 1}`,
-          bankCardEncrypted: globalIndex % 2 === 0 ? null : `DEV_CARD_CIPHERTEXT_${globalIndex + 1}`,
+          // 必须写真实密文：占位字符串（如 DEV_ID_CIPHERTEXT_n）无法被 decryptField 解析，
+          // 会让报名表/数据表导出在敏感字段处整份失败。用与生产同一套 encryptField 生成。
+          idCardEncrypted: globalIndex % 2 === 0 ? null : encryptField(`420106${1990 + (globalIndex % 10)}0101${String(1000 + (globalIndex % 9000))}`),
+          bankCardEncrypted: globalIndex % 2 === 0 ? null : encryptField(`622848${String(1000000000000 + globalIndex)}`),
           bankName: globalIndex % 2 === 0 ? null : "示例银行武汉大学支行",
           accountName: globalIndex % 2 === 0 ? null : owner.name,
         },

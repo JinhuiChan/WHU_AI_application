@@ -2,6 +2,16 @@
 
 > 交接凭据。**AI 恢复时只读本文件 + `git log --oneline | head -8`，禁止通读 schema.prisma / seed.ts。**
 
+## 2026-11-14 修复：敏感字段占位密文导致导出 500
+
+- 现象：线上 `/api/export/form?full=0` 与 `full=1` **都**返回 500「导出报名表失败」，日志 `密文解密失败，密文可能已篡改或密钥不匹配`。
+- 根因：`prisma/seed.ts:321-322` 早期版本写死了 `DEV_ID_CIPHERTEXT_n` / `DEV_CARD_CIPHERTEXT_n` 占位字符串，不是 `v1:iv:tag:data` 格式，`decryptField()` 解析即抛错。本地库 **9 条身份证 + 9 条银行卡全部是占位值**（`PayeeBank` 共 19 行）。
+- 影响面比报名表更大：`lib/form-export.ts` 与 `lib/dataset-export.ts` 都裸调 `decryptField`，数据表导出同样会失败；`lib/apply.ts:435` 早有 try/catch 兜底（返回「密文不可用」），所以审核列表不受影响。
+- 修复 1（止血）：`sensitive()` 与 `sensitiveValue()` 按 `apply.ts` 同口径包 try/catch，单字段解密失败降级为「密文不可用」并 `console.warn`，不再让整份导出 500。
+- 修复 2（防复发）：`prisma/seed.ts` 改用 `encryptField()` 生成真实密文（18 位身份证 / 19 位卡号，按 `globalIndex` 确定性生成）。
+- 修复 3（回填）：新增 `scripts/fix-payee-ciphertexts.mjs`——默认 dry-run 只打印 SQL；`--apply` 先备份库并校验大小，再按 `rowid` 回填真实密文；幂等（`AND ... LIKE 'DEV!_%'`）；跑完打印剩余占位值数量与回滚命令。
+- 验证：`tsc.cmd --noEmit` 0 错误；`npm.cmd run lint` 0 错误 0 警告；`node --check` 通过。**未执行脚本、未连接生产库**。
+
 ## 2026-11-13 D 阶段 S12 · 报名表 A4 打印页
 
 - 抽取纯 buildFormRows，xlsx 12 列写入与打印页共用标题、分节、签字位和水印；/api/export/form 未改。

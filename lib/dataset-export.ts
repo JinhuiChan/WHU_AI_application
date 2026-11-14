@@ -27,8 +27,14 @@ export type DatasetExportQuery = Partial<ReviewFilters> & {
 
 function sensitiveValue(value: string | null | undefined, full: boolean) {
   if (!value) return "";
-  const plain = decryptField(value);
-  return full ? plain : maskTail(plain);
+  try {
+    const plain = decryptField(value);
+    return full ? plain : maskTail(plain);
+  } catch {
+    // 与 lib/apply.ts 的 masked() 同口径：单字段解密失败不能拖垮整份数据表导出
+    console.warn("数据表敏感字段解密失败，已降级显示");
+    return "密文不可用";
+  }
 }
 
 function standardValue(item: ReviewListItem, field: Exclude<DatasetFieldKey, "idCard" | "bankCard">) {

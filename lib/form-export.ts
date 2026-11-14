@@ -62,8 +62,14 @@ type RegistrationFormProject = Prisma.ProjectGetPayload<{ include: typeof regist
 
 function sensitive(value: string | null, full: boolean) {
   if (!value) return "";
-  const plain = decryptField(value);
-  return full ? plain : maskTail(plain);
+  try {
+    const plain = decryptField(value);
+    return full ? plain : maskTail(plain);
+  } catch {
+    // 与 lib/apply.ts 的 masked() 同口径：单字段解密失败不能拖垮整份报名表导出
+    console.warn("报名表敏感字段解密失败，已降级显示");
+    return "密文不可用";
+  }
 }
 
 export async function loadRegistrationFormProject(projectId: string, watermarkNo: string, options: RegistrationFormOptions): Promise<RegistrationFormProject | null> {
