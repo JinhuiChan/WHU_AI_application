@@ -202,6 +202,15 @@ body {
   letter-spacing: -0.2px;
 }
 
+/* 深色容器里的标题还原颜色。
+   上面那条规则会把所有 h2/h3 刷成 --ink（近黑），放在深色渐变卡上就是「黑字压深蓝」，
+   几乎看不见。.on-dark 的特异性 (0,2,1) 高于 (0,1,1)，能稳定赢回来。
+   字距保留，深色卡上的标题同样需要收紧。 */
+.page-enter .on-dark :is(h1, h2, h3) {
+  color: inherit;
+  letter-spacing: -0.2px;
+}
+
 .page-enter .text-3xl.font-semibold {
   font-weight: 700;
 }

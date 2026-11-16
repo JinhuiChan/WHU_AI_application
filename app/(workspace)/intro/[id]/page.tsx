@@ -4,9 +4,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import type { CompetitionLevel } from "@prisma/client";
-import { ArrowUpRight, CalendarDays, FileText, PlayCircle, Route } from "lucide-react";
+import { ArrowUpRight, CalendarDays, FileText, PlayCircle } from "lucide-react";
 import { BreadcrumbTitle } from "@/components/layout/breadcrumbs";
 import { introContentFor } from "@/components/competitions/competition-intro-data";
+import { TrackCard } from "@/components/competitions/track-card";
 import BlurText from "@/components/react-bits/BlurText";
 import SpotlightCard from "@/components/react-bits/SpotlightCard";
 import { Button, ButtonArrow } from "@/components/ui/button";
@@ -65,11 +66,21 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
 
   // 组别 / 类别沿用赛事详情页的取法：先看该赛道自己的字典，没有就用全局字典
   const labels = await loadScopedLabels();
-  const optionLabels = (trackId: string, kind: "GROUP" | "CATEGORY") => {
-    const scoped = labels.byTrack[trackId]?.[kind] ?? {};
-    const source = Object.keys(scoped).length ? scoped : (labels.global[kind] ?? {});
-    const values = Object.values(source);
-    return values.length ? values.join(" · ") : "未配置";
+
+  // 赛道卡副标题：只放组别，最多三项，其余折叠成「等 N 项」。
+  // 卡片宽度只有三四百像素，把组别和类别的完整枚举都列上会换四五行、压住右侧插画；
+  // 而学生在这一屏要做的是「选一条赛道」，不是「读完所有枚举」——完整清单在赛事详情页。
+  const trackDetail = (trackId: string) => {
+    const scoped: Record<string, string> = labels.byTrack[trackId]?.GROUP ?? {};
+    const source: Record<string, string> = Object.keys(scoped).length
+      ? scoped
+      : (labels.global.GROUP ?? {});
+    const groups = Object.values(source);
+    if (!groups.length) return "具体组别以当年度通知为准";
+    const shown = groups.slice(0, 3);
+    return groups.length > shown.length
+      ? `组别：${shown.join(" · ")} 等 ${groups.length} 项`
+      : `组别：${shown.join(" · ")}`;
   };
 
   const now = new Date();
@@ -199,40 +210,30 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
         ))}
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      {/* 赛道区块不再套白卡：渐变卡自己就是强调块，再包一层白底会把它压回"内容容器"的层级。
+          这一块现在是页面上唯一带颜色的区域，用来打破全页白卡的平铺。 */}
+      <section aria-label="赛道与组别" className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-base text-slate-900">赛道与组别</h2>
           <span className="text-xs text-slate-500">共 {topTracks.length} 条赛道</span>
         </div>
+        {/* 三条赛道在双列里会剩一个空格子，视觉上右下角塌掉。够三条时走三列；
+            两条及以下保持双列（单条也走双列，避免一张卡拉满整行显得空）。 */}
         {topTracks.length ? (
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
-            {topTracks.map((track) => (
-              <div key={track.id} className="rounded-xl border border-slate-100 bg-slate-50 p-4">
-                <p className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-                  <Route aria-hidden="true" className="text-blue-600" size={16} />
-                  {track.name}
-                </p>
-                {childrenOf(track.id).length ? (
-                  <ul className="mt-2 space-y-1.5">
-                    {childrenOf(track.id).map((child) => (
-                      <li key={child.id} className="text-xs leading-6 text-slate-600">
-                        <span className="font-medium text-slate-700">{child.name}</span>
-                        <span className="text-slate-500"> · 组别：{optionLabels(child.id, "GROUP")}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="mt-2 text-xs leading-6 text-slate-600">
-                    组别：{optionLabels(track.id, "GROUP")}
-                    <br />
-                    类别：{optionLabels(track.id, "CATEGORY")}
-                  </p>
-                )}
-              </div>
+          <div className={`grid gap-4 md:grid-cols-2 ${topTracks.length >= 3 ? "xl:grid-cols-3" : ""}`}>
+            {topTracks.map((track, index) => (
+              <TrackCard
+                detail={trackDetail(track.id)}
+                href={`/competitions/${competition.id}`}
+                index={index}
+                key={track.id}
+                name={track.name}
+                subTracks={childrenOf(track.id).map((child) => child.name)}
+              />
             ))}
           </div>
         ) : (
-          <p className="mt-3 text-sm text-slate-500">该赛事尚未配置赛道，报名前请先看通知。</p>
+          <p className="text-sm text-slate-500">该赛事尚未配置赛道，报名前请先看通知。</p>
         )}
       </section>
 
