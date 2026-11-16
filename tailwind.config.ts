@@ -45,6 +45,19 @@ const config: Config = {
           700: "#2a3441",
         },
       },
+      // 只覆盖「边框」里的 slate-300，不动 colors 里的同名值。
+      // 原因：121 处 border-slate-300 是输入框、下拉、次按钮的边界，
+      // 对白卡只有约 1.5:1，过不了 WCAG 1.4.11 要求的 3:1；
+      // 而 text-slate-300 那几处是「·」分隔符、箭头图标与禁用分页文字，
+      // 它们变深反而变脏（禁用态本身不受对比度约束）。
+      // borderColor 默认为 colors 的浅拷贝，extend 会深合并进 borderColor.slate，
+      // 所以 border-slate-300 取新值、text-slate-300 仍取原值 #cbd5e1。
+      // #8b96a8 对白 3.02:1、对卡内浅块 #f8fafc 2.92:1，取两者折中的观察值。
+      borderColor: {
+        slate: {
+          300: "#8b96a8",
+        },
+      },
       borderRadius: {
         card: "var(--radius-card)",
         control: "var(--radius-control)",
