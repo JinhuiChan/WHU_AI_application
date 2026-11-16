@@ -6,6 +6,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CompetitionCreate } from "@/components/admin/competition-create";
 import { CompetitionDeleteButton } from "@/components/admin/competition-delete-button";
+import { CompetitionCards } from "@/components/competitions/competition-cards";
 import { CompetitionMobileList } from "@/components/competitions/competition-mobile-list";
 import { Pagination } from "@/components/data/pagination";
 import { detailHref, listHref } from "@/components/data/list-link";
@@ -79,6 +80,11 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
           ) : null}
         </div>
       </div>
+
+      {/* 入口页第一眼要能分清「有哪几场比赛」。表格承载筛选与明细，但认不出赛事本体，
+          所以首屏先给一排彩色赛事卡，颜色按等级、插画按 seriesId 对赛事本体。
+          翻页之后不再出现：第二页起是「继续找」，不需要再认一遍。 */}
+      {page === 1 ? <CompetitionCards from={from} isStudent={isStudent} items={data.list} /> : null}
 
       <section className="card p-4">
         <form action="/competitions" method="get" className="flex flex-wrap items-end gap-3">
