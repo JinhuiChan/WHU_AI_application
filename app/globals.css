@@ -78,6 +78,27 @@ body {
   }
 }
 
+/* 输入控件的内凹感。全站 99 个 input + 61 个 select + 18 个 textarea，
+   原来清一色是「纯平面白底 + 一圈边框」，读起来和普通文字块没有区别——
+   缺的是「这是一个能填东西的槽」这个暗示。
+
+   inset 阴影幅度极小（0.05），浅底上只是隐约一层灰，但它把输入区从
+   「平铺的白色区域」变成「凹进去的容器」，和凸起的卡片形成一对关系。
+
+   三处取舍：
+   1. 排除 checkbox / radio / file / range —— 这些是原生控件，加内阴影会糊成一团。
+   2. 包在 @media screen 里，打印版不加（纸面上内阴影就是一块灰）。
+   3. 用普通 CSS 而不是 @layer：Tailwind 3 的 @layer 指令必须在顶层，
+      不能套在 @media 里。全站输入框目前没有任何 shadow-* 类，
+      不存在被 utilities 覆盖的需求，所以不需要进层。 */
+@media screen {
+  .page-enter input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
+  .page-enter select,
+  .page-enter textarea {
+    box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.05);
+  }
+}
+
 @keyframes login-fade-up {
   from {
     opacity: 0;
