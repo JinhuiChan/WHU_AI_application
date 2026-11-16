@@ -195,7 +195,7 @@ export function TrackEditor({ competitionId }: { competitionId: string }) {
   }
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="card p-5">
       <h2 className="text-sm font-semibold text-slate-900">赛道与组别（管理员配置）</h2>
       <p className="mt-1 text-xs text-slate-500">赛道决定学生报名的赛道下拉；组别/类别按赛道生效。停用不会删除历史数据。</p>
       {error ? <p role="alert" className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p> : null}

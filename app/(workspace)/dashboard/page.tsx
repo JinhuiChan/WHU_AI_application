@@ -79,7 +79,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
           const Icon = item.icon;
           return (
             <Link
-              className="group block rounded-xl border border-slate-200 bg-white shadow-sm transition duration-[160ms] hover:border-blue-300 active:scale-[0.98] motion-reduce:active:scale-100"
+              className="group block card transition duration-[160ms] hover:border-blue-300 active:scale-[0.98] motion-reduce:active:scale-100"
               href={item.href}
               key={item.href}
             >
@@ -123,7 +123,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
           const isWarning = card.value > 0 && /待审核|异常|退回|待补|超期/.test(card.label);
           const interactive = Boolean(card.href);
           const className = [
-            "relative rounded-xl border border-slate-200 bg-white p-5 shadow-sm",
+            "relative card p-5",
             isWarning ? "t-warn" : "",
             interactive
               ? "group block transition duration-[160ms] hover:border-blue-300 hover:bg-blue-50/30 active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 motion-reduce:active:scale-100"
@@ -158,7 +158,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
       </div>
 
       {scoped ? (
-        <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <section className="overflow-hidden card">
           <div className="border-b border-slate-100 px-5 py-4">
             <h2 className="text-sm font-semibold text-slate-900">我的状态</h2>
             <p className="mt-1 text-xs text-slate-500">仅汇总当前筛选内本人参与的项目</p>
@@ -193,7 +193,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
         </section>
       ) : (
         <>
-          <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <section className="overflow-hidden card">
             <div className="border-b border-slate-100 px-5 py-4">
               <h2 className="text-sm font-semibold text-slate-900">学院统计</h2>
               <p className="mt-1 text-xs text-slate-500">点击学院名可下钻到对应审核项目列表</p>

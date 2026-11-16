@@ -31,7 +31,7 @@ export default async function TeacherPage() {
         <p className="mt-1 text-sm text-slate-500">确认指导关系后，学生报名信息中的指导老师一栏才视为有效。</p>
       </div>
 
-      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <section className="overflow-hidden card">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[980px] text-left text-sm">
             <thead className="bg-slate-50 text-xs text-slate-500">

@@ -85,7 +85,7 @@ export function AnomalyManagement({ initialData, isAdmin }: { initialData: Anoma
 
   return (
     <div className="space-y-5">
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="card p-5">
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
             <div className="text-xs text-slate-500">异常总数</div>
@@ -131,7 +131,7 @@ export function AnomalyManagement({ initialData, isAdmin }: { initialData: Anoma
       </div>
 
       {isAdmin ? (
-        <section className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
+        <section className="flex flex-col gap-3 card p-4 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-wrap items-center gap-4">
             <label className="flex items-center gap-2 text-sm text-slate-600">
               <input
@@ -166,7 +166,7 @@ export function AnomalyManagement({ initialData, isAdmin }: { initialData: Anoma
       {notice ? <div role="status" className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">{notice}</div> : null}
 
       {data.groups.length ? data.groups.map((group) => (
-        <section key={group.ruleId} className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <section key={group.ruleId} className="overflow-hidden card">
           <header className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 py-3">
             <div className="flex items-center gap-2">
               <span className="rounded bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-700">{group.ruleId}</span>
@@ -223,7 +223,7 @@ export function AnomalyManagement({ initialData, isAdmin }: { initialData: Anoma
           </div>
         </section>
       )) : (
-        <section className="rounded-xl border border-slate-200 bg-white px-4 py-12 text-center text-sm text-slate-500 shadow-sm">当前筛选条件下暂无异常记录</section>
+        <section className="card px-4 py-12 text-center text-sm text-slate-500">当前筛选条件下暂无异常记录</section>
       )}
     </div>
   );

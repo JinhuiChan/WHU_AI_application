@@ -181,7 +181,7 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
 
       <section aria-label="赛事看点" className="grid gap-3 md:grid-cols-3">
         {intro.highlights.map((item) => (
-          <div key={item.title} className="rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div key={item.title} className="card">
             <SpotlightCard
               borderGlow={0.35}
               className="h-full p-4"

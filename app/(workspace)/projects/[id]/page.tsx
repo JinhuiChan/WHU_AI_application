@@ -38,7 +38,7 @@ export default async function ProjectDetailPage({ params, searchParams }: PagePr
         </div>
       </div>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="card p-5">
         <h2 className="mb-4 text-sm font-semibold text-slate-900">基本信息</h2>
         <dl className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
           <div><dt className="text-sm text-slate-500">所属学院</dt><dd className="mt-1 text-slate-900">{project.college}</dd></div>
@@ -60,7 +60,7 @@ export default async function ProjectDetailPage({ params, searchParams }: PagePr
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <section className="overflow-hidden card">
         <div className="border-b border-slate-200 px-5 py-4"><h2 className="text-sm font-semibold text-slate-900">获奖记录（{project.awards.length}）</h2></div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1050px] text-left text-sm">
@@ -96,7 +96,7 @@ export default async function ProjectDetailPage({ params, searchParams }: PagePr
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <section className="overflow-hidden card">
         <div className="border-b border-slate-200 px-5 py-4"><h2 className="text-sm font-semibold text-slate-900">当前成员（{project.members.length}）</h2></div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[700px] text-left text-sm">

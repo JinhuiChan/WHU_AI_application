@@ -45,7 +45,7 @@ export function BasicInfoCard({ student, value, competitions, dictionaries, onCh
   const categories = selectedTrack?.categories ?? dictionaries.categories;
   const isEnterpriseTrack = Boolean(selectedTrack && `${selectedTrack.kind}${selectedTrack.name}`.includes("企业命题"));
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="card p-5">
       <h2 className="text-base font-semibold text-slate-900">项目基本信息</h2>
       <p className="mt-1 text-xs text-slate-500">
         带 <span className="text-red-600">*</span> 的为必填；灰底字段从账号读取，报名时不能修改。

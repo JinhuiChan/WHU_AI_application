@@ -117,7 +117,7 @@ export default async function ReviewPage({ searchParams }: PageProps) {
       <ReviewFilters options={options} values={values} />
       <DatasetExport scope="all" filters={exportFilters} buttonLabel="导出数据表" />
       <ReviewWorkbench data={data} from={listHref("/review", { ...values } as Record<string, string>)} />
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="card">
         <Pagination basePath="/review" query={values} total={data.total} page={data.page} pageSize={data.pageSize} />
       </div>
     </div>

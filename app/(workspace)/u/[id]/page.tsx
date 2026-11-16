@@ -213,7 +213,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
   return (
     <div className="space-y-6">
       <BreadcrumbTitle label={profile.name} />
-      <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="card p-6">
         <div className="flex items-center gap-4">
           <span aria-hidden="true" className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-blue-50 text-2xl font-semibold text-blue-700">
             {Array.from(profile.name.trim())[0] ?? "?"}
@@ -234,7 +234,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
       </section>
 
       {(profile.bio?.trim() || skills.length) ? (
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="card p-5">
         <h2 className="text-base font-semibold text-slate-900">简介与擅长技能</h2>
         {profile.bio?.trim() ? <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-700">{profile.bio}</p> : null}
         {skills.length ? (
@@ -249,7 +249,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
       ) : null}
 
       {profile.showRecords ? recordSections.map(({ title, timeline, emptyDescription }) => (
-        <section key={title} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section key={title} className="card p-5">
           <h2 className="text-base font-semibold text-slate-900">{title}（{timeline.length}）</h2>
           {timeline.length ? (
             <ol className="mt-5 space-y-5">
@@ -278,7 +278,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
       )) : null}
 
       {profile.showAwards ? awardSections.map(({ title, awards }) => (
-        <section key={title} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section key={title} className="card p-5">
           <h2 className="text-base font-semibold text-slate-900">{title}（{awards.length}）</h2>
           {awards.length ? (
             <ul className="mt-3 divide-y divide-slate-100">

@@ -279,7 +279,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
+      <div className="card p-4 md:p-5">
         <StepperIndicator current={step} steps={steps} />
       </div>
 
@@ -287,7 +287,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
       {notice ? <div role="status" className="break-all rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">{notice}</div> : null}
 
       {step === 1 ? (
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="card p-5">
           <h2 className="font-medium text-slate-900">上传赛事报名数据</h2>
           <p className="mt-1 text-sm leading-6 text-slate-500">可选择、拖入或粘贴文件，也可直接粘贴报名文字。Word、PDF和文字由学校 AI 识别，先核对修改、再确认入库；Excel 沿用表格解析。单个文件不超过20MB，扫描件需先完成文字识别。</p>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
@@ -353,7 +353,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
 
       {step === 2 && parseResult ? (
         <>
-          <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <section className="card p-5">
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
               <div>
                 <h2 className="font-medium text-slate-900">确认字段映射</h2>
@@ -382,7 +382,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
             </>}
           </section>
 
-          <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <section className="overflow-hidden card">
             <div className="border-b border-slate-100 px-5 py-4">
               <h3 className="font-medium text-slate-900">系统字段与文件列</h3>
               <p className="mt-1 text-xs leading-5 text-slate-500">带“必填”的系统字段必须完成映射；同一文件列不能重复选择。</p>
@@ -419,7 +419,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
             </div>
           </section>
 
-          <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <section className="overflow-hidden card">
             <div className="border-b border-slate-100 px-5 py-4">
               <h3 className="font-medium text-slate-900">映射结果预览</h3>
               <p className="mt-1 text-xs text-slate-500">{aiRecognized ? "每页20行，可翻页核对和直接修改全部识别数据。" : "仅显示前20行。"}学号须为6–20位数字、手机号11位，入学/毕业年份须为数字；续行不重复校验项目必填项。</p>
@@ -469,7 +469,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
             </div>
           </section>
 
-          <section className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
+          <section className="flex flex-col gap-3 card p-4 md:flex-row md:items-center md:justify-between">
             <p className="text-sm leading-6 text-slate-500">保存会固定本次核对后的数据和映射，尚不写入报名记录；下一步确认后再入库。</p>
             <Button variant="default" size="sm" type="button" disabled={pending !== null || Boolean(savedBatchId)} onClick={saveMapping} className="shrink-0" >
               {pending === "save" ? "正在保存…" : savedBatchId ? "映射方案已保存" : "保存映射方案"}
@@ -479,7 +479,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
       ) : null}
 
       {step === 3 && parseResult ? (
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="card p-5">
           <h2 className="font-medium text-slate-900">{commitResult ? "入库完成" : "确认入库"}</h2>
           <p className="mt-1 break-all text-sm text-slate-500">{parseResult.fileName} · 批次号：{savedBatchId}</p>
           {!commitResult ? (

@@ -141,7 +141,7 @@ export default async function CompetitionIntroPage() {
           })}
         </section>
       ) : (
-        <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
+        <section className="card">
           <EmptyState
             title="还没有已发布的赛事"
             description="赛事发布后会在这里按年份列出，管理员可以在赛事管理里创建并发布。"

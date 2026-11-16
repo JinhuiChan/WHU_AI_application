@@ -122,7 +122,7 @@ export function TeamForm({ competitions }: { competitions: TeamCompetitionOption
   }
 
   return (
-    <form noValidate onSubmit={(event) => void submit(event)} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <form noValidate onSubmit={(event) => void submit(event)} className="card p-5 sm:p-6">
       <div className="grid gap-5 sm:grid-cols-2">
         <label className="grid gap-1.5 text-sm text-slate-700">
           <span>赛事<Required /></span>

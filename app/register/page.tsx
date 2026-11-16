@@ -95,7 +95,7 @@ export default function RegisterPage() {
     <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-10">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-md space-y-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
+        className="w-full max-w-md space-y-4 card p-6"
       >
         <div className="flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-sm font-bold text-white">科</span>

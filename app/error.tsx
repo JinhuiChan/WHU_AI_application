@@ -10,7 +10,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-      <section className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+      <section className="w-full max-w-md card p-8 text-center">
         <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-2xl text-red-600" aria-hidden="true">!</span>
         <h1 className="mt-4 text-xl font-semibold text-slate-900">页面暂时打不开</h1>
         <p className="mt-2 text-sm leading-6 text-slate-500">

@@ -49,7 +49,7 @@ function TeamCard({ post, from, now }: { post: TeamPost; from: string; now: numb
   const days = Math.max(0, Math.ceil((post.expiresAt.getTime() - now) / 86400000));
   const skills = skillList(post.skills);
   return (
-    <article className="flex h-full flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-blue-200 hover:shadow-md">
+    <article className="flex h-full flex-col card p-5 transition hover:border-blue-200 hover:shadow-md">
       <div className="flex items-start justify-between gap-3">
         <p className="min-w-0 text-xs leading-5 text-slate-500">
           {post.competition ? `${post.competition.name} · ${post.competition.year}` : "未设置赛事"}
@@ -183,7 +183,7 @@ export default async function TeamsPage({ searchParams }: PageProps) {
         ) : null}
       </div>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <section className="card p-4">
         <form action="/teams" method="get" className="flex flex-wrap items-end gap-3">
           <label className="text-sm text-slate-600">
             <span className="mb-1 block">赛事</span>

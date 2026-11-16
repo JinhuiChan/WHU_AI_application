@@ -92,7 +92,7 @@ export function ProfileForm({ initialValue }: { initialValue: ProfileFormValue }
 
   return (
     <form className="space-y-5" noValidate onSubmit={(event) => void save(event)}>
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="card p-5">
         <h2 className="text-base font-semibold text-slate-900">编辑公开资料</h2>
         <p className="mt-1 text-xs text-slate-500">简介与技能会显示在你的个人主页。</p>
         <div className="mt-5 space-y-4">
@@ -133,7 +133,7 @@ export function ProfileForm({ initialValue }: { initialValue: ProfileFormValue }
         </div>
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="card p-5">
         <h2 className="text-base font-semibold text-slate-900">主页可见性</h2>
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           <label className="flex items-start gap-3 rounded-lg border border-slate-200 p-4">

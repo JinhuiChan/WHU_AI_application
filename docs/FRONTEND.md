@@ -285,3 +285,48 @@
 
 - 前端没有做「只在当前页排序」的假功能 —— 分页下那样会让人以为数据乱了。约定与实现要点写在 `docs/配合后端-列表排序.md`：`sort` / `order` 两个参数、各列表建议支持的字段、白名单、稳定次级键、`orderBy` 必须在 `skip/take` 之前。
 - 后端接好后，前端只需把表头换成排序按钮并把两个参数透传，改动集中在表头，不动查询。
+
+## 2026-11-16 视觉前三层 + 卡片统一到 .card
+
+**卡片外观从 105 处手写类名收成一处。** 原来 52 个文件里各自写着
+`rounded-xl border border-slate-200 bg-white shadow-sm`，改一次圆角要改 52 个文件——
+这才是"视觉升级迟迟落不了地"的真实成本。
+
+- 新增 `app/globals.css` 的 `@layer components { .card }`，105 处统一改成 `card`；
+  `components/ui/card.tsx` 的 `CARD_BASE` 也指向它。以后改卡片外观**只动 `.card` 一处**。
+- **相对 C2 的两处调整**（C2 的「白底 + 圆角 12px」不变，「不加更重阴影」仍成立）：
+  1. 边框 `border-slate-200` → `1px solid rgba(15,23,42,.07)`。slate-200 (#e2e8f0) 自带一点蓝，
+     和 blue-600 主色叠在一起会发脏；中性黑透明才会"往后退"。
+  2. `shadow-sm` 单层 → 两层（`0 1px 2px rgba(15,23,42,.04)` + `0 6px 16px -8px rgba(15,23,42,.10)`）。
+     单层的观感是纸片，两层才有物理感。仍然很淡，不是"更重的阴影"。
+- **只替换卡片，不动其他 shadow-sm**：按钮变体的抬升阴影（`components/ui/button.tsx` 三处）、
+  sticky 底栏、`rounded-2xl` 的登录页与简介大卡、`rounded-lg` 的小卡，全部保留原样。
+  替换时按行处理（只删含卡片前缀那行的 shadow-sm），不要全文件 sed。
+
+**底色四级递进**（原来 `--background` 与 `--surface-subtle` 同为 `#f8fafc`，卡内浅块和页面底同色）：
+
+```
+页面 --background     #f1f5f9
+卡片 --surface        #ffffff
+卡内浅块 --surface-subtle  #f8fafc
+表头 --surface-muted  #eef2f7
+```
+
+**`app-shell.tsx` 的 `bg-slate-50` 改成 `bg-background`** —— 它硬编码在内容区外层，
+把 `--background` 整个盖掉了，这是"改 token 没反应"的直接原因。
+
+**`.page-enter` 全局规则层**（改 1 处覆盖全站，优先用这层，不要逐个页面改）：
+
+- `h1.text-xl` 22→24px；`h2/h3` 加 `-0.2px` 负字距（不放大字号，105 个区块同时放大会笨重）
+- `thead th` 加 `--surface-muted` 灰底，包在 `@media screen` 里（打印版不加，纸面上灰底是脏）
+- 表格 `font-variant-numeric: tabular-nums`
+- `.t-warn` 色条 3→4px
+- 新增指标块族：`.t-metric` / `.t-metric-label` / `.t-metric-value` / `.t-metric-note`。
+  **只定尺寸与等宽数字，不定颜色** —— 颜色由调用方给 Tailwind 类（`bg-amber-50 text-amber-700` 这样），
+  同一结构才能按语义换色。
+
+**颜色语义（补充已有约定）**：指标块按状态配色，灰=合计、橙=待审核、绿=已通过、红=已驳回；
+计数为 0 时不标红（0 个待处理不是需要警示的事）。
+
+**组件扩展**：`StatusBadge` 加 `dot` 模式（圆点替代胶囊，行内密集场景省一半宽度，颜色语义与胶囊一致）；
+`EmptyState` 加 `icon` 插槽，同一页多个空态要换各自语义的图标，不要都是收件箱。

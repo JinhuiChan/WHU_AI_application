@@ -52,7 +52,7 @@ export function MaterialChecker() {
 
   return (
     <div className="space-y-5">
-      <form onSubmit={submitFile} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
+      <form onSubmit={submitFile} className="card p-4 md:p-5">
         <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
           <ShieldAlert size={20} className="mt-0.5 shrink-0" aria-hidden="true" />
           <div>
@@ -111,7 +111,7 @@ export function MaterialChecker() {
       </form>
 
       {result ? (
-        <section aria-live="polite" className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <section aria-live="polite" className="overflow-hidden card">
           <div className="border-b border-slate-200 bg-slate-50 px-4 py-4 md:px-5">
             <h2 className="flex items-center gap-2 text-base font-semibold text-slate-900">
               <FileCheck size={19} className="text-blue-600" aria-hidden="true" />

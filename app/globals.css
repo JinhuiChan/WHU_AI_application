@@ -56,6 +56,28 @@ body {
   }
 }
 
+/* 卡片外壳。原来全站 105 处各自写着 `rounded-xl border border-slate-200 bg-white shadow-sm`，
+   改一次圆角要动 52 个文件——这才是「视觉升级迟迟落不了地」的真实成本。
+   现在统一到 .card，改成什么样只改这一处；`components/ui/card.tsx` 的 CARD_BASE 也指向它。
+
+   两处与旧写法的差别：
+   1. 边框用 7% 中性黑，不用 border-slate-200。slate-200 (#e2e8f0) 自带一点蓝，
+      和 blue-600 主色叠在一起会发脏；中性的线才会「往后退」，让内容往前。
+   2. 阴影两层：近距离接触阴影 + 大范围弱投影。单层 shadow-sm 的观感是纸片，
+      两层才有「浮起来」的物理感（这是 designeer.xyz 实测的做法）。
+
+   注意：外部传 shadow-* / border-* / bg-* 依旧能覆盖——Tailwind 的 utilities 层在 components 层之后。 */
+@layer components {
+  .card {
+    border-radius: var(--radius-card);
+    border: 1px solid rgba(15, 23, 42, 0.07);
+    background-color: var(--surface);
+    box-shadow:
+      0 1px 2px rgba(15, 23, 42, 0.04),
+      0 6px 16px -8px rgba(15, 23, 42, 0.1);
+  }
+}
+
 @keyframes login-fade-up {
   from {
     opacity: 0;
@@ -212,18 +234,18 @@ body {
 }
 
 /* 指标块：小灰标签 + 大数字。用于概览条、计数区、任何「这个数是多少」的位置。
-   原来这类区块要么根本没有，要么手写成 text-3xl，各页尺寸不一。
-   现在统一到一套：11px 标签 + 22px 数字 + 等宽数字 + 浅底。 */
+   这里只定尺寸与等宽数字，**不定颜色**——颜色交给调用方用 Tailwind 给
+   （bg-blue-50 / text-emerald-700 这类）。这样同一个结构能按语义换色：
+   待审核橙、已通过绿、已驳回红，四个指标一眼分得清，不用读字。
+   以前这类区块要么没有，要么手写成 text-3xl，各页尺寸不一。 */
 .page-enter .t-metric {
   border-radius: var(--radius-control);
-  background: var(--surface-muted);
   padding: 10px 12px;
 }
 
 .page-enter .t-metric-label {
   font-size: 11px;
   line-height: 1.4;
-  color: var(--ink-subtle);
 }
 
 .page-enter .t-metric-value {
@@ -231,7 +253,6 @@ body {
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.5px;
-  color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
 
@@ -240,7 +261,7 @@ body {
   margin-top: 2px;
   font-size: 11px;
   line-height: 1.4;
-  color: var(--ink-faint);
+  opacity: 0.75;
 }
 
 /* 宽表横向滚动时固定首列：只命中设了 min-w-[...] 的宽表，小表格不受影响。

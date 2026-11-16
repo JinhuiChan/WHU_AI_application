@@ -59,7 +59,7 @@ export function UserMenu({ user }: { user: AuthUser }) {
         <ChevronDown size={15} className="text-slate-400" aria-hidden="true" />
       </Button>
       {open ? (
-        <div role="menu" className="absolute right-0 top-12 w-64 rounded-xl border border-slate-200 bg-white p-2 shadow-sm">
+        <div role="menu" className="absolute right-0 top-12 w-64 card p-2">
           <div className="border-b border-slate-100 px-3 py-3">
             <p className="font-medium text-slate-800">{user.name}</p>
             <p className="mt-1 text-xs text-slate-500">{user.phone}</p>

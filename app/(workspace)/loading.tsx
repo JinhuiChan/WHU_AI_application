@@ -13,14 +13,14 @@ export default function WorkspaceLoading() {
       </div>
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         {[0, 1, 2, 3].map((i) => (
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm" key={i}>
+          <div className="card p-5" key={i}>
             <Skeleton className="h-4 w-24" />
             <Skeleton className="mt-4 h-8 w-16" />
             <Skeleton className="mt-4 h-3 w-full" />
           </div>
         ))}
       </div>
-      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="card p-5">
         <Skeleton className="h-5 w-32" />
         <div className="mt-5 space-y-3">
           {[0, 1, 2, 3].map((i) => (

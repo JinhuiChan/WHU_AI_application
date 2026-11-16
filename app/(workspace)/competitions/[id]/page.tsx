@@ -105,7 +105,7 @@ export default async function CompetitionDetailPage({ params, searchParams }: Pa
         />
       ) : null}
 
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="card p-5">
         <h2 className="mb-4 text-sm font-semibold text-slate-900">赛事信息</h2>
         <dl className="grid grid-cols-2 gap-4 text-sm md:grid-cols-5">
           <div><dt className="text-sm text-slate-500">赛年</dt><dd className="mt-1 text-slate-900">{competition.year}</dd></div>
@@ -116,7 +116,7 @@ export default async function CompetitionDetailPage({ params, searchParams }: Pa
         </dl>
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="card p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-sm font-semibold text-slate-900">报名</h2>
           <span className={`rounded-full px-3 py-1 text-xs ${applyState.tone}`}>{applyState.label}</span>
@@ -140,7 +140,7 @@ export default async function CompetitionDetailPage({ params, searchParams }: Pa
         </div>
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="card p-5">
         <h2 className="mb-4 text-sm font-semibold text-slate-900">时间安排</h2>
         {windows.length ? (
           <ul className="space-y-2 text-sm text-slate-700">
@@ -156,7 +156,7 @@ export default async function CompetitionDetailPage({ params, searchParams }: Pa
         )}
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="card p-5">
         <h2 className="mb-4 text-sm font-semibold text-slate-900">赛道与组别</h2>
         {user.role === "ADMIN" ? <TrackEditor competitionId={competition.id} /> : null}
         {user.role === "ADMIN" ? null : (
@@ -188,7 +188,7 @@ export default async function CompetitionDetailPage({ params, searchParams }: Pa
       </section>
 
       {user.role !== "ADMIN" ? (
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="card p-5">
           <h2 className="mb-1 text-sm font-semibold text-slate-900">赛事文件</h2>
           <p className="mb-4 text-xs text-slate-500">报名前请先阅读通知与规程，确认所在赛道与组别。</p>
           {documents.length ? (
@@ -213,7 +213,7 @@ export default async function CompetitionDetailPage({ params, searchParams }: Pa
         </section>
       ) : null}
 
-      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <section className="overflow-hidden card">
         <div className="border-b border-slate-200 px-5 py-4">
           <h2 className="text-sm font-semibold text-slate-900">获奖名单（{competition.awards.length}）</h2>
           <p className="mt-1 text-xs text-slate-500">来源与核验信息按获奖记录展示，未登记来源时明确标注。</p>
@@ -264,7 +264,7 @@ export default async function CompetitionDetailPage({ params, searchParams }: Pa
       </section>
 
       {user.role === "ADMIN" ? (
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="card p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 className="text-sm font-semibold text-slate-900">发布状态</h2>

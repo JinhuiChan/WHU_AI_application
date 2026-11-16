@@ -62,7 +62,7 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
         <p className="mt-1 text-sm text-slate-500">查看项目基本信息、获奖记录与成员版本全貌。</p>
       </div>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <section className="card p-4">
         <form action="/projects" method="get" className="flex flex-wrap items-end gap-3">
           {awarded ? <input type="hidden" name="awarded" value="1" /> : null}
           <label className="text-sm text-slate-600">
@@ -108,7 +108,7 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
         </form>
       </section>
 
-      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <section className="overflow-hidden card">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1180px] text-left text-sm">
             <thead className="bg-slate-50 text-xs text-slate-500">

@@ -17,7 +17,7 @@ export function RankingTable({ items }: { items: CollegeRanking[] }) {
   }
 
   return (
-    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+    <section className="overflow-hidden card">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[900px] text-left text-sm">
           <thead className="bg-slate-50 text-xs text-slate-500">

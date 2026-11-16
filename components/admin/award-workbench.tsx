@@ -84,7 +84,7 @@ export function AwardWorkbench({ data, competitions, colleges, filters }: AwardW
 
   return (
     <div className="space-y-6">
-      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <section className="card p-4">
         <form onSubmit={applyFilters} className="flex flex-wrap items-end gap-3">
           <label className="min-w-56 flex-1 text-sm text-slate-500">
             <span className="mb-1 block">赛事</span>
@@ -112,7 +112,7 @@ export function AwardWorkbench({ data, competitions, colleges, filters }: AwardW
         </form>
       </section>
 
-      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <section className="overflow-hidden card">
         {error ? <div role="alert" className="border-b border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div> : null}
         {notice ? <div role="status" className="border-b border-green-100 bg-green-50 px-4 py-3 text-sm text-green-700">{notice}</div> : null}
         <div className="overflow-x-auto">

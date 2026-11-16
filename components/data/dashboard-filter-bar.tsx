@@ -26,7 +26,7 @@ export function DashboardFilterBar({
   }
 
   return (
-    <section className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <section className="flex flex-wrap items-end gap-3 card p-4">
       <label className="flex flex-col gap-1 text-sm text-slate-600 sm:flex-row sm:items-center sm:gap-2">
         <span className="whitespace-nowrap">赛事</span>
         <select value={current.competitionId} disabled={pending} onChange={(event) => update("competitionId", event.target.value)} className="h-10 min-w-52 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-700">

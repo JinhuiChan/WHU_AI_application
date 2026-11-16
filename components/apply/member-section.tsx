@@ -154,7 +154,7 @@ export function MemberSection({ members, dictionaries, onChange, onPayeeToggle }
   }
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="card p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div><h2 className="text-base font-semibold text-slate-900">团队成员</h2><p className="mt-1 text-xs text-slate-500">负责人之外，已添加 {members.length}/14 名成员</p></div>
         <div className="flex gap-2">
@@ -165,7 +165,7 @@ export function MemberSection({ members, dictionaries, onChange, onPayeeToggle }
       {error && !modal ? <p role="alert" className="mt-3 text-sm text-red-600">{error}</p> : null}
       <div className="mt-4 space-y-3">
         {members.map((member, index) => (
-          <div key={member.id ?? `member-${index}`} className="rounded-xl border border-slate-200 bg-white p-4">
+          <div key={member.id ?? `member-${index}`} className="card p-4">
             <div className="grid items-center gap-3 text-sm md:grid-cols-[70px_1fr_1fr_1fr_auto]">
               <span className="text-slate-500">{member.isInternal ? "校内" : "校外"}</span>
               <span className="font-medium text-slate-900">{member.name}</span>
@@ -187,7 +187,7 @@ export function MemberSection({ members, dictionaries, onChange, onPayeeToggle }
 
       {modal ? (
         <div ref={dialogRef} className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 p-4" role="dialog" aria-modal="true" aria-label={modal === "internal" ? "添加校内成员" : "添加校外成员"}>
-          <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-xl border border-slate-200 bg-white p-5 shadow-xl">
+          <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto card p-5 shadow-xl">
             <h3 className="text-lg font-semibold text-slate-900">{modal === "internal" ? "添加校内成员" : "添加校外成员"}</h3>
             {modal === "internal" ? (
               <div className="mt-4 rounded-xl bg-slate-50 p-4">

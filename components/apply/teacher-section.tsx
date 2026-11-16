@@ -111,7 +111,7 @@ export function TeacherSection({ teachers, onChange }: TeacherSectionProps) {
   }
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="card p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-base font-semibold text-slate-900">指导老师</h2>
@@ -146,7 +146,7 @@ export function TeacherSection({ teachers, onChange }: TeacherSectionProps) {
 
       {modal ? (
         <div ref={dialogRef} className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 p-4" role="dialog" aria-modal="true" aria-label={modal === "internal" ? "添加校内指导老师" : "添加校外指导老师"}>
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl border border-slate-200 bg-white p-5 shadow-xl">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto card p-5 shadow-xl">
             <h3 className="text-lg font-semibold text-slate-900">{modal === "internal" ? "添加校内指导老师" : "添加校外指导老师"}</h3>
             {modal === "internal" ? (
               <div className="mt-4 rounded-lg bg-slate-50 p-3">

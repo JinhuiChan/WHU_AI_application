@@ -147,7 +147,7 @@ export function CompetitionManagement({ competition, attachments, initialWindow 
         {error ? <p role="alert" className="mt-3 text-sm text-red-600">{error}</p> : null}
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="card p-5">
         <h2 className="text-sm font-semibold text-slate-900">报名设置</h2>
         <div className="mt-4 grid items-end gap-3 md:grid-cols-4">
           <label className="text-sm text-slate-600">开始时间<input type="datetime-local" className={fieldClass} value={windowForm.startAt} onChange={(event) => setWindowForm({ ...windowForm, startAt: event.target.value })} /></label>
@@ -162,7 +162,7 @@ export function CompetitionManagement({ competition, attachments, initialWindow 
         </p>
       </section>
 
-      <section id="media" className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <section id="media" className="card p-5">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div>
             <h2 className="text-sm font-semibold text-slate-900">宣传片与赛事解读</h2>
@@ -259,7 +259,7 @@ export function CompetitionManagement({ competition, attachments, initialWindow 
         <p className="mt-2 text-xs text-slate-500">建议 mp4（H.264），单文件不超过 20MB；超过请先压缩再传。</p>
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="card p-5">
         <h2 id="competition-files" className="text-sm font-semibold text-slate-900">赛事文件与问答依据</h2>
         <p className="mt-2 text-xs leading-5 text-slate-500">
           通知、规程上传后自动解析章节和段落供问答使用，无须另行发布。DOCX 保留表格字段对应；模板仅用于填表说明，不作为资格规则。支持含文字的 PDF、DOCX 和 TXT；扫描件需先完成 OCR，旧版 DOC 需转换格式。复杂 PDF 表格及分栏排版请上传 DOCX 核对。

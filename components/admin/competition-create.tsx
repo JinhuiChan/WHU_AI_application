@@ -23,7 +23,7 @@ export function CompetitionCreate() {
       {open ? (
         <div ref={dialogRef} className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" role="dialog" aria-modal="true" aria-label="新建赛事">
           <form
-            className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
+            className="max-h-[90vh] w-full max-w-lg overflow-y-auto card p-6"
             onSubmit={async (event) => {
               event.preventDefault();
               setPending(true);

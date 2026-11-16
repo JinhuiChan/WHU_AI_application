@@ -36,7 +36,7 @@ export type ReviewFilterValues = {
 export function ReviewFilters({ options, values }: { options: ReviewFilterOptions; values: ReviewFilterValues }) {
   const competitionNames = new Map(options.competitions.map((item) => [item.id, item.name]));
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <section className="card p-4">
       <form action="/review" method="get" className="flex flex-wrap items-end gap-3">
         {values.tab ? <input type="hidden" name="tab" value={values.tab} /> : null}
         <label className="text-sm text-slate-600">

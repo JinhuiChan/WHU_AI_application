@@ -9,7 +9,7 @@ export default function WorkspaceError({ error, reset }: { error: Error & { dige
   }, [error]);
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white px-6 py-12 text-center shadow-sm" role="alert">
+    <section className="card px-6 py-12 text-center" role="alert">
       <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-2xl text-red-600" aria-hidden="true">!</span>
       <h1 className="mt-4 text-xl font-semibold text-slate-900">这个页面暂时打不开</h1>
       <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">

@@ -199,7 +199,7 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
       ) : null}
 
       <section className="space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 card px-4 py-3">
           <label className="flex items-center gap-2 text-sm text-slate-700">
             <input
               type="checkbox"
@@ -368,7 +368,7 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
           );
         })}
         {data.list.length === 0 ? (
-          <div className="rounded-xl border border-slate-200 bg-white px-4 py-12 text-center">
+          <div className="card px-4 py-12 text-center">
             <p className="text-sm font-medium text-slate-700">当前筛选条件下没有待审项目</p>
             <p className="mt-2 text-sm text-slate-500">可以清除筛选条件，或等新的报名提交后再来核对。</p>
             <Link href="/review" className="mt-4 inline-flex h-9 items-center justify-center rounded-full border border-slate-300 bg-white px-4 text-xs text-slate-700 hover:bg-slate-50">清除筛选</Link>

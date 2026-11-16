@@ -125,7 +125,7 @@ export default async function TeamDetailPage({ params, searchParams }: PageProps
 
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="min-w-0 space-y-6">
-          <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <section className="card p-5">
             <h2 className="text-sm font-semibold text-slate-900">招募说明</h2>
             <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-slate-700">{post.summary}</p>
             {post.expectation ? (
@@ -141,7 +141,7 @@ export default async function TeamDetailPage({ params, searchParams }: PageProps
             ) : null}
           </section>
 
-          <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <section className="card p-5">
             <h2 className="text-sm font-semibold text-slate-900">队伍成员 <span className="ml-1 font-normal tabular-nums text-slate-500">{post.currentCount}/{post.memberLimit}</span></h2>
             <ul className="mt-4 space-y-3">
               <li className="flex items-center gap-3 rounded-lg border border-slate-100 p-3">
@@ -166,7 +166,7 @@ export default async function TeamDetailPage({ params, searchParams }: PageProps
           </section>
 
           {canManage || visibleRequests.length ? (
-            <section id="applications" className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <section id="applications" className="card p-5">
               <div className="flex items-center justify-between gap-3">
                 <h2 className="text-sm font-semibold text-slate-900">{canManage ? "管理申请" : "我的申请"}</h2>
                 {canManage ? <span className="text-xs text-slate-500">{post._count.requests} 条待处理</span> : null}
@@ -198,7 +198,7 @@ export default async function TeamDetailPage({ params, searchParams }: PageProps
           ) : null}
         </div>
 
-        <aside className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm lg:sticky lg:top-24">
+        <aside className="card p-5 lg:sticky lg:top-24">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-sm font-semibold text-slate-900">招募信息</h2>
             <StatusBadge status={status} scope="team">{postStatusLabels[status]}</StatusBadge>

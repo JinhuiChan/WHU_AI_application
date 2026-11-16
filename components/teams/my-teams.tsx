@@ -72,7 +72,7 @@ function PostCard({ post, from }: { post: MyTeamPost; from: string }) {
   const status = visibleStatus(post);
   const skills = skillList(post.skills);
   return (
-    <article className="flex h-full flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <article className="flex h-full flex-col card p-5">
       <div className="flex items-start justify-between gap-3">
         <p className="text-xs text-slate-500">{post.competition?.name ?? "未设置赛事"} · {post.track?.name ?? "不限赛道"}</p>
         <StatusBadge status={status} scope="team">{postStatusLabels[status]}</StatusBadge>
@@ -129,7 +129,7 @@ export function MyTeams({
         posts.length ? (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{posts.map((post) => <PostCard key={post.id} post={post} from={from} />)}</div>
         ) : (
-          <div className="rounded-xl border border-slate-200 bg-white"><EmptyState title="你还没有发布组队帖" description="介绍项目方向与需要的队友，让合适的同学找到你。" action={{ href: "/teams/new", label: "发布组队帖" }} /></div>
+          <div className="card"><EmptyState title="你还没有发布组队帖" description="介绍项目方向与需要的队友，让合适的同学找到你。" action={{ href: "/teams/new", label: "发布组队帖" }} /></div>
         )
       ) : null}
 
@@ -137,7 +137,7 @@ export function MyTeams({
         received.length ? (
           <ul className="space-y-4">
             {orderedReceived.map((request) => (
-              <li key={request.id} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+              <li key={request.id} className="card p-5">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-3">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-medium text-slate-600">{request.user.name.trim().charAt(0) || "申"}</span>
@@ -159,7 +159,7 @@ export function MyTeams({
             ))}
           </ul>
         ) : (
-          <div className="rounded-xl border border-slate-200 bg-white"><EmptyState title="还没有收到入队申请" description="学生申请你发布的组队帖后，会显示在这里。" action={{ href: "/my/teams?tab=posts", label: "查看我发布的" }} /></div>
+          <div className="card"><EmptyState title="还没有收到入队申请" description="学生申请你发布的组队帖后，会显示在这里。" action={{ href: "/my/teams?tab=posts", label: "查看我发布的" }} /></div>
         )
       ) : null}
 
@@ -169,7 +169,7 @@ export function MyTeams({
             {sent.map((request) => {
               const postStatus = visibleStatus(request.post);
               return (
-                <li key={request.id} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <li key={request.id} className="card p-5">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-xs text-slate-500">{request.post.competition?.name ?? "未设置赛事"} · {request.post.track?.name ?? "不限赛道"}</p>
@@ -190,7 +190,7 @@ export function MyTeams({
             })}
           </ul>
         ) : (
-          <div className="rounded-xl border border-slate-200 bg-white"><EmptyState title="你还没有发出入队申请" description="去组队广场看看正在招募的队伍，找到适合你的项目。" action={{ href: "/teams", label: "浏览组队广场" }} /></div>
+          <div className="card"><EmptyState title="你还没有发出入队申请" description="去组队广场看看正在招募的队伍，找到适合你的项目。" action={{ href: "/teams", label: "浏览组队广场" }} /></div>
         )
       ) : null}
     </div>

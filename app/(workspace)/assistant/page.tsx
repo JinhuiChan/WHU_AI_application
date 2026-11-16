@@ -28,7 +28,7 @@ export default async function AssistantPage({ searchParams }: PageProps) {
         </p>
       ) : null}
       <AssistantWorkspace key={competition?.id ?? "all"} competitionId={competition?.id} competitions={competitions} viewer={{ id: user.id, role: user.role }}>
-        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"><AssistantChat competitionId={competition?.id} /></section>
+        <section className="card p-5"><AssistantChat competitionId={competition?.id} /></section>
       </AssistantWorkspace>
     </div>
   );

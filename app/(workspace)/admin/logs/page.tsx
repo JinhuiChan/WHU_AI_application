@@ -62,7 +62,7 @@ export default async function AuditLogsPage({ searchParams }: PageProps) {
         <p className="mt-1 text-sm text-slate-500">按操作人和动作类型查看操作留痕，日志只读，不提供删除。</p>
       </div>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <section className="card p-4">
         <form action="/admin/logs" method="get" className="flex flex-wrap items-end gap-3">
           <label className="min-w-52 flex-1 text-sm text-slate-600">
             <span className="mb-1 block">操作人</span>
@@ -94,7 +94,7 @@ export default async function AuditLogsPage({ searchParams }: PageProps) {
         </form>
       </section>
 
-      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <section className="overflow-hidden card">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1100px] text-left text-sm">
             <thead className="bg-slate-50 text-xs text-slate-500">

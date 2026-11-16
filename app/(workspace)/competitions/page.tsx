@@ -80,7 +80,7 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
         </div>
       </div>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <section className="card p-4">
         <form action="/competitions" method="get" className="flex flex-wrap items-end gap-3">
           <label className="text-sm text-slate-600">
             <span className="mb-1 block">赛年</span>
@@ -124,7 +124,7 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
         </form>
       </section>
 
-      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <section className="overflow-hidden card">
         <div className="hidden overflow-x-auto lg:block">
           <table className="w-full min-w-[900px] text-left text-sm">
             <thead className="bg-slate-50 text-xs text-slate-500">

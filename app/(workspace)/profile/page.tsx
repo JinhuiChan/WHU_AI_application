@@ -79,7 +79,7 @@ export default async function ProfilePage() {
         </Button>
       </div>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="card p-6">
         <div className="flex items-center gap-4">
           <span aria-hidden="true" className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-blue-50 text-2xl font-semibold text-blue-700">
             {Array.from(profile.name.trim())[0] ?? "?"}

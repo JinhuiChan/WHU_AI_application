@@ -137,6 +137,9 @@ export default async function MyProjectsPage({ searchParams }: PageProps) {
   const active = FILTERS.find((item) => item.key === filterKey) ?? FILTERS[0];
   const visible = projects.filter((project) => matches(active.statuses, project.reviewStatus));
   const countOf = (statuses: string[]) => projects.filter((project) => matches(statuses, project.reviewStatus)).length;
+  const pendingCount = countOf(["PENDING", "COLLEGE_REVIEW"]);
+  const passedCount = countOf(["SCHOOL_FINAL"]);
+  const rejectedCount = countOf(["REJECTED"]);
 
   // 搜索只在已筛选出来的结果里做，不改查询、不加接口参数——
   // 学生项目量级是几个到几十个，服务端一次取完再过滤足够，也不会和分页打架（这页没有分页）。
@@ -180,27 +183,27 @@ export default async function MyProjectsPage({ searchParams }: PageProps) {
           没有它，四个数字只是四个数字。 */}
       <Card aria-label="进度概览" as="section" className="p-3">
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <div className="t-metric">
-            <p className="t-metric-label">我的项目</p>
-            <p className="t-metric-value">{projects.length}</p>
-            <p className="t-metric-note">全部状态合计</p>
+          <div className="t-metric bg-slate-100">
+            <p className="t-metric-label text-slate-600">我的项目</p>
+            <p className="t-metric-value text-slate-900">{projects.length}</p>
+            <p className="t-metric-note text-slate-600">全部状态合计</p>
           </div>
-          <div className="t-metric">
-            <p className="t-metric-label">待审核</p>
-            <p className="t-metric-value">{countOf(["PENDING", "COLLEGE_REVIEW"])}</p>
-            <p className="t-metric-note">学院与校级审核中</p>
+          <div className="t-metric bg-amber-50">
+            <p className="t-metric-label text-amber-700">待审核</p>
+            <p className="t-metric-value text-amber-700">{pendingCount}</p>
+            <p className="t-metric-note text-amber-700">学院与校级审核中</p>
           </div>
-          <div className="t-metric">
-            <p className="t-metric-label">已通过</p>
-            <p className="t-metric-value">{countOf(["SCHOOL_FINAL"])}</p>
-            <p className="t-metric-note">校内终审通过</p>
+          <div className="t-metric bg-emerald-50">
+            <p className="t-metric-label text-emerald-700">已通过</p>
+            <p className="t-metric-value text-emerald-700">{passedCount}</p>
+            <p className="t-metric-note text-emerald-700">校内终审通过</p>
           </div>
-          <div className={`t-metric ${countOf(["REJECTED"]) > 0 ? "t-warn" : ""}`}>
-            <p className="t-metric-label">已驳回</p>
-            <p className={`t-metric-value ${countOf(["REJECTED"]) > 0 ? "t-warn-value" : ""}`}>
-              {countOf(["REJECTED"])}
+          <div className={`t-metric ${rejectedCount > 0 ? "bg-red-50" : "bg-slate-100"}`}>
+            <p className={`t-metric-label ${rejectedCount > 0 ? "text-red-700" : "text-slate-600"}`}>已驳回</p>
+            <p className={`t-metric-value ${rejectedCount > 0 ? "text-red-700" : "text-slate-900"}`}>
+              {rejectedCount}
             </p>
-            <p className="t-metric-note">需补材料后重提</p>
+            <p className={`t-metric-note ${rejectedCount > 0 ? "text-red-700" : "text-slate-600"}`}>需补材料后重提</p>
           </div>
         </div>
       </Card>

@@ -18,7 +18,7 @@ const workAccept = ".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.7z,image/*"
 
 export function WorkSection({ value, dictionaries, onChange }: WorkSectionProps) {
   return (
-    <section className="rounded-xl border border-slate-200 bg-white shadow-sm p-5">
+    <section className="card p-5">
       <h2 className="text-base font-semibold text-slate-900">作品与材料</h2>
       <div className="mt-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-900">
         当前版本只登记文件名，<span className="font-semibold">文件本体不会上传到服务器</span>。要提交实体文件，请把网盘或在线文档链接填到右侧「作品外链」。
