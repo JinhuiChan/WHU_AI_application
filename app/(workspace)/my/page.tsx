@@ -1,12 +1,13 @@
 import { detailHref, listHref } from "@/components/data/list-link";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button, ButtonArrow } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { ProjectProgress } from "@/components/project/project-progress";
 import { StatusBadge } from "@/components/ui/status-badge";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { AlertTriangle, CheckCircle2, Clock3, Compass, FileEdit, Filter, Undo2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock3, Compass, FileEdit, Filter, Search, Undo2 } from "lucide-react";
 import { getMyProjects } from "@/lib/apply";
 import { getActiveUser } from "@/lib/auth.server";
 import { firstParam } from "@/lib/list-query";
@@ -35,6 +36,22 @@ const FILTERS: Array<{ key: string; label: string; statuses: string[] }> = [
 ];
 
 const matches = (statuses: string[], value: string) => statuses.length === 0 || statuses.includes(value);
+
+/**
+ * 相对时间：表格里「2026/11/01 10:39」要读三秒才知道是多久以前。
+ * 换成「3 天前」一眼就懂，完整时间挂在 title 上，需要精确值时鼠标停一下就出来。
+ */
+function relativeTime(date: Date) {
+  const diff = Date.now() - date.getTime();
+  const minute = 60_000;
+  const hour = 60 * minute;
+  const day = 24 * hour;
+  if (diff < minute) return "刚刚";
+  if (diff < hour) return `${Math.floor(diff / minute)} 分钟前`;
+  if (diff < day) return `${Math.floor(diff / hour)} 小时前`;
+  if (diff < 30 * day) return `${Math.floor(diff / day)} 天前`;
+  return date.toISOString().slice(0, 10).replace(/-/g, "/");
+}
 
 type StepTone = "amber" | "blue" | "emerald" | "slate";
 
@@ -121,6 +138,20 @@ export default async function MyProjectsPage({ searchParams }: PageProps) {
   const visible = projects.filter((project) => matches(active.statuses, project.reviewStatus));
   const countOf = (statuses: string[]) => projects.filter((project) => matches(statuses, project.reviewStatus)).length;
 
+  // 搜索只在已筛选出来的结果里做，不改查询、不加接口参数——
+  // 学生项目量级是几个到几十个，服务端一次取完再过滤足够，也不会和分页打架（这页没有分页）。
+  const query = (firstParam(searchParams?.q) || "").trim();
+  const keyword = query.toLowerCase();
+  const rows = keyword
+    ? visible.filter((project) =>
+        `${project.name} ${project.competitionName} ${project.trackName}`.toLowerCase().includes(keyword),
+      )
+    : visible;
+
+  // 保留搜索词，切换状态筛选时不至于把刚打的字清掉
+  const filterHref = (key: string) =>
+    `/my?filter=${key}${query ? `&q=${encodeURIComponent(query)}` : ""}`;
+
   // 优先挑需要本人动手的：被驳回 → 等审核 → 其余
   const focus =
     visible.find((project) => project.reviewStatus === "REJECTED") ??
@@ -147,7 +178,7 @@ export default async function MyProjectsPage({ searchParams }: PageProps) {
           四块指标全部来自已有数据（reviewStatus 分组，口径与 lib/statistics.ts 一致），
           不新增查询、不编造趋势。每块下面那行小字说明「这个数字代表什么」，
           没有它，四个数字只是四个数字。 */}
-      <section aria-label="进度概览" className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+      <Card aria-label="进度概览" as="section" className="p-3">
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <div className="t-metric">
             <p className="t-metric-label">我的项目</p>
@@ -172,45 +203,94 @@ export default async function MyProjectsPage({ searchParams }: PageProps) {
             <p className="t-metric-note">需补材料后重提</p>
           </div>
         </div>
-      </section>
+      </Card>
 
-      <nav aria-label="按状态筛选" className="flex flex-wrap gap-2">
-        {FILTERS.map((item) => {
-          const count = countOf(item.statuses);
-          const isActive = item.key === active.key;
-          return (
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <nav aria-label="按状态筛选" className="flex flex-wrap gap-2">
+          {FILTERS.map((item) => {
+            const count = countOf(item.statuses);
+            const isActive = item.key === active.key;
+            return (
+              <Link
+                key={item.key}
+                aria-current={isActive ? "page" : undefined}
+                className={`inline-flex h-9 items-center gap-1.5 rounded-full border px-3.5 text-sm transition duration-[160ms] ${
+                  isActive
+                    ? "border-blue-600 bg-blue-600 text-white"
+                    : "border-slate-300 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50/50"
+                }`}
+                href={filterHref(item.key)}
+              >
+                {item.label}
+                <span className={`text-xs tabular-nums ${isActive ? "text-blue-100" : "text-slate-400"}`}>{count}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* 搜索走原生 GET 表单：不需要客户端组件、不需要改查询，刷新后地址栏就是可分享的状态 */}
+        <form action="/my" className="flex items-center gap-2">
+          {filterKey !== "all" ? <input type="hidden" name="filter" value={filterKey} /> : null}
+          <input
+            aria-label="搜索我的项目"
+            className="h-9 w-44 rounded-full border border-slate-300 bg-white px-3.5 text-sm text-slate-700 outline-none transition duration-[160ms] placeholder:text-slate-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+            defaultValue={query}
+            name="q"
+            placeholder="搜索项目 / 赛事"
+            type="search"
+          />
+          <Button className="h-9" size="sm" type="submit" variant="outline">
+            搜索
+          </Button>
+          {query ? (
             <Link
-              key={item.key}
-              aria-current={isActive ? "page" : undefined}
-              className={`inline-flex h-9 items-center gap-1.5 rounded-full border px-3.5 text-sm transition duration-[160ms] ${
-                isActive
-                  ? "border-blue-600 bg-blue-600 text-white"
-                  : "border-slate-300 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50/50"
-              }`}
-              href={`/my?filter=${item.key}`}
+              className="text-sm text-slate-500 transition hover:text-blue-600"
+              href={filterKey === "all" ? "/my" : `/my?filter=${filterKey}`}
             >
-              {item.label}
-              <span className={`text-xs tabular-nums ${isActive ? "text-blue-100" : "text-slate-400"}`}>{count}</span>
+              清除
             </Link>
-          );
-        })}
-      </nav>
+          ) : null}
+        </form>
+      </div>
 
-      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <Card as="section" className="overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px] text-left text-sm">
-            <thead className="bg-slate-50 text-xs text-slate-500"><tr><th className="px-4 py-3">名称</th><th className="px-4 py-3">赛道</th><th className="px-4 py-3">状态</th><th className="px-4 py-3">驳回原因</th><th className="px-4 py-3">最后修改时间</th><th className="px-4 py-3">操作</th></tr></thead>
+          <table className="w-full min-w-[860px] text-left text-sm">
+            <thead className="bg-slate-50 text-xs text-slate-500">
+              <tr>
+                <th className="px-4 py-3">项目</th>
+                <th className="px-4 py-3">状态</th>
+                <th className="px-4 py-3">提交</th>
+                <th className="px-4 py-3">驳回原因</th>
+                <th className="px-4 py-3">最后修改</th>
+                <th className="px-4 py-3">操作</th>
+              </tr>
+            </thead>
             <tbody className="divide-y divide-slate-100">
-              {visible.map((project) => (
+              {rows.map((project) => (
                 <tr key={project.id}>
-                  <td className="max-w-72 px-4 py-3 font-medium text-slate-900"><Link href={detailHref("/my", project.id, from)} className="hover:text-blue-600">{project.name}</Link></td>
-                  <td className="px-4 py-3 text-slate-600">{project.competitionName} / {project.trackName}</td>
+                  <td className="max-w-72 px-4 py-3">
+                    <Link
+                      className="font-medium text-slate-900 hover:text-blue-600"
+                      href={detailHref("/my", project.id, from)}
+                    >
+                      {project.name}
+                    </Link>
+                    <div className="mt-0.5 text-xs text-slate-500">
+                      {project.competitionName} / {project.trackName}
+                    </div>
+                  </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={project.reviewStatus}>{registrationStatusLabels[project.reviewStatus]}</StatusBadge>
                     <div className="mt-2"><ProjectProgress status={project.reviewStatus} /></div>
                   </td>
+                  <td className="whitespace-nowrap px-4 py-3 text-slate-600">
+                    {project.submissionCount > 0 ? `${project.submissionCount} 次` : "未提交"}
+                  </td>
                   <td className="max-w-56 px-4 py-3 text-slate-600">{project.rejectedReason ?? "—"}</td>
-                  <td className="px-4 py-3 text-slate-600">{formatDateTime(project.updatedAt.toISOString())}</td>
+                  <td className="whitespace-nowrap px-4 py-3 text-slate-600" title={formatDateTime(project.updatedAt.toISOString())}>
+                    {relativeTime(project.updatedAt)}
+                  </td>
                   <td className="whitespace-nowrap px-4 py-3">
                     <Button asChild size="sm" variant="outline" className="group h-8 px-3">
                       <Link href={detailHref("/my", project.id, from)}>
@@ -221,7 +301,7 @@ export default async function MyProjectsPage({ searchParams }: PageProps) {
                   </td>
                 </tr>
               ))}
-              {visible.length === 0 ? (
+              {rows.length === 0 ? (
                 <tr><td colSpan={6}>
                   {projects.length === 0 ? (
                     <EmptyState
@@ -229,6 +309,13 @@ export default async function MyProjectsPage({ searchParams }: PageProps) {
                       description="先从已发布的赛事里选择一项，再填写报名；进度与材料都会在这里看到。"
                       action={{ href: "/competitions", label: "浏览赛事" }}
                       icon={<Compass aria-hidden="true" size={20} />}
+                    />
+                  ) : query ? (
+                    <EmptyState
+                      title={`没有匹配「${query}」的项目`}
+                      description={`当前筛选内共 ${visible.length} 个，但项目名称、赛事、赛道都不含这个关键词。`}
+                      action={{ href: filterHref("all"), label: "清除搜索" }}
+                      icon={<Search aria-hidden="true" size={20} />}
                     />
                   ) : (
                     <EmptyState
@@ -243,7 +330,7 @@ export default async function MyProjectsPage({ searchParams }: PageProps) {
             </tbody>
           </table>
         </div>
-      </section>
+      </Card>
 
       {step && focus && StepIcon ? (
         <section className={`rounded-xl border p-4 shadow-sm ${STEP_STYLE[step.tone].box}`} aria-label="下一步该做什么">
