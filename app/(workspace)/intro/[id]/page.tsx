@@ -8,7 +8,6 @@ import { ArrowUpRight, CalendarDays, FileText, PlayCircle } from "lucide-react";
 import { BreadcrumbTitle } from "@/components/layout/breadcrumbs";
 import { introContentFor } from "@/components/competitions/competition-intro-data";
 import { TrackCard } from "@/components/competitions/track-card";
-import BlurText from "@/components/react-bits/BlurText";
 import SpotlightCard from "@/components/react-bits/SpotlightCard";
 import { Button, ButtonArrow } from "@/components/ui/button";
 import { getActiveUser } from "@/lib/auth.server";
@@ -155,17 +154,7 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
             <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${applyState.tone}`}>{applyState.label}</span>
           </div>
 
-          <h1 className="mt-3 text-3xl font-semibold leading-tight text-slate-900">
-            <BlurText
-              animateBy="letters"
-              blur={9}
-              delay={26}
-              distance={16}
-              stepDuration={0.42}
-              text={competition.name}
-              trigger="load"
-            />
-          </h1>
+          <h1 className="mt-3 text-3xl font-semibold leading-tight text-slate-900">{competition.name}</h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">{intro.tagline}</p>
 
           <div className="mt-5 flex flex-wrap items-center gap-3">
