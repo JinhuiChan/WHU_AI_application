@@ -82,14 +82,16 @@ export function Breadcrumbs() {
 
   return (
     <nav aria-label="面包屑" className="min-w-0">
+      {/* 320px 下三节挤在一起会把「首页」「赛事简介」各自拆成两行，所以中间那节小屏隐藏，
+          只留「首页 › 当前页」；sm 以上恢复完整路径。每节都 nowrap，宁可截断也不换行。 */}
       <ol className="flex items-center gap-1 text-sm">
-        <li>
+        <li className="shrink-0 whitespace-nowrap">
           <Link href="/dashboard" className="text-slate-500 hover:text-blue-600">
             首页
           </Link>
         </li>
         {parent ? (
-          <li className="flex items-center gap-1">
+          <li className="hidden shrink-0 items-center gap-1 whitespace-nowrap sm:flex">
             <ChevronRight size={14} className="text-slate-400" aria-hidden="true" />
             {parent.href ? (
               <Link href={parent.href} className="text-slate-500 hover:text-blue-600">{parent.label}</Link>
