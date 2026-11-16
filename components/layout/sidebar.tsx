@@ -44,6 +44,32 @@ const teacherNavigation = [
   { href: "/profile", label: "个人中心", icon: UserRound },
 ];
 
+// 移动端底部栏最多 5 格，按「每天真正要点的那几页」排序，不做桌面导航的截断。
+// 赛事简介从赛事列表进、组队广场从我的组队进，都不占位；
+// 管理端把「报名审核」提到第一排，它是管理员每天开的第一页。
+const studentMobileNavigation = [
+  { href: "/dashboard", label: "看板", icon: LayoutDashboard },
+  { href: "/competitions", label: "赛事", icon: Trophy },
+  { href: "/my", label: "我的项目", icon: FolderKanban },
+  { href: "/my/teams", label: "我的组队", icon: ClipboardCheck },
+  { href: "/profile", label: "我的", icon: UserRound },
+];
+
+const adminMobileNavigation = [
+  { href: "/dashboard", label: "看板", icon: LayoutDashboard },
+  { href: "/review", label: "审核", icon: ClipboardCheck },
+  { href: "/projects", label: "项目", icon: FolderKanban },
+  { href: "/intro", label: "简介", icon: BookOpen },
+  { href: "/admin/users", label: "管理", icon: Settings },
+];
+
+const teacherMobileNavigation = [
+  { href: "/dashboard", label: "看板", icon: LayoutDashboard },
+  { href: "/teacher", label: "指导项目", icon: UserCheck },
+  { href: "/intro", label: "赛事简介", icon: BookOpen },
+  { href: "/profile", label: "我的", icon: UserRound },
+];
+
 function navigationFor(roles: Role[]) {
   const set = new Set(roles);
   const assistant = { href: "/assistant", label: "赛事 AI 问答", icon: MessageCircle };
@@ -55,6 +81,17 @@ function navigationFor(roles: Role[]) {
     ...(set.has("TEACHER") ? teacherNavigation.filter((item) => item.href !== "/dashboard") : []),
   ];
   return [...dashboard, ...extra, assistant];
+}
+
+function mobileNavigationFor(roles: Role[]) {
+  const set = new Set(roles);
+  if (set.has("ADMIN")) return adminMobileNavigation;
+  if (!set.has("STUDENT") && set.has("TEACHER")) return teacherMobileNavigation;
+  // 学生兼教师时补一格「指导」顶掉「我的」，个人中心从右上角头像菜单进
+  if (set.has("STUDENT") && set.has("TEACHER")) {
+    return [...studentMobileNavigation.slice(0, 4), { href: "/teacher", label: "指导", icon: UserCheck }];
+  }
+  return studentMobileNavigation;
 }
 
 const administration = [
@@ -74,10 +111,14 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
   const teamRequests = badges?.teamRequests ?? 0;
   const adminUsers = badges?.adminUsers ?? 0;
   const pendingTitle = badges ? `待审核项目 ${badges.review} 个 · 待审批变更 ${badges.changes} 条` : undefined;
-  const mobileNavigation = [
-    ...navigation.slice(0, 4),
-    ...(roles.includes("ADMIN") ? [{ href: "/admin/users", label: "管理", icon: Settings }] : []),
-  ];
+  const mobileNavigation = mobileNavigationFor(roles);
+  // 桌面侧栏的角标在移动端也要能看见，否则「有 3 条入队申请」在手机上完全无提示
+  function mobileBadge(href: string) {
+    if (href === "/my/teams" && teamRequests > 0) return teamRequests;
+    if (href === "/review" && pendingTodo > 0) return pendingTodo;
+    if (href === "/admin/users" && adminUsers > 0) return adminUsers;
+    return 0;
+  }
 
   function isActive(href: string) {
     if (pathname === href || (href !== "/dashboard" && pathname.startsWith(`${href}/`))) return true;
@@ -167,6 +208,7 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
         {mobileNavigation.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.href);
+          const badge = mobileBadge(item.href);
           return (
             <Link
               key={item.href}
@@ -174,7 +216,17 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
               aria-current={active ? "page" : undefined}
               className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-[11px] ${active ? "text-blue-600" : "text-slate-500"}`}
             >
-              <Icon size={20} aria-hidden="true" />
+              <span className="relative">
+                <Icon size={20} aria-hidden="true" />
+                {badge > 0 ? (
+                  <span
+                    title={`待处理 ${badge} 条`}
+                    className="absolute -right-2 -top-1 min-w-4 rounded-full bg-red-600 px-1 text-center text-[10px] font-medium leading-4 text-white"
+                  >
+                    {badge}
+                  </span>
+                ) : null}
+              </span>
               {item.label}
             </Link>
           );
