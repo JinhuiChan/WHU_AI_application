@@ -17,7 +17,7 @@ const databaseUrl = 'file:' + testFile.replaceAll('\\', '/');
 const db = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
 const base = 'http://127.0.0.1:3021';
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-let child, provider, admin, student, providerError, calls = 0, attempts = 0;
+let child, provider, admin, student, providerError, calls = 0, attempts = 0, repairAttempts = 0;
 const createdFiles = [];
 async function req(url, { cookie, body, method, status = 200 } = {}) {
   const headers = cookie ? { Cookie: cookie } : {};
@@ -44,11 +44,12 @@ async function main() {
         await db.competition.update({ where: { id: evidence[0].competitionId }, data: { publishStatus: 'WITHDRAWN' } });
         response.writeHead(500); response.end('{}'); return;
       }
-      const chosen = question.includes('和挑战杯')
+      const chosen = question.includes('和挑战杯') || question.includes('对比2025年和2026年')
         ? [...new Map(attached.map(item => [item.competitionId, item])).values()]
         : [attached[0] || evidence[0]];
       let result = { found: true, answer: chosen.map(item => `${item.year}年${item.competitionName}：${item.quote.slice(0, 120)}[${item.id}]。`).join('\n'), citations: chosen.map(item => ({ id: item.id, quote: item.quote.slice(0, 200) })) };
       if (question.includes('伪造编号')) result.citations[0].id = 999;
+      if (question.includes('引用修复') && repairAttempts++ === 0) delete result.citations;
       if (question.includes('伪造原文')) result.citations[0].quote = '资料中根本没有的原文';
       if (question.includes('未说明的报销')) result = { found: false, answer: '未说明', citations: [] };
       response.writeHead(200, { 'Content-Type': 'application/json' });
@@ -109,6 +110,27 @@ async function main() {
   const hiddenParent = await db.track.create({ data: { competitionId: a.id, name: '不可见父赛道', enabled: false } });
   await db.track.create({ data: { competitionId: a.id, parentId: hiddenParent.id, name: '隐藏子赛道验收', enabled: true } });
   assert.ok(!(await ask('国创赛有哪些赛道和组别？')).answer.includes('隐藏子赛道验收'));
+  const documentCompetition = await db.competition.create({ data: { name: '文档解析验收赛', seriesId: 'document-regression', year: 2025, level: 'SCHOOL', publishStatus: 'PUBLISHED' } });
+  const uploadBinary = async (name, type) => {
+    const form = new FormData(); form.set('title', name); form.set('kind', 'RULE'); form.set('file', new Blob([fs.readFileSync(path.join(root, 'scripts/fixtures', name))], { type }), name);
+    const attachment = (await req('/api/admin/competitions/' + documentCompetition.id + '/attachments', { cookie: admin, body: form, status: 201 })).data;
+    createdFiles.push({ competitionId: documentCompetition.id, id: attachment.id, filePath: attachment.filePath }); return attachment;
+  };
+  const wordFile = await uploadBinary('document-rules.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+  assert.equal(wordFile.knowledgeStatus, 'READY');
+  const processAnswer = await ask('2025年文档解析验收赛怎么报名？');
+  assert.equal(processAnswer.mode, 'generated', '流程问题必须进入文档问答，不能被报名设置截获');
+  assert.ok(processAnswer.sources.some(item => item.quote.includes('先在线报名')));
+  const tableAnswer = await ask('2025年文档解析验收赛本科生组计划书对应的人数规则？');
+  assert.equal(tableAnswer.mode, 'generated');
+  assert.ok(tableAnswer.sources.some(item => item.quote.includes('组别：本科生组') && item.quote.includes('人数：3至5人')));
+  const pdfFile = await uploadBinary('document-pages.pdf', 'application/pdf');
+  assert.equal(pdfFile.knowledgeStatus, 'READY');
+  assert.ok((await db.kbChunk.findMany({ where: { document: { sourceAttachmentId: pdfFile.id } } })).some(item => item.page === 2));
+  const scanFile = await uploadBinary('document-scanned.pdf', 'application/pdf');
+  assert.equal(scanFile.knowledgeStatus, 'ERROR'); assert.match(scanFile.knowledgeError, /第 2 页.*OCR/);
+  await db.competition.update({ where: { id: documentCompetition.id }, data: { publishStatus: 'DRAFT' } });
+  console.log('PASS DOCX 表格与流程问答、PDF 页码、混合扫描拒绝、测试赛事下架隔离');
   await db.kbDocument.create({ data: { competitionId: a.id, title: '旧手工知识', year: a.year, fileName: '旧手工知识', uploadedBy: owner.id, chunks: { create: { section: '资格', content: '旧手工知识特别资格为秘密规则', keywords: '' } } } });
   assert.equal((await ask('国创赛通知里秘密规则是什么？')).mode, 'no_evidence');
   await req('/api/admin/knowledge/' + a.id, { cookie: admin, body: { action: 'publish' }, status: 410 });
@@ -140,7 +162,9 @@ async function main() {
   await ask('国创赛通知组队有什么要求？');
   assert.equal((await db.competitionAttachment.findUnique({ where: { id: sample.id } })).knowledgeStatus, 'SKIPPED');
   const template = await upload(a.id, '# 模板\n这个模板写着验收秘密人数100人。', { kind: 'TEMPLATE' });
-  assert.equal(template.knowledgeStatus, 'SKIPPED');
+  assert.equal(template.knowledgeStatus, 'READY');
+  const ruleOnly = await ask('国创赛通知组队人数要求？');
+  assert.ok(ruleOnly.sources.every(item => item.attachmentKind !== 'TEMPLATE'), '模板不得用于解释人数资格规则');
   const legacy = await db.competitionAttachment.create({ data: { competitionId: b.id, title: '待补索引通知', kind: 'RULE', fileName: old.fileName, filePath: old.filePath.replace(a.id, b.id), uploadedBy: owner.id } });
   // Missing source files are reported, not silently used or invented.
   await ask('挑战杯通知材料是什么？');
@@ -149,12 +173,18 @@ async function main() {
   const cross = await ask('国创赛和挑战杯通知报名需要哪些材料？');
   assert.equal(cross.mode, 'generated'); assert.equal(new Set(cross.sources.map(item => item.competitionId)).size, 2);
   assert.ok((await ask('国创赛通知报名需要哪些材料？', b.id)).sources.every(item => item.competitionId === a.id));
-  console.log('PASS 赛事附件自动解析、模板及演示排除、历史文件补索引、缺失文件报错、跨赛事原文及明确名称优先');
+  console.log('PASS 赛事附件自动解析、模板与规则用途隔离、演示排除、历史文件补索引、缺失文件报错、跨赛事原文及明确名称优先');
   for (const marker of ['伪造编号', '伪造原文']) assert.equal((await ask('国创赛通知材料' + marker)).mode, 'unavailable');
+  assert.equal((await ask('国创赛通知材料引用修复')).mode, 'generated'); assert.equal(repairAttempts, 2);
   assert.equal((await ask('国创赛通知材料临时重试')).mode, 'generated'); assert.equal(attempts, 2);
   assert.equal((await ask('国创赛通知材料服务错误')).mode, 'unavailable');
   assert.equal((await ask('国创赛通知未说明的报销')).mode, 'no_evidence');
   const older = await db.competition.create({ data: { name: a.name, year: 2025, seriesId: a.seriesId, level: a.level, publishStatus: 'PUBLISHED', organizer: '历史主办方' } });
+  await upload(older.id, '# 参赛方式\n高教主赛道参赛团队成员不少于3人，不多于15人（含负责人）。');
+  const comparedPeople = await ask('对比2025年和2026年国创赛通知中的团队人数要求');
+  assert.equal(comparedPeople.mode, 'generated');
+  assert.equal(new Set(comparedPeople.sources.map(item => item.year)).size, 2);
+  assert.ok(comparedPeople.sources.some(item => item.year === 2025 && item.quote.includes('15人')));
   assert.equal((await ask('国创赛报名时间？')).mode, 'clarify');
   const clarified = await ask('国创赛报名时间？', a.id);
   assert.equal(clarified.mode, 'configuration'); assert.equal(clarified.sources.length, 1); assert.equal(clarified.sources[0].year, a.year);

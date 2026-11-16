@@ -4,8 +4,7 @@ import { writeAuditLog } from "@/lib/audit";
 import {
   decodeImportBatchMetadata,
   ImportFileError,
-  parseImportData,
-  readImportSource,
+  readImportBatchSource,
   type ImportBatchMetadata,
   type ImportSourceRow,
 } from "@/lib/import";
@@ -263,10 +262,13 @@ export async function commitImportBatch(batchId: string, actorId: string): Promi
   if (!batch.competitionId || !batch.competition) throw new ImportCommitError("批次未关联有效赛事");
   if (!metadata.sourceKey) throw new ImportCommitError("该批次没有源文件，请重新上传并保存映射");
   if (batch.fileType !== "xlsx" && !metadata.confirmed) {
-    throw new ImportCommitError("Word/PDF 解析结果尚未人工确认，不能入库");
+    throw new ImportCommitError("文档或粘贴资料的识别结果尚未人工确认，不能入库");
   }
 
-  const source = await parseImportData(await readImportSource(metadata.sourceKey, batch.fileName));
+  const source = await readImportBatchSource(batch.fileName, metadata, batch.importedBy);
+  const rowSourceRef = (rowNo: number) => source.recognition
+    ? `${batch.fileName} · 核对第${rowNo}行（${source.recognition.rowSources[String(rowNo)]?.join("、") || "人工补充"}）`
+    : sourceRef(batch.fileName, rowNo);
   if (source.rows.length !== batch.totalRows) {
     throw new ImportCommitError("源文件行数与批次不一致，请重新上传并保存映射");
   }
@@ -383,7 +385,7 @@ export async function commitImportBatch(batchId: string, actorId: string): Promi
             recordType: "Project",
             recordId: project.id,
             sourceType: "IMPORT" as const,
-            sourceRef: sourceRef(batch.fileName, main.rowNo),
+            sourceRef: rowSourceRef(main.rowNo),
             batchId: batch.id,
             syncedAt: now,
           },
@@ -391,7 +393,7 @@ export async function commitImportBatch(batchId: string, actorId: string): Promi
             recordType: "TeamMember",
             recordId: leaderId,
             sourceType: "IMPORT" as const,
-            sourceRef: sourceRef(batch.fileName, main.rowNo),
+            sourceRef: rowSourceRef(main.rowNo),
             batchId: batch.id,
             syncedAt: now,
           },
@@ -422,7 +424,7 @@ export async function commitImportBatch(batchId: string, actorId: string): Promi
             recordType: "TeamMember",
             recordId: id,
             sourceType: "IMPORT",
-            sourceRef: sourceRef(batch.fileName, member.rowNo),
+            sourceRef: rowSourceRef(member.rowNo),
             batchId: batch.id,
             syncedAt: now,
           });
@@ -449,7 +451,7 @@ export async function commitImportBatch(batchId: string, actorId: string): Promi
             recordType: "Teacher",
             recordId: id,
             sourceType: "IMPORT",
-            sourceRef: sourceRef(batch.fileName, teacher.rowNo),
+            sourceRef: rowSourceRef(teacher.rowNo),
             batchId: batch.id,
             syncedAt: now,
           });
@@ -469,7 +471,7 @@ export async function commitImportBatch(batchId: string, actorId: string): Promi
             recordType: "Work",
             recordId: workId,
             sourceType: "IMPORT",
-            sourceRef: sourceRef(batch.fileName, main.rowNo),
+            sourceRef: rowSourceRef(main.rowNo),
             batchId: batch.id,
             syncedAt: now,
           });
@@ -530,7 +532,7 @@ export async function commitImportBatch(batchId: string, actorId: string): Promi
 }
 
 export async function createImportFailedExport(batchId: string, watermarkNo: string) {
-  const batch = await prisma.importBatch.findUnique({ where: { id: batchId }, select: { fileName: true, mappingJson: true } });
+  const batch = await prisma.importBatch.findUnique({ where: { id: batchId }, select: { fileName: true, mappingJson: true, importedBy: true } });
   if (!batch) throw new ImportCommitError("导入批次不存在", 404);
   const metadata = decodeImportBatchMetadata(batch.mappingJson);
   if (!metadata?.committedAt || !metadata.report) throw new ImportCommitError("该批次尚未完成入库", 409);
@@ -539,7 +541,7 @@ export async function createImportFailedExport(batchId: string, watermarkNo: str
 
   let source;
   try {
-    source = await parseImportData(await readImportSource(metadata.sourceKey, batch.fileName));
+    source = await readImportBatchSource(batch.fileName, metadata, batch.importedBy);
   } catch (error) {
     if (error instanceof ImportFileError) throw new ImportCommitError(error.message);
     throw error;
@@ -562,6 +564,6 @@ export async function createImportFailedExport(batchId: string, watermarkNo: str
   XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet([[...source.columns, "错误列", "错误原因"], ...rows]), "失败行");
   XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet([["导出水印号", watermarkNo]]), "导出信息");
   const output = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" }) as Buffer;
-  const baseName = batch.fileName.replace(/\.(xlsx|docx|pdf)$/i, "").replace(/[<>:"/\\|?*\x00-\x1f]/g, "_") || "导入批次";
+  const baseName = batch.fileName.replace(/\.(xlsx|docx|pdf|txt)$/i, "").replace(/[<>:"/\\|?*\x00-\x1f]/g, "_") || "导入批次";
   return { output, rowCount: rows.length, fileName: `${baseName}_失败行.xlsx` };
 }

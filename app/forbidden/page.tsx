@@ -7,7 +7,9 @@ export const metadata: Metadata = {
 };
 
 export default function ForbiddenPage({ searchParams }: { searchParams?: { reason?: string } }) {
-  const reason = searchParams?.reason?.trim();
+  const labels: Record<string, string> = { admin: "无权限访问该页面", student: "该页面仅参赛学生可访问", teacher: "该页面仅指导教师可访问" };
+  const value = searchParams?.reason?.trim();
+  const reason = value ? labels[value] || value : undefined;
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
       <section className="w-full max-w-md rounded-xl border border-amber-200 bg-white p-8 text-center shadow-sm">

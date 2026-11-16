@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import type { ApiResponse } from "@/types/api";
 import type { AssistantResult } from "@/types/assistant";
 
-const suggestions = ["现在有哪些比赛还能报名？", "国创赛和挑战杯的报名时间有什么不同？", "国创赛报名需要交哪些材料？"];
+const suggestions = ["现在有哪些比赛还能报名？", "国创赛怎么报名？请按步骤说明", "国创赛报名需要交哪些材料？"];
 type Exchange = { id: number; question: string; result: AssistantResult };
 
 export function AssistantChat({ competitionId }: { competitionId?: string }) {
@@ -46,7 +46,7 @@ export function AssistantChat({ competitionId }: { competitionId?: string }) {
           <div className="rounded-xl border border-slate-200 bg-slate-50/60 px-5 py-8 text-center">
             <Bot size={28} className="mx-auto text-blue-600" aria-hidden="true" />
             <p className="mt-3 font-medium text-slate-800">问一问平台赛事</p>
-            <p className="mt-2 text-sm text-slate-500">可询问报名状态、比较多场赛事，或查询通知中的具体规则。</p>
+            <p className="mt-2 text-sm text-slate-500">可询问报名状态、参赛流程、资格和材料要求，回答附通知或规程的原文依据。</p>
           </div>
         )}
         {exchanges.map(({ id, question: asked, result }) => (
@@ -75,7 +75,7 @@ export function AssistantChat({ competitionId }: { competitionId?: string }) {
                   ))}
                   {source.fileUrl && (
                     <a href={`${source.fileUrl}${source.page ? `#page=${source.page}` : ""}`}
-                      target="_blank" rel="noreferrer" className="mt-3 inline-block text-blue-600 hover:underline">{source.kind === "configuration" ? "查看赛事配置" : "查看来源文件"}</a>
+                      target="_blank" rel="noreferrer" className="mt-3 inline-block text-blue-600 hover:underline">{source.kind === "configuration" ? "查看赛事配置" : source.attachmentKind === "TEMPLATE" ? "查看填表模板（不作为资格规则）" : "查看来源文件"}</a>
                   )}
                 </details>
               ))}

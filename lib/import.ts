@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { mkdir, readFile, readdir, stat, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import mammoth from "mammoth";
@@ -6,6 +6,7 @@ import pdfParse from "pdf-parse/lib/pdf-parse.js";
 import * as XLSX from "xlsx";
 import { writeAuditLog } from "@/lib/audit";
 import { prisma } from "@/lib/prisma";
+import { ImportRecognitionError, recognizeImportDocument } from "@/lib/import-recognition";
 import {
   importSystemFields,
   type ImportCommitResult,
@@ -15,11 +16,13 @@ import {
   type ImportMappingSaveResult,
   type ImportParseResult,
   type ImportSystemFieldKey,
+  type ImportRecognition,
+  type ImportReviewedRow,
 } from "@/types/import";
 
 const maxFileSize = 20 * 1024 * 1024;
 const previewRowCount = 20;
-const fileTypes: ImportFileType[] = ["xlsx", "docx", "pdf"];
+const fileTypes: ImportFileType[] = ["xlsx", "docx", "pdf", "txt"];
 const importSourceDirectory = path.join(process.cwd(), "storage", "imports");
 
 export type ImportSourceRow = {
@@ -33,13 +36,16 @@ export type ImportSourceData = {
   columns: string[];
   rows: ImportSourceRow[];
   requiresConfirm: boolean;
+  recognition?: ImportRecognition;
 };
 
 export type ImportBatchMetadata = {
-  version: 1 | 2;
+  version: 1 | 2 | 3;
   mapping: ImportMapping;
   sourceKey: string;
   confirmed: boolean;
+  preparedKey?: string;
+  preparedDigest?: string;
   commitStartedAt?: string;
   committedAt?: string;
   report?: ImportCommitResult;
@@ -82,7 +88,7 @@ export function getImportFile(formData: FormData) {
     throw new ImportFileError("请选择要上传的文件");
   }
   if (!getFileType(file.name)) {
-    throw new ImportFileError("仅支持 .xlsx、.docx、.pdf 格式文件");
+    throw new ImportFileError("仅支持 .xlsx、.docx、.pdf、.txt 格式文件");
   }
   if (file.size === 0) {
     throw new ImportFileError("上传文件不能为空");
@@ -221,10 +227,12 @@ async function parsePdf(buffer: Buffer): Promise<ParsedTable> {
 
 export async function parseImportData(file: File): Promise<ImportSourceData> {
   const fileType = getFileType(file.name);
-  if (!fileType) throw new ImportFileError("仅支持 .xlsx、.docx、.pdf 格式文件");
+  if (!fileType) throw new ImportFileError("仅支持 .xlsx、.docx、.pdf、.txt 格式文件");
   const buffer = Buffer.from(await file.arrayBuffer());
   const table = fileType === "xlsx"
     ? parseXlsx(buffer)
+    : fileType === "txt"
+      ? parseTextTable(new TextDecoder("utf-8", { fatal: true }).decode(buffer), "文本资料")
     : fileType === "docx"
       ? await parseDocx(buffer)
       : await parsePdf(buffer);
@@ -239,7 +247,7 @@ export async function parseImportData(file: File): Promise<ImportSourceData> {
 
 function sourcePath(sourceKey: string, fileName: string) {
   const fileType = getFileType(fileName);
-  if (!fileType || !/^[0-9a-f-]{36}\.(xlsx|docx|pdf)$/.test(sourceKey) || !sourceKey.endsWith(`.${fileType}`)) {
+  if (!fileType || !/^[0-9a-f-]{36}\.(xlsx|docx|pdf|txt)$/.test(sourceKey) || !sourceKey.endsWith(`.${fileType}`)) {
     throw new ImportFileError("导入源文件标识不正确，请重新上传");
   }
   const resolved = path.resolve(importSourceDirectory, sourceKey);
@@ -282,9 +290,18 @@ export async function readImportSource(sourceKey: string, fileName: string) {
   }
 }
 
-export async function parseImportFile(file: File): Promise<ImportParseResult> {
-  const source = await parseImportData(file);
+export async function parseImportFile(file: File, actorId: string): Promise<ImportParseResult> {
+  const fileType = getFileType(file.name);
+  if (!fileType) throw new ImportFileError("仅支持 .xlsx、.docx、.pdf、.txt 格式文件");
+  let source: ImportSourceData;
+  try {
+    source = fileType === "xlsx" ? await parseImportData(file) : { fileName: file.name, fileType, requiresConfirm: true, ...await recognizeImportDocument(Buffer.from(await file.arrayBuffer()), fileType) };
+  } catch (error) {
+    if (error instanceof ImportRecognitionError) throw new ImportFileError(error.message);
+    throw error;
+  }
   const sourceKey = await storeImportSource(file, source.fileType);
+  await writePrepared(sourceKey + ".parsed.json", sourceKey, actorId, source);
   return {
     fileName: source.fileName,
     fileType: source.fileType,
@@ -295,7 +312,57 @@ export async function parseImportFile(file: File): Promise<ImportParseResult> {
     requiresConfirm: source.requiresConfirm,
     totalRows: source.rows.length,
     sourceKey,
+    recognition: source.recognition,
+    draftRows: source.recognition ? source.rows : undefined,
   };
+}
+
+function preparedPath(key: string) {
+  if (!/^(?:[0-9a-f-]{36}\.(?:xlsx|docx|pdf|txt)\.parsed|[0-9a-f-]{36}\.reviewed)\.json$/.test(key)) throw new ImportMappingError("识别快照标识无效");
+  return path.join(importSourceDirectory, key);
+}
+
+async function writePrepared(key: string, sourceKey: string, actorId: string, source: ImportSourceData) {
+  const raw = await readFile(sourcePath(sourceKey, source.fileName));
+  const data = JSON.stringify({ version: 1, actorId, sourceSha: createHash("sha256").update(raw).digest("hex"), source });
+  await writeFile(preparedPath(key), data, { flag: "wx" });
+  return createHash("sha256").update(data).digest("hex");
+}
+
+async function readPrepared(sourceKey: string, fileName: string, actorId: string, key = sourceKey + ".parsed.json", digest?: string): Promise<ImportSourceData> {
+  const data = await readFile(preparedPath(key), "utf8");
+  if (digest && createHash("sha256").update(data).digest("hex") !== digest) throw new ImportMappingError("确认快照已发生变化，请重新上传并核对");
+  let parsed: unknown;
+  try { parsed = JSON.parse(data); } catch { throw new ImportMappingError("识别快照无法读取，请重新上传"); }
+  if (!isRecord(parsed) || !isRecord(parsed.source) || parsed.actorId !== actorId) throw new ImportMappingError("该识别结果不属于当前上传管理员", 403);
+  const source = parsed.source;
+  if (source.fileName !== fileName || source.fileType !== getFileType(fileName) || !Array.isArray(source.columns) || !source.columns.length || source.columns.length > 100 || source.columns.some((column) => typeof column !== "string") || !Array.isArray(source.rows)) throw new ImportMappingError("识别快照格式无效，请重新上传");
+  validateReviewedRows(source.rows, source.columns as string[], source.fileType === "xlsx" ? 10000 : 1000);
+  const raw = await readFile(sourcePath(sourceKey, fileName));
+  if (parsed.sourceSha !== createHash("sha256").update(raw).digest("hex")) throw new ImportMappingError("原始文件已发生变化，请重新上传并核对");
+  return source as ImportSourceData;
+}
+
+function validateReviewedRows(value: unknown, columns: string[], limit: number): ImportReviewedRow[] {
+  if (!Array.isArray(value) || !value.length || value.length > limit) throw new ImportMappingError(`核对结果须为1至${limit}行`);
+  const seen = new Set<number>();
+  let total = 0;
+  const rows = value.map((row) => {
+    if (!isRecord(row) || !Number.isInteger(row.rowNo) || Number(row.rowNo) < 1 || Number(row.rowNo) > 1000000 || seen.has(Number(row.rowNo)) || !Array.isArray(row.values) || row.values.length !== columns.length) throw new ImportMappingError("核对结果行号或列数无效");
+    seen.add(Number(row.rowNo));
+    const values = row.values.map((cell) => { if (typeof cell !== "string" || cell.length > 20000) throw new ImportMappingError("核对单元格内容过长或格式无效"); total += cell.length; return cell.trim(); });
+    return { rowNo: Number(row.rowNo), values };
+  });
+  if (total > 1000000) throw new ImportMappingError("核对数据过多，请分批导入");
+  return rows;
+}
+
+export async function readImportBatchSource(fileName: string, metadata: ImportBatchMetadata, ownerId: string) {
+  if (metadata.version === 3 && metadata.preparedKey && metadata.preparedDigest) {
+    try { return await readPrepared(metadata.sourceKey, fileName, ownerId, metadata.preparedKey, metadata.preparedDigest); }
+    catch (error) { if (error instanceof ImportMappingError) throw new ImportFileError(error.message); throw new ImportFileError("确认快照或原始文件已失效，请重新上传并核对"); }
+  }
+  return parseImportData(await readImportSource(metadata.sourceKey, fileName));
 }
 
 function storedMapping(value: Record<string, unknown>): ImportMapping {
@@ -334,11 +401,14 @@ export function decodeImportBatchMetadata(value: string): ImportBatchMetadata | 
       return { version: 1, mapping: storedMapping(parsed), sourceKey: "", confirmed: false };
     }
     if (typeof parsed.sourceKey !== "string") return null;
+    if (parsed.version === 3 && (typeof parsed.preparedKey !== "string" || typeof parsed.preparedDigest !== "string" || !/^[0-9a-f]{64}$/.test(parsed.preparedDigest))) return null;
     return {
-      version: 2,
+      version: parsed.version === 3 ? 3 : 2,
       mapping: storedMapping(parsed.mapping),
       sourceKey: parsed.sourceKey,
       confirmed: parsed.confirmed === true,
+      preparedKey: typeof parsed.preparedKey === "string" ? parsed.preparedKey : undefined,
+      preparedDigest: typeof parsed.preparedDigest === "string" ? parsed.preparedDigest : undefined,
       commitStartedAt: typeof parsed.commitStartedAt === "string" ? parsed.commitStartedAt : undefined,
       committedAt: typeof parsed.committedAt === "string" ? parsed.committedAt : undefined,
       report: storedReport(parsed.report),
@@ -358,7 +428,7 @@ function parseMappingInput(body: unknown): ImportMappingSaveInput {
   const fileName = typeof body.fileName === "string" ? body.fileName.trim() : "";
   const fileType = fileName ? getFileType(fileName) : null;
   if (!fileName || fileName.length > 255 || !fileType) {
-    throw new ImportMappingError("请提供有效的 xlsx、docx 或 pdf 文件名");
+    throw new ImportMappingError("请提供有效的 xlsx、docx、pdf 或 txt 文件名");
   }
   if (typeof body.totalRows !== "number" || !Number.isInteger(body.totalRows) || body.totalRows < 1) {
     throw new ImportMappingError("数据行数必须为正整数");
@@ -372,7 +442,7 @@ function parseMappingInput(body: unknown): ImportMappingSaveInput {
   }
   const confirmed = body.confirmed === true;
   if (fileType !== "xlsx" && !confirmed) {
-    throw new ImportMappingError("Word/PDF 解析结果须经人工确认后才能保存并入库");
+    throw new ImportMappingError("文档或粘贴资料的识别结果须经人工确认后才能保存并入库");
   }
 
   const allowedKeys = new Set<string>(importSystemFields.map((field) => field.key));
@@ -399,7 +469,7 @@ function parseMappingInput(body: unknown): ImportMappingSaveInput {
     throw new ImportMappingError(`必填字段未映射：${missingRequired.map((field) => field.label).join("、")}`);
   }
 
-  return { competitionId, stage: body.stage, fileName, totalRows: body.totalRows, mapping, sourceKey, confirmed };
+  return { competitionId, stage: body.stage, fileName, totalRows: body.totalRows, mapping, sourceKey, confirmed, reviewedRows: body.reviewedRows as ImportReviewedRow[] | undefined };
 }
 
 export async function saveImportMapping(actorId: string, body: unknown): Promise<ImportMappingSaveResult> {
@@ -411,7 +481,15 @@ export async function saveImportMapping(actorId: string, body: unknown): Promise
     throw new ImportMappingError("导入源文件不存在，请重新上传", 404);
   }
 
-  return prisma.$transaction(async (transaction) => {
+  let prepared: ImportSourceData;
+  try { prepared = await readPrepared(input.sourceKey, input.fileName, actorId); }
+  catch (error) { if (error instanceof Error && "code" in error && error.code === "ENOENT") throw new ImportMappingError("识别快照或源文件已过期，请重新上传并核对"); throw error; }
+  if (prepared.rows.length !== input.totalRows) throw new ImportMappingError("源数据行数不一致，请重新上传");
+  if (Object.values(input.mapping).some((column) => column && !prepared.columns.includes(column))) throw new ImportMappingError("映射列不在识别结果中");
+  if (input.reviewedRows !== undefined) prepared.rows = validateReviewedRows(input.reviewedRows, prepared.columns, prepared.fileType === "xlsx" ? 10000 : 1000);
+  const preparedKey = `${randomUUID()}.reviewed.json`;
+  const preparedDigest = await writePrepared(preparedKey, input.sourceKey, actorId, prepared);
+  try { return await prisma.$transaction(async (transaction) => {
     const competition = await transaction.competition.findUnique({
       where: { id: input.competitionId },
       select: { id: true },
@@ -420,10 +498,12 @@ export async function saveImportMapping(actorId: string, body: unknown): Promise
     const fileType = getFileType(input.fileName);
     if (!fileType) throw new ImportMappingError("文件类型不正确");
     const metadata: ImportBatchMetadata = {
-      version: 2,
+      version: 3,
       mapping: input.mapping,
       sourceKey: input.sourceKey,
       confirmed: input.confirmed,
+      preparedKey,
+      preparedDigest,
     };
 
     const batch = await transaction.importBatch.create({
@@ -433,7 +513,7 @@ export async function saveImportMapping(actorId: string, body: unknown): Promise
         fileName: input.fileName,
         fileType,
         sourceType: "IMPORT",
-        totalRows: input.totalRows,
+        totalRows: prepared.rows.length,
         successRows: 0,
         failureRows: 0,
         mappingJson: JSON.stringify(metadata),
@@ -454,10 +534,11 @@ export async function saveImportMapping(actorId: string, body: unknown): Promise
           totalRows: input.totalRows,
           mappedFields: Object.keys(input.mapping) as ImportSystemFieldKey[],
           confirmed: input.confirmed,
+          reviewedRows: prepared.rows.length,
         },
       },
       transaction,
     );
     return { batchId: batch.id };
-  });
+  }); } catch (error) { if (preparedKey) await unlink(preparedPath(preparedKey)).catch(() => {}); throw error; }
 }

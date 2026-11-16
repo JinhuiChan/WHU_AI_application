@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { FileDropZone } from "@/components/ui/file-drop-zone";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatDateTime } from "@/lib/presentation";
@@ -109,9 +110,11 @@ export function SealedPanel({ projectId, files, currentFileId, canExportSensitiv
           }
         }}
       >
-        <label className="flex-1 text-sm text-slate-600">
-          <span className="sr-only">上传盖章件</span>
+        <div className="min-w-0 flex-1 text-sm text-slate-600">
+          <label htmlFor="sealed-file" className="sr-only">上传盖章件</label>
+          <FileDropZone label="盖章件">
           <input
+            id="sealed-file"
             name="file"
             type="file"
             required
@@ -134,7 +137,8 @@ export function SealedPanel({ projectId, files, currentFileId, canExportSensitiv
             }}
             className="block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:text-slate-700 hover:file:bg-slate-200"
           />
-        </label>
+          </FileDropZone>
+        </div>
         <Button variant="default" size="default" type="submit" disabled={pending} >{pending ? "上传中…" : "上传盖章件"}</Button>
       </form>
       <p className="mt-2 text-xs text-slate-400">支持 PDF/JPG/PNG，单文件不超过 20MB。盖章件必须是盖章后的扫描件或清晰照片；Word、PPT 源文件不具备印章效力，请先另存为 PDF 再上传。</p>

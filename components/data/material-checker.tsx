@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { FileDropZone } from "@/components/ui/file-drop-zone";
 import { FormEvent, useState } from "react";
 import { FileCheck, ShieldAlert, Upload } from "lucide-react";
 import type { ApiResponse } from "@/types/api";
@@ -66,9 +67,11 @@ export function MaterialChecker() {
           <label htmlFor="material-file" className="mb-2 block text-sm font-medium text-slate-700">
             选择材料
           </label>
+          <FileDropZone label="检查材料" showSelection={false}>
           <input
             id="material-file"
             type="file"
+            disabled={pending}
             accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             onChange={(event) => {
               setFile(event.target.files?.[0] ?? null);
@@ -77,6 +80,7 @@ export function MaterialChecker() {
             }}
             className="block w-full cursor-pointer rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-600 file:mr-4 file:cursor-pointer file:rounded-lg file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:border-blue-400"
           />
+          </FileDropZone>
           <p className="mt-2 text-xs text-slate-500">仅支持 PDF / DOCX，单个文件不超过 10MB；扫描图片型 PDF 需先转换为含文本层的文件。</p>
           {file ? <p className="mt-2 break-all text-sm text-slate-700">已选择：{file.name}（{(file.size / 1024).toFixed(1)} KB）</p> : null}
         </div>

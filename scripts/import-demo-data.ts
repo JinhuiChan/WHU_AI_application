@@ -72,7 +72,7 @@ async function main() {
 
     const buffer = await readFile(path.join(DATA_DIR, fileName));
     const file = new File([new Uint8Array(buffer)], fileName);
-    const parsed = await parseImportFile(file);
+    const parsed = await parseImportFile(file, admin.id);
     const missingRequired = ["projectName", "leaderPersonNo", "leaderName", "college"].filter(
       (key) => !parsed.suggestedMapping[key as keyof typeof parsed.suggestedMapping],
     );

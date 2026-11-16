@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { readKnowledgeAttachment, KnowledgeError } from "@/lib/knowledge";
+import { readKnowledgeAttachment, KnowledgeError, DOCUMENT_PARSER_VERSION } from "@/lib/knowledge";
 
 const tasks = new Map<string, Promise<void>>();
 export async function syncAttachment(id: string, retry = false) {
@@ -11,9 +11,9 @@ export async function syncAttachment(id: string, retry = false) {
 async function indexAttachment(id: string, retry: boolean) {
   const source = await prisma.competitionAttachment.findUnique({ where: { id }, include: { competition: { select: { year: true } } } });
   if (!source || source.knowledgeStatus === "REPLACED" || (!retry && source.knowledgeStatus !== "PENDING")) return;
-  if (!["NOTICE", "RULE"].includes(source.kind) || source.filePath.startsWith("/samples/")) {
+  if (!["NOTICE", "RULE", "TEMPLATE"].includes(source.kind) || source.filePath.startsWith("/samples/")) {
     await prisma.$transaction([
-      prisma.competitionAttachment.update({ where: { id }, data: { knowledgeStatus: "SKIPPED", knowledgeError: source.kind === "VIDEO" ? "宣传片不参与问答解析" : source.filePath.startsWith("/samples/") ? "内置演示附件不作为正式问答依据" : "模板文件仅供下载，不作为规则依据" } }),
+      prisma.competitionAttachment.update({ where: { id }, data: { knowledgeStatus: "SKIPPED", knowledgeError: source.kind === "VIDEO" ? "宣传片不参与问答解析" : source.filePath.startsWith("/samples/") ? "内置演示附件不作为正式问答依据" : "此文件类型不参与文档问答" } }),
       prisma.kbDocument.updateMany({ where: { sourceAttachmentId: id }, data: { isActive: false } }),
     ]);
     return;
@@ -44,6 +44,14 @@ async function indexAttachment(id: string, retry: boolean) {
   }
 }
 export async function syncPendingAttachments(competitionIds: string[]) {
-  const pending = await prisma.competitionAttachment.findMany({ where: { competitionId: { in: competitionIds }, knowledgeStatus: "PENDING" }, select: { id: true } });
-  for (const item of pending) await syncAttachment(item.id);
+  const stale = await prisma.kbDocument.findMany({ where: {
+    competitionId: { in: competitionIds }, sourceAttachmentId: { not: null }, isActive: true,
+    OR: [{ chunks: { none: {} } }, { chunks: { some: { NOT: { keywords: { startsWith: `{"parserVersion":${DOCUMENT_PARSER_VERSION},` } } } } }],
+  }, select: { sourceAttachmentId: true } });
+  const pending = await prisma.competitionAttachment.findMany({ where: { competitionId: { in: competitionIds }, OR: [
+    { knowledgeStatus: "PENDING" },
+    { knowledgeStatus: "READY", id: { in: stale.flatMap((item) => item.sourceAttachmentId ? [item.sourceAttachmentId] : []) } },
+    { knowledgeStatus: "SKIPPED", kind: "TEMPLATE", NOT: { filePath: { startsWith: "/samples/" } } },
+  ] }, select: { id: true, knowledgeStatus: true } });
+  for (const item of pending) await syncAttachment(item.id, item.knowledgeStatus !== "PENDING");
 }

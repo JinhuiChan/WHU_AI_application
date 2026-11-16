@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { FileDropZone } from "@/components/ui/file-drop-zone";
 import type { ProjectFormInput } from "@/types/apply";
 import type { ApplyOptions } from "./apply-form";
 
@@ -23,11 +24,13 @@ export function WorkSection({ value, dictionaries, onChange }: WorkSectionProps)
         当前版本只登记文件名，<span className="font-semibold">文件本体不会上传到服务器</span>。要提交实体文件，请把网盘或在线文档链接填到右侧「作品外链」。
       </div>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
-        <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-start sm:gap-x-4">
-          <span className="text-sm font-medium text-slate-700 sm:pt-2">作品（单文件）</span>
+        <div className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-start sm:gap-x-4">
+          <label htmlFor="work-file" className="text-sm font-medium text-slate-700 sm:pt-2">作品（单文件）</label>
           <div>
+            <FileDropZone label="作品文件" showSelection={false}>
             <span className="relative inline-flex h-10 items-center overflow-hidden rounded-full border border-slate-300 bg-white">
               <input
+                id="work-file"
                 type="file"
                 accept={workAccept}
                 className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
@@ -35,9 +38,10 @@ export function WorkSection({ value, dictionaries, onChange }: WorkSectionProps)
               />
               <span className="pointer-events-none px-4 text-sm font-medium text-slate-700">选择文件</span>
             </span>
+            </FileDropZone>
             <span className="mt-1 block text-xs text-slate-500">{value.fileName ? `已登记：${value.fileName}` : "尚未选择文件"}</span>
           </div>
-        </label>
+        </div>
         <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
           <span className="text-sm font-medium text-slate-700">作品外链</span>
           <input type="url" className={fieldClass} value={value.externalUrl ?? ""} onChange={(event) => onChange({ externalUrl: event.target.value })} placeholder="https://" />
