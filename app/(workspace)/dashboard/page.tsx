@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowUpRight, BookOpen, ClipboardCheck, FolderKanban, Trophy, Upload } from "lucide-react";
+import { ArrowUpRight, BookOpen, ClipboardCheck, FolderKanban, Trophy, Upload, type LucideIcon } from "lucide-react";
 import { DashboardFilterBar } from "@/components/data/dashboard-filter-bar";
 import { StatisticsCharts } from "@/components/data/statistics-charts";
 import { getActiveUser } from "@/lib/auth.server";
@@ -56,15 +56,31 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   };
 
   const isAdmin = user.role === "ADMIN";
-  const quickLinks = isAdmin ? [
-    { href: "/projects", label: "项目台账", note: "查看与检索全部参赛项目", icon: FolderKanban },
-    { href: "/review", label: "报名审核", note: "处理待学院与校级审核项目", icon: ClipboardCheck },
-    { href: "/import", label: "数据导入", note: "导入外部平台导出的数据", icon: Upload },
-    { href: "/intro", label: "赛事简介", note: "学生看到的赛事介绍与视频位", icon: BookOpen },
+
+  // 图标底色按功能分类，让四个入口在扫视时就能分开，不用逐个读字。
+  // 这层是「标识色」，和状态徽章那套「语义色」（红=错误/橙=待处理/绿=通过）分工不同：
+  // 标识色只保证「同一类功能永远是同一个颜色」，不承载业务含义；
+  // 语义色必须严格对应状态。两套不要混用，否则紫色也会被读成某种状态。
+  const ICON_TONE = {
+    blue: "bg-blue-100 text-blue-700 ring-blue-200",
+    teal: "bg-teal-100 text-teal-700 ring-teal-200",
+    emerald: "bg-emerald-100 text-emerald-700 ring-emerald-200",
+    amber: "bg-amber-100 text-amber-700 ring-amber-200",
+    violet: "bg-violet-100 text-violet-700 ring-violet-200",
+  } as const;
+
+  type IconTone = keyof typeof ICON_TONE;
+  type QuickLink = { href: string; label: string; note: string; icon: LucideIcon; tone: IconTone };
+
+  const quickLinks: QuickLink[] = isAdmin ? [
+    { href: "/projects", label: "项目台账", note: "查看与检索全部参赛项目", icon: FolderKanban, tone: "blue" },
+    { href: "/review", label: "报名审核", note: "处理待学院与校级审核项目", icon: ClipboardCheck, tone: "amber" },
+    { href: "/import", label: "数据导入", note: "导入外部平台导出的数据", icon: Upload, tone: "violet" },
+    { href: "/intro", label: "赛事简介", note: "学生看到的赛事介绍与视频位", icon: BookOpen, tone: "teal" },
   ] : [
-    { href: "/competitions", label: "赛事与报名", note: "查看已发布赛事与报名入口", icon: Trophy },
-    { href: "/intro", label: "赛事简介", note: "先了解赛事定位、赛道与流程", icon: BookOpen },
-    { href: "/my", label: "我的项目", note: "查看本人参与的项目与状态", icon: FolderKanban },
+    { href: "/competitions", label: "赛事与报名", note: "查看已发布赛事与报名入口", icon: Trophy, tone: "blue" },
+    { href: "/intro", label: "赛事简介", note: "先了解赛事定位、赛道与流程", icon: BookOpen, tone: "teal" },
+    { href: "/my", label: "我的项目", note: "查看本人参与的项目与状态", icon: FolderKanban, tone: "emerald" },
   ];
 
   return (
@@ -93,7 +109,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                 spotlightSize={180}
                 theme="light"
               >
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1 ${ICON_TONE[item.tone]}`}>
                   <Icon aria-hidden="true" size={18} />
                 </span>
                 <span className="min-w-0 flex-1">
