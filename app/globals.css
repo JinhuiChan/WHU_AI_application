@@ -5,12 +5,15 @@
 /* 设计变量：新增语义 token，不改任何已有 Tailwind 类名的解析结果。
    新代码可直接用 var(--xxx) 或 bg-surface / text-ink / border-line 等语义类。 */
 :root {
-  --background: #f8fafc;
+  /* 四级底色，从外到内逐层变浅：页面 #f1f5f9 → 卡片 #ffffff → 卡内浅块 #f8fafc → 表头 #eef2f7。
+     原来 background 与 surface-subtle 同为 #f8fafc，卡片里的浅灰块和页面底一样，
+     读者分不出「这是一块区域」还是「这是页面背景」。拉开一档后，卡片才浮得起来。 */
+  --background: #f1f5f9;
   --foreground: #0f172a;
 
   --surface: #ffffff;
   --surface-subtle: #f8fafc;
-  --surface-muted: #f1f5f9;
+  --surface-muted: #eef2f7;
   --border: #e2e8f0;
   --border-strong: #cbd5e1;
 
@@ -142,14 +145,18 @@ body {
 /* 全站文字层级：只作用于工作区（.page-enter 内），登录页与注册页不受影响。
    用类名精确定位，避免把统计卡的 .text-xs 小标签误当成标题。 */
 .page-enter h1.text-xl {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
-  letter-spacing: -0.2px;
+  letter-spacing: -0.4px;
 }
 
+/* 卡片标题 16px 与正文 14px 只差 2px，靠字重撑不起「这是一块的标题」。
+   不放大字号（105 个区块同时放大一圈会变笨重），改用负字距把标题收紧，
+   与正文的松排版形成对比——这是 jobup 那一版标题最常见的处理。 */
 .page-enter :is(h2, h3):not(.text-xs):not(.text-slate-500) {
   font-weight: 700;
   color: var(--ink);
+  letter-spacing: -0.2px;
 }
 
 .page-enter .text-3xl.font-semibold {
@@ -169,15 +176,30 @@ body {
   letter-spacing: 0.1px;
 }
 
+/* 表头加一档灰底：表头往后退、数据往前走。
+   原来全站表头是白底，和数据行同色，只能靠字重区分——表格越宽越糊。
+   包在 screen 里，打印版不加（纸面上灰底就是一层脏）。 */
+@media screen {
+  .page-enter thead th {
+    background: var(--surface-muted);
+  }
+}
+
 /* 表头同样标黑提字重，但保持 12px，避免 1800px 宽表被撑得更挤 */
 .page-enter thead.text-xs.text-slate-500 th {
   font-weight: 600;
   color: var(--ink-muted);
 }
 
-/* 待办 / 异常数字标红：只按语义标签命中，克制使用，不与错误提示混用 */
+/* 表格里的数字统一等宽：日期、编号、分数竖排时不会左右跳 */
+.page-enter table {
+  font-variant-numeric: tabular-nums;
+}
+
+/* 待办 / 异常数字标红：只按语义标签命中，克制使用，不与错误提示混用。
+   色条从 3px 加到 4px：全站 105 个区块里只有 2 处带色条，3px 在卡片左边缘几乎看不出来。 */
 .page-enter .t-warn {
-  box-shadow: inset 3px 0 0 var(--danger);
+  box-shadow: inset 4px 0 0 var(--danger);
 }
 
 .page-enter .t-warn h2.t-label.text-xs.text-slate-500 {
@@ -187,6 +209,38 @@ body {
 
 .page-enter .t-warn-value {
   color: var(--danger);
+}
+
+/* 指标块：小灰标签 + 大数字。用于概览条、计数区、任何「这个数是多少」的位置。
+   原来这类区块要么根本没有，要么手写成 text-3xl，各页尺寸不一。
+   现在统一到一套：11px 标签 + 22px 数字 + 等宽数字 + 浅底。 */
+.page-enter .t-metric {
+  border-radius: var(--radius-control);
+  background: var(--surface-muted);
+  padding: 10px 12px;
+}
+
+.page-enter .t-metric-label {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--ink-subtle);
+}
+
+.page-enter .t-metric-value {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 数字后面那句解释（「比上月多 1」「明天截止」）：只有数字没有这句，数字就只是数字 */
+.page-enter .t-metric-note {
+  margin-top: 2px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--ink-faint);
 }
 
 /* 宽表横向滚动时固定首列：只命中设了 min-w-[...] 的宽表，小表格不受影响。
@@ -203,7 +257,7 @@ body {
 
 .page-enter .overflow-x-auto table[class*="min-w-"] > thead > tr > th:first-child {
   z-index: 2;
-  background: var(--surface-subtle);
+  background: var(--surface-muted);
 }
 
 .page-enter .overflow-x-auto table[class*="min-w-"] > tbody > tr:hover > td:first-child {
@@ -222,7 +276,7 @@ body {
 
 .page-enter .overflow-x-auto table[class*="min-w-"] > thead > tr > th:last-child {
   z-index: 2;
-  background: var(--surface-subtle);
+  background: var(--surface-muted);
 }
 
 .page-enter .overflow-x-auto table[class*="min-w-"] > tbody > tr:hover > td:last-child {

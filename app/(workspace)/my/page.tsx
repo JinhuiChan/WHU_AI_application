@@ -6,7 +6,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { AlertTriangle, CheckCircle2, Clock3, FileEdit, Undo2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock3, Compass, FileEdit, Filter, Undo2 } from "lucide-react";
 import { getMyProjects } from "@/lib/apply";
 import { getActiveUser } from "@/lib/auth.server";
 import { firstParam } from "@/lib/list-query";
@@ -143,6 +143,37 @@ export default async function MyProjectsPage({ searchParams }: PageProps) {
         <Link href="/competitions" className="inline-flex h-10 items-center justify-center rounded-full bg-blue-600 px-5 text-sm font-medium text-white transition duration-[160ms] ease-out hover:bg-blue-700 active:scale-[0.97] active:bg-blue-800 motion-reduce:active:scale-100">新建报名</Link>
       </div>
 
+      {/* 概览条：原来这一页只有 h1 + 一个表格，学生打开后要逐行读才知道自己什么状态。
+          四块指标全部来自已有数据（reviewStatus 分组，口径与 lib/statistics.ts 一致），
+          不新增查询、不编造趋势。每块下面那行小字说明「这个数字代表什么」，
+          没有它，四个数字只是四个数字。 */}
+      <section aria-label="进度概览" className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <div className="t-metric">
+            <p className="t-metric-label">我的项目</p>
+            <p className="t-metric-value">{projects.length}</p>
+            <p className="t-metric-note">全部状态合计</p>
+          </div>
+          <div className="t-metric">
+            <p className="t-metric-label">待审核</p>
+            <p className="t-metric-value">{countOf(["PENDING", "COLLEGE_REVIEW"])}</p>
+            <p className="t-metric-note">学院与校级审核中</p>
+          </div>
+          <div className="t-metric">
+            <p className="t-metric-label">已通过</p>
+            <p className="t-metric-value">{countOf(["SCHOOL_FINAL"])}</p>
+            <p className="t-metric-note">校内终审通过</p>
+          </div>
+          <div className={`t-metric ${countOf(["REJECTED"]) > 0 ? "t-warn" : ""}`}>
+            <p className="t-metric-label">已驳回</p>
+            <p className={`t-metric-value ${countOf(["REJECTED"]) > 0 ? "t-warn-value" : ""}`}>
+              {countOf(["REJECTED"])}
+            </p>
+            <p className="t-metric-note">需补材料后重提</p>
+          </div>
+        </div>
+      </section>
+
       <nav aria-label="按状态筛选" className="flex flex-wrap gap-2">
         {FILTERS.map((item) => {
           const count = countOf(item.statuses);
@@ -193,12 +224,18 @@ export default async function MyProjectsPage({ searchParams }: PageProps) {
               {visible.length === 0 ? (
                 <tr><td colSpan={6}>
                   {projects.length === 0 ? (
-                    <EmptyState title="你还没有项目" description="先从已发布的赛事里选择一项，再填写报名；进度与材料都会在这里看到。" action={{ href: "/competitions", label: "浏览赛事" }} />
+                    <EmptyState
+                      title="你还没有项目"
+                      description="先从已发布的赛事里选择一项，再填写报名；进度与材料都会在这里看到。"
+                      action={{ href: "/competitions", label: "浏览赛事" }}
+                      icon={<Compass aria-hidden="true" size={20} />}
+                    />
                   ) : (
                     <EmptyState
                       title={`没有「${active.label}」的项目`}
                       description={`你一共有 ${projects.length} 个项目，但当前没有符合这个状态的。`}
                       action={{ href: "/my", label: "查看全部项目" }}
+                      icon={<Filter aria-hidden="true" size={20} />}
                     />
                   )}
                 </td></tr>

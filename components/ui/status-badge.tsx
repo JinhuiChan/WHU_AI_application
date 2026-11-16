@@ -25,6 +25,15 @@ const TONE_CLASS: Record<Tone, string> = {
   neutral: "bg-slate-100 text-slate-600 ring-slate-200",
 };
 
+/** dot 模式用的实心圆点颜色，与胶囊底色同色系，深一档保证 3px 圆点看得见 */
+const TONE_DOT: Record<Tone, string> = {
+  danger: "bg-red-500",
+  success: "bg-emerald-500",
+  info: "bg-blue-500",
+  warn: "bg-amber-500",
+  neutral: "bg-slate-400",
+};
+
 export function statusTone(status: string, scope: "registration" | "project" | "team" = "registration"): Tone {
   if (scope === "team") {
     if (status === "RECRUITING" || status === "ACCEPTED") return "success";
@@ -43,15 +52,37 @@ export function statusTone(status: string, scope: "registration" | "project" | "
 export function StatusBadge({
   status,
   scope = "registration",
+  dot = false,
+  className,
   children,
 }: {
   status: string;
   scope?: "registration" | "project" | "team";
+  /**
+   * 圆点模式：前置一颗实心圆点，不套胶囊。
+   * 用在表格行内这类密集场景——胶囊自带内边距和描边，一行放三个就把列撑宽了。
+   * 颜色语义与胶囊完全一致，不要另外定义。
+   */
+  dot?: boolean;
+  className?: string;
   children: ReactNode;
 }) {
+  const tone = statusTone(status, scope);
+
+  if (dot) {
+    return (
+      <span
+        className={`inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-medium text-slate-700 ${className ?? ""}`}
+      >
+        <span aria-hidden="true" className={`h-1.5 w-1.5 shrink-0 rounded-full ${TONE_DOT[tone]}`} />
+        {children}
+      </span>
+    );
+  }
+
   return (
     <span
-      className={`inline-flex items-center whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ring-1 ${TONE_CLASS[statusTone(status, scope)]}`}
+      className={`inline-flex items-center whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ring-1 ${TONE_CLASS[tone]} ${className ?? ""}`}
     >
       {children}
     </span>

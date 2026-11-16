@@ -119,7 +119,8 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         {cards.map((card, index) => {
-          const isWarning = /待审核|异常|退回|待补|超期/.test(card.label);
+          // 只在真的有数字时才标红：0 个待审核不是需要处理的事，标红会变成常驻噪音
+          const isWarning = card.value > 0 && /待审核|异常|退回|待补|超期/.test(card.label);
           const interactive = Boolean(card.href);
           const className = [
             "relative rounded-xl border border-slate-200 bg-white p-5 shadow-sm",
