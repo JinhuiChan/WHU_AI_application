@@ -21,6 +21,14 @@ export const dynamic = "force-dynamic";
 
 const VIDEO_FILE = /\.(mp4|webm|mov|m4v|ogv)$/i;
 
+// 时间窗口阶段。这是 ProjectStage 枚举的学生视角译名，别直接印枚举值。
+const STAGE_LABEL: Record<string, string> = {
+  SCHOOL: "校赛",
+  PROVINCE: "省赛",
+  NATIONAL: "国赛",
+  FINISHED: "赛后",
+};
+
 const levelTone: Record<CompetitionLevel, string> = {
   SCHOOL: "bg-slate-100 text-slate-600",
   PROVINCE: "bg-blue-50 text-blue-700",
@@ -96,6 +104,34 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
 
   const video = competition.attachments.find((file) => file.kind === "VIDEO" || VIDEO_FILE.test(file.fileName));
   const documents = competition.attachments.filter((file) => file !== video);
+
+  // 关键时间：学生打开简介页的第一个问题是「还来不来得及」。
+  // 只渲染真正配置了的阶段 —— 现在库里每个赛事只有一条校赛窗口，
+  // 硬凑成三列（校赛/省赛/国赛）会有两格是编的。有数据就多行，没数据整块不出现。
+  const dayMs = 24 * 60 * 60 * 1000;
+  const md = (date: Date) =>
+    `${String(date.getMonth() + 1).padStart(2, "0")}.${String(date.getDate()).padStart(2, "0")}`;
+  const keyDates = competition.timeWindows.map((item) => {
+    // 先判过期再算天数：剩余 -0.5 天时 ceil 会得到 0，会被误当成「今天截止」
+    const ended = now > item.endAt;
+    const left = Math.ceil((item.endAt.getTime() - now.getTime()) / dayMs);
+    const state = ended
+      ? { label: "已结束", tone: "bg-slate-100 text-slate-600 ring-slate-200", bar: "bg-slate-300" }
+      : now < item.startAt
+        ? { label: `${md(item.startAt)} 开始`, tone: "bg-amber-50 text-amber-700 ring-amber-200", bar: "bg-amber-400" }
+        : {
+            label: left <= 0 ? "今天截止" : `进行中 · 还剩 ${left} 天`,
+            tone: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+            bar: "bg-emerald-500",
+          };
+    const sameYear = item.startAt.getFullYear() === item.endAt.getFullYear();
+    return {
+      id: item.id,
+      stage: item.stage,
+      range: `${item.startAt.getFullYear()}.${md(item.startAt)} — ${sameYear ? md(item.endAt) : `${item.endAt.getFullYear()}.${md(item.endAt)}`}`,
+      ...state,
+    };
+  });
 
   return (
     <div className="space-y-6">
@@ -178,6 +214,29 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
           </dl>
         </div>
       </section>
+
+      {keyDates.length ? (
+        <section aria-label="关键时间" className="card overflow-hidden">
+          <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-slate-100 px-5 py-3.5">
+            <h2 className="text-base text-slate-900">关键时间</h2>
+            <span className="text-xs text-slate-500">具体安排以当年度通知为准</span>
+          </div>
+          <ul className="divide-y divide-slate-100">
+            {keyDates.map((item) => (
+              <li className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-4" key={item.id}>
+                <span className="flex min-w-[4.5rem] items-center gap-2">
+                  <span aria-hidden="true" className={`h-7 w-1 rounded-full ${item.bar}`} />
+                  <span className="text-sm font-medium text-slate-700">{STAGE_LABEL[item.stage] ?? item.stage}</span>
+                </span>
+                <span className="text-lg font-bold tracking-tight text-slate-900 tabular-nums">{item.range}</span>
+                <span className={`ml-auto rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 ${item.tone}`}>
+                  {item.label}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="text-base text-slate-900">这个赛事是什么</h2>
