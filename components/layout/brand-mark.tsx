@@ -24,6 +24,7 @@ export function WhuCrest({
       <Image
         alt="武汉大学校徽"
         height={size}
+        priority
         src={whuEmblem}
         unoptimized
         width={size}

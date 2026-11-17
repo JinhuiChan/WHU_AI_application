@@ -117,8 +117,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             </Link>
           </div>
 
-          <div className="mt-6 rounded-lg border border-dashed border-slate-300 px-4 py-3">
-            <p className="text-xs font-medium text-blue-600">角色速览 · 只读，不触发登录</p>
+          <div className="mt-6 rounded-lg border border-dashed border-[#c6d6cd] bg-[#f7faf8] px-4 py-3">
+            <p className="text-xs font-medium text-[#115740]">角色速览 · 只读，不触发登录</p>
             <p className="mt-1 text-xs leading-5 text-slate-500">
               学生 / 指导老师 / 管理员；身份需与账号匹配，权限一律以服务端校验为准。
             </p>
