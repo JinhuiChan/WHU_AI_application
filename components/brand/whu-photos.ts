@@ -96,15 +96,15 @@ export function levelCardTheme(level?: string | null): CardThemeSpec {
       };
     default:
       return {
-        surface: "#f5f2eb",
-        border: "#e2dccf",
-        hoverBorder: "#a89f8d",
-        titleInk: "#334155",
+        surface: "#f4f7f5",
+        border: "#dde5e0",
+        hoverBorder: "#96aea2",
+        titleInk: "#115740",
         titleFontClass: "font-display font-bold tracking-tight text-[22px]",
-        accentInk: "#475569",
+        accentInk: "#115740",
         photo: WHU_PHOTOS.arch.src,
         overlay:
-          "linear-gradient(104deg, rgba(245,242,235,0.97) 0%, rgba(245,242,235,0.93) 48%, rgba(245,242,235,0.74) 78%, rgba(245,242,235,0.6) 100%)",
+          "linear-gradient(104deg, rgba(244,247,245,0.97) 0%, rgba(244,247,245,0.93) 48%, rgba(244,247,245,0.74) 78%, rgba(244,247,245,0.6) 100%)",
       };
   }
 }

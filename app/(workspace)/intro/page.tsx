@@ -93,7 +93,7 @@ export default async function CompetitionIntroPage() {
             </span>
             <Link
               href="/competitions"
-              className="inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-white px-5 text-sm font-medium text-[#002554] shadow-sm transition duration-150 hover:bg-[#f7f5f0] active:scale-[0.98]"
+              className="inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-white px-5 text-sm font-medium text-[#002554] shadow-sm transition duration-150 hover:bg-[#f4f7f5] active:scale-[0.98]"
             >
               前往赛事报名
               <ArrowUpRight aria-hidden="true" size={15} />

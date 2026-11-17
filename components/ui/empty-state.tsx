@@ -17,7 +17,7 @@ export function EmptyState({ title, description, action, icon }: EmptyStateProps
   return (
     <div className="flex flex-col items-center justify-center gap-2.5 px-4 py-12 text-center">
       {icon ? (
-        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#faf8f4] text-slate-400 ring-1 ring-[#e5e0d5]">
+        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#f8faf9] text-slate-400 ring-1 ring-[#dde5e0]">
           {icon}
         </span>
       ) : (
@@ -27,7 +27,7 @@ export function EmptyState({ title, description, action, icon }: EmptyStateProps
       {description ? <p className="max-w-md text-xs leading-5 text-slate-500">{description}</p> : null}
       {action ? (
         <Link
-          className="mt-2 inline-flex h-9 items-center justify-center rounded-full border border-[#d0c9ba] bg-white px-4 text-sm font-medium text-slate-700 transition duration-150 ease-out hover:border-[#002554]/40 hover:bg-[#faf8f4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-100 focus-visible:ring-offset-2 active:scale-[0.98]"
+          className="mt-2 inline-flex h-9 items-center justify-center rounded-full border border-[#c4d1ca] bg-white px-4 text-sm font-medium text-slate-700 transition duration-150 ease-out hover:border-[#002554]/40 hover:bg-[#f8faf9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-100 focus-visible:ring-offset-2 active:scale-[0.98]"
           href={action.href}
         >
           {action.label}

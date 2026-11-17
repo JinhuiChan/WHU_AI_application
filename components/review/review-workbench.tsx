@@ -29,6 +29,29 @@ type PreflightState = {
   error: string;
 };
 
+const REVIEW_CARD_SURFACE = {
+  // 极低饱和度微底色：保留清爽白底阅读感，仅用轻薄色调区分审核流转阶段与异常状态
+  abnormal: "border-[#e9d0d0] bg-[#fdf6f6] hover:border-[#dbb5b5]",
+  pending: "border-[#d8e3e0] bg-[#f7faf9] hover:border-[#bccdc8]",
+  collegeReview: "border-[#d5e0ef] bg-[#f6f9fd] hover:border-[#b7cae4]",
+  approved: "border-[#cde2d6] bg-[#f3faf6] hover:border-[#abcbb9]",
+  muted: "border-[#dde5e0] bg-[#f8faf9] hover:border-[#c4d1ca]",
+} as const;
+
+/** 按审批状态返回极低饱和度卡片底色与细边框，不加粗额外彩条 */
+function reviewCardClasses(status: RegistrationStatus, hasUnconfirmedTeachers: boolean): string {
+  if (hasUnconfirmedTeachers) {
+    return `${REVIEW_CARD_SURFACE.abnormal} border-l-[3px] border-l-red-600`;
+  }
+  if (status === "REJECTED") return REVIEW_CARD_SURFACE.abnormal;
+  if (status === "PENDING") return REVIEW_CARD_SURFACE.pending;
+  if (status === "COLLEGE_REVIEW") return REVIEW_CARD_SURFACE.collegeReview;
+  if (status === "SCHOOL_FINAL" || status === "PROVINCE_ADVANCED" || status === "NATIONAL_ADVANCED") {
+    return REVIEW_CARD_SURFACE.approved;
+  }
+  return REVIEW_CARD_SURFACE.muted;
+}
+
 function levelForStatus(status: RegistrationStatus): ReviewLevel | null {
   if (status === "PENDING") return "COLLEGE";
   if (status === "COLLEGE_REVIEW") return "SCHOOL";
@@ -199,7 +222,7 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
       ) : null}
 
       <section className="space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#e5e0d5] bg-[#faf8f4] px-4 py-2.5">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#dde5e0] bg-[#f8faf9] px-4 py-2.5">
           <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
             <input
               type="checkbox"
@@ -240,11 +263,7 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
           return (
             <article
               key={item.id}
-              className={`rounded-xl border transition duration-150 ${
-                item.hasUnconfirmedTeachers
-                  ? "border-[#e5e0d5] border-l-[3px] border-l-red-600 bg-red-50/[0.22]"
-                  : "border-[#e5e0d5] bg-white hover:border-[#d0c9ba]"
-              }`}
+              className={`rounded-xl border transition duration-150 ${reviewCardClasses(item.status, item.hasUnconfirmedTeachers)}`}
             >
               <div className="flex flex-wrap items-start gap-3.5 px-5 py-4">
                 <input
@@ -338,7 +357,7 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
               ) : null}
 
               {open ? (
-                <div className="space-y-6 border-t border-[#e5e0d5] bg-[#faf8f4] px-5 py-4 text-xs">
+                <div className="space-y-6 rounded-b-xl border-t border-[#dde5e0] bg-[#f8faf9] px-5 py-4 text-xs">
                   <div>
                     <h3 className="font-semibold text-slate-900">报名信息</h3>
                     <dl className="mt-2 grid grid-cols-2 gap-x-6 gap-y-3 md:grid-cols-4">

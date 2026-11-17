@@ -94,7 +94,7 @@ export default async function ReviewPage({ searchParams }: PageProps) {
         <div className="flex flex-wrap items-center gap-2.5">
           <Link
             href="/review/changes"
-            className="inline-flex h-10 items-center justify-center rounded-full border border-[#d0c9ba] bg-white px-5 text-sm font-medium text-slate-700 transition duration-150 ease-out hover:border-[#002554]/40 hover:bg-[#faf8f4] active:scale-[0.98]"
+            className="inline-flex h-10 items-center justify-center rounded-full border border-[#c4d1ca] bg-white px-5 text-sm font-medium text-slate-700 transition duration-150 ease-out hover:border-[#002554]/40 hover:bg-[#f8faf9] active:scale-[0.98]"
           >
             变更申请
             {pendingChanges > 0 ? (
@@ -110,10 +110,10 @@ export default async function ReviewPage({ searchParams }: PageProps) {
         </div>
       </div>
 
-      {/* 一体化工作台控制面板：分段 Tab + 暖石筛选区 + 内嵌导出栏 */}
-      <section className="overflow-hidden rounded-xl border border-[#e5e0d5] bg-white shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e5e0d5] px-5 py-3">
-          <nav aria-label="审核状态分栏" className="inline-flex rounded-lg border border-[#e5e0d5] bg-[#f7f5f0] p-1">
+      {/* 一体化工作台控制面板：分段 Tab + 浅青灰筛选区 + 内嵌导出栏 */}
+      <section className="overflow-hidden rounded-xl border border-[#dde5e0] bg-white shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#dde5e0] px-5 py-3">
+          <nav aria-label="审核状态分栏" className="inline-flex rounded-lg border border-[#dde5e0] bg-[#f4f7f5] p-1">
             {tabs.map((item) => {
               const active = tab === item.key;
               return (
