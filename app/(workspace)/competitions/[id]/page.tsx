@@ -222,7 +222,7 @@ export default async function CompetitionDetailPage({ params, searchParams }: Pa
           <p className="mt-1 text-xs text-slate-500">来源与核验信息按获奖记录展示，未登记来源时明确标注。</p>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[1250px] text-left text-sm">
+          <table className="w-full min-w-[1040px] text-left text-sm">
             <thead className="t-thead bg-slate-50 text-xs text-slate-500">
               <tr>
                 <th className="px-4 py-3 font-medium">项目</th>

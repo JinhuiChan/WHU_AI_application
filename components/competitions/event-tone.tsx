@@ -26,10 +26,10 @@ export type EventTone = {
 };
 
 const TONES: Record<string, EventTone> = {
-  NATIONAL: { from: "#1b3b6b", to: "#0f2547", dot: "#1b3b6b", soft: "#eef3f9", ink: "#1b3b6b", eyebrow: "NATIONAL ROUND" },
-  PROVINCE: { from: "#134e45", to: "#0a312b", dot: "#134e45", soft: "#ecf6f4", ink: "#134e45", eyebrow: "PROVINCIAL ROUND" },
-  SCHOOL: { from: "#4c3575", to: "#2e1e4b", dot: "#4c3575", soft: "#f4f1fa", ink: "#4c3575", eyebrow: "COLLEGE ROUND" },
-  DEFAULT: { from: "#3f4b5c", to: "#252e3c", dot: "#475569", soft: "#f1f5f9", ink: "#334155", eyebrow: "COMPETITION" },
+  NATIONAL: { from: "#1b3b6b", to: "#0f2547", dot: "#1b3b6b", soft: "#e1eaf6", ink: "#1b3b6b", eyebrow: "NATIONAL ROUND" },
+  PROVINCE: { from: "#134e45", to: "#0a312b", dot: "#134e45", soft: "#dcf2ec", ink: "#134e45", eyebrow: "PROVINCIAL ROUND" },
+  SCHOOL: { from: "#4c3575", to: "#2e1e4b", dot: "#4c3575", soft: "#ebe5f8", ink: "#4c3575", eyebrow: "COLLEGE ROUND" },
+  DEFAULT: { from: "#3f4b5c", to: "#252e3c", dot: "#475569", soft: "#eef1f5", ink: "#334155", eyebrow: "COMPETITION" },
 };
 
 export function eventTone(level?: string | null): EventTone {

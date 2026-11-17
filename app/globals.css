@@ -115,6 +115,10 @@ body {
   }
 }
 
+.page-enter select {
+  line-height: 1.25;
+}
+
 @keyframes login-fade-up {
   from {
     opacity: 0;
