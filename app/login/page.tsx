@@ -110,7 +110,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <div className="mt-7 border-t border-[#e5ede8] pt-6 text-center">
             <p className="mb-3 text-sm text-slate-500">还没有账号？</p>
             <Link
-              className="inline-flex h-11 w-full items-center justify-center rounded-full border border-[#c6d6cd] bg-white text-sm font-medium text-slate-700 transition duration-[160ms] hover:bg-[#f7faf8] active:scale-[0.97] motion-reduce:active:scale-100"
+              className="inline-flex h-11 w-full items-center justify-center rounded-full border border-[#7f9384] bg-white text-sm font-medium text-slate-700 transition duration-[160ms] hover:bg-[#f7faf8] active:scale-[0.97] motion-reduce:active:scale-100"
               href="/register"
             >
               注册

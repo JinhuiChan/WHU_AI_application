@@ -187,7 +187,7 @@ export default async function CompetitionIntroPage() {
         </p>
         <Link
           href="/assistant"
-          className="inline-flex h-9 shrink-0 items-center justify-center rounded-full border border-[#c6d6cd] bg-white px-4 text-xs font-semibold text-[#002554] transition hover:bg-[#f7faf8]"
+          className="inline-flex h-9 shrink-0 items-center justify-center rounded-full border border-[#7f9384] bg-white px-4 text-xs font-semibold text-[#002554] transition hover:bg-[#f7faf8]"
         >
           打开赛事 AI 问答 →
         </Link>

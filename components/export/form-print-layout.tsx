@@ -17,7 +17,7 @@ export function FormPrintLayout({ projectId, full, form }: { projectId: string; 
         {!full ? (
           <button type="button" onClick={() => setConfirmFull(true)} className="rounded-full border border-amber-300 bg-white px-4 py-2 text-sm font-medium text-amber-800 hover:bg-amber-50">完整报名表（交学院核验）</button>
         ) : (
-          <a href={`/my/${projectId}/print?full=0`} className="rounded-full border border-[#c6d6cd] bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-[#f7faf8]">查看脱敏版</a>
+          <a href={`/my/${projectId}/print?full=0`} className="rounded-full border border-[#7f9384] bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-[#f7faf8]">查看脱敏版</a>
         )}
       </div>
       {!full && confirmFull ? (

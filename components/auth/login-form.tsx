@@ -66,9 +66,9 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
   }
 
   const fieldClassName =
-    "h-11 w-full rounded-lg border border-[#c6d6cd] bg-white px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#115740] focus:ring-2 focus:ring-[#115740]/15";
+    "h-11 w-full rounded-lg border border-[#7f9384] bg-white px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#115740] focus:ring-2 focus:ring-[#115740]/15";
   const passwordFieldClassName =
-    "h-11 w-full rounded-lg border border-[#c6d6cd] bg-white pl-3 pr-16 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#115740] focus:ring-2 focus:ring-[#115740]/15";
+    "h-11 w-full rounded-lg border border-[#7f9384] bg-white pl-3 pr-16 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#115740] focus:ring-2 focus:ring-[#115740]/15";
 
   return (
     <div className="w-full">
