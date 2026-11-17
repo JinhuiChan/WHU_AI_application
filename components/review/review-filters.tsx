@@ -101,7 +101,7 @@ export function ReviewFilters({
   );
 
   if (embedded) {
-    return <div className="bg-[#faf8f4] px-5 py-4">{form}</div>;
+    return <div className="bg-[#f5faf7] px-5 py-4">{form}</div>;
   }
   return <section className="card p-4">{form}</section>;
 }

@@ -10,7 +10,7 @@
 export function WhuRoofDivider({ className }: { className?: string }) {
   return (
     <div aria-hidden="true" className={`flex items-center gap-3 ${className ?? ""}`}>
-      <span className="h-px flex-1 bg-gradient-to-r from-[#002554]/20 via-[#e5e0d5] to-[#e5e0d5]" />
+      <span className="h-px flex-1 bg-gradient-to-r from-[#115740]/25 via-[#d2e2d8] to-[#d2e2d8]" />
       <svg className="h-3.5 w-6 shrink-0 text-[#115740]/65" fill="none" viewBox="0 0 28 16">
         <path
           d="M2 13.5c4.5-.6 8.2-3.4 12-9.5 3.8 6.1 7.5 8.9 12 9.5"
@@ -21,7 +21,7 @@ export function WhuRoofDivider({ className }: { className?: string }) {
         />
         <path d="M6 13.5h16" stroke="currentColor" strokeLinecap="round" strokeWidth="1.25" />
       </svg>
-      <span className="h-px flex-1 bg-gradient-to-l from-[#115740]/20 via-[#e5e0d5] to-[#e5e0d5]" />
+      <span className="h-px flex-1 bg-gradient-to-l from-[#115740]/25 via-[#d2e2d8] to-[#d2e2d8]" />
     </div>
   );
 }
