@@ -40,7 +40,7 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: var(--font-geist-sans), "PingFang SC", "HarmonyOS Sans SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-family: var(--font-geist-sans), var(--font-sans-cn), "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   line-height: 1.6;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
@@ -211,7 +211,7 @@ body {
 
 /* 指标 / 字段小标签退回「次要配角」：12px / 中等字重 / 柔和深灰，让关键数字与正文呼吸感拉出来 */
 .page-enter .t-label {
-  font-family: var(--font-geist-sans), "PingFang SC", "HarmonyOS Sans SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-family: var(--font-geist-sans), var(--font-sans-cn), "PingFang SC", "Microsoft YaHei", sans-serif;
   font-size: 12px;
   font-weight: 500;
   color: var(--ink-subtle);

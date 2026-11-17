@@ -72,8 +72,8 @@ export default async function CompetitionIntroPage() {
                 LUOJIA COMPETITION GUIDE
               </span>
             </div>
-            <h1 className="mt-4 font-display text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-              赛事指南与赛道全览
+            <h1 className="mt-4 font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
+              赛事指南<span className="text-[#8fe3ca]">与赛道全览</span>
             </h1>
             <p className="mt-2.5 max-w-lg text-sm leading-6 text-white/80">
               先看清每项赛事的定位、赛道设置与时间节点，再选择适合团队的赛道报名。点开卡片阅读完整章程与宣传片。
@@ -162,10 +162,10 @@ export default async function CompetitionIntroPage() {
                     </span>
                   </div>
 
-                  {/* 按赛事等级区分字体颜色 + 思源宋体展示 */}
+                  {/* 按赛事等级区分不同字体性格（粗思源宋体 / 粗思源黑体 / 华文楷体）与宝石色大标题 */}
                   <div className="mt-4">
                     <h2
-                      className="font-display text-xl font-semibold leading-snug"
+                      className={`${cardTheme.titleFontClass} leading-snug`}
                       style={{ color: cardTheme.titleInk }}
                     >
                       {competition.name}

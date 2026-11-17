@@ -172,7 +172,7 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
           </div>
 
           <h1
-            className="mt-3 font-display text-3xl font-semibold leading-tight"
+            className={`mt-3 ${cardTheme.titleFontClass} text-3xl leading-tight sm:text-4xl`}
             style={{ color: cardTheme.titleInk }}
           >
             {competition.name}

@@ -9,8 +9,10 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-geist-sans)", "PingFang SC", "HarmonyOS Sans SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", "sans-serif"],
-        display: ["var(--font-serif-display)", "Noto Serif SC", "Source Han Serif SC", "Songti SC", "SimSun", "serif"],
+        sans: ["var(--font-geist-sans)", "var(--font-sans-cn)", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "sans-serif"],
+        display: ["var(--font-serif-display)", "Noto Serif SC", "Songti SC", "SimSun", "serif"],
+        editorial: ["var(--font-geist-sans)", "var(--font-sans-cn)", "PingFang SC", "sans-serif"],
+        kaiti: ["var(--font-kaiti-cn)", "KaiTi", "STKaiti", "BiauKai", "serif"],
         mono: ["var(--font-geist-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
       },
       colors: {

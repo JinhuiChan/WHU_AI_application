@@ -16,6 +16,16 @@ const geistMono = localFont({
 const notoSerifDisplay = localFont({
   src: "./fonts/NotoSerifSC-Subset.woff2",
   variable: "--font-serif-display",
+  weight: "200 900",
+});
+const notoSansCN = localFont({
+  src: "./fonts/NotoSansSC-Subset.woff2",
+  variable: "--font-sans-cn",
+  weight: "100 900",
+});
+const stKaiti = localFont({
+  src: "./fonts/STKaiti-Subset.woff2",
+  variable: "--font-kaiti-cn",
   weight: "400 700",
 });
 
@@ -34,7 +44,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN">
-      <body className={`${geistSans.variable} ${geistMono.variable} ${notoSerifDisplay.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} ${notoSerifDisplay.variable} ${notoSansCN.variable} ${stKaiti.variable} antialiased`}>
         {children}
         <Toaster theme="light" position="top-right" richColors closeButton duration={3200} offset={76} />
       </body>

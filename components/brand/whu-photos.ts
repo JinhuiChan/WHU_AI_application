@@ -38,8 +38,10 @@ export type CardThemeSpec = {
   border: string;
   /** 悬停边框色 */
   hoverBorder: string;
-  /** 主标题颜色（与背景色块呼应，区分赛事类型） */
+  /** 主标题颜色（高明度宝石色系，一眼拉开类型差异，不接近纯黑） */
   titleInk: string;
+  /** 匹配赛事性格的展示字体类名（宋体 / 粗黑体 / 华文楷体） */
+  titleFontClass: string;
   /** 眉题/次级强调字颜色 */
   accentInk: string;
   /** 实景建筑背景图 */
@@ -49,52 +51,56 @@ export type CardThemeSpec = {
 };
 
 /**
- * 按赛事等级区分的「背景色块 + 字体色彩 + 武大建筑底图」完整视觉方案：
- * - 国赛：清透浅蓝块 + 深珞珈蓝宋体字 + 老图书馆全景
- * - 省赛：清透浅青绿块 + 深珞珈绿宋体字 + 国立武汉大学牌坊
- * - 校赛：清透浅紫块 + 深紫檀宋体字 + 樱顶与樱花大道
+ * 按赛事等级区分的「背景色块 + 字体气质与色彩 + 武大建筑底图」完整视觉方案：
+ * - 国赛：清透浅蓝块 + 皇家钴蓝粗思源宋体 + 老图书馆全景
+ * - 省赛：清透翡翠浅绿 + 翡翠琉璃绿特粗思源黑体 + 国立武汉大学牌坊
+ * - 校赛：清透丁香浅紫 + 华贵绛紫华文楷体 + 樱顶与樱花大道
  */
 export function levelCardTheme(level?: string | null): CardThemeSpec {
   switch (level) {
     case "NATIONAL":
       return {
-        surface: "#eef4fb",
-        border: "#cfe0f5",
-        hoverBorder: "#7aa2d4",
-        titleInk: "#002554",
-        accentInk: "#174278",
+        surface: "#edf4fc",
+        border: "#c7dcf5",
+        hoverBorder: "#5c92db",
+        titleInk: "#134eb8",
+        titleFontClass: "font-display font-bold tracking-tight text-[22px]",
+        accentInk: "#1d5fd1",
         photo: WHU_PHOTOS.oldLibrary.src,
         overlay:
-          "linear-gradient(104deg, rgba(238,244,251,0.97) 0%, rgba(238,244,251,0.93) 48%, rgba(238,244,251,0.72) 78%, rgba(238,244,251,0.58) 100%)",
+          "linear-gradient(104deg, rgba(237,244,252,0.97) 0%, rgba(237,244,252,0.93) 48%, rgba(237,244,252,0.72) 78%, rgba(237,244,252,0.56) 100%)",
       };
     case "PROVINCE":
       return {
-        surface: "#ebf6f2",
-        border: "#c7e6db",
-        hoverBorder: "#5ea88f",
-        titleInk: "#0d4734",
-        accentInk: "#115740",
+        surface: "#e9f6f1",
+        border: "#bfe3d6",
+        hoverBorder: "#44a083",
+        titleInk: "#0a7456",
+        titleFontClass: "font-editorial font-bold tracking-tight text-[22px]",
+        accentInk: "#0e8563",
         photo: WHU_PHOTOS.gate.src,
         overlay:
-          "linear-gradient(104deg, rgba(235,246,242,0.97) 0%, rgba(235,246,242,0.93) 48%, rgba(235,246,242,0.74) 78%, rgba(235,246,242,0.6) 100%)",
+          "linear-gradient(104deg, rgba(233,246,241,0.97) 0%, rgba(233,246,241,0.93) 48%, rgba(233,246,241,0.72) 78%, rgba(233,246,241,0.58) 100%)",
       };
     case "SCHOOL":
       return {
-        surface: "#f4effa",
-        border: "#ddd0f0",
-        hoverBorder: "#9e82cf",
-        titleInk: "#3f2768",
-        accentInk: "#4c3575",
+        surface: "#f4edfc",
+        border: "#d9c6f5",
+        hoverBorder: "#9670df",
+        titleInk: "#6d28d9",
+        titleFontClass: "font-kaiti font-semibold tracking-wide text-[25px]",
+        accentInk: "#7c3aed",
         photo: WHU_PHOTOS.cherryCampus.src,
         overlay:
-          "linear-gradient(104deg, rgba(244,239,250,0.97) 0%, rgba(244,239,250,0.93) 48%, rgba(244,239,250,0.76) 78%, rgba(244,239,250,0.62) 100%)",
+          "linear-gradient(104deg, rgba(244,237,252,0.97) 0%, rgba(244,237,252,0.93) 48%, rgba(244,237,252,0.74) 78%, rgba(244,237,252,0.58) 100%)",
       };
     default:
       return {
         surface: "#f5f2eb",
         border: "#e2dccf",
         hoverBorder: "#a89f8d",
-        titleInk: "#1e293b",
+        titleInk: "#334155",
+        titleFontClass: "font-display font-bold tracking-tight text-[22px]",
         accentInk: "#475569",
         photo: WHU_PHOTOS.arch.src,
         overlay:
