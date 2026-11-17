@@ -45,6 +45,30 @@ body {
   font-family: var(--font-geist-sans), "Microsoft YaHei", "PingFang SC", sans-serif;
 }
 
+/* 页面画布（2026-11-17 用户选定的「02 柔和渐变」）。
+   原来是单色 #f1f5f9，和白色卡片只差 4 个明度点，整页连成一片白，看着干也刺眼。
+   改成一层 135° 渐变：左上蓝灰 → 中间中性 → 右下暖白。
+   三个作用：① 白卡真正浮起来；② 页面有了光源方向；③ 左下偏冷、右上偏暖，
+   长页面滚动时不会是一条死板的同色带。
+   只加一层背景，不动任何组件结构；打印版仍是纯色（纸面上渐变只是脏）。 */
+@media screen {
+  .app-canvas {
+    background-color: #eef1f6;
+    background-image: linear-gradient(135deg, #dde7f3 0%, #e9edf3 42%, #f6f4ee 100%);
+  }
+
+  /* 侧栏比画布更浅一档，和卡片形成「壳 / 画布 / 卡」三层 */
+  .app-shell-aside {
+    background-color: #fbfcfe;
+  }
+
+  /* 顶栏半透明：内容滚过时透出一点底色，比死白更有空间感 */
+  .app-shell-header {
+    background-color: rgba(255, 255, 255, 0.86);
+    backdrop-filter: blur(8px);
+  }
+}
+
 @layer base {
   a:focus-visible,
   input:focus-visible,

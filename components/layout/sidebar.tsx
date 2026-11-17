@@ -129,7 +129,7 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
 
   return (
     <>
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-slate-200 bg-white md:flex">
+      <aside className="app-shell-aside fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-slate-200 bg-white md:flex">
         <Link href="/dashboard" className="flex h-16 items-center gap-3 border-b border-slate-200 px-5 py-0">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 font-bold text-white">科</span>
           <span>
