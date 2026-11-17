@@ -5,7 +5,6 @@ import { ArrowUpRight, Building2, CalendarDays, Layers, PlayCircle, Trophy } fro
 import { LevelPill } from "@/components/competitions/event-tone";
 import { EmptyState } from "@/components/ui/empty-state";
 import { detailHref } from "@/components/data/list-link";
-import SpotlightCard from "@/components/react-bits/SpotlightCard";
 import { introContentFor } from "@/components/competitions/competition-intro-data";
 import { getActiveUser } from "@/lib/auth.server";
 import { prisma } from "@/lib/prisma";
@@ -71,35 +70,25 @@ export default async function CompetitionIntroPage() {
               <Link
                 key={competition.id}
                 href={detailHref("/intro", competition.id, "/intro")}
-                className="group block rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-[180ms] ease-out hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 active:translate-y-0 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                className="group flex h-full flex-col gap-4 card p-5 transition duration-150 ease-out hover:border-slate-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               >
-                <SpotlightCard
-                  borderGlow={0.4}
-                  className="flex h-full flex-col gap-4 p-5"
-                  intensity={0.5}
-                  proximity={56}
-                  softness={0.75}
-                  spotlightColor="#2563eb"
-                  spotlightSize={280}
-                  theme="light"
-                >
                   <div className="flex items-start justify-between gap-3">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-                      <Trophy aria-hidden="true" size={20} />
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                      <Trophy aria-hidden="true" size={19} />
                     </span>
                     <span className="flex flex-wrap items-center justify-end gap-1.5">
                       {hasVideo ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-1 text-[11px] font-semibold text-red-600">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700">
                           <PlayCircle aria-hidden="true" size={12} />
                           含宣传片
                         </span>
                       ) : null}
-                      <LevelPill className="px-2.5 py-1 text-[11px] font-semibold" level={competition.level} />
+                      <LevelPill className="px-2.5 py-0.5 text-xs font-medium" level={competition.level} />
                     </span>
                   </div>
 
                   <div>
-                    <h2 className="text-lg text-slate-900">{competition.name}</h2>
+                    <h2 className="text-base font-semibold text-slate-900">{competition.name}</h2>
                     <p className="mt-2 text-sm leading-6 text-slate-600">{intro.tagline}</p>
                   </div>
 
@@ -122,11 +111,10 @@ export default async function CompetitionIntroPage() {
                     查看简介
                     <ArrowUpRight
                       aria-hidden="true"
-                      className="transition duration-[160ms] group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                      size={16}
+                      className="transition duration-150 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                      size={15}
                     />
                   </span>
-                </SpotlightCard>
               </Link>
             );
           })}

@@ -23,10 +23,10 @@ type Scheme = {
 };
 
 const SCHEMES: Scheme[] = [
-  { from: "#1a73e8", to: "#0b47b8", eyebrow: "TRACK 01", art: "growth" },
-  { from: "#0e8a75", to: "#04604f", eyebrow: "TRACK 02", art: "chart" },
-  { from: "#c2580f", to: "#8a3c08", eyebrow: "TRACK 03", art: "network" },
-  { from: "#8c2b4d", to: "#5e1a33", eyebrow: "TRACK 04", art: "growth" },
+  { from: "#1b3b6b", to: "#0f2547", eyebrow: "TRACK 01", art: "growth" },
+  { from: "#134e45", to: "#0a312b", eyebrow: "TRACK 02", art: "chart" },
+  { from: "#7c3a22", to: "#512312", eyebrow: "TRACK 03", art: "network" },
+  { from: "#6b2135", to: "#441220", eyebrow: "TRACK 04", art: "growth" },
 ];
 
 /** 成长型：上升折线 + 旗子 + 山形，对应「一路往上走」 */
@@ -138,7 +138,7 @@ export function TrackCard({ name, detail, subTracks, href, index }: TrackCardPro
 
   return (
     <div
-      className="on-dark relative isolate overflow-hidden rounded-2xl p-6 text-white"
+      className="on-dark relative isolate overflow-hidden rounded-2xl p-6 text-white ring-1 ring-inset ring-white/10"
       style={{ backgroundImage: `linear-gradient(135deg, ${scheme.from}, ${scheme.to})` }}
     >
       <Art />
@@ -153,19 +153,19 @@ export function TrackCard({ name, detail, subTracks, href, index }: TrackCardPro
       />
 
       <div className="relative flex h-full min-h-[168px] flex-col">
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/70">{scheme.eyebrow}</p>
-        <h3 className="mt-2.5 max-w-[72%] text-xl font-bold leading-snug">{name}</h3>
-        <p className="mt-1.5 max-w-[70%] text-sm leading-6 text-white/80">{detail}</p>
+        <p className="font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-white/70">{scheme.eyebrow}</p>
+        <h3 className="mt-2.5 max-w-[74%] text-lg font-semibold leading-snug">{name}</h3>
+        <p className="mt-1.5 max-w-[72%] text-sm leading-6 text-white/80">{detail}</p>
 
         {subTracks?.length ? (
           <div className="mt-3 flex flex-wrap gap-1.5">
             {subTracks.slice(0, 3).map((child) => (
-              <span className="rounded-full bg-white/15 px-2 py-0.5 text-[11px] text-white/90" key={child}>
+              <span className="rounded-full bg-white/15 px-2.5 py-0.5 text-xs text-white/90" key={child}>
                 {child}
               </span>
             ))}
             {subTracks.length > 3 ? (
-              <span className="rounded-full bg-white/10 px-2 py-0.5 text-[11px] text-white/70">
+              <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-xs text-white/75">
                 +{subTracks.length - 3}
               </span>
             ) : null}

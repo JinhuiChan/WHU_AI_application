@@ -29,11 +29,11 @@ export function DashboardCharts({
         <div className="mt-5 h-80 w-full" aria-label="近 5 年获奖趋势折线图">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={trend} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
-              <CartesianGrid stroke="#e2e8f0" vertical={false} />
-              <XAxis dataKey="year" tick={{ fontSize: 12, fill: "#64748b" }} />
-              <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: "#64748b" }} width={36} />
+              <CartesianGrid stroke="#eef1f5" vertical={false} />
+              <XAxis dataKey="year" tick={{ fontSize: 12, fill: "#637083" }} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: "#637083" }} width={36} />
               <Tooltip />
-              <Line type="monotone" dataKey="awardCount" name="获奖数" stroke="#2563eb" strokeWidth={2} dot={{ r: 4 }} />
+              <Line type="monotone" dataKey="awardCount" name="获奖数" stroke="#1e4278" strokeWidth={2} dot={{ r: 3.5, fill: "#1e4278" }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -47,11 +47,11 @@ export function DashboardCharts({
         <div className="mt-5 h-80 w-full" aria-label="学院折算分排行柱状图">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={rankings} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
-              <CartesianGrid stroke="#e2e8f0" vertical={false} />
-              <XAxis dataKey="college" tick={{ fontSize: 10, fill: "#64748b" }} interval={0} />
-              <YAxis tick={{ fontSize: 12, fill: "#64748b" }} width={36} />
+              <CartesianGrid stroke="#eef1f5" vertical={false} />
+              <XAxis dataKey="college" tick={{ fontSize: 11, fill: "#637083" }} interval={0} />
+              <YAxis tick={{ fontSize: 12, fill: "#637083" }} width={36} />
               <Tooltip />
-              <Bar dataKey="score" name="折算分" fill="#2563eb" radius={[5, 5, 0, 0]} />
+              <Bar dataKey="score" name="折算分" fill="#1e4278" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

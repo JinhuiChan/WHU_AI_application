@@ -114,7 +114,7 @@ export function AwardWorkbench({ data, competitions, colleges, filters }: AwardW
 
       <section className="overflow-hidden card">
         {error ? <div role="alert" className="border-b border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div> : null}
-        {notice ? <div role="status" className="border-b border-green-100 bg-green-50 px-4 py-3 text-sm text-green-700">{notice}</div> : null}
+        {notice ? <div role="status" className="border-b border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{notice}</div> : null}
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1000px] text-left text-sm">
             <thead className="t-thead bg-slate-50 text-xs text-slate-500">
@@ -149,7 +149,7 @@ export function AwardWorkbench({ data, competitions, colleges, filters }: AwardW
                         ) : null}
                       </div>
                       {transition ? (
-                        <div className="mt-1 text-xs text-green-700">
+                        <div className="mt-1 text-xs text-emerald-700">
                           {transition.oldLevel ? awardLevelLabels[transition.oldLevel] : "未录入"} → {awardLevelLabels[transition.newLevel]}
                         </div>
                       ) : null}

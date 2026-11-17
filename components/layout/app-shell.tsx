@@ -25,7 +25,7 @@ export async function AppShell({ user, children }: { user: AuthUser; children: R
     <div className="app-canvas min-h-screen bg-background">
       <Sidebar roles={user.roles} badges={badges} />
       <div className="min-h-screen md:pl-60">
-        <header className="app-shell-header sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b border-slate-200 bg-white px-4 md:px-6">
+        <header className="app-shell-header sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b border-slate-200/80 px-4 md:px-6">
           <Breadcrumbs />
           <UserMenu user={user} />
         </header>

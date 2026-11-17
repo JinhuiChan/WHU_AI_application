@@ -19,6 +19,7 @@ import {
   Users,
 } from "lucide-react";
 import type { Role } from "@prisma/client";
+import { BrandMark } from "@/components/layout/brand-mark";
 
 const adminNavigation = [
   { href: "/dashboard", label: "看板", icon: LayoutDashboard },
@@ -129,15 +130,17 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
 
   return (
     <>
-      <aside className="app-shell-aside fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-slate-200 bg-white md:flex">
-        <Link href="/dashboard" className="flex h-16 items-center gap-3 border-b border-slate-200 px-5 py-0">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 font-bold text-white">科</span>
-          <span>
-            <span className="block text-sm font-semibold text-slate-900">科创赛事</span>
-            <span className="block text-xs text-slate-500">综合管理服务平台</span>
+      <aside className="app-shell-aside fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-slate-200/80 md:flex">
+        <Link href="/dashboard" className="flex h-16 items-center gap-3 border-b border-slate-200/80 px-5">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
+            <BrandMark className="h-5 w-5" />
+          </span>
+          <span className="min-w-0">
+            <span className="block truncate text-sm font-semibold tracking-tight text-slate-900">珞珈科创</span>
+            <span className="block truncate font-mono text-[10px] tracking-[0.14em] text-slate-400">WHU INNOVATION</span>
           </span>
         </Link>
-        <nav aria-label="主导航" className="flex-1 space-y-1 overflow-y-auto px-3 py-5">
+        <nav aria-label="主导航" className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
           {navigation.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
@@ -146,16 +149,18 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
                 key={item.href}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={`flex h-10 items-center gap-3 rounded-xl px-3 text-sm transition ${
-                  active ? "bg-blue-50 font-medium text-blue-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                className={`flex h-9 items-center gap-2.5 rounded-lg px-3 text-sm transition duration-150 ${
+                  active
+                    ? "bg-blue-50/90 font-medium text-blue-700 ring-1 ring-inset ring-blue-200/70"
+                    : "text-slate-600 hover:bg-slate-100/70 hover:text-slate-900"
                 }`}
               >
-                <Icon size={18} aria-hidden="true" />
-                {item.label}
+                <Icon size={17} aria-hidden="true" className={active ? "text-blue-600" : "text-slate-400"} />
+                <span className="truncate">{item.label}</span>
                 {item.href === "/my/teams" && teamRequests > 0 ? (
                   <span
                     title={`待处理入队申请 ${teamRequests} 条`}
-                    className="ml-auto rounded-full bg-red-600 px-1.5 text-[11px] font-medium leading-4 text-white"
+                    className="ml-auto rounded-full bg-red-50 px-1.5 py-0.5 text-xs font-medium leading-none text-red-700 ring-1 ring-red-200"
                   >
                     {teamRequests}
                   </span>
@@ -165,7 +170,8 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
           })}
           {roles.includes("ADMIN") ? (
             <div className="pt-5">
-              <p className="mb-2 px-3 text-xs font-medium text-slate-400">管理</p>
+              <p className="mb-1.5 px-3 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate-400">Admin</p>
+              <div className="space-y-0.5">
               {administration.map((item) => {
                 const Icon = item.icon;
                 const active = isActive(item.href);
@@ -174,16 +180,18 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
                     key={item.href}
                     href={item.href}
                     aria-current={active ? "page" : undefined}
-                    className={`flex h-10 items-center gap-3 rounded-xl px-3 text-sm transition ${
-                      active ? "bg-blue-50 font-medium text-blue-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                    className={`flex h-9 items-center gap-2.5 rounded-lg px-3 text-sm transition duration-150 ${
+                      active
+                        ? "bg-blue-50/90 font-medium text-blue-700 ring-1 ring-inset ring-blue-200/70"
+                        : "text-slate-600 hover:bg-slate-100/70 hover:text-slate-900"
                     }`}
                   >
-                    <Icon size={18} aria-hidden="true" />
-                    {item.label}
+                    <Icon size={17} aria-hidden="true" className={active ? "text-blue-600" : "text-slate-400"} />
+                    <span className="truncate">{item.label}</span>
                     {item.href === "/review" && pendingTodo > 0 ? (
                       <span
                         title={pendingTitle}
-                        className="ml-auto rounded-full bg-red-600 px-1.5 text-[11px] font-medium leading-4 text-white"
+                        className="ml-auto rounded-full bg-red-50 px-1.5 py-0.5 text-xs font-medium leading-none text-red-700 ring-1 ring-red-200"
                       >
                         {pendingTodo}
                       </span>
@@ -191,7 +199,7 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
                     {item.href === "/admin/users" && adminUsers > 0 ? (
                       <span
                         title={`待审核的管理员申请 ${adminUsers} 个`}
-                        className="ml-auto rounded-full bg-red-600 px-1.5 text-[11px] font-medium leading-4 text-white"
+                        className="ml-auto rounded-full bg-red-50 px-1.5 py-0.5 text-xs font-medium leading-none text-red-700 ring-1 ring-red-200"
                       >
                         {adminUsers}
                       </span>
@@ -199,12 +207,13 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
                   </Link>
                 );
               })}
+              </div>
             </div>
           ) : null}
         </nav>
       </aside>
 
-      <nav aria-label="移动端导航" className="fixed inset-x-0 bottom-0 z-40 flex border-t border-slate-200 bg-white pb-safe md:hidden">
+      <nav aria-label="移动端导航" className="fixed inset-x-0 bottom-0 z-40 flex border-t border-slate-200/90 bg-white/95 backdrop-blur-md pb-safe md:hidden">
         {mobileNavigation.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.href);
@@ -214,14 +223,14 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
               key={item.href}
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-[11px] ${active ? "text-blue-600" : "text-slate-500"}`}
+              className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-xs ${active ? "font-medium text-blue-600" : "text-slate-500"}`}
             >
               <span className="relative">
-                <Icon size={20} aria-hidden="true" />
+                <Icon size={19} aria-hidden="true" />
                 {badge > 0 ? (
                   <span
                     title={`待处理 ${badge} 条`}
-                    className="absolute -right-2 -top-1 min-w-4 rounded-full bg-red-600 px-1 text-center text-[10px] font-medium leading-4 text-white"
+                    className="absolute -right-2.5 -top-1 min-w-4 rounded-full bg-red-600 px-1 text-center text-[11px] font-medium leading-4 text-white"
                   >
                     {badge}
                   </span>

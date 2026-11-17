@@ -8,8 +8,6 @@ import { StatisticsCharts } from "@/components/data/statistics-charts";
 import { getActiveUser } from "@/lib/auth.server";
 import { firstParam } from "@/lib/list-query";
 import { getStatisticsSummary, parseStatisticsQuery } from "@/lib/statistics";
-import CountUp from "@/components/react-bits/CountUp";
-import SpotlightCard from "@/components/react-bits/SpotlightCard";
 
 export const metadata: Metadata = { title: "统计看板" };
 export const dynamic = "force-dynamic";
@@ -73,10 +71,10 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     DRAFT: "#cbd5e1",
     PENDING: "#d97706",
     COLLEGE_REVIEW: "#d97706",
-    SCHOOL_FINAL: "#0e8a75",
-    REJECTED: "#dc2626",
-    PROVINCE_ADVANCED: "#2563eb",
-    NATIONAL_ADVANCED: "#1d4ed8",
+    SCHOOL_FINAL: "#134e45",
+    REJECTED: "#b91c1c",
+    PROVINCE_ADVANCED: "#2e5996",
+    NATIONAL_ADVANCED: "#1e4278",
     WITHDRAWN: "#94a3b8",
   };
   const statusRows = (summary.myStatus ?? []).filter((item) => item.count > 0);
@@ -85,16 +83,13 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     .filter((item) => item.status === "REJECTED")
     .reduce((sum, item) => sum + item.count, 0);
 
-  // 图标底色按功能分类，让四个入口在扫视时就能分开，不用逐个读字。
-  // 这层是「标识色」，和状态徽章那套「语义色」（红=错误/橙=待处理/绿=通过）分工不同：
-  // 标识色只保证「同一类功能永远是同一个颜色」，不承载业务含义；
-  // 语义色必须严格对应状态。两套不要混用，否则紫色也会被读成某种状态。
+  // 图标底色按功能分类，保持柔和浅底，避免高饱和色块抢戏
   const ICON_TONE = {
-    blue: "bg-blue-100 text-blue-700 ring-blue-200",
-    teal: "bg-teal-100 text-teal-700 ring-teal-200",
-    emerald: "bg-emerald-100 text-emerald-700 ring-emerald-200",
-    amber: "bg-amber-100 text-amber-700 ring-amber-200",
-    violet: "bg-violet-100 text-violet-700 ring-violet-200",
+    blue: "bg-blue-50 text-blue-700",
+    teal: "bg-teal-50 text-teal-700",
+    emerald: "bg-emerald-50 text-emerald-700",
+    amber: "bg-amber-50 text-amber-700",
+    violet: "bg-violet-50 text-violet-700",
   } as const;
 
   type IconTone = keyof typeof ICON_TONE;
@@ -123,29 +118,18 @@ export default async function DashboardPage({ searchParams }: PageProps) {
           const Icon = item.icon;
           return (
             <Link
-              className="group block card transition duration-[160ms] hover:border-blue-300 active:scale-[0.98] motion-reduce:active:scale-100"
+              className="group flex items-center gap-3 card p-4 transition duration-150 hover:border-slate-300 active:scale-[0.99] motion-reduce:active:scale-100"
               href={item.href}
               key={item.href}
             >
-              <SpotlightCard
-                borderGlow={0.4}
-                className="flex items-center gap-3 p-4"
-                intensity={0.55}
-                proximity={48}
-                softness={0.75}
-                spotlightColor="#2563eb"
-                spotlightSize={180}
-                theme="light"
-              >
-                <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1 ${ICON_TONE[item.tone]}`}>
-                  <Icon aria-hidden="true" size={18} />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-medium text-slate-900">{item.label}</span>
-                  <span className="mt-0.5 block text-xs text-slate-500">{item.note}</span>
-                </span>
-                <ArrowUpRight aria-hidden="true" className="shrink-0 text-slate-400 transition group-hover:text-blue-600" size={16} />
-              </SpotlightCard>
+              <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${ICON_TONE[item.tone]}`}>
+                <Icon aria-hidden="true" size={17} />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-medium text-slate-900">{item.label}</span>
+                <span className="mt-0.5 block truncate text-xs text-slate-500">{item.note}</span>
+              </span>
+              <ArrowUpRight aria-hidden="true" className="shrink-0 text-slate-400 transition group-hover:text-blue-600" size={15} />
             </Link>
           );
         })}
@@ -190,26 +174,26 @@ export default async function DashboardPage({ searchParams }: PageProps) {
               <h2 className="t-label text-xs text-slate-500">{card.label}</h2>
               {big ? (
                 <div className="flex flex-1 items-center gap-5 py-4">
-                  <svg aria-hidden="true" className="shrink-0" height="84" viewBox="0 0 64 64" width="84">
-                    <circle cx="32" cy="32" fill="none" r="26" stroke="#eef2f7" strokeWidth="7" />
+                  <svg aria-hidden="true" className="shrink-0" height="80" viewBox="0 0 64 64" width="80">
+                    <circle cx="32" cy="32" fill="none" r="26" stroke="#edf1f7" strokeWidth="6" />
                     <circle
                       cx="32"
                       cy="32"
                       fill="none"
                       r="26"
-                      stroke={isWarning ? "#d97706" : "#2563eb"}
+                      stroke={isWarning ? "#d97706" : "#1e4278"}
                       strokeDasharray={circumference}
                       strokeDashoffset={circumference * (1 - ringPercent / 100)}
                       strokeLinecap="round"
-                      strokeWidth="7"
+                      strokeWidth="6"
                       transform="rotate(-90 32 32)"
                     />
                   </svg>
                   <div className="min-w-0">
-                    <div className={`text-5xl font-semibold tabular-nums ${isWarning ? "t-warn-value" : "text-slate-900"}`}>
-                      <CountUp to={card.value} duration={1.1} delay={0} trigger="load" easing="easeOut" />
+                    <div className={`text-4xl font-semibold tracking-tight tabular-nums ${isWarning ? "t-warn-value" : "text-slate-900"}`}>
+                      {card.value}
                     </div>
-                    <p className="mt-1.5 text-[11px] text-slate-500">
+                    <p className="mt-1.5 text-xs text-slate-500">
                       {ringLabel} <span className="font-semibold text-slate-900 tabular-nums">{ringPercent}%</span>
                       <span className="text-slate-400 tabular-nums"> · {ringNumerator}/{totalProjects}</span>
                     </p>
@@ -217,7 +201,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                 </div>
               ) : (
                 <div className={`t-hero-title mt-3 text-3xl font-semibold ${isWarning ? "t-warn-value" : "text-slate-900"}`}>
-                  <CountUp to={card.value} duration={1.1} delay={index * 0.08} trigger="load" easing="easeOut" />
+                  {card.value}
                 </div>
               )}
               <p className={`text-xs text-slate-400 ${big ? "mt-auto" : "mt-3"} ${interactive ? "pr-5" : ""}`}>{card.note}</p>
@@ -306,7 +290,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                 >
                   <span className="min-w-0">
                     <span className="block text-xs font-semibold text-red-700">有 {rejectedCount} 个项目被驳回</span>
-                    <span className="mt-0.5 block text-[11px] text-slate-500">看驳回原因并重新提交</span>
+                    <span className="mt-0.5 block text-xs text-slate-500">看驳回原因并重新提交</span>
                   </span>
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-red-600 transition group-hover:bg-red-600 group-hover:text-white">
                     <ArrowUpRight aria-hidden="true" size={14} />

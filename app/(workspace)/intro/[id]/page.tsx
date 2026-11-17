@@ -10,7 +10,6 @@ import { LevelPill } from "@/components/competitions/event-tone";
 import { TrackCard } from "@/components/competitions/track-card";
 import { deadlineState, fmtMD, sameYearCN } from "@/components/ui/deadline-meter";
 import { SectionHead } from "@/components/ui/section-head";
-import SpotlightCard from "@/components/react-bits/SpotlightCard";
 import { Button, ButtonArrow } from "@/components/ui/button";
 import { getActiveUser } from "@/lib/auth.server";
 import { loadScopedLabels } from "@/lib/dict-labels";
@@ -136,11 +135,11 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
           <BackLink to={firstParam(searchParams?.from)} fallback="/intro" label="返回赛事简介" />
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            <LevelPill className="px-2.5 py-1 text-[11px] font-semibold" level={competition.level} />
-            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
+            <LevelPill className="px-2.5 py-0.5 text-xs font-medium" level={competition.level} />
+            <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
               {competition.year} 年
             </span>
-            <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${applyState.tone}`}>{applyState.label}</span>
+            <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${applyState.tone}`}>{applyState.label}</span>
           </div>
 
           <h1 className="t-hero-title mt-3 text-3xl font-semibold leading-tight text-slate-900">{competition.name}</h1>
@@ -220,12 +219,12 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
                         style={{ width: `${item.percent}%` }}
                       />
                     </span>
-                    <span className="shrink-0 text-[11px] text-slate-400 tabular-nums">
+                    <span className="shrink-0 text-xs text-slate-400 tabular-nums">
                       {item.running ? `已过 ${item.percent}%` : item.percent >= 100 ? "窗口已关闭" : "尚未开始"}
                     </span>
                   </span>
                 </span>
-                <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium ${item.tone}`}>
+                <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${item.tone}`}>
                   {item.label}
                 </span>
               </li>
@@ -247,20 +246,9 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
 
       <section aria-label="赛事看点" className="grid gap-3 md:grid-cols-3">
         {intro.highlights.map((item) => (
-          <div key={item.title} className="card">
-            <SpotlightCard
-              borderGlow={0.35}
-              className="h-full p-4"
-              intensity={0.45}
-              proximity={44}
-              softness={0.75}
-              spotlightColor="#2563eb"
-              spotlightSize={200}
-              theme="light"
-            >
-              <p className="text-sm font-semibold text-slate-900">{item.title}</p>
-              <p className="mt-1.5 text-xs leading-6 text-slate-600">{item.desc}</p>
-            </SpotlightCard>
+          <div key={item.title} className="card h-full p-5">
+            <p className="text-sm font-semibold text-slate-900">{item.title}</p>
+            <p className="mt-1.5 text-xs leading-6 text-slate-600">{item.desc}</p>
           </div>
         ))}
       </section>
@@ -337,22 +325,11 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
               <a href={video.filePath} className="text-blue-600 underline">直接下载观看</a>。
             </video>
           ) : (
-            <div className="max-w-3xl overflow-hidden rounded-xl border border-slate-200 bg-gradient-to-b from-blue-50 via-white to-white shadow-sm">
-              <SpotlightCard
-                borderGlow={0.3}
-                className="flex aspect-video flex-col items-center justify-center gap-2 px-6 text-center"
-                intensity={0.4}
-                proximity={64}
-                shape="beam"
-                softness={0.8}
-                spotlightColor="#2563eb"
-                spotlightSize={520}
-                theme="light"
-              >
-                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-blue-600">
-                  <PlayCircle aria-hidden="true" size={22} />
+            <div className="flex aspect-video max-w-3xl flex-col items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50/80 px-6 text-center">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-blue-600 shadow-sm ring-1 ring-slate-200/80">
+                  <PlayCircle aria-hidden="true" size={20} />
                 </span>
-                <p className="text-sm font-semibold text-slate-700">宣传片 / 赛事解读</p>
+                <p className="text-sm font-semibold text-slate-800">宣传片 / 赛事解读</p>
                 <p className="max-w-md text-xs leading-6 text-slate-500">
                   还没有上传视频。管理员上传后，这里会变成可播放的宣传片，也可以在下面配一段赛事解读。
                 </p>
@@ -364,7 +341,6 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
                     去上传宣传片
                   </Link>
                 ) : null}
-              </SpotlightCard>
             </div>
           )}
         </div>

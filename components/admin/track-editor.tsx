@@ -199,7 +199,7 @@ export function TrackEditor({ competitionId }: { competitionId: string }) {
       <h2 className="text-sm font-semibold text-slate-900">赛道与组别（管理员配置）</h2>
       <p className="mt-1 text-xs text-slate-500">赛道决定学生报名的赛道下拉；组别/类别按赛道生效。停用不会删除历史数据。</p>
       {error ? <p role="alert" className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p> : null}
-      {message ? <p role="status" className="mt-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">{message}</p> : null}
+      {message ? <p role="status" className="mt-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{message}</p> : null}
       {loading ? <p className="mt-3 text-sm text-slate-500">读取中…</p> : null}
       {!loading && !tracks.length ? <p className="mt-3 text-sm text-slate-500">尚未配置赛道，先在下面添加。</p> : null}
       {tracks.map((track) => renderNode(track, 0))}

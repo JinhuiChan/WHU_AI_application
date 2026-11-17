@@ -180,7 +180,7 @@ export function CompetitionCards({ items, isStudent, from }: CompetitionCardsPro
         return (
           <Link
             aria-label={`${item.name}，查看详情`}
-            className="on-dark group relative isolate flex flex-col overflow-hidden rounded-2xl p-6 text-white transition duration-[160ms] ease-out hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-900/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 motion-reduce:hover:translate-y-0"
+            className="on-dark group relative isolate flex flex-col overflow-hidden rounded-2xl p-6 text-white ring-1 ring-inset ring-white/10 transition duration-150 ease-out hover:shadow-md hover:shadow-slate-900/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
             href={detailHref("/competitions", item.id, from)}
             key={item.id}
             style={{ backgroundImage: `linear-gradient(135deg, ${scheme.from}, ${scheme.to})` }}
@@ -195,17 +195,17 @@ export function CompetitionCards({ items, isStudent, from }: CompetitionCardsPro
               style={{ backgroundImage: `linear-gradient(100deg, ${scheme.from} 26%, ${scheme.from}00 64%)` }}
             />
 
-            <div className="relative flex h-full min-h-[170px] flex-col">
-              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/65">{scheme.eyebrow}</p>
-              <h3 className="mt-2.5 max-w-[74%] text-xl font-bold leading-snug">{item.name}</h3>
-              <p className="mt-1.5 max-w-[72%] text-[13px] leading-6 text-white/75">
+            <div className="relative flex h-full min-h-[168px] flex-col">
+              <p className="font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-white/65">{scheme.eyebrow}</p>
+              <h3 className="mt-2.5 max-w-[76%] text-lg font-semibold leading-snug">{item.name}</h3>
+              <p className="mt-1.5 max-w-[74%] text-[13px] leading-6 text-white/75">
                 {item.year} 年 · {competitionLevelLabels[item.level]} · {item.organizer ?? "主办方待补充"}
               </p>
 
               <div className="mt-auto flex items-end justify-between gap-3 pt-5">
                 <div className="min-w-0">
-                  <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-medium ${statusTone}`}>{status}</span>
-                  <p className="mt-2 truncate text-[11px] text-white/70">{deadline}</p>
+                  <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${statusTone}`}>{status}</span>
+                  <p className="mt-2 truncate text-xs text-white/70">{deadline}</p>
                 </div>
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15 transition group-hover:bg-white/25">
                   <ArrowUpRight aria-hidden="true" size={16} />

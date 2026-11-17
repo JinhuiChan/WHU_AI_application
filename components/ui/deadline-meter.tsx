@@ -176,8 +176,8 @@ export function DeadlinePill({
   const state = deadlineState(startAt, endAt);
   return (
     <span className="flex flex-wrap items-center gap-2">
-      <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${state.tone}`}>{state.label}</span>
-      {state.endText ? <span className="text-[11px] text-slate-500">截止 {state.endText}</span> : null}
+      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${state.tone}`}>{state.label}</span>
+      {state.endText ? <span className="text-xs text-slate-500">截止 {state.endText}</span> : null}
     </span>
   );
 }

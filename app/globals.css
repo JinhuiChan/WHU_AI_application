@@ -5,36 +5,33 @@
 /* 设计变量：新增语义 token，不改任何已有 Tailwind 类名的解析结果。
    新代码可直接用 var(--xxx) 或 bg-surface / text-ink / border-line 等语义类。 */
 :root {
-  /* 四级底色，从外到内逐层变浅：页面 #f1f5f9 → 卡片 #ffffff → 卡内浅块 #f8fafc → 表头 #eef2f7。
-     原来 background 与 surface-subtle 同为 #f8fafc，卡片里的浅灰块和页面底一样，
-     读者分不出「这是一块区域」还是「这是页面背景」。拉开一档后，卡片才浮得起来。 */
-  --background: #f1f5f9;
-  --foreground: #0f172a;
+  --background: #f5f6f8;
+  --foreground: #111827;
 
   --surface: #ffffff;
   --surface-subtle: #f8fafc;
-  --surface-muted: #eef2f7;
-  --border: #e2e8f0;
-  --border-strong: #cbd5e1;
+  --surface-muted: #f1f3f6;
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
 
-  --ink: #0f172a;
-  --ink-muted: #334155;
-  --ink-subtle: #64748b;
-  --ink-faint: #94a3b8;
+  --ink: #111827;
+  --ink-muted: #374151;
+  --ink-subtle: #637083;
+  --ink-faint: #9ca3af;
 
-  --brand: #2563eb;
-  --brand-strong: #1d4ed8;
-  --brand-soft: #dbeafe;
-  --danger: #dc2626;
-  --danger-strong: #b91c1c;
-  --success: #059669;
+  --brand: #1e4278;
+  --brand-strong: #163360;
+  --brand-soft: #e2eaf4;
+  --danger: #b91c1c;
+  --danger-strong: #991b1b;
+  --success: #047857;
 
   --radius-card: 12px;
   --radius-control: 8px;
   --radius-pill: 9999px;
   --space-block: 16px;
   --text-title: 22px;
-  --text-label: 14px;
+  --text-label: 12px;
   --text-body: 14px;
   --text-note: 12px;
 }
@@ -42,30 +39,25 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: var(--font-geist-sans), "Microsoft YaHei", "PingFang SC", sans-serif;
+  font-family: var(--font-geist-sans), "PingFang SC", "HarmonyOS Sans SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  line-height: 1.6;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
-/* 页面画布（2026-11-17 用户选定的「02 柔和渐变」）。
-   原来是单色 #f1f5f9，和白色卡片只差 4 个明度点，整页连成一片白，看着干也刺眼。
-   改成一层 135° 渐变：左上蓝灰 → 中间中性 → 右下暖白。
-   三个作用：① 白卡真正浮起来；② 页面有了光源方向；③ 左下偏冷、右上偏暖，
-   长页面滚动时不会是一条死板的同色带。
-   只加一层背景，不动任何组件结构；打印版仍是纯色（纸面上渐变只是脏）。 */
+/* 画布克制化：去掉花哨的斜向蓝黄渐变，使用极净的冷微灰底 + 极微弱顶部环境光，突出白卡与内容本身 */
 @media screen {
   .app-canvas {
-    background-color: #eef1f6;
-    background-image: linear-gradient(135deg, #dde7f3 0%, #e9edf3 42%, #f6f4ee 100%);
+    background-color: #f5f6f8;
+    background-image: radial-gradient(1100px 420px at 50% -120px, rgba(30, 66, 120, 0.04), transparent 72%);
   }
 
-  /* 侧栏比画布更浅一档，和卡片形成「壳 / 画布 / 卡」三层 */
   .app-shell-aside {
-    background-color: #fbfcfe;
+    background-color: #fafbfc;
   }
 
-  /* 顶栏半透明：内容滚过时透出一点底色，比死白更有空间感 */
   .app-shell-header {
-    background-color: rgba(255, 255, 255, 0.86);
-    backdrop-filter: blur(8px);
+    background-color: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(10px);
   }
 }
 
@@ -94,11 +86,11 @@ body {
 @layer components {
   .card {
     border-radius: var(--radius-card);
-    border: 1px solid rgba(15, 23, 42, 0.07);
+    border: 1px solid rgba(15, 23, 42, 0.08);
     background-color: var(--surface);
     box-shadow:
-      0 1px 2px rgba(15, 23, 42, 0.04),
-      0 6px 16px -8px rgba(15, 23, 42, 0.1);
+      0 1px 2px rgba(15, 23, 42, 0.03),
+      0 2px 6px -2px rgba(15, 23, 42, 0.04);
   }
 }
 
@@ -159,110 +151,76 @@ body {
 @keyframes page-fade-up {
   from {
     opacity: 0;
-    transform: translateY(8px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
-/* 全站入场：页面级区块 + 顶层网格里的卡片，按出现顺序依次淡入。
-   PageTransition 用 pathname 做 key，导航时重挂载内容区，动画每次都会重播。 */
-.page-enter > * > *,
-.page-enter > * > .grid > * {
-  /* 用 backwards 而不是 both：动画结束后不保留终态 transform。
-     transform 一旦残留（哪怕 translateY(0)），就会给 fixed 弹窗创建新的包含块，
-     弹窗会被"关"进区块里、遮罩只盖住半个屏（新建赛事/驳回/添加成员都受影响）。 */
-  animation: page-fade-up 460ms ease-out backwards;
+/* 克制的切页过渡：180ms 轻量淡入，去掉拖沓的 8 段延迟阶梯，避免工作台操作卡顿感。 */
+.page-enter > * {
+  animation: page-fade-up 180ms ease-out;
 }
-
-/* 区块里存在弹窗时整体不做入场动画，彻底避免 transform 成为 fixed 的包含块 */
-.page-enter > * > *:has([role="dialog"]),
-.page-enter > * > .grid > *:has([role="dialog"]) {
-  animation: none;
-}
-
-.page-enter > * > *:nth-child(1),
-.page-enter > * > .grid > *:nth-child(1) { animation-delay: 0ms; }
-.page-enter > * > *:nth-child(2),
-.page-enter > * > .grid > *:nth-child(2) { animation-delay: 60ms; }
-.page-enter > * > *:nth-child(3),
-.page-enter > * > .grid > *:nth-child(3) { animation-delay: 120ms; }
-.page-enter > * > *:nth-child(4),
-.page-enter > * > .grid > *:nth-child(4) { animation-delay: 180ms; }
-.page-enter > * > *:nth-child(5),
-.page-enter > * > .grid > *:nth-child(5) { animation-delay: 240ms; }
-.page-enter > * > *:nth-child(6),
-.page-enter > * > .grid > *:nth-child(6) { animation-delay: 300ms; }
-.page-enter > * > *:nth-child(7),
-.page-enter > * > .grid > *:nth-child(7) { animation-delay: 360ms; }
-.page-enter > * > *:nth-child(8),
-.page-enter > * > .grid > *:nth-child(8) { animation-delay: 420ms; }
 
 @media (prefers-reduced-motion: reduce) {
   .login-fade-up,
   .fade-up,
-  .page-enter > * > *,
-  .page-enter > * > .grid > * {
+  .page-enter > * {
     animation: none;
   }
 }
 
 /* 全站文字层级：只作用于工作区（.page-enter 内），登录页与注册页不受影响。
-   通过语义类名精确定位，不再依赖 Tailwind 工具类名组合，避免改一个间距/字色类名导致样式失效。 */
+   通过语义类名精确定位，不再依赖 Tailwind 工具类名组合。 */
 .page-enter .t-page-title {
   font-size: 24px;
-  font-weight: 700;
-  letter-spacing: -0.4px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
-/* 卡片标题 16px 与正文 14px 只差 2px，靠字重撑不起「这是一块的标题」。
-   不放大字号（105 个区块同时放大一圈会变笨重），改用负字距把标题收紧，
-   与正文的松排版形成对比——这是 jobup 那一版标题最常见的处理。
-   颜色用 :where() 降到 0 优先级，组件自带颜色类（如危险操作的 text-red-700）优先。 */
+/* 区块标题保持 600 半粗，不与页面大标题及关键数字争夺视觉焦点 */
 .page-enter :is(h2, h3):not(.t-label):not(.text-xs):not(.text-slate-500):not(.on-dark *) {
-  font-weight: 700;
-  letter-spacing: -0.2px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
 }
 
 :where(.page-enter) :where(h2, h3):where(:not(.t-label, .text-xs, .text-slate-500, .on-dark *)) {
   color: var(--ink);
 }
 
-/* 深色容器里的标题还原颜色（并保留收紧的字距）。 */
+/* 深色容器里的标题还原颜色 */
 .page-enter .on-dark :is(h1, h2, h3) {
   color: inherit;
-  letter-spacing: -0.2px;
+  letter-spacing: -0.015em;
 }
 
 .page-enter .t-hero-title {
-  font-weight: 700;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
 }
 
-/* 指标 / 字段小标签（L3b）：像小标题一样的标签统一标黑、加大、加粗。
-   这里同时是「字体插槽」：以后要换正式中文字体，只改下面这一处 font-family。 */
+/* 指标 / 字段小标签退回「次要配角」：12px / 中等字重 / 柔和深灰，让关键数字与正文呼吸感拉出来 */
 .page-enter .t-label {
-  font-family: var(--font-geist-sans), "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--ink);
-  letter-spacing: 0.1px;
+  font-family: var(--font-geist-sans), "PingFang SC", "HarmonyOS Sans SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-subtle);
+  letter-spacing: 0.01em;
 }
 
-/* 表头加一档灰底：表头往后退、数据往前走。
-   原来全站表头是白底，和数据行同色，只能靠字重区分——表格越宽越糊。
-   包在 screen 里，打印版不加（纸面上灰底就是一层脏）。 */
+/* 表头加一档极浅灰底：表头往后退、数据往前走。 */
 @media screen {
   .page-enter thead th {
     background: var(--surface-muted);
   }
 }
 
-/* 表头同样标黑提字重，但保持 12px，避免 1800px 宽表被撑得更挤 */
+/* 表头克制半粗，保持 12px */
 .page-enter .t-thead th {
   font-weight: 600;
   color: var(--ink-muted);
+  font-size: 12px;
 }
 
 /* 表格里的数字统一等宽：日期、编号、分数竖排时不会左右跳 */
@@ -270,15 +228,14 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* 待办 / 异常数字标红：只按语义标签命中，克制使用，不与错误提示混用。
-   色条从 3px 加到 4px：全站 105 个区块里只有 2 处带色条，3px 在卡片左边缘几乎看不出来。 */
+/* 待办 / 异常数字标红：只按语义标签命中，克制使用，不与错误提示混用。 */
 .page-enter .t-warn {
-  box-shadow: inset 4px 0 0 var(--danger);
+  box-shadow: inset 3px 0 0 var(--danger);
 }
 
 .page-enter .t-warn .t-label {
   color: var(--danger-strong);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .page-enter .t-warn-value {

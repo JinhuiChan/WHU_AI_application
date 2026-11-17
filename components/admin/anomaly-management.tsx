@@ -163,7 +163,7 @@ export function AnomalyManagement({ initialData, isAdmin }: { initialData: Anoma
       ) : null}
 
       {error ? <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
-      {notice ? <div role="status" className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">{notice}</div> : null}
+      {notice ? <div role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{notice}</div> : null}
 
       {data.groups.length ? data.groups.map((group) => (
         <section key={group.ruleId} className="overflow-hidden card">
@@ -194,7 +194,7 @@ export function AnomalyManagement({ initialData, isAdmin }: { initialData: Anoma
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <Link href={`/projects/${item.project.id}`} className="font-medium text-slate-900 hover:text-blue-600">{item.project.name}</Link>
-                        <span className={`rounded-full px-2 py-0.5 text-xs ${item.status === "PENDING" ? "bg-amber-50 text-amber-700" : "bg-green-50 text-green-700"}`}>{item.status === "PENDING" ? "待核实" : "已处置"}</span>
+                        <span className={`rounded-full px-2 py-0.5 text-xs ${item.status === "PENDING" ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700"}`}>{item.status === "PENDING" ? "待核实" : "已处置"}</span>
                       </div>
                       <p className="mt-1 text-xs text-slate-400">{item.project.year} · {item.project.college}</p>
                       <p className="mt-3 text-sm leading-6 text-slate-600">{item.description}</p>

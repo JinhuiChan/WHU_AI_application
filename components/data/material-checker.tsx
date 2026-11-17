@@ -123,19 +123,19 @@ export function MaterialChecker() {
             {result.checks.map((check) => (
               <li
                 key={check.item}
-                className={`rounded-lg border p-4 ${check.pass ? "border-green-200 bg-green-50/40" : "border-red-200 bg-red-50/40"}`}
+                className={`rounded-lg border p-4 ${check.pass ? "border-emerald-200 bg-emerald-50/40" : "border-red-200 bg-red-50/40"}`}
               >
                 <div className="flex items-start gap-3">
                   <span
                     aria-hidden="true"
-                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-sm font-bold ${check.pass ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
+                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-sm font-bold ${check.pass ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}
                   >
                     {check.pass ? "✓" : "✗"}
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <h3 className="text-sm font-semibold text-slate-900">{check.item}</h3>
-                      <span className={`text-xs font-medium ${check.pass ? "text-green-700" : "text-red-700"}`}>
+                      <span className={`text-xs font-medium ${check.pass ? "text-emerald-700" : "text-red-700"}`}>
                         {check.pass ? "符合" : "需修改或复核"}
                       </span>
                     </div>

@@ -16,7 +16,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
             ) : null}
             <button
               onClick={() => reset()}
-              style={{ marginTop: 24, height: 44, padding: "0 24px", borderRadius: 9999, border: 0, background: "#2563eb", color: "#fff", fontSize: 14, cursor: "pointer" }}
+              style={{ marginTop: 24, height: 44, padding: "0 24px", borderRadius: 9999, border: 0, background: "#1e4278", color: "#fff", fontSize: 14, cursor: "pointer" }}
               type="button"
             >
               重试

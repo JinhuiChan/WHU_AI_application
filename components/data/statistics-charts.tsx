@@ -15,7 +15,7 @@ import {
 } from "recharts";
 import type { StatisticsSummary } from "@/types/statistics";
 
-const colors = ["#2563eb", "#059669", "#d97706", "#7c3aed", "#dc2626", "#0891b2", "#65a30d", "#db2777"];
+const colors = ["#1e4278", "#134e45", "#b45309", "#4c3575", "#9f1239", "#0e7490", "#4d7c0f", "#475569"];
 
 export function StatisticsCharts({ byTrack, byStage, byAward }: Pick<StatisticsSummary, "byTrack" | "byStage" | "byAward">) {
   const hasTrackData = byTrack.some((item) => item.projectCount > 0);
@@ -45,11 +45,11 @@ export function StatisticsCharts({ byTrack, byStage, byAward }: Pick<StatisticsS
         <div className="mt-4 h-72" aria-label="阶段分布柱状图">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={byStage} margin={{ top: 12, right: 12, bottom: 0, left: -12 }}>
-              <CartesianGrid stroke="#e2e8f0" vertical={false} />
-              <XAxis dataKey="label" tick={{ fontSize: 12, fill: "#64748b" }} />
-              <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: "#64748b" }} />
+              <CartesianGrid stroke="#eef1f5" vertical={false} />
+              <XAxis dataKey="label" tick={{ fontSize: 12, fill: "#637083" }} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: "#637083" }} />
               <Tooltip formatter={(value) => [`${value} 项`, "项目数"]} />
-              <Bar dataKey="projectCount" name="项目数" fill="#2563eb" radius={[5, 5, 0, 0]} />
+              <Bar dataKey="projectCount" name="项目数" fill="#1e4278" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

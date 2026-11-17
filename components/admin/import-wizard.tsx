@@ -284,7 +284,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
       </div>
 
       {error ? <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
-      {notice ? <div role="status" className="break-all rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">{notice}</div> : null}
+      {notice ? <div role="status" className="break-all rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{notice}</div> : null}
 
       {step === 1 ? (
         <section className="card p-5">
@@ -332,7 +332,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
           {pending === "parse" ? (
             <div className="mt-5 flex h-9 items-center">
               <LatticeLoader
-                color="#2563eb"
+                color="#1e4278"
                 doneLabel="解析完成"
                 errorLabel="解析失败"
                 fontSize={13}
@@ -409,7 +409,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
                           </select>
                         </td>
                         <td className="px-5 py-3 text-xs">
-                          {duplicated ? <span className="text-red-600">列重复</span> : field.required && !selectedColumn ? <span className="text-red-600">必填未映射</span> : selectedColumn ? <span className="text-green-700">已映射</span> : <span className="text-slate-400">不映射</span>}
+                          {duplicated ? <span className="text-red-600">列重复</span> : field.required && !selectedColumn ? <span className="text-red-600">必填未映射</span> : selectedColumn ? <span className="text-emerald-700">已映射</span> : <span className="text-slate-400">不映射</span>}
                         </td>
                       </tr>
                     );
@@ -499,7 +499,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
               <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
                 <div className="rounded-lg bg-slate-50 p-4"><div className="t-label text-xs text-slate-500">识别项目</div><div className="mt-1 text-2xl font-semibold text-slate-900">{commitResult.projectCount}</div></div>
                 <div className="rounded-lg bg-blue-50 p-4"><div className="text-xs text-blue-700">续行</div><div className="mt-1 text-2xl font-semibold text-blue-700">{commitResult.continuationCount}</div></div>
-                <div className="rounded-lg bg-green-50 p-4"><div className="text-xs text-green-700">成功项目</div><div className="mt-1 text-2xl font-semibold text-green-700">{commitResult.success}</div></div>
+                <div className="rounded-lg bg-emerald-50 p-4"><div className="text-xs text-emerald-700">成功项目</div><div className="mt-1 text-2xl font-semibold text-emerald-700">{commitResult.success}</div></div>
                 <div className="rounded-lg bg-red-50 p-4"><div className="text-xs text-red-700">失败行</div><div className="mt-1 text-2xl font-semibold text-red-700">{commitResult.failed}</div></div>
               </div>
               <p className="mt-4 text-sm text-slate-600">识别到 {commitResult.projectCount} 个项目（含 {commitResult.continuationCount} 条续行），成功 {commitResult.success}、失败 {commitResult.failed}。</p>

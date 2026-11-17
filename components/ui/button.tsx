@@ -17,18 +17,18 @@ import { cn } from "./cn";
  * ghost 是透明底，抬起来只剩一圈阴影反而脏，所以显式抵消掉。
  */
 const buttonVariants = cva(
-  "relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition duration-[160ms] ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] motion-reduce:hover:translate-y-0 motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-100 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none [&_svg]:shrink-0",
+  "relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition duration-150 ease-out active:scale-[0.98] motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "bg-blue-600 text-white shadow-sm hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/25 active:bg-blue-800",
+          "bg-blue-600 text-white shadow-sm hover:bg-blue-700 active:bg-blue-800",
         outline:
-          "border border-slate-300 bg-white text-slate-700 shadow-sm hover:bg-slate-50 hover:shadow-md hover:shadow-slate-900/10 active:bg-slate-100",
+          "border border-slate-300 bg-white text-slate-700 shadow-sm hover:border-slate-400 hover:bg-slate-50 active:bg-slate-100",
         destructive:
-          "border border-red-300 bg-white text-red-700 shadow-sm hover:bg-red-50 hover:shadow-md hover:shadow-red-600/15 active:bg-red-100",
+          "border border-red-300 bg-white text-red-700 shadow-sm hover:bg-red-50 active:bg-red-100",
         ghost:
-          "bg-transparent text-blue-700 hover:translate-y-0 hover:bg-blue-50 hover:shadow-none active:bg-blue-100",
+          "bg-transparent text-blue-700 hover:bg-blue-50 active:bg-blue-100",
       },
       size: {
         default: "h-10 px-6",

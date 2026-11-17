@@ -85,7 +85,7 @@ export function UserManagement({
   return (
     <section className="overflow-hidden card">
       {error ? <div role="alert" className="border-b border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div> : null}
-      {notice ? <div role="status" className="border-b border-green-100 bg-green-50 px-4 py-3 text-sm text-green-700">{notice}</div> : null}
+      {notice ? <div role="status" className="border-b border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{notice}</div> : null}
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1000px] text-left text-sm">
           <thead className="t-thead bg-slate-50 text-xs text-slate-500">
@@ -150,7 +150,7 @@ export function UserManagement({
                     </div>
                   </td>
                   <td className="px-4 py-4">
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs ${user.approvalStatus === "APPROVED" ? "bg-green-50 text-green-700" : user.approvalStatus === "REJECTED" ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-700"}`}>
+                    <span className={`inline-flex rounded-full px-2 py-1 text-xs ${user.approvalStatus === "APPROVED" ? "bg-emerald-50 text-emerald-700" : user.approvalStatus === "REJECTED" ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-700"}`}>
                       {user.approvalStatus === "APPROVED" ? "已审核" : user.approvalStatus === "REJECTED" ? "已驳回" : "待审核"}
                     </span>
                     <div className="mt-1 text-xs text-slate-500">

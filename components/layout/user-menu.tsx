@@ -48,15 +48,15 @@ export function UserMenu({ user }: { user: AuthUser }) {
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
-        className="gap-2" >
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 text-blue-600">
-          <UserRound size={17} aria-hidden="true" />
+        className="h-9 gap-2 border-slate-200/90 bg-white/90 px-2.5 shadow-none hover:border-slate-300 hover:bg-slate-50" >
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+          <UserRound size={15} aria-hidden="true" />
         </span>
         <span className="hidden text-left sm:block">
-          <span className="block font-medium text-slate-800">{user.name}</span>
-          <span className="block text-xs text-slate-500">{roleLabels[user.role] ?? "普通用户"}</span>
+          <span className="block text-xs font-medium leading-tight text-slate-800">{user.name}</span>
+          <span className="block text-[11px] leading-tight text-slate-400">{roleLabels[user.role] ?? "普通用户"}</span>
         </span>
-        <ChevronDown size={15} className="text-slate-400" aria-hidden="true" />
+        <ChevronDown size={14} className="text-slate-400" aria-hidden="true" />
       </Button>
       {open ? (
         <div role="menu" className="absolute right-0 top-12 w-64 card p-2">
