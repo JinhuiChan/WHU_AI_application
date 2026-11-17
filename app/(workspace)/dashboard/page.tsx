@@ -230,7 +230,6 @@ export default async function DashboardPage({ searchParams }: PageProps) {
         <section className="card">
           <div className="px-5 pt-5">
             <SectionHead
-              eyebrow="SECTION 01 · MY STATUS"
               meta={`共 ${statusTotal} 个项目`}
               sub="仅汇总当前筛选内本人参与的项目，图例可点"
               title="我的状态分布"
@@ -305,7 +304,6 @@ export default async function DashboardPage({ searchParams }: PageProps) {
           <section className="overflow-hidden card">
             <div className="px-5 pt-5">
               <SectionHead
-                eyebrow="SECTION 02 · BY COLLEGE"
                 meta={`共 ${summary.byCollege.length} 个学院`}
                 sub="点击学院名可下钻到对应审核项目列表"
                 title="学院统计"

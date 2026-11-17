@@ -64,8 +64,8 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="t-page-title text-xl font-semibold text-slate-900">{user.role === "STUDENT" ? "可报名赛事" : "赛事管理"}</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="t-page-title font-display text-[26px] font-bold tracking-tight text-[#0e1d17] sm:text-[28px]">{user.role === "STUDENT" ? "可报名赛事" : "赛事管理"}</h1>
+          <p className="mt-1.5 text-sm text-[#54635d]">
             {user.role === "STUDENT"
               ? "点进赛事查看报名通知与参赛规程，确认赛道与组别后再报名。"
               : "按赛年、等级和关键词查找赛事，进入详情查看获奖名单。"}
@@ -73,11 +73,11 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {user.role === "ADMIN" ? <CompetitionCreate /> : null}
-          <Link href="/intro" className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">
+          <Link href="/intro" className="inline-flex h-10 items-center justify-center rounded-full border border-[#cbd8d1] bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:border-[#002554]/40 hover:bg-[#f7faf8] active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">
             赛事简介
           </Link>
           {user.role === "STUDENT" ? (
-            <Link href="/my" className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">
+            <Link href="/my" className="inline-flex h-10 items-center justify-center rounded-full border border-[#cbd8d1] bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:border-[#002554]/40 hover:bg-[#f7faf8] active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">
               我的项目
             </Link>
           ) : null}
@@ -136,13 +136,12 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
       <section className="overflow-hidden card">
         <div className="px-5 pt-5">
           <SectionHead
-            eyebrow="SECTION 02 · EVENT LIST"
             meta={`共 ${data.total} 场`}
             sub={isStudent ? "点赛事名查看通知与规程；截止时间按剩余天数标色" : "点赛事名查看详情与获奖名单"}
             title="赛事明细"
           />
         </div>
-        <div aria-hidden="true" className="mx-5 mt-4 h-px bg-gradient-to-r from-slate-200 to-transparent" />
+        <div aria-hidden="true" className="mx-5 mt-4 h-px bg-[#d5e2db]/60" />
         <div className="hidden overflow-x-auto lg:block">
           <table className="w-full min-w-[900px] text-left text-sm">
             <thead className="t-thead bg-slate-50 text-xs text-slate-500">
