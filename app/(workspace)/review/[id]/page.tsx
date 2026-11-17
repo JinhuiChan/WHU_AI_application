@@ -41,7 +41,7 @@ export default async function ReviewDetailPage({ params, searchParams }: PagePro
   const user = await getActiveUser();
   if (!user) redirect("/login");
   if (user.role !== "ADMIN") {
-    return <section className="rounded-lg border border-red-200 bg-white p-6"><h1 className="text-xl font-semibold text-red-600">403 无权限</h1></section>;
+    return <section className="rounded-lg border border-red-200 bg-white p-6"><h1 className="t-page-title text-xl font-semibold text-red-600">403 无权限</h1></section>;
   }
   const project = await getReviewDetail(params.id);
   if (!project) notFound();
@@ -53,7 +53,7 @@ export default async function ReviewDetailPage({ params, searchParams }: PagePro
       <div>
         <BackLink to={firstParam(searchParams?.from)} fallback="/review" label="返回审核列表" />
         <div className="mt-3 flex flex-wrap items-center gap-3">
-          <h1 className="text-xl font-semibold text-slate-900">{project.projectName}</h1>
+          <h1 className="t-page-title text-xl font-semibold text-slate-900">{project.projectName}</h1>
           <StatusBadge status={project.status}>{registrationStatusLabels[project.status]}</StatusBadge>
           {project.hasUnconfirmedTeachers ? <span className="rounded-full bg-red-50 px-3 py-1 text-xs text-red-700">指导关系未确认</span> : null}
           <div className="md:ml-auto">
@@ -88,7 +88,7 @@ export default async function ReviewDetailPage({ params, searchParams }: PagePro
       <Section title={`指导老师（${project.teacherDetails.length}）`}>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[900px] text-left text-sm">
-            <thead className="bg-slate-50 text-xs text-slate-500"><tr><th className="px-3 py-2">姓名</th><th className="px-3 py-2">校内 / 工号</th><th className="px-3 py-2">学校 / 单位</th><th className="px-3 py-2">职称</th><th className="px-3 py-2">联系方式</th><th className="px-3 py-2">确认状态</th></tr></thead>
+            <thead className="t-thead bg-slate-50 text-xs text-slate-500"><tr><th className="px-3 py-2">姓名</th><th className="px-3 py-2">校内 / 工号</th><th className="px-3 py-2">学校 / 单位</th><th className="px-3 py-2">职称</th><th className="px-3 py-2">联系方式</th><th className="px-3 py-2">确认状态</th></tr></thead>
             <tbody className="divide-y divide-slate-100">
               {project.teacherDetails.map((teacher) => (
                 <tr key={teacher.id} className={teacher.confirmStatus === "CONFIRMED" ? "" : "bg-red-50 text-red-900"}>
@@ -109,7 +109,7 @@ export default async function ReviewDetailPage({ params, searchParams }: PagePro
       <Section title={`团队成员（${project.memberDetails.length}）`}>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1050px] text-left text-sm">
-            <thead className="bg-slate-50 text-xs text-slate-500"><tr><th className="px-3 py-2">姓名</th><th className="px-3 py-2">角色</th><th className="px-3 py-2">学号</th><th className="px-3 py-2">培养阶段 / 单位</th><th className="px-3 py-2">专业</th><th className="px-3 py-2">入学 / 毕业</th><th className="px-3 py-2">联系方式</th><th className="px-3 py-2">领款人</th></tr></thead>
+            <thead className="t-thead bg-slate-50 text-xs text-slate-500"><tr><th className="px-3 py-2">姓名</th><th className="px-3 py-2">角色</th><th className="px-3 py-2">学号</th><th className="px-3 py-2">培养阶段 / 单位</th><th className="px-3 py-2">专业</th><th className="px-3 py-2">入学 / 毕业</th><th className="px-3 py-2">联系方式</th><th className="px-3 py-2">领款人</th></tr></thead>
             <tbody className="divide-y divide-slate-100">
               {project.memberDetails.map((member) => (
                 <tr key={member.id}>
@@ -167,7 +167,7 @@ export default async function ReviewDetailPage({ params, searchParams }: PagePro
 
       <Section title={`变更历史（${project.changeLogs.length}）`}>
         {project.changeLogs.length ? (
-          <div className="overflow-x-auto"><table className="w-full min-w-[800px] text-left text-sm"><thead className="bg-slate-50 text-xs text-slate-500"><tr><th className="px-3 py-2">时间</th><th className="px-3 py-2">字段</th><th className="px-3 py-2">旧值</th><th className="px-3 py-2">新值</th><th className="px-3 py-2">操作人 / 来源</th></tr></thead><tbody className="divide-y divide-slate-100">
+          <div className="overflow-x-auto"><table className="w-full min-w-[800px] text-left text-sm"><thead className="t-thead bg-slate-50 text-xs text-slate-500"><tr><th className="px-3 py-2">时间</th><th className="px-3 py-2">字段</th><th className="px-3 py-2">旧值</th><th className="px-3 py-2">新值</th><th className="px-3 py-2">操作人 / 来源</th></tr></thead><tbody className="divide-y divide-slate-100">
             {project.changeLogs.map((log) => <tr key={log.id}><td className="whitespace-nowrap px-3 py-3 text-xs">{formatDateTime(log.changedAt)}</td><td className="px-3 py-3">{log.field}</td><td className="max-w-64 break-all px-3 py-3 text-xs">{log.oldValue || "—"}</td><td className="max-w-64 break-all px-3 py-3 text-xs">{log.newValue || "—"}</td><td className="px-3 py-3">{log.changerName}<span className="block text-xs text-slate-500">{log.source}</span></td></tr>)}
           </tbody></table></div>
         ) : <p className="text-sm text-slate-500 inline-empty">暂无变更历史</p>}

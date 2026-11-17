@@ -172,7 +172,7 @@ export default async function TeamsPage({ searchParams }: PageProps) {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900">组队广场</h1>
+          <h1 className="t-page-title text-xl font-semibold text-slate-900">组队广场</h1>
           <p className="mt-1 text-sm text-slate-500">按赛事、技能和学院寻找队友，也可以发布自己的招募计划。</p>
         </div>
         {isStudent ? (

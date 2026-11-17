@@ -5,7 +5,7 @@ export const metadata: Metadata = { title: "学院排行" };
 export default function RankingsPage() {
   return (
     <div className="card p-6">
-      <h1 className="text-xl font-semibold text-slate-900">学院排行</h1>
+      <h1 className="t-page-title text-xl font-semibold text-slate-900">学院排行</h1>
       <p className="mt-2 text-sm text-slate-500">已并入看板</p>
     </div>
   );

@@ -89,7 +89,7 @@ export default async function CompetitionDetailPage({ params, searchParams }: Pa
           <Link href={`/intro/${competition.id}`} className="text-blue-600 hover:underline">查看赛事简介</Link>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-3">
-          <h1 className="text-xl font-semibold text-slate-900">{competition.name}</h1>
+          <h1 className="t-page-title text-xl font-semibold text-slate-900">{competition.name}</h1>
           <LevelPill level={competition.level} />
           {competition.publishStatus === "PUBLISHED" && (
             <Link href={`/assistant?competitionId=${competition.id}`} className="text-sm text-blue-600 hover:underline">问这场比赛</Link>
@@ -223,7 +223,7 @@ export default async function CompetitionDetailPage({ params, searchParams }: Pa
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1250px] text-left text-sm">
-            <thead className="bg-slate-50 text-xs text-slate-500">
+            <thead className="t-thead bg-slate-50 text-xs text-slate-500">
               <tr>
                 <th className="px-4 py-3 font-medium">项目</th>
                 <th className="px-4 py-3 font-medium">学院</th>

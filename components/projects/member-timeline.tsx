@@ -30,7 +30,7 @@ export function MemberTimeline({ snapshots }: { snapshots: ProjectSnapshot[] }) 
             {snapshot.members.length ? (
               <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
                 <table className="w-full min-w-[640px] text-left text-sm">
-                  <thead className="bg-slate-50 text-xs text-slate-500">
+                  <thead className="t-thead bg-slate-50 text-xs text-slate-500">
                     <tr>
                       <th className="px-3 py-2 font-medium">姓名</th>
                       <th className="px-3 py-2 font-medium">学号</th>

@@ -117,7 +117,7 @@ export function AwardWorkbench({ data, competitions, colleges, filters }: AwardW
         {notice ? <div role="status" className="border-b border-green-100 bg-green-50 px-4 py-3 text-sm text-green-700">{notice}</div> : null}
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1000px] text-left text-sm">
-            <thead className="bg-slate-50 text-xs text-slate-500">
+            <thead className="t-thead bg-slate-50 text-xs text-slate-500">
               <tr>
                 <th className="px-4 py-3 font-medium">项目名称</th>
                 <th className="px-4 py-3 font-medium">学院</th>

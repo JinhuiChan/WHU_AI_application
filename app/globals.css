@@ -210,8 +210,8 @@ body {
 }
 
 /* 全站文字层级：只作用于工作区（.page-enter 内），登录页与注册页不受影响。
-   用类名精确定位，避免把统计卡的 .text-xs 小标签误当成标题。 */
-.page-enter h1.text-xl {
+   通过语义类名精确定位，不再依赖 Tailwind 工具类名组合，避免改一个间距/字色类名导致样式失效。 */
+.page-enter .t-page-title {
   font-size: 24px;
   font-weight: 700;
   letter-spacing: -0.4px;
@@ -221,12 +221,12 @@ body {
    不放大字号（105 个区块同时放大一圈会变笨重），改用负字距把标题收紧，
    与正文的松排版形成对比——这是 jobup 那一版标题最常见的处理。
    颜色用 :where() 降到 0 优先级，组件自带颜色类（如危险操作的 text-red-700）优先。 */
-.page-enter :is(h2, h3):not(.text-xs):not(.text-slate-500):not(.on-dark *) {
+.page-enter :is(h2, h3):not(.t-label):not(.text-xs):not(.text-slate-500):not(.on-dark *) {
   font-weight: 700;
   letter-spacing: -0.2px;
 }
 
-:where(.page-enter) :where(h2, h3):where(:not(.text-xs, .text-slate-500, .on-dark *)) {
+:where(.page-enter) :where(h2, h3):where(:not(.t-label, .text-xs, .text-slate-500, .on-dark *)) {
   color: var(--ink);
 }
 
@@ -236,16 +236,13 @@ body {
   letter-spacing: -0.2px;
 }
 
-.page-enter .text-3xl.font-semibold {
+.page-enter .t-hero-title {
   font-weight: 700;
 }
 
 /* 指标 / 字段小标签（L3b）：像小标题一样的标签统一标黑、加大、加粗。
-   这里同时是「字体插槽」：以后要换正式中文字体，只改下面这一处 font-family。
-   用显式类名 + 结构选择器命中，不碰 .mt-1 说明文字、表格单元格与快捷入口副标题。 */
-.page-enter .t-label,
-.page-enter :is(h2, h3, dt).text-xs.text-slate-500,
-.page-enter .rounded-lg.bg-slate-50 > div.text-xs.text-slate-500 {
+   这里同时是「字体插槽」：以后要换正式中文字体，只改下面这一处 font-family。 */
+.page-enter .t-label {
   font-family: var(--font-geist-sans), "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
   font-size: 14px;
   font-weight: 700;
@@ -263,7 +260,7 @@ body {
 }
 
 /* 表头同样标黑提字重，但保持 12px，避免 1800px 宽表被撑得更挤 */
-.page-enter thead.text-xs.text-slate-500 th {
+.page-enter .t-thead th {
   font-weight: 600;
   color: var(--ink-muted);
 }
@@ -279,7 +276,7 @@ body {
   box-shadow: inset 4px 0 0 var(--danger);
 }
 
-.page-enter .t-warn h2.t-label.text-xs.text-slate-500 {
+.page-enter .t-warn .t-label {
   color: var(--danger-strong);
   font-weight: 700;
 }

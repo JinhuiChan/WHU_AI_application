@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 function InfoItem({ label, value }: { label: string; value: string | null | undefined }) {
   return (
     <div>
-      <dt className="text-xs text-slate-500">{label}</dt>
+      <dt className="t-label text-xs text-slate-500">{label}</dt>
       <dd className="mt-1 text-sm text-slate-900">{value || "未填写"}</dd>
     </div>
   );
@@ -68,7 +68,7 @@ export default async function ProfilePage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900">我的资料</h1>
+          <h1 className="t-page-title text-xl font-semibold text-slate-900">我的资料</h1>
           <p className="mt-1 text-sm text-slate-500">查看当前账号的身份与公开资料。</p>
         </div>
         <Button asChild className="group">

@@ -362,10 +362,10 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
               <Button variant="outline" size="sm" type="button" disabled={pending !== null} onClick={reset} className="shrink-0" >重新选择文件</Button>
             </div>
             <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
-              <div className="rounded-lg bg-slate-50 p-4"><div className="text-xs text-slate-500">识别列数</div><div className="mt-1 text-2xl font-semibold text-slate-900">{parseResult.columns.length}</div></div>
+              <div className="rounded-lg bg-slate-50 p-4"><div className="t-label text-xs text-slate-500">识别列数</div><div className="mt-1 text-2xl font-semibold text-slate-900">{parseResult.columns.length}</div></div>
               <div className="rounded-lg bg-blue-50 p-4"><div className="text-xs text-blue-700">自动匹配字段</div><div className="mt-1 text-2xl font-semibold text-blue-700">{Object.keys(parseResult.suggestedMapping).length}</div></div>
-              <div className="rounded-lg bg-slate-50 p-4"><div className="text-xs text-slate-500">{aiRecognized ? "待确认行数" : "数据总行数"}</div><div className="mt-1 text-2xl font-semibold text-slate-900">{aiRecognized ? reviewRows.length : parseResult.totalRows}</div></div>
-              <div className="rounded-lg bg-slate-50 p-4"><div className="text-xs text-slate-500">{aiRecognized ? "分页核对全部数据" : "映射预览"}</div><div className="mt-1 text-2xl font-semibold text-slate-900">{aiRecognized ? `第 ${reviewPage + 1} 页` : `前 ${parseResult.previewRows.length} 行`}</div></div>
+              <div className="rounded-lg bg-slate-50 p-4"><div className="t-label text-xs text-slate-500">{aiRecognized ? "待确认行数" : "数据总行数"}</div><div className="mt-1 text-2xl font-semibold text-slate-900">{aiRecognized ? reviewRows.length : parseResult.totalRows}</div></div>
+              <div className="rounded-lg bg-slate-50 p-4"><div className="t-label text-xs text-slate-500">{aiRecognized ? "分页核对全部数据" : "映射预览"}</div><div className="mt-1 text-2xl font-semibold text-slate-900">{aiRecognized ? `第 ${reviewPage + 1} 页` : `前 ${parseResult.previewRows.length} 行`}</div></div>
             </div>
             {parseResult.requiresConfirm ? (
               <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-800">
@@ -389,7 +389,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
             </div>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[680px] text-left text-sm">
-                <thead className="bg-slate-50 text-xs text-slate-500">
+                <thead className="t-thead bg-slate-50 text-xs text-slate-500">
                   <tr><th className="px-5 py-3 font-medium">系统字段</th><th className="px-5 py-3 font-medium">文件列名</th><th className="px-5 py-3 font-medium">状态</th></tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -497,7 +497,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
           ) : (
             <>
               <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
-                <div className="rounded-lg bg-slate-50 p-4"><div className="text-xs text-slate-500">识别项目</div><div className="mt-1 text-2xl font-semibold text-slate-900">{commitResult.projectCount}</div></div>
+                <div className="rounded-lg bg-slate-50 p-4"><div className="t-label text-xs text-slate-500">识别项目</div><div className="mt-1 text-2xl font-semibold text-slate-900">{commitResult.projectCount}</div></div>
                 <div className="rounded-lg bg-blue-50 p-4"><div className="text-xs text-blue-700">续行</div><div className="mt-1 text-2xl font-semibold text-blue-700">{commitResult.continuationCount}</div></div>
                 <div className="rounded-lg bg-green-50 p-4"><div className="text-xs text-green-700">成功项目</div><div className="mt-1 text-2xl font-semibold text-green-700">{commitResult.success}</div></div>
                 <div className="rounded-lg bg-red-50 p-4"><div className="text-xs text-red-700">失败行</div><div className="mt-1 text-2xl font-semibold text-red-700">{commitResult.failed}</div></div>

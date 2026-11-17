@@ -11,7 +11,7 @@ export default function WorkspaceError({ error, reset }: { error: Error & { dige
   return (
     <section className="card px-6 py-12 text-center" role="alert">
       <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-2xl text-red-600" aria-hidden="true">!</span>
-      <h1 className="mt-4 text-xl font-semibold text-slate-900">这个页面暂时打不开</h1>
+      <h1 className="t-page-title mt-4 text-xl font-semibold text-slate-900">这个页面暂时打不开</h1>
       <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
         可能是数据加载失败，重试一次通常就能恢复；也可以从左侧导航回到看板。
       </p>

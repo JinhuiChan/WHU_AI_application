@@ -42,7 +42,7 @@ export default async function CompetitionIntroPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900">赛事简介</h1>
+          <h1 className="t-page-title text-xl font-semibold text-slate-900">赛事简介</h1>
           <p className="mt-1 max-w-2xl text-sm text-slate-500">
             先弄清楚每个赛事是干什么的、有哪些赛道、要经过哪些环节，再决定报哪一个。点开卡片看完整介绍。
           </p>

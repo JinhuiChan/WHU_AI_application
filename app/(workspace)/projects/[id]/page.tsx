@@ -32,7 +32,7 @@ export default async function ProjectDetailPage({ params, searchParams }: PagePr
       <div>
         <BackLink to={firstParam(searchParams?.from)} fallback="/projects" label="返回项目列表" />
         <div className="mt-3 flex flex-wrap items-center gap-3">
-          <h1 className="max-w-4xl text-xl font-semibold text-slate-900">{project.name}</h1>
+          <h1 className="t-page-title max-w-4xl text-xl font-semibold text-slate-900">{project.name}</h1>
           <span className="rounded-full bg-blue-50 px-2 py-1 text-xs text-blue-700">{project.year}</span>
           <StatusBadge status={project.status} scope="project">{projectStatusLabels[project.status]}</StatusBadge>
         </div>
@@ -47,7 +47,7 @@ export default async function ProjectDetailPage({ params, searchParams }: PagePr
           <div><dt className="text-sm text-slate-500">创建时间</dt><dd className="mt-1 text-slate-900">{formatDate(project.createdAt)}</dd></div>
         </dl>
         <div className="mt-4 border-t border-slate-100 pt-4">
-          <h3 className="text-xs text-slate-500">项目别名与编号</h3>
+          <h3 className="t-label text-xs text-slate-500">项目别名与编号</h3>
           {project.aliases.length ? (
             <div className="mt-2 flex flex-wrap gap-2">
               {project.aliases.map((alias) => (
@@ -64,7 +64,7 @@ export default async function ProjectDetailPage({ params, searchParams }: PagePr
         <div className="border-b border-slate-200 px-5 py-4"><h2 className="text-sm font-semibold text-slate-900">获奖记录（{project.awards.length}）</h2></div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1050px] text-left text-sm">
-            <thead className="bg-slate-50 text-xs text-slate-500">
+            <thead className="t-thead bg-slate-50 text-xs text-slate-500">
               <tr>
                 <th className="px-4 py-3 font-medium">赛事</th>
                 <th className="px-4 py-3 font-medium">奖项</th>
@@ -100,7 +100,7 @@ export default async function ProjectDetailPage({ params, searchParams }: PagePr
         <div className="border-b border-slate-200 px-5 py-4"><h2 className="text-sm font-semibold text-slate-900">当前成员（{project.members.length}）</h2></div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[700px] text-left text-sm">
-            <thead className="bg-slate-50 text-xs text-slate-500">
+            <thead className="t-thead bg-slate-50 text-xs text-slate-500">
               <tr>
                 <th className="px-4 py-3 font-medium">姓名</th>
                 <th className="px-4 py-3 font-medium">学号</th>

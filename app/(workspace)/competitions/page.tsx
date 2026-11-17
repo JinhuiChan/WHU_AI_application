@@ -64,7 +64,7 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900">{user.role === "STUDENT" ? "可报名赛事" : "赛事管理"}</h1>
+          <h1 className="t-page-title text-xl font-semibold text-slate-900">{user.role === "STUDENT" ? "可报名赛事" : "赛事管理"}</h1>
           <p className="mt-1 text-sm text-slate-500">
             {user.role === "STUDENT"
               ? "点进赛事查看报名通知与参赛规程，确认赛道与组别后再报名。"
@@ -145,7 +145,7 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
         <div aria-hidden="true" className="mx-5 mt-4 h-px bg-gradient-to-r from-slate-200 to-transparent" />
         <div className="hidden overflow-x-auto lg:block">
           <table className="w-full min-w-[900px] text-left text-sm">
-            <thead className="bg-slate-50 text-xs text-slate-500">
+            <thead className="t-thead bg-slate-50 text-xs text-slate-500">
               <tr>
                 <th className="px-4 py-3 font-medium">赛年</th>
                 <th className="px-4 py-3 font-medium">赛事名称</th>

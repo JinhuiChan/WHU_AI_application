@@ -59,7 +59,7 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-semibold text-slate-900">项目管理</h1>
+        <h1 className="t-page-title text-xl font-semibold text-slate-900">项目管理</h1>
         <p className="mt-1 text-sm text-slate-500">查看项目基本信息、获奖记录与成员版本全貌。</p>
       </div>
 
@@ -121,7 +121,7 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
         <div aria-hidden="true" className="mx-5 mt-4 h-px bg-gradient-to-r from-slate-200 to-transparent" />
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1180px] text-left text-sm">
-            <thead className="bg-slate-50 text-xs text-slate-500">
+            <thead className="t-thead bg-slate-50 text-xs text-slate-500">
               <tr>
                 <th className="px-4 py-3 font-medium">项目</th>
                 <th className="px-4 py-3 font-medium">赛事</th>

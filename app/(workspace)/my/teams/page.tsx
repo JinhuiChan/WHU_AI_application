@@ -85,7 +85,7 @@ export default async function MyTeamsPage({ searchParams }: PageProps) {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900">我的组队</h1>
+          <h1 className="t-page-title text-xl font-semibold text-slate-900">我的组队</h1>
           <p className="mt-1 text-sm text-slate-500">管理发布的招募、处理收到的申请，并跟踪自己发出的申请。</p>
         </div>
         <div className="flex flex-wrap gap-2">

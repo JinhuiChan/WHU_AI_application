@@ -169,7 +169,7 @@ export default async function MyProjectsPage({ searchParams }: PageProps) {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900">我的项目</h1>
+          <h1 className="t-page-title text-xl font-semibold text-slate-900">我的项目</h1>
           <p className="mt-1 text-sm text-slate-500">
             查看本人负责或参与项目的报名进度。
             {active.key === "all" ? "" : `当前只看「${active.label}」，共 ${visible.length} 个。`}
@@ -269,7 +269,7 @@ export default async function MyProjectsPage({ searchParams }: PageProps) {
         <div aria-hidden="true" className="mx-5 mt-4 h-px bg-gradient-to-r from-slate-200 to-transparent" />
         <div className="overflow-x-auto">
           <table className="w-full min-w-[860px] text-left text-sm">
-            <thead className="bg-slate-50 text-xs text-slate-500">
+            <thead className="t-thead bg-slate-50 text-xs text-slate-500">
               <tr>
                 <th className="px-4 py-3">项目</th>
                 <th className="px-4 py-3">状态</th>

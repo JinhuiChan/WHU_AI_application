@@ -50,7 +50,7 @@ export default async function ChangeReviewPage({ searchParams }: PageProps) {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900">变更申请</h1>
+          <h1 className="t-page-title text-xl font-semibold text-slate-900">变更申请</h1>
           <p className="mt-1 text-sm text-slate-500">学生提交的变更申请，按类型走学院审核或学院 + 校级两级审核；默认只列待审批。</p>
         </div>
         <Link href="/review" className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">
@@ -75,7 +75,7 @@ export default async function ChangeReviewPage({ searchParams }: PageProps) {
       <section className="overflow-hidden card">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1100px] text-left text-sm">
-            <thead className="bg-slate-50 text-xs text-slate-500">
+            <thead className="t-thead bg-slate-50 text-xs text-slate-500">
               <tr>
                 <th className="px-4 py-3 font-medium">提交时间</th>
                 <th className="px-4 py-3 font-medium">项目</th>

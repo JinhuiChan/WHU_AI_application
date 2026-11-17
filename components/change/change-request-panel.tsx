@@ -221,7 +221,7 @@ export function ChangeRequestPanel({ projectId, data }: Props) {
       ) : null}
 
       <div className="mt-6">
-        <h3 className="text-xs font-medium text-slate-500">申请记录（{data.requests.length}）</h3>
+        <h3 className="t-label text-xs font-medium text-slate-500">申请记录（{data.requests.length}）</h3>
         {data.requests.length === 0 ? (
           <p className="mt-2 text-sm text-slate-500 inline-empty">暂无变更申请</p>
         ) : (

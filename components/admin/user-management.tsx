@@ -88,7 +88,7 @@ export function UserManagement({
       {notice ? <div role="status" className="border-b border-green-100 bg-green-50 px-4 py-3 text-sm text-green-700">{notice}</div> : null}
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1000px] text-left text-sm">
-          <thead className="bg-slate-50 text-xs text-slate-500">
+          <thead className="t-thead bg-slate-50 text-xs text-slate-500">
             <tr>
               <th className="px-4 py-3 font-medium">用户</th>
               <th className="px-4 py-3 font-medium">手机号</th>

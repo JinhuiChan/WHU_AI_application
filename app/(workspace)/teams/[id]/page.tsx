@@ -111,7 +111,7 @@ export default async function TeamDetailPage({ params, searchParams }: PageProps
       <div>
         <BackLink to={from} fallback="/teams" label={backLabel} />
         <div className="mt-3 flex flex-wrap items-center gap-3">
-          <h1 className="text-xl font-semibold text-slate-900">{post.title}</h1>
+          <h1 className="t-page-title text-xl font-semibold text-slate-900">{post.title}</h1>
           <StatusBadge status={status} scope="team">{postStatusLabels[status]}</StatusBadge>
         </div>
         <p className="mt-2 text-sm text-slate-500">{post.competition ? `${post.competition.name} · ${post.competition.year}` : "未设置赛事"}{post.track ? ` · ${post.track.name}` : ""}</p>
@@ -204,16 +204,16 @@ export default async function TeamDetailPage({ params, searchParams }: PageProps
             <StatusBadge status={status} scope="team">{postStatusLabels[status]}</StatusBadge>
           </div>
           <dl className="mt-4 space-y-4 text-sm">
-            <div><dt className="text-xs text-slate-500">赛事</dt><dd className="mt-1 text-slate-900">{post.competition ? <Link href={`/competitions/${post.competition.id}`} className="hover:text-blue-600">{post.competition.name}（{post.competition.year}）</Link> : "未设置赛事"}</dd></div>
-            <div><dt className="text-xs text-slate-500">赛道</dt><dd className="mt-1 text-slate-900">{post.track?.name ?? "不限赛道"}</dd></div>
+            <div><dt className="t-label text-xs text-slate-500">赛事</dt><dd className="mt-1 text-slate-900">{post.competition ? <Link href={`/competitions/${post.competition.id}`} className="hover:text-blue-600">{post.competition.name}（{post.competition.year}）</Link> : "未设置赛事"}</dd></div>
+            <div><dt className="t-label text-xs text-slate-500">赛道</dt><dd className="mt-1 text-slate-900">{post.track?.name ?? "不限赛道"}</dd></div>
             <div className="grid grid-cols-2 gap-3">
-              <div><dt className="text-xs text-slate-500">当前人数</dt><dd className="mt-1 font-medium tabular-nums text-slate-900">{post.currentCount}/{post.memberLimit}</dd></div>
-              <div><dt className="text-xs text-slate-500">还缺人数</dt><dd className="mt-1 font-medium tabular-nums text-slate-900">{Math.max(0, post.memberLimit - post.currentCount)}</dd></div>
+              <div><dt className="t-label text-xs text-slate-500">当前人数</dt><dd className="mt-1 font-medium tabular-nums text-slate-900">{post.currentCount}/{post.memberLimit}</dd></div>
+              <div><dt className="t-label text-xs text-slate-500">还缺人数</dt><dd className="mt-1 font-medium tabular-nums text-slate-900">{Math.max(0, post.memberLimit - post.currentCount)}</dd></div>
             </div>
-            <div><dt className="text-xs text-slate-500">招募范围</dt><dd className="mt-1 text-slate-900">{post.requirement || "全部"}</dd></div>
-            <div><dt className="text-xs text-slate-500">截止时间</dt><dd className="mt-1 text-slate-900">{formatDateTime(post.expiresAt.toISOString())}</dd></div>
-            <div><dt className="text-xs text-slate-500">发布时间</dt><dd className="mt-1 text-slate-900">{formatDate(post.createdAt.toISOString())}</dd></div>
-            {post.contact ? <div><dt className="text-xs text-slate-500">联系方式</dt><dd className="mt-1 whitespace-pre-wrap break-words text-slate-900">{post.contact}</dd></div> : null}
+            <div><dt className="t-label text-xs text-slate-500">招募范围</dt><dd className="mt-1 text-slate-900">{post.requirement || "全部"}</dd></div>
+            <div><dt className="t-label text-xs text-slate-500">截止时间</dt><dd className="mt-1 text-slate-900">{formatDateTime(post.expiresAt.toISOString())}</dd></div>
+            <div><dt className="t-label text-xs text-slate-500">发布时间</dt><dd className="mt-1 text-slate-900">{formatDate(post.createdAt.toISOString())}</dd></div>
+            {post.contact ? <div><dt className="t-label text-xs text-slate-500">联系方式</dt><dd className="mt-1 whitespace-pre-wrap break-words text-slate-900">{post.contact}</dd></div> : null}
           </dl>
           <div className="mt-5">
             {(isAuthor || isAcceptedMember) && post.competition ? (

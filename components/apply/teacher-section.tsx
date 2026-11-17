@@ -129,7 +129,7 @@ export function TeacherSection({ teachers, onChange }: TeacherSectionProps) {
       {error && !modal ? <p role="alert" className="mt-3 text-sm text-red-600">{error}</p> : null}
       <div className="mt-4 overflow-x-auto">
         <table className="w-full min-w-[760px] text-left text-sm">
-          <thead className="bg-slate-50 text-xs text-slate-500">
+          <thead className="t-thead bg-slate-50 text-xs text-slate-500">
             <tr><th className="px-3 py-2">是否校内</th><th className="px-3 py-2">姓名</th><th className="px-3 py-2">单位</th><th className="px-3 py-2">性别</th><th className="px-3 py-2">职称/职务</th><th className="px-3 py-2">联系电话</th><th className="px-3 py-2">操作</th></tr>
           </thead>
           <tbody className="divide-y divide-slate-100">

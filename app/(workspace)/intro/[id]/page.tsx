@@ -143,7 +143,7 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
             <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${applyState.tone}`}>{applyState.label}</span>
           </div>
 
-          <h1 className="mt-3 text-3xl font-semibold leading-tight text-slate-900">{competition.name}</h1>
+          <h1 className="t-hero-title mt-3 text-3xl font-semibold leading-tight text-slate-900">{competition.name}</h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">{intro.tagline}</p>
 
           <div className="mt-5 flex flex-wrap items-center gap-3">

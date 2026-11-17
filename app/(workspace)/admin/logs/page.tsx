@@ -31,7 +31,7 @@ export default async function AuditLogsPage({ searchParams }: PageProps) {
   if (user.role !== "ADMIN") {
     return (
       <section className="rounded-lg border border-red-200 bg-white p-6">
-        <h1 className="text-xl font-semibold text-red-600">403 无权限</h1>
+        <h1 className="t-page-title text-xl font-semibold text-red-600">403 无权限</h1>
         <p className="mt-2 text-sm text-slate-500">仅管理员可以查看审计日志。</p>
       </section>
     );
@@ -58,7 +58,7 @@ export default async function AuditLogsPage({ searchParams }: PageProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-semibold text-slate-900">审计日志</h1>
+        <h1 className="t-page-title text-xl font-semibold text-slate-900">审计日志</h1>
         <p className="mt-1 text-sm text-slate-500">按操作人和动作类型查看操作留痕，日志只读，不提供删除。</p>
       </div>
 
@@ -97,7 +97,7 @@ export default async function AuditLogsPage({ searchParams }: PageProps) {
       <section className="overflow-hidden card">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1100px] text-left text-sm">
-            <thead className="bg-slate-50 text-xs text-slate-500">
+            <thead className="t-thead bg-slate-50 text-xs text-slate-500">
               <tr>
                 <th className="px-4 py-3 font-medium">操作时间</th>
                 <th className="px-4 py-3 font-medium">操作人</th>

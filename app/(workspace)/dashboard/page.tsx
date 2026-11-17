@@ -114,7 +114,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-semibold text-slate-900">{scoped ? "我的统计" : "统计看板"}</h1>
+        <h1 className="t-page-title text-xl font-semibold text-slate-900">{scoped ? "我的统计" : "统计看板"}</h1>
         <p className="mt-1 text-sm text-slate-500">{scoped ? "仅统计本人参与的项目与状态，不展示全校数据。" : "所有数字按当前筛选条件实时聚合。"}</p>
       </div>
 
@@ -216,7 +216,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                   </div>
                 </div>
               ) : (
-                <div className={`mt-3 text-3xl font-semibold ${isWarning ? "t-warn-value" : "text-slate-900"}`}>
+                <div className={`t-hero-title mt-3 text-3xl font-semibold ${isWarning ? "t-warn-value" : "text-slate-900"}`}>
                   <CountUp to={card.value} duration={1.1} delay={index * 0.08} trigger="load" easing="easeOut" />
                 </div>
               )}
@@ -330,7 +330,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
             <div aria-hidden="true" className="mx-5 mt-4 h-px bg-gradient-to-r from-slate-200 to-transparent" />
             <div className="overflow-x-auto">
               <table className="w-full min-w-[650px] text-left text-sm">
-                <thead className="bg-slate-50 text-xs text-slate-500">
+                <thead className="t-thead bg-slate-50 text-xs text-slate-500">
                   <tr><th className="px-5 py-3 font-medium">学院</th><th className="px-5 py-3 font-medium">项目数</th><th className="px-5 py-3 font-medium">人数（去重）</th><th className="px-5 py-3 font-medium">晋级省赛数</th></tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">

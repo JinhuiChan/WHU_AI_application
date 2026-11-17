@@ -19,7 +19,7 @@ export default async function AssistantPage({ searchParams }: PageProps) {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-xl font-semibold text-slate-900">赛事 AI 问答</h1>
+        <h1 className="t-page-title text-xl font-semibold text-slate-900">赛事 AI 问答</h1>
         <p className="mt-1 text-sm text-slate-500">咨询全平台已发布赛事，根据赛事配置和通知提供可核对的回答。</p>
       </div>
       {user.role === "ADMIN" ? (

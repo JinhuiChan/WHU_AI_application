@@ -45,7 +45,7 @@ type AwardItem = Prisma.AwardGetPayload<{ select: typeof awardSelection }>;
 function InfoItem({ label, value }: { label: string; value: string | null | undefined }) {
   return (
     <div>
-      <dt className="text-xs text-slate-500">{label}</dt>
+      <dt className="t-label text-xs text-slate-500">{label}</dt>
       <dd className="mt-1 text-sm text-slate-900">{value || "未填写"}</dd>
     </div>
   );
@@ -220,7 +220,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
           </span>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-xl font-semibold text-slate-900">{profile.name}</h1>
+              <h1 className="t-page-title text-xl font-semibold text-slate-900">{profile.name}</h1>
               <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
                 {roleLabels[profile.role]}
               </span>
@@ -239,7 +239,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
         {profile.bio?.trim() ? <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-700">{profile.bio}</p> : null}
         {skills.length ? (
           <div className="mt-4">
-            <h3 className="text-xs font-medium text-slate-500">擅长技能</h3>
+            <h3 className="t-label text-xs font-medium text-slate-500">擅长技能</h3>
             <ul className="mt-2 flex flex-wrap gap-2">
               {skills.map((skill, index) => <li key={`${skill}-${index}`} className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">{skill}</li>)}
             </ul>

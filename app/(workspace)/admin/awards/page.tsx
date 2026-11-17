@@ -19,7 +19,7 @@ export default async function AdminAwardsPage({ searchParams }: PageProps) {
   if (user.role !== "ADMIN") {
     return (
       <section className="rounded-lg border border-red-200 bg-white p-6">
-        <h1 className="text-xl font-semibold text-red-600">403 无权限</h1>
+        <h1 className="t-page-title text-xl font-semibold text-red-600">403 无权限</h1>
         <p className="mt-2 text-sm text-slate-500">仅管理员可以录入和调整奖项。</p>
       </section>
     );
@@ -62,7 +62,7 @@ export default async function AdminAwardsPage({ searchParams }: PageProps) {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900">奖项录入</h1>
+          <h1 className="t-page-title text-xl font-semibold text-slate-900">奖项录入</h1>
           <p className="mt-1 text-sm text-slate-500">为终审通过项目录入或调整奖项，每次新增和改级均保留历史与审计记录。</p>
           <p className="mt-1 text-xs text-slate-400">列表只显示已通过校级终审及以上的项目（含已有奖项的历史项目），未审核与已驳回的不在此出现。</p>
         </div>
