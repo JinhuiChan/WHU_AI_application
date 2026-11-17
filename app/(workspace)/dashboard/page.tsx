@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowUpRight, BookOpen, ClipboardCheck, FolderKanban, Trophy, Upload, type LucideIcon } from "lucide-react";
 import { DashboardFilterBar } from "@/components/data/dashboard-filter-bar";
+import { SectionHead } from "@/components/ui/section-head";
 import { StatisticsCharts } from "@/components/data/statistics-charts";
 import { getActiveUser } from "@/lib/auth.server";
 import { firstParam } from "@/lib/list-query";
@@ -56,6 +57,33 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   };
 
   const isAdmin = user.role === "ADMIN";
+
+  // 大卡里的环形图：学生看「审核通过率」，管理员看「审核处理率」。
+  // 两个都用同一份已有数据算，不新增查询；分母为 0 时环画 0，文案明说暂无项目。
+  const totalProjects = summary.cards.totalProjects;
+  const ringPercent = totalProjects > 0
+    ? Math.round((scoped ? finalCount / totalProjects : (totalProjects - summary.cards.pendingReviewCount) / totalProjects) * 100)
+    : 0;
+  const ringLabel = scoped ? "审核通过率" : "审核处理率";
+  const ringNumerator = scoped ? finalCount : totalProjects - summary.cards.pendingReviewCount;
+
+  // 状态分布条：语义色固定，红=驳回、橙=待处理、绿=通过、蓝=晋级、灰=草稿/撤回。
+  // 这是全站唯一一处分状态配色的地方，不要拿去做别的图。
+  const STATUS_TONE: Record<string, string> = {
+    DRAFT: "#cbd5e1",
+    PENDING: "#d97706",
+    COLLEGE_REVIEW: "#d97706",
+    SCHOOL_FINAL: "#0e8a75",
+    REJECTED: "#dc2626",
+    PROVINCE_ADVANCED: "#2563eb",
+    NATIONAL_ADVANCED: "#1d4ed8",
+    WITHDRAWN: "#94a3b8",
+  };
+  const statusRows = (summary.myStatus ?? []).filter((item) => item.count > 0);
+  const statusTotal = statusRows.reduce((sum, item) => sum + item.count, 0);
+  const rejectedCount = (summary.myStatus ?? [])
+    .filter((item) => item.status === "REJECTED")
+    .reduce((sum, item) => sum + item.count, 0);
 
   // 图标底色按功能分类，让四个入口在扫视时就能分开，不用逐个读字。
   // 这层是「标识色」，和状态徽章那套「语义色」（红=错误/橙=待处理/绿=通过）分工不同：
@@ -133,25 +161,66 @@ export default async function DashboardPage({ searchParams }: PageProps) {
         }}
       />
 
-      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+      {/* Bento：第一块放大带环形进度，其余三块退成次要信息。
+          原来四块等宽等高，眼睛在四个同尺寸方块之间没有落点。
+          环的百分比来自已有统计字段，不新增查询。 */}
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-12">
         {cards.map((card, index) => {
           // 只在真的有数字时才标红：0 个待审核不是需要处理的事，标红会变成常驻噪音
           const isWarning = card.value > 0 && /待审核|异常|退回|待补|超期/.test(card.label);
           const interactive = Boolean(card.href);
+          const big = index === 0;
+          const span = big
+            ? "sm:col-span-2 xl:col-span-6 xl:row-span-2"
+            : index === 3
+              ? "sm:col-span-2 xl:col-span-6"
+              : "xl:col-span-3";
           const className = [
             "relative card p-5",
+            big ? "flex flex-col" : "",
+            span,
             isWarning ? "t-warn" : "",
             interactive
               ? "group block transition duration-[160ms] hover:border-blue-300 hover:bg-blue-50/30 active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 motion-reduce:active:scale-100"
               : "",
           ].filter(Boolean).join(" ");
+          const circumference = 2 * Math.PI * 26;
           const body = (
             <>
               <h2 className="t-label text-xs text-slate-500">{card.label}</h2>
-              <div className={`mt-3 text-3xl font-semibold ${isWarning ? "t-warn-value" : "text-slate-900"}`}>
-                <CountUp to={card.value} duration={1.1} delay={index * 0.08} trigger="load" easing="easeOut" />
-              </div>
-              <p className={`mt-3 text-xs text-slate-400 ${interactive ? "pr-5" : ""}`}>{card.note}</p>
+              {big ? (
+                <div className="flex flex-1 items-center gap-5 py-4">
+                  <svg aria-hidden="true" className="shrink-0" height="84" viewBox="0 0 64 64" width="84">
+                    <circle cx="32" cy="32" fill="none" r="26" stroke="#eef2f7" strokeWidth="7" />
+                    <circle
+                      cx="32"
+                      cy="32"
+                      fill="none"
+                      r="26"
+                      stroke={isWarning ? "#d97706" : "#2563eb"}
+                      strokeDasharray={circumference}
+                      strokeDashoffset={circumference * (1 - ringPercent / 100)}
+                      strokeLinecap="round"
+                      strokeWidth="7"
+                      transform="rotate(-90 32 32)"
+                    />
+                  </svg>
+                  <div className="min-w-0">
+                    <div className={`text-5xl font-semibold tabular-nums ${isWarning ? "t-warn-value" : "text-slate-900"}`}>
+                      <CountUp to={card.value} duration={1.1} delay={0} trigger="load" easing="easeOut" />
+                    </div>
+                    <p className="mt-1.5 text-[11px] text-slate-500">
+                      {ringLabel} <span className="font-semibold text-slate-900 tabular-nums">{ringPercent}%</span>
+                      <span className="text-slate-400 tabular-nums"> · {ringNumerator}/{totalProjects}</span>
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className={`mt-3 text-3xl font-semibold ${isWarning ? "t-warn-value" : "text-slate-900"}`}>
+                  <CountUp to={card.value} duration={1.1} delay={index * 0.08} trigger="load" easing="easeOut" />
+                </div>
+              )}
+              <p className={`text-xs text-slate-400 ${big ? "mt-auto" : "mt-3"} ${interactive ? "pr-5" : ""}`}>{card.note}</p>
               {interactive ? (
                 <ArrowUpRight
                   aria-hidden="true"
@@ -174,46 +243,91 @@ export default async function DashboardPage({ searchParams }: PageProps) {
       </div>
 
       {scoped ? (
-        <section className="overflow-hidden card">
-          <div className="border-b border-slate-100 px-5 py-4">
-            <h2 className="text-sm font-semibold text-slate-900">我的状态</h2>
-            <p className="mt-1 text-xs text-slate-500">仅汇总当前筛选内本人参与的项目</p>
+        <section className="card">
+          <div className="px-5 pt-5">
+            <SectionHead
+              eyebrow="SECTION 01 · MY STATUS"
+              meta={`共 ${statusTotal} 个项目`}
+              sub="仅汇总当前筛选内本人参与的项目，图例可点"
+              title="我的状态分布"
+            />
           </div>
-          <div className="grid grid-cols-2 gap-3 p-5 md:grid-cols-4">
-            {(summary.myStatus ?? []).filter((item) => item.count > 0).map((item) => (
+          {statusTotal === 0 ? (
+            <div className="px-5 py-10 text-center">
+              <p className="text-sm text-slate-600">这个筛选条件下还没有你参与的项目。</p>
+              <p className="mt-1 text-xs text-slate-400">换个赛事或年份试试，也可以清除筛选看看全部数据。</p>
               <Link
-                key={item.status}
-                className="group relative rounded-lg bg-slate-50 p-4 transition duration-[160ms] hover:bg-blue-50 active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 motion-reduce:active:scale-100"
-                href={`/my?filter=${statusFilter[item.status] ?? "all"}`}
+                className="mt-4 inline-flex h-9 items-center justify-center rounded-full border border-slate-300 bg-white px-4 text-sm text-slate-700 transition hover:bg-slate-50"
+                href="/dashboard"
               >
-                <div className="t-label flex items-start justify-between gap-2 text-xs text-slate-500">
-                  {item.label}
-                  <ArrowUpRight aria-hidden="true" className="shrink-0 text-slate-300 transition group-hover:text-blue-600" size={14} />
-                </div>
-                <div className="mt-2 text-2xl font-semibold text-slate-900">{item.count}</div>
+                清除筛选
               </Link>
-            ))}
-            {summary.cards.totalProjects === 0 ? (
-              <div className="col-span-full py-8 text-center">
-                <p className="text-sm text-slate-600">这个筛选条件下还没有你参与的项目。</p>
-                <p className="mt-1 text-xs text-slate-400">换个赛事或年份试试，也可以清除筛选看看全部数据。</p>
-                <Link
-                  className="mt-4 inline-flex h-9 items-center justify-center rounded-full border border-slate-300 bg-white px-4 text-sm text-slate-700 transition hover:bg-slate-50"
-                  href="/dashboard"
+            </div>
+          ) : (
+            <div className="flex flex-col gap-5 p-5 lg:flex-row lg:items-center">
+              {/* 占比条：一眼看出哪一类占大头，比一排独立数字更直观 */}
+              <div className="min-w-0 flex-1">
+                <div
+                  aria-label={`共 ${statusTotal} 个项目，按状态占比`}
+                  className="flex h-2 overflow-hidden rounded-full bg-slate-100"
+                  role="img"
                 >
-                  清除筛选
-                </Link>
+                  {statusRows.map((item) => (
+                    <span
+                      key={item.status}
+                      style={{ backgroundColor: STATUS_TONE[item.status] ?? "#94a3b8", width: `${(item.count / statusTotal) * 100}%` }}
+                    />
+                  ))}
+                </div>
+                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
+                  {statusRows.map((item) => (
+                    <Link
+                      className="group inline-flex items-center gap-1.5 text-xs text-slate-600 hover:text-blue-700"
+                      href={`/my?filter=${statusFilter[item.status] ?? "all"}`}
+                      key={item.status}
+                    >
+                      <span
+                        aria-hidden="true"
+                        className="h-2 w-2 rounded-[3px]"
+                        style={{ backgroundColor: STATUS_TONE[item.status] ?? "#94a3b8" }}
+                      />
+                      {item.label}
+                      <span className="font-semibold text-slate-900 tabular-nums">{item.count}</span>
+                      <span className="text-slate-400 tabular-nums">{Math.round((item.count / statusTotal) * 100)}%</span>
+                    </Link>
+                  ))}
+                </div>
               </div>
-            ) : null}
-          </div>
+              {/* 万一有驳回，把空出来的空间变成下一步动作，而不是留白 */}
+              {rejectedCount > 0 ? (
+                <Link
+                  className="group flex items-center justify-between gap-3 rounded-xl border border-red-100 bg-red-50/60 px-4 py-3 transition hover:border-red-200 hover:bg-red-50 lg:w-72 lg:shrink-0"
+                  href="/my?filter=rejected"
+                >
+                  <span className="min-w-0">
+                    <span className="block text-xs font-semibold text-red-700">有 {rejectedCount} 个项目被驳回</span>
+                    <span className="mt-0.5 block text-[11px] text-slate-500">看驳回原因并重新提交</span>
+                  </span>
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-red-600 transition group-hover:bg-red-600 group-hover:text-white">
+                    <ArrowUpRight aria-hidden="true" size={14} />
+                  </span>
+                </Link>
+              ) : null}
+            </div>
+          )}
         </section>
       ) : (
         <>
           <section className="overflow-hidden card">
-            <div className="border-b border-slate-100 px-5 py-4">
-              <h2 className="text-sm font-semibold text-slate-900">学院统计</h2>
-              <p className="mt-1 text-xs text-slate-500">点击学院名可下钻到对应审核项目列表</p>
+            <div className="px-5 pt-5">
+              <SectionHead
+                eyebrow="SECTION 02 · BY COLLEGE"
+                meta={`共 ${summary.byCollege.length} 个学院`}
+                sub="点击学院名可下钻到对应审核项目列表"
+                title="学院统计"
+              />
             </div>
+            <div aria-hidden="true" className="mx-5 mt-4 h-px bg-gradient-to-r from-slate-200 to-transparent" />
             <div className="overflow-x-auto">
               <table className="w-full min-w-[650px] text-left text-sm">
                 <thead className="bg-slate-50 text-xs text-slate-500">
