@@ -72,10 +72,9 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
 
   return (
     <div className="w-full">
-      <div className="mb-8">
-        <p className="text-xs font-medium tracking-[0.18em] text-blue-600">Account login</p>
-        <h1 className="mt-2 text-2xl font-medium text-slate-900">登录赛事工作台</h1>
-        <p className="mt-2 text-sm text-slate-500">使用手机号与密码登录，身份需与账号匹配。</p>
+      <div className="mb-7">
+        <h1 className="font-display text-[26px] font-bold tracking-tight text-[#0e1d17]">登录赛事工作台</h1>
+        <p className="mt-2 text-sm text-[#54635d]">使用手机号与密码登录，身份需与账号匹配。</p>
       </div>
 
       <form className="space-y-4" onSubmit={handleSubmit}>

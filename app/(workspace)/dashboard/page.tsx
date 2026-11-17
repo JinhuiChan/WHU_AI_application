@@ -118,7 +118,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
           const Icon = item.icon;
           return (
             <Link
-              className="group flex items-center gap-3 card p-4 transition duration-150 hover:border-slate-300 active:scale-[0.99] motion-reduce:active:scale-100"
+              className="group flex items-center gap-3 card p-4 transition duration-150 hover:border-[#9eb4a8] active:scale-[0.99] motion-reduce:active:scale-100"
               href={item.href}
               key={item.href}
             >
@@ -129,7 +129,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                 <span className="block text-sm font-medium text-slate-900">{item.label}</span>
                 <span className="mt-0.5 block truncate text-xs text-slate-500">{item.note}</span>
               </span>
-              <ArrowUpRight aria-hidden="true" className="shrink-0 text-slate-400 transition group-hover:text-blue-600" size={15} />
+              <ArrowUpRight aria-hidden="true" className="shrink-0 text-slate-400 transition group-hover:text-[#002554]" size={15} />
             </Link>
           );
         })}
@@ -165,7 +165,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
             span,
             isWarning ? "t-warn" : "",
             interactive
-              ? "group block transition duration-[160ms] hover:border-blue-300 hover:bg-blue-50/30 active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 motion-reduce:active:scale-100"
+              ? "group block transition duration-[160ms] hover:border-[#9eb4a8] hover:bg-[#f7faf8] active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#115740] motion-reduce:active:scale-100"
               : "",
           ].filter(Boolean).join(" ");
           const circumference = 2 * Math.PI * 26;
@@ -175,13 +175,13 @@ export default async function DashboardPage({ searchParams }: PageProps) {
               {big ? (
                 <div className="flex flex-1 items-center gap-5 py-4">
                   <svg aria-hidden="true" className="shrink-0" height="80" viewBox="0 0 64 64" width="80">
-                    <circle cx="32" cy="32" fill="none" r="26" stroke="#edf1f7" strokeWidth="6" />
+                    <circle cx="32" cy="32" fill="none" r="26" stroke="#e3ede7" strokeWidth="6" />
                     <circle
                       cx="32"
                       cy="32"
                       fill="none"
                       r="26"
-                      stroke={isWarning ? "#d97706" : "#1e4278"}
+                      stroke={isWarning ? "#d97706" : "#115740"}
                       strokeDasharray={circumference}
                       strokeDashoffset={circumference * (1 - ringPercent / 100)}
                       strokeLinecap="round"
@@ -208,7 +208,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
               {interactive ? (
                 <ArrowUpRight
                   aria-hidden="true"
-                  className="absolute right-4 top-4 text-slate-300 transition group-hover:text-blue-600"
+                  className="absolute right-4 top-4 text-slate-300 transition group-hover:text-[#002554]"
                   size={16}
                 />
               ) : null}
@@ -311,17 +311,17 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                 title="学院统计"
               />
             </div>
-            <div aria-hidden="true" className="mx-5 mt-4 h-px bg-gradient-to-r from-slate-200 to-transparent" />
+            <div aria-hidden="true" className="mx-5 mt-4 h-px bg-[#d5e2db]/60" />
             <div className="overflow-x-auto">
               <table className="w-full min-w-[650px] text-left text-sm">
-                <thead className="t-thead bg-slate-50 text-xs text-slate-500">
+                <thead className="t-thead bg-[#f7faf8] text-xs text-[#54635d]">
                   <tr><th className="px-5 py-3 font-medium">学院</th><th className="px-5 py-3 font-medium">项目数</th><th className="px-5 py-3 font-medium">人数（去重）</th><th className="px-5 py-3 font-medium">晋级省赛数</th></tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {summary.byCollege.map((item) => (
                     <tr key={item.college} className="text-slate-700">
                       <td className="px-5 py-3 font-medium text-slate-900">
-                        {isAdmin ? <Link href={`/review?college=${encodeURIComponent(item.college)}`} className="text-blue-700 hover:underline">{item.college}</Link> : item.college}
+                        {isAdmin ? <Link href={`/review?college=${encodeURIComponent(item.college)}`} className="text-[#002554] hover:underline">{item.college}</Link> : item.college}
                       </td>
                       <td className="px-5 py-3">{item.projectCount}</td>
                       <td className="px-5 py-3">{item.participantCount}</td>

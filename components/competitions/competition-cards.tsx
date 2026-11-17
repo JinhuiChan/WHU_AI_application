@@ -183,7 +183,7 @@ export function CompetitionCards({ items, isStudent, from }: CompetitionCardsPro
             className="on-dark group relative isolate flex flex-col overflow-hidden rounded-2xl p-6 text-white ring-1 ring-inset ring-white/10 transition duration-150 ease-out hover:shadow-md hover:shadow-slate-900/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
             href={detailHref("/competitions", item.id, from)}
             key={item.id}
-            style={{ backgroundImage: `linear-gradient(135deg, ${scheme.from}, ${scheme.to})` }}
+            style={{ backgroundColor: scheme.from }}
           >
             <Art accent={scheme.from} />
 
@@ -196,8 +196,10 @@ export function CompetitionCards({ items, isStudent, from }: CompetitionCardsPro
             />
 
             <div className="relative flex h-full min-h-[168px] flex-col">
-              <p className="font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-white/65">{scheme.eyebrow}</p>
-              <h3 className="mt-2.5 max-w-[76%] text-lg font-semibold leading-snug">{item.name}</h3>
+              <span className="inline-flex w-fit rounded-full bg-white/15 px-2.5 py-0.5 text-[11px] font-medium text-white/95">
+                {competitionLevelLabels[item.level]}
+              </span>
+              <h3 className="mt-2.5 max-w-[76%] font-display text-lg font-bold leading-snug">{item.name}</h3>
               <p className="mt-1.5 max-w-[74%] text-[13px] leading-6 text-white/75">
                 {item.year} 年 · {competitionLevelLabels[item.level]} · {item.organizer ?? "主办方待补充"}
               </p>

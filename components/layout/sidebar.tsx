@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import type { Role } from "@prisma/client";
 import { WhuArchWatermark } from "@/components/brand/whu-motifs";
-import { BrandMark } from "@/components/layout/brand-mark";
+import { WhuCrest } from "@/components/layout/brand-mark";
 
 const adminNavigation = [
   { href: "/dashboard", label: "看板", icon: LayoutDashboard },
@@ -133,9 +133,7 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
     <>
       <aside className="app-shell-aside fixed inset-y-0 left-0 z-40 hidden w-60 flex-col bg-[#0d3b2e] text-[#cde2d8] md:flex">
         <Link href="/dashboard" className="flex items-center gap-3 px-5 pb-4 pt-6">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/[0.13] text-white">
-            <BrandMark className="h-5 w-5" />
-          </span>
+          <WhuCrest framed size={38} />
           <span className="min-w-0">
             <span className="block truncate font-display text-[16px] font-bold tracking-tight text-white">珞珈科创</span>
             <span className="mt-0.5 block truncate text-[11px] text-[#9ec2b3]">武汉大学竞赛平台</span>
@@ -227,7 +225,7 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
               key={item.href}
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-xs ${active ? "font-medium text-blue-600" : "text-slate-500"}`}
+              className={`flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-xs ${active ? "font-medium text-[#115740]" : "text-slate-500"}`}
             >
               <span className="relative">
                 <Icon size={19} aria-hidden="true" />

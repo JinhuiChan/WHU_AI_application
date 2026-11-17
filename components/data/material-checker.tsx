@@ -78,7 +78,7 @@ export function MaterialChecker() {
               setResult(null);
               setError("");
             }}
-            className="block w-full cursor-pointer rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-600 file:mr-4 file:cursor-pointer file:rounded-lg file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:border-blue-400"
+            className="block w-full cursor-pointer rounded-lg border border-dashed border-[#c4d5cc] bg-[#f7faf8] p-4 text-sm text-slate-600 file:mr-4 file:cursor-pointer file:rounded-lg file:border-0 file:bg-[#002554] file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:border-[#115740]/50"
           />
           </FileDropZone>
           <p className="mt-2 text-xs text-slate-500">仅支持 PDF / DOCX，单个文件不超过 10MB；扫描图片型 PDF 需先转换为含文本层的文件。</p>
@@ -90,7 +90,7 @@ export function MaterialChecker() {
             type="checkbox"
             checked={localOnly}
             onChange={(event) => setLocalOnly(event.target.checked)}
-            className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-600"
+            className="mt-1 h-4 w-4 rounded border-[#c4d5cc] text-[#115740] focus:ring-[#115740]"
           />
           <span>
             <span className="font-medium">仅本地检测、不入库</span>
@@ -112,9 +112,9 @@ export function MaterialChecker() {
 
       {result ? (
         <section aria-live="polite" className="overflow-hidden card">
-          <div className="border-b border-slate-200 bg-slate-50 px-4 py-4 md:px-5">
+          <div className="border-b border-[#e3ede7] bg-[#f7faf8] px-4 py-4 md:px-5">
             <h2 className="flex items-center gap-2 text-base font-semibold text-slate-900">
-              <FileCheck size={19} className="text-blue-600" aria-hidden="true" />
+              <FileCheck size={19} className="text-[#115740]" aria-hidden="true" />
               检查清单
             </h2>
             <p className="mt-2 text-sm leading-6 text-slate-600">{result.summary}</p>

@@ -146,82 +146,91 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
       <BreadcrumbTitle label={competition.name} />
 
       <section
-        className="relative isolate overflow-hidden rounded-2xl border p-6 shadow-sm md:p-8"
+        className="overflow-hidden rounded-2xl border p-6 shadow-sm md:p-8"
         style={{ backgroundColor: cardTheme.surface, borderColor: cardTheme.border }}
       >
-        <Image
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none select-none object-cover object-center"
-          fill
-          priority
-          src={cardTheme.photo}
-          unoptimized
-        />
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0" style={{ backgroundImage: cardTheme.overlay }} />
-        <div className="relative z-[1]">
-          <BackLink to={firstParam(searchParams?.from)} fallback="/intro" label="返回赛事简介" />
+        <div className="grid gap-6 md:grid-cols-[1.35fr_0.65fr] md:items-center">
+          <div>
+            <BackLink to={firstParam(searchParams?.from)} fallback="/intro" label="返回赛事简介" />
 
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <LevelPill className="bg-white/90 px-2.5 py-0.5 text-xs font-semibold ring-1 ring-black/5" level={competition.level} />
-            <span className="rounded-full bg-white/85 px-2.5 py-0.5 font-mono text-xs font-medium text-slate-700 ring-1 ring-black/5">
-              {competition.year} 年
-            </span>
-            <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-black/5 ${applyState.tone}`}>{applyState.label}</span>
-          </div>
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <LevelPill className="bg-white/90 px-2.5 py-0.5 text-xs font-semibold ring-1 ring-black/5" level={competition.level} />
+              <span className="rounded-full bg-white/85 px-2.5 py-0.5 font-mono text-xs font-medium text-slate-700 ring-1 ring-black/5">
+                {competition.year} 年
+              </span>
+              <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-black/5 ${applyState.tone}`}>{applyState.label}</span>
+            </div>
 
-          <h1
-            className={`mt-3 ${cardTheme.titleFontClass} text-3xl leading-tight sm:text-4xl`}
-            style={{ color: cardTheme.titleInk }}
-          >
-            {competition.name}
-          </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-700">{intro.tagline}</p>
+            <h1
+              className={`mt-3 ${cardTheme.titleFontClass} text-3xl leading-tight sm:text-4xl`}
+              style={{ color: cardTheme.titleInk }}
+            >
+              {competition.name}
+            </h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-700">{intro.tagline}</p>
 
-          <div className="mt-5 flex flex-wrap items-center gap-3">
-            <Button asChild className="group">
-              <Link href={`/competitions/${competition.id}`}>
-                查看赛事详情
-                <ButtonArrow />
-              </Link>
-            </Button>
-            {user.role === "STUDENT" ? (
-              applyOpen ? (
-                <Link
-                  href={`/apply?competitionId=${competition.id}`}
-                  className="group inline-flex h-10 items-center justify-center gap-2 rounded-full border border-[#115740]/30 bg-white/90 px-6 text-sm font-medium text-[#115740] transition duration-150 ease-out hover:bg-white active:scale-[0.98]"
-                >
-                  我要报名
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              <Button asChild className="group">
+                <Link href={`/competitions/${competition.id}`}>
+                  查看赛事详情
                   <ButtonArrow />
                 </Link>
-              ) : null
-            ) : null}
-            <Link
-              href="/my"
-              className="inline-flex h-10 items-center justify-center rounded-full border border-black/15 bg-white/85 px-5 text-sm font-medium text-slate-700 transition duration-150 ease-out hover:bg-white active:scale-[0.98]"
-            >
-              我的项目
-            </Link>
+              </Button>
+              {user.role === "STUDENT" ? (
+                applyOpen ? (
+                  <Link
+                    href={`/apply?competitionId=${competition.id}`}
+                    className="group inline-flex h-10 items-center justify-center gap-2 rounded-full border border-[#115740]/30 bg-white/90 px-6 text-sm font-medium text-[#115740] transition duration-150 ease-out hover:bg-white active:scale-[0.98]"
+                  >
+                    我要报名
+                    <ButtonArrow />
+                  </Link>
+                ) : null
+              ) : null}
+              <Link
+                href="/my"
+                className="inline-flex h-10 items-center justify-center rounded-full border border-black/15 bg-white/85 px-5 text-sm font-medium text-slate-700 transition duration-150 ease-out hover:bg-white active:scale-[0.98]"
+              >
+                我的项目
+              </Link>
+            </div>
+
+            <dl className="mt-6 grid grid-cols-2 gap-4 border-t border-black/10 pt-4 text-sm md:grid-cols-4">
+              <div>
+                <dt className="text-xs text-slate-500">主办方</dt>
+                <dd className="mt-1 font-medium text-slate-900">{competition.organizer ?? "未填写"}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-slate-500">赛道数</dt>
+                <dd className="mt-1 font-mono font-medium text-slate-900 tabular-nums">{topTracks.length} 条</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-slate-500">赛事等级</dt>
+                <dd className="mt-1 font-medium" style={{ color: cardTheme.titleInk }}>{competitionLevelLabels[competition.level]}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-slate-500">材料</dt>
+                <dd className="mt-1 font-mono font-medium text-slate-900 tabular-nums">{competition.attachments.length} 份</dd>
+              </div>
+            </dl>
           </div>
 
-          <dl className="mt-6 grid grid-cols-2 gap-4 border-t border-black/10 pt-4 text-sm md:grid-cols-4">
-            <div>
-              <dt className="text-xs text-slate-500">主办方</dt>
-              <dd className="mt-1 font-medium text-slate-900">{competition.organizer ?? "未填写"}</dd>
+          <figure className="overflow-hidden rounded-xl border border-black/10 bg-white shadow-sm">
+            <div className="relative aspect-[16/10] w-full">
+              <Image
+                alt={cardTheme.photoCaption}
+                className="object-cover object-center"
+                fill
+                priority
+                sizes="(min-width: 768px) 32vw, 100vw"
+                src={cardTheme.photo}
+                unoptimized
+              />
             </div>
-            <div>
-              <dt className="text-xs text-slate-500">赛道数</dt>
-              <dd className="mt-1 font-mono font-medium text-slate-900 tabular-nums">{topTracks.length} 条</dd>
-            </div>
-            <div>
-              <dt className="text-xs text-slate-500">赛事等级</dt>
-              <dd className="mt-1 font-medium" style={{ color: cardTheme.titleInk }}>{competitionLevelLabels[competition.level]}</dd>
-            </div>
-            <div>
-              <dt className="text-xs text-slate-500">材料</dt>
-              <dd className="mt-1 font-mono font-medium text-slate-900 tabular-nums">{competition.attachments.length} 份</dd>
-            </div>
-          </dl>
+            <figcaption className="px-3.5 py-2 text-xs font-medium text-[#53675d]">
+              {cardTheme.photoCaption}
+            </figcaption>
+          </figure>
         </div>
       </section>
 
@@ -234,7 +243,7 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
               title="关键时间"
             />
           </div>
-          <div aria-hidden="true" className="mx-5 mt-4 h-px bg-gradient-to-r from-slate-200 to-transparent" />
+          <div aria-hidden="true" className="mx-5 mt-4 h-px bg-[#d5e2db]/60" />
           <ul className="divide-y divide-slate-100">
             {keyDates.map((item) => (
               <li className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-4" key={item.id}>

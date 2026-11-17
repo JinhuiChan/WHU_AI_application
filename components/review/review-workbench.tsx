@@ -2,6 +2,7 @@
 
 import { Button, ButtonArrow } from "@/components/ui/button";
 import { detailHref } from "@/components/data/list-link";
+import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { useState } from "react";
 import Link from "next/link";
@@ -425,10 +426,12 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
           );
         })}
         {data.list.length === 0 ? (
-          <div className="card px-4 py-12 text-center">
-            <p className="text-sm font-medium text-slate-700">当前筛选条件下没有待审项目</p>
-            <p className="mt-2 text-sm text-slate-500">可以清除筛选条件，或等新的报名提交后再来核对。</p>
-            <Link href="/review" className="mt-4 inline-flex h-9 items-center justify-center rounded-full border border-slate-300 bg-white px-4 text-xs text-slate-700 hover:bg-slate-50">清除筛选</Link>
+          <div className="card">
+            <EmptyState
+              title="当前筛选条件下没有待审项目"
+              description="可以清除筛选条件，或等新的报名提交后再来核对。"
+              action={{ href: "/review", label: "清除筛选" }}
+            />
           </div>
         ) : null}
       </section>
