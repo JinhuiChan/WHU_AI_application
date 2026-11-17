@@ -219,20 +219,18 @@ body {
 
 /* 卡片标题 16px 与正文 14px 只差 2px，靠字重撑不起「这是一块的标题」。
    不放大字号（105 个区块同时放大一圈会变笨重），改用负字距把标题收紧，
-   与正文的松排版形成对比——这是 jobup 那一版标题最常见的处理。 */
-/* 关键：末尾的 :not(.on-dark *) 不能省。
-   这条选择器带两个 :not(类)，实际特异性是 (0,3,1)；
-   而下面给深色容器兜底的 .page-enter .on-dark :is(h1,h2,h3) 只有 (0,2,1)。
-   只靠后者根本压不住前者——2026-11-17 赛事卡就把标题渲染成了黑字压深蓝。
-   与其把兜底规则叠类名硬提权重，不如让这条规则一开始就不进深色容器。 */
+   与正文的松排版形成对比——这是 jobup 那一版标题最常见的处理。
+   颜色用 :where() 降到 0 优先级，组件自带颜色类（如危险操作的 text-red-700）优先。 */
 .page-enter :is(h2, h3):not(.text-xs):not(.text-slate-500):not(.on-dark *) {
   font-weight: 700;
-  color: var(--ink);
   letter-spacing: -0.2px;
 }
 
-/* 深色容器里的标题还原颜色（并保留收紧的字距）。
-   有了上面那条 :not(.on-dark *)，这里只负责字距与兜底。 */
+:where(.page-enter) :where(h2, h3):where(:not(.text-xs, .text-slate-500, .on-dark *)) {
+  color: var(--ink);
+}
+
+/* 深色容器里的标题还原颜色（并保留收紧的字距）。 */
 .page-enter .on-dark :is(h1, h2, h3) {
   color: inherit;
   letter-spacing: -0.2px;
@@ -374,16 +372,6 @@ body {
   padding: 10px 14px;
   font-size: 13px;
   color: var(--ink-subtle);
-}
-
-/* React Bits 文字动效：系统开启「减少动态效果」时直接锁定终态。
-   MotionConfig reducedMotion="user" 只自动关闭位移，模糊与透明度仍可能变化，这里补一层强制降级。 */
-@media (prefers-reduced-motion: reduce) {
-  .blur-text span[aria-hidden="true"] {
-    filter: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-  }
 }
 
 @media print {

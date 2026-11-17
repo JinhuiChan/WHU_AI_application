@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { CompetitionDeleteButton } from "@/components/admin/competition-delete-button";
+import { EventSwatch, LevelPill } from "@/components/competitions/event-tone";
 import { detailHref } from "@/components/data/list-link";
 import { Button, ButtonArrow } from "@/components/ui/button";
+import { DeadlinePill } from "@/components/ui/deadline-meter";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
-  competitionLevelLabels,
-  formatDateTime,
   publishStatusLabels,
   registrationStatusLabels,
 } from "@/lib/presentation";
@@ -41,10 +41,9 @@ export function CompetitionMobileList({ items, isStudent, from }: Props) {
         return (
           <li key={competition.id} className="p-4">
             <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+              <EventSwatch level={competition.level} />
               <span className="text-slate-500">{competition.year} 年</span>
-              <span className="rounded-full bg-blue-50 px-2 py-0.5 text-blue-700">
-                {competitionLevelLabels[competition.level]}
-              </span>
+              <LevelPill className="px-2 py-0.5 text-[11px]" level={competition.level} />
               {isStudent ? (
                 registration?.windowEndAt ? (
                   registration.windowOpen ? (
@@ -69,10 +68,14 @@ export function CompetitionMobileList({ items, isStudent, from }: Props) {
             <dl className="mt-2 space-y-1 text-xs">
               {isStudent ? (
                 <>
-                  <div className="flex gap-1.5">
+                  <div className="flex items-center gap-1.5">
                     <dt className="shrink-0 text-slate-500">报名截止</dt>
                     <dd className="min-w-0 text-slate-700">
-                      {registration?.windowEndAt ? formatDateTime(registration.windowEndAt) : "未设置"}
+                      {registration?.windowEndAt ? (
+                        <DeadlinePill endAt={registration.windowEndAt} startAt={registration.windowStartAt} />
+                      ) : (
+                        <span className="text-slate-400">未设置</span>
+                      )}
                     </dd>
                   </div>
                   <div className="flex items-center gap-1.5">

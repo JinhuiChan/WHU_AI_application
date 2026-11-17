@@ -5,8 +5,10 @@ import { CompetitionDeleteButton } from "@/components/admin/competition-delete-b
 import { CompetitionManagement } from "@/components/admin/competition-management";
 import { CompetitionPublishButton } from "@/components/admin/competition-publish-button";
 import { TrackEditor } from "@/components/admin/track-editor";
+import { LevelPill } from "@/components/competitions/event-tone";
 import { BackLink } from "@/components/data/list-link";
 import { BreadcrumbTitle } from "@/components/layout/breadcrumbs";
+import { deadlineState } from "@/components/ui/deadline-meter";
 import { getActiveUser } from "@/lib/auth.server";
 import { getCompetitionDetail } from "@/lib/competitions";
 import { loadScopedLabels } from "@/lib/dict-labels";
@@ -58,15 +60,16 @@ export default async function CompetitionDetailPage({ params, searchParams }: Pa
 
   const now = new Date();
   const applyWindow = windows.find((item) => item.stage === "SCHOOL") ?? windows[0];
-  const applyOpen = Boolean(applyWindow?.enabled && now >= applyWindow.startAt && now <= applyWindow.endAt);
+  const applyWinState = applyWindow ? deadlineState(applyWindow.startAt, applyWindow.endAt, now) : null;
+  const applyOpen = Boolean(applyWindow?.enabled && applyWinState?.running);
   const applyState = !applyWindow
     ? { label: "报名时间未设置", tone: "bg-slate-100 text-slate-600" }
     : !applyWindow.enabled
       ? { label: "报名未开放", tone: "bg-slate-100 text-slate-600" }
-      : applyOpen
-        ? { label: `报名中 · 截止 ${formatDateTime(applyWindow.endAt.toISOString())}`, tone: "bg-emerald-50 text-emerald-700" }
-        : now < applyWindow.startAt
-          ? { label: `报名未开始 · ${formatDateTime(applyWindow.startAt.toISOString())} 开放`, tone: "bg-amber-50 text-amber-700" }
+      : applyWinState?.running
+        ? { label: `报名中 · 截止 ${applyWinState.endText}`, tone: "bg-emerald-50 text-emerald-700" }
+        : applyWinState?.urgency === "upcoming"
+          ? { label: `报名未开始 · ${applyWinState.startText} 开放`, tone: applyWinState.tone }
           : { label: "报名已截止", tone: "bg-slate-100 text-slate-600" };
 
   const topTracks = tracks.filter((track) => !track.parentId);
@@ -87,7 +90,7 @@ export default async function CompetitionDetailPage({ params, searchParams }: Pa
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <h1 className="text-xl font-semibold text-slate-900">{competition.name}</h1>
-          <span className="rounded-full bg-blue-50 px-2 py-1 text-xs text-blue-700">{competitionLevelLabels[competition.level]}</span>
+          <LevelPill level={competition.level} />
           {competition.publishStatus === "PUBLISHED" && (
             <Link href={`/assistant?competitionId=${competition.id}`} className="text-sm text-blue-600 hover:underline">问这场比赛</Link>
           )}

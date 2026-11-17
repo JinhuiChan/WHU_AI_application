@@ -3,18 +3,19 @@ import { firstParam } from "@/lib/list-query";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import type { CompetitionLevel } from "@prisma/client";
 import { ArrowUpRight, CalendarDays, FileText, PlayCircle } from "lucide-react";
 import { BreadcrumbTitle } from "@/components/layout/breadcrumbs";
 import { introContentFor } from "@/components/competitions/competition-intro-data";
+import { LevelPill } from "@/components/competitions/event-tone";
 import { TrackCard } from "@/components/competitions/track-card";
+import { deadlineState, fmtMD, sameYearCN } from "@/components/ui/deadline-meter";
 import { SectionHead } from "@/components/ui/section-head";
 import SpotlightCard from "@/components/react-bits/SpotlightCard";
 import { Button, ButtonArrow } from "@/components/ui/button";
 import { getActiveUser } from "@/lib/auth.server";
 import { loadScopedLabels } from "@/lib/dict-labels";
 import { prisma } from "@/lib/prisma";
-import { competitionLevelLabels, formatDateTime } from "@/lib/presentation";
+import { competitionLevelLabels } from "@/lib/presentation";
 
 export const metadata: Metadata = { title: "赛事介绍" };
 export const dynamic = "force-dynamic";
@@ -27,12 +28,6 @@ const STAGE_LABEL: Record<string, string> = {
   PROVINCE: "省赛",
   NATIONAL: "国赛",
   FINISHED: "赛后",
-};
-
-const levelTone: Record<CompetitionLevel, string> = {
-  SCHOOL: "bg-slate-100 text-slate-600",
-  PROVINCE: "bg-blue-50 text-blue-700",
-  NATIONAL: "bg-indigo-50 text-indigo-700",
 };
 
 type PageProps = {
@@ -93,14 +88,15 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
 
   const now = new Date();
   const applyWindow = competition.timeWindows.find((item) => item.stage === "SCHOOL") ?? competition.timeWindows[0];
-  const applyOpen = Boolean(applyWindow && now >= applyWindow.startAt && now <= applyWindow.endAt);
-  const applyState = !applyWindow
+  const applyWinState = applyWindow ? deadlineState(applyWindow.startAt, applyWindow.endAt, now) : null;
+  const applyOpen = Boolean(applyWinState?.running);
+  const applyState = !applyWinState
     ? { label: "报名时间未设置", tone: "bg-slate-100 text-slate-600" }
-    : now < applyWindow.startAt
-      ? { label: `${formatDateTime(applyWindow.startAt.toISOString())} 开放报名`, tone: "bg-amber-50 text-amber-700" }
-      : applyOpen
-        ? { label: `报名中 · 截止 ${formatDateTime(applyWindow.endAt.toISOString())}`, tone: "bg-emerald-50 text-emerald-700" }
-        : { label: "报名已截止", tone: "bg-slate-100 text-slate-600" };
+    : applyWinState.urgency === "upcoming"
+      ? { label: `${applyWinState.startText} 开放报名`, tone: applyWinState.tone }
+      : applyWinState.running
+        ? { label: `报名中 · 截止 ${applyWinState.endText}`, tone: "bg-emerald-50 text-emerald-700" }
+        : { label: "报名已截止", tone: applyWinState.tone };
 
   const video = competition.attachments.find((file) => file.kind === "VIDEO" || VIDEO_FILE.test(file.fileName));
   const documents = competition.attachments.filter((file) => file !== video);
@@ -108,37 +104,22 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
   // 关键时间：学生打开简介页的第一个问题是「还来不来得及」。
   // 只渲染真正配置了的阶段 —— 现在库里每个赛事只有一条校赛窗口，
   // 硬凑成三列（校赛/省赛/国赛）会有两格是编的。有数据就多行，没数据整块不出现。
-  const dayMs = 24 * 60 * 60 * 1000;
-  const md = (date: Date) =>
-    `${String(date.getMonth() + 1).padStart(2, "0")}.${String(date.getDate()).padStart(2, "0")}`;
+  // 紧迫度、颜色与剩余天数统一由 deadlineState 计算，避免同页和列表出现两套口径。
   const keyDates = competition.timeWindows.map((item) => {
-    // 先判过期再算天数：剩余 -0.5 天时 ceil 会得到 0，会被误当成「今天截止」
-    const ended = now > item.endAt;
-    const left = Math.ceil((item.endAt.getTime() - now.getTime()) / dayMs);
-    const state = ended
-      ? { label: "已结束", tone: "bg-slate-100 text-slate-600 ring-slate-200", bar: "bg-slate-300" }
-      : now < item.startAt
-        ? { label: `${md(item.startAt)} 开始`, tone: "bg-amber-50 text-amber-700 ring-amber-200", bar: "bg-amber-400" }
-        : {
-            label: left <= 0 ? "今天截止" : `进行中 · 还剩 ${left} 天`,
-            tone: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-            bar: "bg-emerald-500",
-          };
-    const sameYear = item.startAt.getFullYear() === item.endAt.getFullYear();
-    // 窗口进度：进行中的阶段才有意义，未开始记 0、已结束记 100
-    const span = item.endAt.getTime() - item.startAt.getTime();
-    const percent = span > 0
-      ? Math.max(0, Math.min(100, Math.round(((now.getTime() - item.startAt.getTime()) / span) * 100)))
-      : ended ? 100 : 0;
+    const state = deadlineState(item.startAt, item.endAt, now);
+    const startYear = new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", year: "numeric" }).format(item.startAt);
+    const endYear = new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", year: "numeric" }).format(item.endAt);
+    const sameYear = sameYearCN(item.startAt, item.endAt);
+    const label = state.running ? `进行中 · ${state.label}` : state.label;
     return {
       id: item.id,
       stage: item.stage,
-      range: `${item.startAt.getFullYear()}.${md(item.startAt)} — ${sameYear ? md(item.endAt) : `${item.endAt.getFullYear()}.${md(item.endAt)}`}`,
-      percent,
-      running: !ended && now >= item.startAt,
-      // 窗口进度条的紧迫度：和表格里的截止胶囊同一套阈值（7 天 / 3 天）
-      urgency: ended ? "bar" : left <= 3 ? "red" : left <= 7 ? "amber" : "blue",
-      ...state,
+      range: `${startYear}.${fmtMD(item.startAt)} — ${sameYear ? fmtMD(item.endAt) : `${endYear}.${fmtMD(item.endAt)}`}`,
+      percent: state.percent ?? 0,
+      running: state.running,
+      tone: state.tone,
+      bar: state.barTone,
+      label,
     };
   });
 
@@ -155,9 +136,7 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
           <BackLink to={firstParam(searchParams?.from)} fallback="/intro" label="返回赛事简介" />
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${levelTone[competition.level]}`}>
-              {competitionLevelLabels[competition.level]}
-            </span>
+            <LevelPill className="px-2.5 py-1 text-[11px] font-semibold" level={competition.level} />
             <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
               {competition.year} 年
             </span>
@@ -237,9 +216,7 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
                   <span aria-hidden="true" className="mt-1.5 flex items-center gap-2">
                     <span className="h-1 flex-1 overflow-hidden rounded-full bg-slate-100">
                       <span
-                        className={`block h-full rounded-full ${
-                          item.urgency === "red" ? "bg-red-500" : item.urgency === "amber" ? "bg-amber-500" : item.urgency === "bar" ? item.bar : "bg-blue-500"
-                        }`}
+                        className={`block h-full rounded-full ${item.bar}`}
                         style={{ width: `${item.percent}%` }}
                       />
                     </span>
@@ -248,7 +225,7 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
                     </span>
                   </span>
                 </span>
-                <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 ${item.tone}`}>
+                <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium ${item.tone}`}>
                   {item.label}
                 </span>
               </li>

@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 import { CompetitionCreate } from "@/components/admin/competition-create";
 import { CompetitionDeleteButton } from "@/components/admin/competition-delete-button";
 import { CompetitionCards } from "@/components/competitions/competition-cards";
-import { EventSwatch, eventTone } from "@/components/competitions/event-tone";
+import { EventSwatch, LevelPill } from "@/components/competitions/event-tone";
 import { DeadlinePill } from "@/components/ui/deadline-meter";
 import { SectionHead } from "@/components/ui/section-head";
 import { CompetitionMobileList } from "@/components/competitions/competition-mobile-list";
@@ -16,7 +16,7 @@ import { detailHref, listHref } from "@/components/data/list-link";
 import { getActiveUser } from "@/lib/auth.server";
 import { getCompetitionPage, listCompetitionYears } from "@/lib/competitions";
 import { firstParam, optionalCompetitionLevel, optionalPublishStatus, optionalText, optionalYear, pageParams } from "@/lib/list-query";
-import { competitionLevelLabels, publishStatusLabels, registrationStatusLabels } from "@/lib/presentation";
+import { publishStatusLabels, registrationStatusLabels } from "@/lib/presentation";
 
 export const metadata: Metadata = { title: "赛事" };
 
@@ -178,12 +178,7 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
                   </td>
                   <td className="px-4 py-4">
                     {/* 等级胶囊与色标同色系，行首色块、卡片底色、胶囊三者一致 */}
-                    <span
-                      className="rounded-full px-2 py-1 text-xs"
-                      style={{ backgroundColor: eventTone(competition.level).soft, color: eventTone(competition.level).ink }}
-                    >
-                      {competitionLevelLabels[competition.level]}
-                    </span>
+                    <LevelPill level={competition.level} />
                   </td>
                   {isStudent ? (
                     <>

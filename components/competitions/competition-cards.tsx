@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { eventTone } from "@/components/competitions/event-tone";
 import { detailHref } from "@/components/data/list-link";
 import type { CompetitionListItem } from "@/types/competition";
 import { competitionLevelLabels, formatDateTime, publishStatusLabels, registrationStatusLabels } from "@/lib/presentation";
@@ -9,7 +10,7 @@ import { competitionLevelLabels, formatDateTime, publishStatusLabels, registrati
  *
  * 和赛道卡（track-card）的区别：
  *   赛道卡按赛道序号轮转配色，插画是通用形状（折线、柱状、节点）；
- *   赛事卡按赛事**等级**定色（国赛蓝 / 省赛绿 / 校赛橙），插画按 seriesId 对上赛事本体 ——
+ *   赛事卡按赛事**等级**定色（国赛蓝 / 省赛绿 / 校赛紫，统一由 eventTone 提供），插画按 seriesId 对上赛事本体 ——
  *   国创赛（原互联网+）画笔记本电脑、挑战杯画奖杯、百珈争创画珞珈山争顶。
  *   对不上的赛事走通用「印信」插画，不硬套。
  *
@@ -17,24 +18,15 @@ import { competitionLevelLabels, formatDateTime, publishStatusLabels, registrati
  * 不表示状态好坏；状态一律用胶囊文字表达，不靠色相。
  */
 
-type Scheme = {
-  from: string;
-  to: string;
-  /** 等级英文标记，与参考版式一致（COLLEGE ROUND / NATIONAL ROUND） */
-  eyebrow: string;
-  art: ArtKind;
-};
-
 type ArtKind = "device" | "cup" | "summit" | "seal";
 
-const SCHEMES: Record<string, Scheme> = {
-  NATIONAL: { from: "#1a73e8", to: "#0b47b8", eyebrow: "NATIONAL ROUND", art: "device" },
-  PROVINCE: { from: "#0e8a75", to: "#04604f", eyebrow: "PROVINCIAL ROUND", art: "cup" },
-  SCHOOL: { from: "#c2580f", to: "#8a3c08", eyebrow: "COLLEGE ROUND", art: "summit" },
-  FALLBACK: { from: "#8c2b4d", to: "#5e1a33", eyebrow: "COMPETITION", art: "seal" },
+const LEVEL_DEFAULT_ART: Record<string, ArtKind> = {
+  NATIONAL: "device",
+  PROVINCE: "cup",
+  SCHOOL: "summit",
 };
 
-/** seriesId → 插画，认不出来就用兜底 */
+/** seriesId → 插画，认不出来就按等级兜底或走印信 */
 const SERIES_ART: Record<string, ArtKind> = {
   "china-innovation": "device",
   "challenge-cup": "cup",
@@ -48,7 +40,7 @@ const svgClass = "pointer-events-none absolute inset-y-0 right-0 h-full w-[68%]"
 
 /** 国创赛（原「互联网+」）：画一台笔记本电脑，屏幕里一条上升折线。
     赛事本体就是「互联网 + 各行业」，电脑比抽象图形更好认。 */
-function DeviceArt() {
+function DeviceArt({ accent }: { accent: string }) {
   return (
     <svg aria-hidden="true" className={svgClass} preserveAspectRatio="xMaxYMid meet" viewBox="0 0 260 180">
       <g transform="translate(0,-22)">
@@ -57,9 +49,9 @@ function DeviceArt() {
 
         {/* 机身：屏幕 + 折角底座 */}
         <rect fill="#fff" height="64" opacity="0.92" rx="6" width="98" x="150" y="46" />
-        <rect fill="#1a73e8" height="52" opacity="0.22" rx="3" width="86" x="156" y="52" />
+        <rect fill={accent} height="52" opacity="0.22" rx="3" width="86" x="156" y="52" />
         <path d="M144 112 L254 112 L250 122 L148 122 Z" fill="#fff" opacity="0.92" />
-        <rect fill="#1a73e8" height="3" opacity="0.25" rx="1.5" width="34" x="182" y="115" />
+        <rect fill={accent} height="3" opacity="0.25" rx="1.5" width="34" x="182" y="115" />
 
         {/* 屏幕内的上升折线 + 终点 */}
         <polyline
@@ -142,10 +134,10 @@ function SealArt() {
 
 const ART = { device: DeviceArt, cup: CupArt, summit: SummitArt, seal: SealArt };
 
-function schemeFor(item: CompetitionListItem): Scheme {
-  const base = SCHEMES[item.level] ?? SCHEMES.FALLBACK;
-  const art = SERIES_ART[item.seriesId];
-  return art ? { ...base, art } : base;
+function schemeFor(item: CompetitionListItem) {
+  const tone = eventTone(item.level);
+  const art = SERIES_ART[item.seriesId] ?? LEVEL_DEFAULT_ART[item.level] ?? "seal";
+  return { ...tone, art };
 }
 
 type CompetitionCardsProps = {
@@ -193,7 +185,7 @@ export function CompetitionCards({ items, isStudent, from }: CompetitionCardsPro
             key={item.id}
             style={{ backgroundImage: `linear-gradient(135deg, ${scheme.from}, ${scheme.to})` }}
           >
-            <Art />
+            <Art accent={scheme.from} />
 
             {/* 文字遮罩：插画里的白线不透明度到 0.95，字压上去会糊成一片。
                 这层从左上底色渐变到透明，保证文字区是纯色，插画只在右侧露出。 */}

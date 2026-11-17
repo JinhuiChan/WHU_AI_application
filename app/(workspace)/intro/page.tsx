@@ -1,26 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import type { CompetitionLevel } from "@prisma/client";
 import { ArrowUpRight, Building2, CalendarDays, Layers, PlayCircle, Trophy } from "lucide-react";
+import { LevelPill } from "@/components/competitions/event-tone";
 import { EmptyState } from "@/components/ui/empty-state";
 import { detailHref } from "@/components/data/list-link";
 import SpotlightCard from "@/components/react-bits/SpotlightCard";
 import { introContentFor } from "@/components/competitions/competition-intro-data";
 import { getActiveUser } from "@/lib/auth.server";
 import { prisma } from "@/lib/prisma";
-import { competitionLevelLabels } from "@/lib/presentation";
 
 export const metadata: Metadata = { title: "赛事简介" };
 export const dynamic = "force-dynamic";
 
 const VIDEO_FILE = /\.(mp4|webm|mov|m4v|ogv)$/i;
-
-const levelTone: Record<CompetitionLevel, string> = {
-  SCHOOL: "bg-slate-100 text-slate-600",
-  PROVINCE: "bg-blue-50 text-blue-700",
-  NATIONAL: "bg-indigo-50 text-indigo-700",
-};
 
 export default async function CompetitionIntroPage() {
   const user = await getActiveUser();
@@ -101,9 +94,7 @@ export default async function CompetitionIntroPage() {
                           含宣传片
                         </span>
                       ) : null}
-                      <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${levelTone[competition.level]}`}>
-                        {competitionLevelLabels[competition.level]}
-                      </span>
+                      <LevelPill className="px-2.5 py-1 text-[11px] font-semibold" level={competition.level} />
                     </span>
                   </div>
 

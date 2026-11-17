@@ -1,7 +1,11 @@
+import { cn } from "@/components/ui/cn";
+import { competitionLevelLabels } from "@/lib/presentation";
+import type { CompetitionLevel } from "@prisma/client";
+
 /**
  * 赛事色标：同一个赛事在卡片、表格、列表里必须是同一种颜色。
  *
- * 颜色按**等级**取（国赛蓝 / 省赛绿 / 校赛橙），不按赛事 id 取 ——
+ * 颜色按**等级**取（国赛蓝 / 省赛绿 / 校赛紫），不按赛事 id 取 ——
  * 等级是稳定字段，新增赛事也不会突然换色；而按 id 轮转配色，
  * 同一个赛事在不同页面会出现不同颜色，色标就失效了。
  *
@@ -24,8 +28,8 @@ export type EventTone = {
 const TONES: Record<string, EventTone> = {
   NATIONAL: { from: "#1a73e8", to: "#0b47b8", dot: "#1a73e8", soft: "#eff6ff", ink: "#1d4ed8", eyebrow: "NATIONAL ROUND" },
   PROVINCE: { from: "#0e8a75", to: "#04604f", dot: "#0e8a75", soft: "#ecfdf5", ink: "#047857", eyebrow: "PROVINCIAL ROUND" },
-  SCHOOL: { from: "#c2580f", to: "#8a3c08", dot: "#c2580f", soft: "#fff7ed", ink: "#b45309", eyebrow: "COLLEGE ROUND" },
-  DEFAULT: { from: "#8c2b4d", to: "#5e1a33", dot: "#8c2b4d", soft: "#fdf2f8", ink: "#9d174d", eyebrow: "COMPETITION" },
+  SCHOOL: { from: "#6d4fc2", to: "#4a2f99", dot: "#6d4fc2", soft: "#f5f3ff", ink: "#5b21b6", eyebrow: "COLLEGE ROUND" },
+  DEFAULT: { from: "#475569", to: "#334155", dot: "#64748b", soft: "#f1f5f9", ink: "#334155", eyebrow: "COMPETITION" },
 };
 
 export function eventTone(level?: string | null): EventTone {
@@ -41,5 +45,18 @@ export function EventSwatch({ level, className }: { level?: string | null; class
       className={`inline-block h-2.5 w-2.5 shrink-0 rounded-[3px] ${className ?? ""}`}
       style={{ backgroundColor: tone.dot }}
     />
+  );
+}
+
+/** 赛事等级胶囊：全站统一由 eventTone 取色，不再各页分别写一套配色表。 */
+export function LevelPill({ level, className }: { level: CompetitionLevel; className?: string }) {
+  const tone = eventTone(level);
+  return (
+    <span
+      className={cn("inline-flex items-center rounded-full px-2 py-1 text-xs", className)}
+      style={{ backgroundColor: tone.soft, color: tone.ink }}
+    >
+      {competitionLevelLabels[level]}
+    </span>
   );
 }
