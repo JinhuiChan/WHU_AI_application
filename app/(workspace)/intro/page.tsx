@@ -4,6 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowUpRight, Building2, CalendarDays, Layers, PlayCircle } from "lucide-react";
 import { WhuRoofDivider, WhuSeal } from "@/components/brand/whu-motifs";
+import { levelCardTheme } from "@/components/brand/whu-photos";
 import { introContentFor } from "@/components/competitions/competition-intro-data";
 import { eventTone, LevelPill } from "@/components/competitions/event-tone";
 import { detailHref } from "@/components/data/list-link";
@@ -21,7 +22,6 @@ export default async function CompetitionIntroPage() {
   const user = await getActiveUser();
   if (!user) redirect("/login");
 
-  // 简介页是对外展示页：草稿/已下架一律不出现，管理员也不例外。
   const competitions = await prisma.competition.findMany({
     where: { publishStatus: "PUBLISHED" },
     orderBy: [{ year: "desc" }, { name: "asc" }],
@@ -41,7 +41,7 @@ export default async function CompetitionIntroPage() {
 
   return (
     <div className="space-y-6">
-      {/* 校史文化横幅：老图书馆琉璃瓦实景插画 + 珞珈蓝渐变护字层 + 思源宋体主标题 */}
+      {/* 校史文化横幅：老图书馆琉璃瓦插画 + 珞珈蓝渐变护字层 + 思源宋体主标题 */}
       <section className="on-dark relative isolate overflow-hidden rounded-2xl bg-[#002554] text-white ring-1 ring-inset ring-white/10">
         <Image
           alt=""
@@ -60,7 +60,7 @@ export default async function CompetitionIntroPage() {
               "linear-gradient(102deg, rgba(0,26,61,0.96) 0%, rgba(0,37,84,0.88) 40%, rgba(0,37,84,0.45) 68%, rgba(17,87,64,0.18) 100%)",
           }}
         />
-        <div className="relative flex flex-col justify-between gap-6 p-6 sm:p-8 lg:min-h-[248px] lg:flex-row lg:items-end lg:p-10">
+        <div className="relative flex flex-col justify-between gap-6 p-6 sm:p-8 lg:min-h-[244px] lg:flex-row lg:items-end lg:p-10">
           <div className="max-w-xl">
             <div className="flex flex-wrap items-center gap-3">
               <WhuSeal
@@ -109,6 +109,7 @@ export default async function CompetitionIntroPage() {
           {competitions.map((competition, idx) => {
             const intro = introContentFor(competition.seriesId);
             const tone = eventTone(competition.level);
+            const cardTheme = levelCardTheme(competition.level);
             const hasVideo = competition.attachments.some(
               (file) => file.kind === "VIDEO" || VIDEO_FILE.test(file.fileName),
             );
@@ -118,56 +119,89 @@ export default async function CompetitionIntroPage() {
               <Link
                 key={competition.id}
                 href={detailHref("/intro", competition.id, "/intro")}
-                className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-[#e5e0d5] bg-white transition duration-150 ease-out hover:border-[#002554]/35 hover:shadow-md hover:shadow-[#002554]/[0.05] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#002554]"
+                className="group relative isolate flex h-full flex-col overflow-hidden rounded-xl border transition duration-150 ease-out hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#002554]"
+                style={{
+                  backgroundColor: cardTheme.surface,
+                  borderColor: cardTheme.border,
+                }}
               >
-                {/* 顶部 2px 等级识别细线，对应全站赛事色标 */}
-                <div aria-hidden="true" className="h-[2.5px] w-full" style={{ backgroundColor: tone.from }} />
+                {/* 右侧武大校园地标实景建筑背景 + 柔光同色渐变保护左侧文字对比度 */}
+                <Image
+                  alt=""
+                  aria-hidden="true"
+                  className="pointer-events-none select-none object-cover object-center transition duration-300 group-hover:scale-[1.03]"
+                  fill
+                  src={cardTheme.photo}
+                  unoptimized
+                />
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0"
+                  style={{ backgroundImage: cardTheme.overlay }}
+                />
 
-                <div className="flex flex-1 flex-col p-5 sm:p-6">
+                {/* 顶部 3px 赛事类型彩色色条 */}
+                <div aria-hidden="true" className="relative z-[1] h-[3px] w-full" style={{ backgroundColor: tone.from }} />
+
+                <div className="relative z-[1] flex flex-1 flex-col p-5 sm:p-6">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-[11px] font-medium tracking-[0.16em] text-slate-400">
+                    <span
+                      className="font-mono text-[11px] font-semibold tracking-[0.16em]"
+                      style={{ color: cardTheme.accentInk }}
+                    >
                       ARCHIVE · {indexLabel}
                     </span>
                     <span className="flex flex-wrap items-center justify-end gap-1.5">
                       {hasVideo ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-[#f2efe8] px-2.5 py-0.5 text-xs font-medium text-slate-700">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-white/85 px-2.5 py-0.5 text-xs font-medium text-slate-700 ring-1 ring-black/5">
                           <PlayCircle aria-hidden="true" size={12} className="text-[#115740]" />
                           含宣传片
                         </span>
                       ) : null}
-                      <LevelPill className="px-2.5 py-0.5 text-xs font-medium" level={competition.level} />
+                      <LevelPill className="bg-white/85 px-2.5 py-0.5 text-xs font-semibold ring-1 ring-black/5" level={competition.level} />
                     </span>
                   </div>
 
+                  {/* 按赛事等级区分字体颜色 + 思源宋体展示 */}
                   <div className="mt-4">
-                    <h2 className="font-display text-xl font-semibold leading-snug text-slate-900 transition-colors group-hover:text-[#002554]">
+                    <h2
+                      className="font-display text-xl font-semibold leading-snug"
+                      style={{ color: cardTheme.titleInk }}
+                    >
                       {competition.name}
                     </h2>
-                    <p className="mt-2.5 text-sm leading-6 text-slate-600">{intro.tagline}</p>
+                    <p className="mt-2.5 text-sm leading-6 text-slate-700">{intro.tagline}</p>
                   </div>
 
-                  <dl className="mt-auto grid grid-cols-2 gap-x-3 gap-y-2 border-t border-[#e5e0d5] pt-4 text-xs text-slate-500">
+                  {/* 分区元信息：柔和半透明浅块 */}
+                  <dl className="mt-auto grid grid-cols-2 gap-x-3 gap-y-2 border-t border-black/[0.07] pt-4 text-xs text-slate-600">
                     <div className="flex items-center gap-1.5">
-                      <CalendarDays aria-hidden="true" className="shrink-0 text-slate-400" size={14} />
-                      <span className="font-mono tabular-nums">{competition.year}</span>
+                      <CalendarDays aria-hidden="true" className="shrink-0" size={14} style={{ color: cardTheme.accentInk }} />
+                      <span className="font-mono font-medium text-slate-800 tabular-nums">{competition.year}</span>
                       <span>赛年</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <Layers aria-hidden="true" className="shrink-0 text-slate-400" size={14} />
-                      <span className="font-mono tabular-nums">{competition.tracks.length}</span>
+                      <Layers aria-hidden="true" className="shrink-0" size={14} style={{ color: cardTheme.accentInk }} />
+                      <span className="font-mono font-medium text-slate-800 tabular-nums">{competition.tracks.length}</span>
                       <span>条赛道</span>
                     </div>
                     <div className="col-span-2 flex items-center gap-1.5 truncate">
-                      <Building2 aria-hidden="true" className="shrink-0 text-slate-400" size={14} />
-                      <span className="truncate">{competition.organizer ?? "主办方未填写"}</span>
+                      <Building2 aria-hidden="true" className="shrink-0" size={14} style={{ color: cardTheme.accentInk }} />
+                      <span className="truncate font-medium text-slate-700">{competition.organizer ?? "主办方未填写"}</span>
                     </div>
                   </dl>
 
-                  <div className="mt-4 flex items-center justify-between border-t border-dashed border-[#e5e0d5] pt-3">
-                    <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-slate-400">
+                  <div className="mt-4 flex items-center justify-between border-t border-dashed border-black/10 pt-3">
+                    <span
+                      className="font-mono text-[11px] font-medium uppercase tracking-[0.12em] opacity-75"
+                      style={{ color: cardTheme.accentInk }}
+                    >
                       {tone.eyebrow}
                     </span>
-                    <span className="inline-flex items-center gap-1 text-xs font-medium text-[#002554]">
+                    <span
+                      className="inline-flex items-center gap-1 text-xs font-semibold"
+                      style={{ color: cardTheme.titleInk }}
+                    >
                       查阅简章
                       <ArrowUpRight
                         aria-hidden="true"

@@ -290,27 +290,29 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
                     </div>
                   </dl>
                 </div>
-                <div className="flex flex-col items-stretch gap-2">
-                  <Button variant="outline" size="sm" type="button" disabled={preflight?.loading} onClick={() => void runPreflight(item.id)}>
-                    {preflight?.loading ? "预检中…" : "重新预检"}
-                  </Button>
-                  <Button variant="outline" size="sm"
-                    type="button"
-                    onClick={() => setExpanded((current) => open ? current.filter((id) => id !== item.id) : [...current, item.id])} >
-                    {open ? "收起信息" : "展开信息"}
-                  </Button>
-                  <Button asChild variant="outline" size="sm" className="group">
+                <div className="flex shrink-0 flex-col items-stretch gap-2 sm:w-44">
+                  <div className="grid grid-cols-2 gap-1.5">
+                    <Button variant="outline" size="sm" type="button" className="h-8 px-2.5 text-xs" disabled={preflight?.loading} onClick={() => void runPreflight(item.id)}>
+                      {preflight?.loading ? "预检中…" : "重新预检"}
+                    </Button>
+                    <Button variant="outline" size="sm" className="h-8 px-2.5 text-xs"
+                      type="button"
+                      onClick={() => setExpanded((current) => open ? current.filter((id) => id !== item.id) : [...current, item.id])} >
+                      {open ? "收起信息" : "展开信息"}
+                    </Button>
+                  </div>
+                  <Button asChild variant="outline" size="sm" className="group h-8 text-xs">
                     <Link href={detailHref("/review", item.id, from)}>
                       查看详情
                       <ButtonArrow />
                     </Link>
                   </Button>
                   {level ? (
-                    <div className="flex gap-2">
-                      <Button variant="default" size="sm" type="button" disabled={pending} onClick={() => void approve(item)} >
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <Button variant="default" size="sm" type="button" className="h-8 px-2.5 text-xs" disabled={pending} onClick={() => void approve(item)} >
                         {level === "COLLEGE" ? "学院通过" : "校级通过"}
                       </Button>
-                      <Button variant="destructive" size="sm" type="button" disabled={pending} onClick={() => setRejectTarget({ kind: "single", projectId: item.id, projectName: item.projectName, level })} >
+                      <Button variant="destructive" size="sm" type="button" className="h-8 px-2.5 text-xs" disabled={pending} onClick={() => setRejectTarget({ kind: "single", projectId: item.id, projectName: item.projectName, level })} >
                         驳回
                       </Button>
                     </div>

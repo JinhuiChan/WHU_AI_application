@@ -1,9 +1,12 @@
 import { BackLink } from "@/components/data/list-link";
 import { firstParam } from "@/lib/list-query";
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ArrowUpRight, CalendarDays, FileText, PlayCircle } from "lucide-react";
+import { WhuRoofDivider } from "@/components/brand/whu-motifs";
+import { levelCardTheme, TRACK_BLOCK_TONES } from "@/components/brand/whu-photos";
 import { BreadcrumbTitle } from "@/components/layout/breadcrumbs";
 import { introContentFor } from "@/components/competitions/competition-intro-data";
 import { LevelPill } from "@/components/competitions/event-tone";
@@ -122,28 +125,59 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
     };
   });
 
+  const cardTheme = levelCardTheme(competition.level);
+  const trackGroupsFor = (trackId: string) => {
+    const scoped: Record<string, string> = labels.byTrack[trackId]?.GROUP ?? {};
+    const source: Record<string, string> = Object.keys(scoped).length ? scoped : (labels.global.GROUP ?? {});
+    return Object.values(source);
+  };
+  const trackCategoriesFor = (trackId: string) => {
+    const scoped: Record<string, string> = labels.byTrack[trackId]?.CATEGORY ?? {};
+    const source: Record<string, string> = Object.keys(scoped).length ? scoped : (labels.global.CATEGORY ?? {});
+    return Object.values(source);
+  };
+  const highlightTones = [
+    { bg: "#eef4fb", border: "#cfe0f5", title: "#002554" },
+    { bg: "#ebf6f2", border: "#c7e6db", title: "#115740" },
+    { bg: "#fdf2e6", border: "#f5dec4", title: "#92400e" },
+  ];
+
   return (
     <div className="space-y-6">
       <BreadcrumbTitle label={competition.name} />
 
-      <section className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
-        <span
+      <section
+        className="relative isolate overflow-hidden rounded-2xl border p-6 shadow-sm md:p-8"
+        style={{ backgroundColor: cardTheme.surface, borderColor: cardTheme.border }}
+      >
+        <Image
+          alt=""
           aria-hidden="true"
-          className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-blue-50 blur-3xl"
+          className="pointer-events-none select-none object-cover object-center"
+          fill
+          priority
+          src={cardTheme.photo}
+          unoptimized
         />
-        <div className="relative">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0" style={{ backgroundImage: cardTheme.overlay }} />
+        <div className="relative z-[1]">
           <BackLink to={firstParam(searchParams?.from)} fallback="/intro" label="返回赛事简介" />
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            <LevelPill className="px-2.5 py-0.5 text-xs font-medium" level={competition.level} />
-            <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
+            <LevelPill className="bg-white/90 px-2.5 py-0.5 text-xs font-semibold ring-1 ring-black/5" level={competition.level} />
+            <span className="rounded-full bg-white/85 px-2.5 py-0.5 font-mono text-xs font-medium text-slate-700 ring-1 ring-black/5">
               {competition.year} 年
             </span>
-            <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${applyState.tone}`}>{applyState.label}</span>
+            <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-black/5 ${applyState.tone}`}>{applyState.label}</span>
           </div>
 
-          <h1 className="t-hero-title mt-3 text-3xl font-semibold leading-tight text-slate-900">{competition.name}</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">{intro.tagline}</p>
+          <h1
+            className="mt-3 font-display text-3xl font-semibold leading-tight"
+            style={{ color: cardTheme.titleInk }}
+          >
+            {competition.name}
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-700">{intro.tagline}</p>
 
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <Button asChild className="group">
@@ -156,7 +190,7 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
               applyOpen ? (
                 <Link
                   href={`/apply?competitionId=${competition.id}`}
-                  className="group inline-flex h-10 items-center justify-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-6 text-sm font-medium text-blue-700 transition duration-[160ms] ease-out hover:bg-blue-100 active:scale-[0.97] motion-reduce:active:scale-100"
+                  className="group inline-flex h-10 items-center justify-center gap-2 rounded-full border border-[#115740]/30 bg-white/90 px-6 text-sm font-medium text-[#115740] transition duration-150 ease-out hover:bg-white active:scale-[0.98]"
                 >
                   我要报名
                   <ButtonArrow />
@@ -165,32 +199,34 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
             ) : null}
             <Link
               href="/my"
-              className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100"
+              className="inline-flex h-10 items-center justify-center rounded-full border border-black/15 bg-white/85 px-5 text-sm font-medium text-slate-700 transition duration-150 ease-out hover:bg-white active:scale-[0.98]"
             >
               我的项目
             </Link>
           </div>
 
-          <dl className="mt-6 grid grid-cols-2 gap-4 border-t border-slate-100 pt-4 text-sm md:grid-cols-4">
+          <dl className="mt-6 grid grid-cols-2 gap-4 border-t border-black/10 pt-4 text-sm md:grid-cols-4">
             <div>
-              <dt className="text-xs text-slate-400">主办方</dt>
-              <dd className="mt-1 text-slate-800">{competition.organizer ?? "未填写"}</dd>
+              <dt className="text-xs text-slate-500">主办方</dt>
+              <dd className="mt-1 font-medium text-slate-900">{competition.organizer ?? "未填写"}</dd>
             </div>
             <div>
-              <dt className="text-xs text-slate-400">赛道数</dt>
-              <dd className="mt-1 text-slate-800">{topTracks.length} 条</dd>
+              <dt className="text-xs text-slate-500">赛道数</dt>
+              <dd className="mt-1 font-mono font-medium text-slate-900 tabular-nums">{topTracks.length} 条</dd>
             </div>
             <div>
-              <dt className="text-xs text-slate-400">赛事等级</dt>
-              <dd className="mt-1 text-slate-800">{competitionLevelLabels[competition.level]}</dd>
+              <dt className="text-xs text-slate-500">赛事等级</dt>
+              <dd className="mt-1 font-medium" style={{ color: cardTheme.titleInk }}>{competitionLevelLabels[competition.level]}</dd>
             </div>
             <div>
-              <dt className="text-xs text-slate-400">材料</dt>
-              <dd className="mt-1 text-slate-800">{competition.attachments.length} 份</dd>
+              <dt className="text-xs text-slate-500">材料</dt>
+              <dd className="mt-1 font-mono font-medium text-slate-900 tabular-nums">{competition.attachments.length} 份</dd>
             </div>
           </dl>
         </div>
       </section>
+
+      <WhuRoofDivider />
 
       {keyDates.length ? (
         <section aria-label="关键时间" className="card overflow-hidden">
@@ -245,36 +281,100 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
       </section>
 
       <section aria-label="赛事看点" className="grid gap-3 md:grid-cols-3">
-        {intro.highlights.map((item) => (
-          <div key={item.title} className="card h-full p-5">
-            <p className="text-sm font-semibold text-slate-900">{item.title}</p>
-            <p className="mt-1.5 text-xs leading-6 text-slate-600">{item.desc}</p>
-          </div>
-        ))}
+        {intro.highlights.map((item, idx) => {
+          const hlTone = highlightTones[idx % highlightTones.length];
+          return (
+            <div
+              key={item.title}
+              className="h-full rounded-xl border p-5"
+              style={{ backgroundColor: hlTone.bg, borderColor: hlTone.border }}
+            >
+              <p className="font-display text-base font-semibold" style={{ color: hlTone.title }}>
+                {item.title}
+              </p>
+              <p className="mt-1.5 text-xs leading-6 text-slate-700">{item.desc}</p>
+            </div>
+          );
+        })}
       </section>
 
       {/* 赛道区块不再套白卡：渐变卡自己就是强调块，再包一层白底会把它压回"内容容器"的层级。
-          这一块现在是页面上唯一带颜色的区域，用来打破全页白卡的平铺。 */}
-      <section aria-label="赛道与组别" className="space-y-3">
+          紧随其后附上「按类型分背景色块与字体颜色区分」的赛道组别一览表。 */}
+      <section aria-label="赛道与组别" className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-base text-slate-900">赛道与组别</h2>
-          <span className="text-xs text-slate-500">共 {topTracks.length} 条赛道</span>
+          <h2 className="font-display text-lg font-semibold text-slate-900">赛道与组别</h2>
+          <span className="font-mono text-xs text-slate-500">共 {topTracks.length} 条赛道</span>
         </div>
-        {/* 三条赛道在双列里会剩一个空格子，视觉上右下角塌掉。够三条时走三列；
-            两条及以下保持双列（单条也走双列，避免一张卡拉满整行显得空）。 */}
         {topTracks.length ? (
-          <div className={`grid gap-4 md:grid-cols-2 ${topTracks.length >= 3 ? "xl:grid-cols-3" : ""}`}>
-            {topTracks.map((track, index) => (
-              <TrackCard
-                detail={trackDetail(track.id)}
-                href={`/competitions/${competition.id}`}
-                index={index}
-                key={track.id}
-                name={track.name}
-                subTracks={childrenOf(track.id).map((child) => child.name)}
-              />
-            ))}
-          </div>
+          <>
+            <div className={`grid gap-4 md:grid-cols-2 ${topTracks.length >= 3 ? "xl:grid-cols-3" : ""}`}>
+              {topTracks.map((track, index) => (
+                <TrackCard
+                  detail={trackDetail(track.id)}
+                  href={`/competitions/${competition.id}`}
+                  index={index}
+                  key={track.id}
+                  name={track.name}
+                  subTracks={childrenOf(track.id).map((child) => child.name)}
+                />
+              ))}
+            </div>
+
+            {/* 按类型分背景色块与字体色彩区分的「赛道与组别对照表」 */}
+            <div className="overflow-hidden rounded-xl border border-[#e5e0d5] bg-white shadow-sm">
+              <div className="border-b border-[#e5e0d5] bg-[#faf8f4] px-5 py-3">
+                <h3 className="text-sm font-semibold text-slate-900">赛道、组别与可选类别对照表</h3>
+                <p className="mt-0.5 text-xs text-slate-500">以颜色块区分不同赛道归属，具体申报条件以当年度正式通知为准。</p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[640px] border-collapse text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-[#e5e0d5] bg-[#f7f5f0] text-xs font-medium text-slate-600">
+                      <th className="w-48 px-4 py-3">赛道类型</th>
+                      <th className="w-56 px-4 py-3">子赛道 / 组别</th>
+                      <th className="px-4 py-3">可选类别与申报方向</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#e5e0d5]">
+                    {topTracks.map((track, index) => {
+                      const t = TRACK_BLOCK_TONES[index % TRACK_BLOCK_TONES.length];
+                      const subs = childrenOf(track.id).map((c) => c.name);
+                      const groups = trackGroupsFor(track.id);
+                      const cats = trackCategoriesFor(track.id);
+                      const groupList = subs.length ? subs : groups;
+                      return (
+                        <tr key={track.id} className="align-top">
+                          <td
+                            className="border-r px-4 py-4 font-display text-sm font-semibold"
+                            style={{ backgroundColor: t.bg, color: t.strong, borderColor: t.border }}
+                          >
+                            {track.name}
+                          </td>
+                          <td
+                            className="border-r px-4 py-4 text-xs font-medium leading-6"
+                            style={{ backgroundColor: t.softBg, color: t.text, borderColor: t.border }}
+                          >
+                            {groupList.length ? (
+                              <ul className="space-y-1">
+                                {groupList.map((g) => (
+                                  <li key={g}>{g}</li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <span className="text-slate-400">以当年度通知为准</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-4 text-xs leading-6 text-slate-700">
+                            {cats.length ? cats.join(" · ") : "按报名表系统字典选择对应类别"}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
         ) : (
           <p className="text-sm text-slate-500">该赛事尚未配置赛道，报名前请先看通知。</p>
         )}

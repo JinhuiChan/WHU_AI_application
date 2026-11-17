@@ -54,44 +54,44 @@ export function ReviewFilters({
       {values.tab ? <input type="hidden" name="tab" value={values.tab} /> : null}
       <label className={fieldClass}>
         <span className="mb-1 block text-xs text-slate-500">赛事</span>
-        <select name="competitionId" defaultValue={values.competitionId} className={`${selectClass} sm:min-w-48`}>
+        <select name="competitionId" defaultValue={values.competitionId} className={`${selectClass} sm:min-w-40`}>
           <option value="">全部赛事</option>
           {options.competitions.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
         </select>
       </label>
       <label className={fieldClass}>
         <span className="mb-1 block text-xs text-slate-500">阶段</span>
-        <select name="stage" defaultValue={values.stage} className={`${selectClass} sm:min-w-28`}>
+        <select name="stage" defaultValue={values.stage} className={`${selectClass} sm:min-w-24`}>
           <option value="">全部阶段</option>
           {stages.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
         </select>
       </label>
       <label className={fieldClass}>
         <span className="mb-1 block text-xs text-slate-500">学院</span>
-        <select name="college" defaultValue={values.college} className={`${selectClass} sm:min-w-40`}>
+        <select name="college" defaultValue={values.college} className={`${selectClass} sm:min-w-32`}>
           <option value="">全部学院</option>
           {options.colleges.map((item) => <option key={item} value={item}>{item}</option>)}
         </select>
       </label>
       <label className={fieldClass}>
         <span className="mb-1 block text-xs text-slate-500">状态</span>
-        <select name="status" defaultValue={values.status} className={`${selectClass} sm:min-w-36`}>
+        <select name="status" defaultValue={values.status} className={`${selectClass} sm:min-w-28`}>
           <option value="">全部状态</option>
           {statuses.map((item) => <option key={item} value={item}>{registrationStatusLabels[item]}</option>)}
         </select>
       </label>
-      <label className={`${fieldClass} sm:min-w-44`}>
+      <label className={fieldClass}>
         <span className="mb-1 block text-xs text-slate-500">赛道</span>
-        <select name="trackId" defaultValue={values.trackId} className={`${selectClass} sm:max-w-64`}>
+        <select name="trackId" defaultValue={values.trackId} className={`${selectClass} sm:max-w-44`}>
           <option value="">全部赛道</option>
           {options.tracks.map((item) => (
             <option key={item.id} value={item.id}>{item.name}（{competitionNames.get(item.competitionId) ?? "未知赛事"}）</option>
           ))}
         </select>
       </label>
-      <label className="min-w-0 basis-full text-sm text-slate-500 sm:min-w-56 sm:flex-1 sm:basis-auto">
+      <label className="min-w-0 basis-full text-sm text-slate-500 sm:min-w-44 sm:flex-1 sm:basis-auto">
         <span className="mb-1 block text-xs text-slate-500">关键词</span>
-        <input name="q" type="search" defaultValue={values.q} placeholder="项目、赛事、学院、负责人或成员" className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-blue-600" />
+        <input name="q" type="search" defaultValue={values.q} placeholder="项目、赛事、学院、负责人" className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-blue-600" />
       </label>
       <label className="min-w-0 text-sm text-slate-600">
         <span className="mb-1 block text-xs text-slate-500">每页条数</span>
