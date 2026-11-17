@@ -48,7 +48,7 @@ export function UserMenu({ user }: { user: AuthUser }) {
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
-        className="h-9 gap-2 border-slate-200/90 bg-white/90 px-2.5 shadow-none hover:border-slate-300 hover:bg-slate-50" >
+        className="h-9 gap-2 border-[#d2dfd8] bg-white/85 px-2.5 shadow-none hover:border-[#b6cbc0] hover:bg-white" >
         <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-50 text-blue-600">
           <UserRound size={15} aria-hidden="true" />
         </span>

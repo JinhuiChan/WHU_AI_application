@@ -19,8 +19,9 @@ const config: Config = {
         whu: {
           blue: "#002554",
           green: "#115740",
-          stone: "#f4f7f5",
-          hairline: "#dde5e0",
+          crimson: "#8a2c36",
+          stone: "#edf4ef",
+          hairline: "#d5e2db",
         },
         background: "var(--background)",
         foreground: "var(--foreground)",
@@ -71,7 +72,7 @@ const config: Config = {
       // #8b96a8 对白 3.02:1、对卡内浅块 #f8fafc 2.92:1，取两者折中的观察值。
       borderColor: {
         slate: {
-          300: "#8b96a8",
+          300: "#93a49b",
         },
       },
       borderRadius: {

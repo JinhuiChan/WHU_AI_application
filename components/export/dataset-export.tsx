@@ -45,14 +45,14 @@ export function DatasetExport({
 
   const inner = (
     <details>
-      <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-3 text-xs font-medium text-[#002554] transition hover:bg-[#f4f7f5]">
+      <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-2.5 text-xs font-medium text-[#0d3b2e] transition hover:bg-[#f5faf7]">
         <span>
           {buttonLabel}
-          <span className="ml-2 font-normal text-slate-400">按当前筛选导出 Excel · 字段勾选与调序</span>
+          <span className="ml-2 font-normal text-slate-500">按当前筛选导出 Excel · 字段勾选与调序</span>
         </span>
-        <span className="font-mono text-[11px] text-slate-400">EXPAND ▾</span>
+        <span className="text-xs font-normal text-slate-500">展开字段 ▾</span>
       </summary>
-      <div className="grid gap-5 border-t border-[#dde5e0] bg-white p-5 lg:grid-cols-2">
+      <div className="grid gap-5 border-t border-[#e3ede8] bg-white p-5 lg:grid-cols-2">
           <div>
             <div className="flex items-center justify-between gap-3">
               <h3 className="text-sm font-medium text-slate-800">可选字段</h3>
@@ -135,7 +135,7 @@ export function DatasetExport({
   );
 
   if (embedded) {
-    return <div className="border-t border-[#dde5e0] bg-white">{inner}</div>;
+    return <div className="border-t border-[#e3ede8] bg-white">{inner}</div>;
   }
   return <section className="card">{inner}</section>;
 }

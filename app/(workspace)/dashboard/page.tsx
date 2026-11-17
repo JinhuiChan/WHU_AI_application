@@ -89,7 +89,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     teal: "bg-teal-50 text-teal-700",
     emerald: "bg-emerald-50 text-emerald-700",
     amber: "bg-amber-50 text-amber-700",
-    violet: "bg-violet-50 text-violet-700",
+    rose: "bg-[#f8e7e9] text-[#8a2c36]",
   } as const;
 
   type IconTone = keyof typeof ICON_TONE;
@@ -98,7 +98,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   const quickLinks: QuickLink[] = isAdmin ? [
     { href: "/projects", label: "项目台账", note: "查看与检索全部参赛项目", icon: FolderKanban, tone: "blue" },
     { href: "/review", label: "报名审核", note: "处理待学院与校级审核项目", icon: ClipboardCheck, tone: "amber" },
-    { href: "/import", label: "数据导入", note: "导入外部平台导出的数据", icon: Upload, tone: "violet" },
+    { href: "/import", label: "数据导入", note: "导入外部平台导出的数据", icon: Upload, tone: "rose" },
     { href: "/intro", label: "赛事简介", note: "学生看到的赛事介绍与视频位", icon: BookOpen, tone: "teal" },
   ] : [
     { href: "/competitions", label: "赛事与报名", note: "查看已发布赛事与报名入口", icon: Trophy, tone: "blue" },
@@ -109,8 +109,8 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="t-page-title text-xl font-semibold text-slate-900">{scoped ? "我的统计" : "统计看板"}</h1>
-        <p className="mt-1 text-sm text-slate-500">{scoped ? "仅统计本人参与的项目与状态，不展示全校数据。" : "所有数字按当前筛选条件实时聚合。"}</p>
+        <h1 className="t-page-title font-display text-[26px] font-bold tracking-tight text-[#0e1d17] sm:text-[28px]">{scoped ? "我的统计" : "统计看板"}</h1>
+        <p className="mt-1.5 text-sm text-[#54635d]">{scoped ? "仅统计本人参与的项目与状态，不展示全校数据。" : "所有数字按当前筛选条件实时聚合。"}</p>
       </div>
 
       <section className={`grid gap-3 sm:grid-cols-2 ${isAdmin ? "lg:grid-cols-4" : "lg:grid-cols-3"}`} aria-label="快捷入口">

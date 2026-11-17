@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { WhuRoofDivider } from "@/components/brand/whu-motifs";
 import { listHref } from "@/components/data/list-link";
 import { Pagination } from "@/components/data/pagination";
 import { DatasetExport } from "@/components/export/dataset-export";
@@ -79,27 +78,23 @@ export default async function ReviewPage({ searchParams }: PageProps) {
   const exportFilters = { ...values, tab: "" };
 
   return (
-    <div className="space-y-5">
-      {/* 修复页头左右错位：左标题区 + 右动作区紧凑对齐 */}
+    <div className="space-y-4">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-[#115740]">
-            LUOJIA AUDIT WORKBENCH
-          </p>
-          <h1 className="t-page-title mt-1 text-xl font-semibold text-slate-900">报名审核</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            学院审核通过后进入校级终审；左侧红线标示存在未确认指导关系。
+          <h1 className="t-page-title font-display text-[26px] font-bold tracking-tight text-[#0e1d17] sm:text-[28px]">报名审核</h1>
+          <p className="mt-1.5 text-sm text-[#54635d]">
+            学院初审通过后进入校级终审；存在未确认指导关系的项目以左侧红线标示。
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2.5">
           <Link
             href="/review/changes"
-            className="inline-flex h-10 items-center justify-center rounded-full border border-[#c4d1ca] bg-white px-5 text-sm font-medium text-slate-700 transition duration-150 ease-out hover:border-[#002554]/40 hover:bg-[#f8faf9] active:scale-[0.98]"
+            className="inline-flex h-9 items-center justify-center rounded-full border border-[#cbd8d1] bg-white px-4 text-sm font-medium text-slate-700 transition duration-150 ease-out hover:border-[#002554]/40 hover:bg-[#f7faf8] active:scale-[0.98]"
           >
             变更申请
             {pendingChanges > 0 ? (
               <span
-                className="ml-2 rounded-full bg-red-50 px-2 py-0.5 font-mono text-xs font-medium text-red-700 ring-1 ring-red-200"
+                className="ml-2 rounded-full bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700 tabular-nums"
                 title={`待审批变更申请 ${pendingChanges} 条`}
               >
                 {pendingChanges}
@@ -110,38 +105,39 @@ export default async function ReviewPage({ searchParams }: PageProps) {
         </div>
       </div>
 
-      {/* 一体化工作台控制面板：分段 Tab + 浅青灰筛选区 + 内嵌导出栏 */}
-      <section className="overflow-hidden rounded-xl border border-[#dde5e0] bg-white shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#dde5e0] px-5 py-3">
-          <nav aria-label="审核状态分栏" className="inline-flex rounded-lg border border-[#dde5e0] bg-[#f4f7f5] p-1">
-            {tabs.map((item) => {
-              const active = tab === item.key;
-              return (
-                <Link
-                  key={item.key}
-                  href={tabHref(item.key)}
-                  aria-current={active ? "page" : undefined}
-                  className={`inline-flex items-center gap-1.5 rounded-md px-3.5 py-1.5 text-sm transition duration-150 ${
-                    active
-                      ? "bg-[#002554] font-medium text-white shadow-sm"
-                      : "text-slate-600 hover:bg-white/70 hover:text-slate-900"
+      {/* 无框下划线分段 Tab：解除双层套盒 */}
+      <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[#cedcd4]">
+        <nav aria-label="审核状态分栏" className="flex items-center gap-6">
+          {tabs.map((item) => {
+            const active = tab === item.key;
+            return (
+              <Link
+                key={item.key}
+                href={tabHref(item.key)}
+                aria-current={active ? "page" : undefined}
+                className={`-mb-px inline-flex items-center gap-2 border-b-[2.5px] pb-2.5 pt-1 text-sm transition duration-150 ${
+                  active
+                    ? "border-[#0d3b2e] font-semibold text-[#0d3b2e]"
+                    : "border-transparent font-medium text-[#5d6c65] hover:text-[#0e1d17]"
+                }`}
+              >
+                <span>{item.label}</span>
+                <span
+                  className={`rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums ${
+                    active ? "bg-[#d6e8de] text-[#0d3b2e]" : "bg-[#e1ebe5] text-[#5d6c65]"
                   }`}
                 >
-                  <span>{item.label}</span>
-                  <span
-                    className={`font-mono text-xs tabular-nums ${
-                      active ? "text-white/80" : "text-slate-400"
-                    }`}
-                  >
-                    {item.count}
-                  </span>
-                </Link>
-              );
-            })}
-          </nav>
-          <span className="text-xs text-slate-500">默认仅看待审核；下方状态下拉可精确筛选</span>
-        </div>
+                  {item.count}
+                </span>
+              </Link>
+            );
+          })}
+        </nav>
+        <span className="pb-2.5 text-xs text-[#64756d]">默认仅看待审核，可随时切换全部状态</span>
+      </div>
 
+      {/* 轻薄筛选卡 + 底部内嵌导出开关 */}
+      <section className="overflow-hidden rounded-xl border border-[#d5e2db] bg-white">
         <ReviewFilters embedded options={options} values={values} />
         <DatasetExport embedded scope="all" filters={exportFilters} buttonLabel="导出数据表" />
       </section>
@@ -153,8 +149,6 @@ export default async function ReviewPage({ searchParams }: PageProps) {
           <Link href={tabHref("all")} className="mx-1 underline">全部</Link>查看。
         </p>
       ) : null}
-
-      <WhuRoofDivider />
 
       <ReviewWorkbench data={data} from={listHref("/review", { ...values } as Record<string, string>)} />
       <div className="card">

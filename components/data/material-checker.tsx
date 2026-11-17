@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { FileDropZone } from "@/components/ui/file-drop-zone";
 import { FormEvent, useState } from "react";
-import { FileCheck, ShieldAlert, Upload } from "lucide-react";
+import { Check, FileCheck, ShieldAlert, Upload, X } from "lucide-react";
 import type { ApiResponse } from "@/types/api";
 import type { MaterialCheckResult } from "@/types/material";
 
@@ -128,9 +128,9 @@ export function MaterialChecker() {
                 <div className="flex items-start gap-3">
                   <span
                     aria-hidden="true"
-                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-sm font-bold ${check.pass ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}
+                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${check.pass ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}
                   >
-                    {check.pass ? "✓" : "✗"}
+                    {check.pass ? <Check size={14} /> : <X size={14} />}
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center justify-between gap-2">

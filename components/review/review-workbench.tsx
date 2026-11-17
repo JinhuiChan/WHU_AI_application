@@ -222,8 +222,8 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
       ) : null}
 
       <section className="space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#dde5e0] bg-[#f8faf9] px-4 py-2.5">
-          <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-1 pt-0.5 text-xs text-[#54635d]">
+          <label className="flex items-center gap-2 text-sm font-medium text-[#1b2b25]">
             <input
               type="checkbox"
               aria-label="全选当前页"
@@ -235,14 +235,14 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
                   ? [...new Set([...current, ...visibleIds])]
                   : current.filter((id) => !visibleIds.includes(id)));
               }}
-              className="h-4 w-4 rounded border-slate-300 text-blue-600"
+              className="h-4 w-4 rounded border-[#93a49b] text-[#002554]"
             />
             全选当前页
           </label>
-          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+          <div className="flex flex-wrap items-center gap-3">
             <span>
-              本页共 <span className="font-mono font-semibold text-slate-800 tabular-nums">{data.total}</span> 项
-              <span className="mx-1.5 text-slate-300">·</span>
+              本页共 <span className="font-semibold text-[#0e1d17] tabular-nums">{data.total}</span> 项
+              <span className="mx-1.5 text-[#9fb0a7]">·</span>
               <span className="inline-flex items-center gap-1.5">
                 <span aria-hidden="true" className="inline-block h-2.5 w-[3px] rounded-full bg-red-600" />
                 红色竖线标示指导关系未确认
@@ -265,77 +265,87 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
               key={item.id}
               className={`rounded-xl border transition duration-150 ${reviewCardClasses(item.status, item.hasUnconfirmedTeachers)}`}
             >
-              <div className="flex flex-wrap items-start gap-3.5 px-5 py-4">
-                <input
-                  type="checkbox"
-                  aria-label={`选择项目：${item.projectName}`}
-                  checked={selectedIds.includes(item.id)}
-                  disabled={pending}
-                  onChange={(event) => setSelectedIds((current) => event.target.checked
-                    ? [...current, item.id]
-                    : current.filter((id) => id !== item.id))}
-                  className="mt-1.5 h-4 w-4 rounded border-slate-300 text-blue-600"
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Link
-                      href={detailHref("/review", item.id, from)}
-                      className="font-display text-base font-semibold text-slate-900 hover:text-[#002554]"
-                    >
-                      {item.projectName}
-                    </Link>
-                    <StatusBadge status={item.status}>{registrationStatusLabels[item.status]}</StatusBadge>
-                    {item.hasUnconfirmedTeachers ? (
-                      <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700 ring-1 ring-red-200">指导关系未确认</span>
-                    ) : null}
+              <div className="px-5 pb-3 pt-4">
+                <div className="flex flex-wrap items-start gap-3.5">
+                  <input
+                    type="checkbox"
+                    aria-label={`选择项目：${item.projectName}`}
+                    checked={selectedIds.includes(item.id)}
+                    disabled={pending}
+                    onChange={(event) => setSelectedIds((current) => event.target.checked
+                      ? [...current, item.id]
+                      : current.filter((id) => id !== item.id))}
+                    className="mt-1.5 h-4 w-4 rounded border-[#93a49b] text-[#002554]"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Link
+                        href={detailHref("/review", item.id, from)}
+                        className="font-display text-[17px] font-bold tracking-tight text-[#0e1d17] hover:text-[#002554]"
+                      >
+                        {item.projectName}
+                      </Link>
+                      <StatusBadge status={item.status}>{registrationStatusLabels[item.status]}</StatusBadge>
+                      {item.hasUnconfirmedTeachers ? (
+                        <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700 ring-1 ring-red-200">指导关系未确认</span>
+                      ) : null}
+                    </div>
+                    <p className="mt-1 text-xs text-[#54635d]">{item.competitionName} · {item.trackDisplay}</p>
+                    <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-xs md:grid-cols-4">
+                      <div>
+                        <dt className="t-label text-xs text-[#64746e]">负责人</dt>
+                        <dd className="mt-0.5 font-medium text-[#162620]">{show(item.leaderName)} <span className="font-normal text-[#5b6a64] tabular-nums">({show(item.leaderStudentNo)})</span></dd>
+                      </div>
+                      <div>
+                        <dt className="t-label text-xs text-[#64746e]">申报单位</dt>
+                        <dd className="mt-0.5 font-medium text-[#162620]">{show(item.applicationUnit)}</dd>
+                      </div>
+                      <div>
+                        <dt className="t-label text-xs text-[#64746e]">提交时间</dt>
+                        <dd className="mt-0.5 text-[#162620] tabular-nums">{item.submittedAt ? formatDateTime(item.submittedAt) : "—"}</dd>
+                      </div>
+                      <div>
+                        <dt className="t-label text-xs text-[#64746e]">提交次数 / 批次</dt>
+                        <dd className="mt-0.5 text-[#162620] tabular-nums">{item.submissionCount} 次 · {show(item.batchName)}</dd>
+                      </div>
+                    </dl>
                   </div>
-                  <p className="mt-1 text-xs text-slate-500">{item.competitionName} · {item.trackDisplay}</p>
-                  <dl className="mt-3.5 grid grid-cols-2 gap-x-6 gap-y-2 text-xs md:grid-cols-4">
-                    <div>
-                      <dt className="t-label text-xs text-slate-500">负责人</dt>
-                      <dd className="mt-0.5 text-slate-800">{show(item.leaderName)} <span className="font-mono text-slate-500">({show(item.leaderStudentNo)})</span></dd>
-                    </div>
-                    <div>
-                      <dt className="t-label text-xs text-slate-500">申报单位</dt>
-                      <dd className="mt-0.5 text-slate-800">{show(item.applicationUnit)}</dd>
-                    </div>
-                    <div>
-                      <dt className="t-label text-xs text-slate-500">提交时间</dt>
-                      <dd className="mt-0.5 font-mono text-slate-700 tabular-nums">{item.submittedAt ? formatDateTime(item.submittedAt) : "—"}</dd>
-                    </div>
-                    <div>
-                      <dt className="t-label text-xs text-slate-500">提交次数 / 批次</dt>
-                      <dd className="mt-0.5 text-slate-700"><span className="font-mono tabular-nums">{item.submissionCount}</span> 次 · {show(item.batchName)}</dd>
-                    </div>
-                  </dl>
-                </div>
-                <div className="flex shrink-0 flex-col items-stretch gap-2 sm:w-44">
-                  <div className="grid grid-cols-2 gap-1.5">
-                    <Button variant="outline" size="sm" type="button" className="h-8 px-2.5 text-xs" disabled={preflight?.loading} onClick={() => void runPreflight(item.id)}>
-                      {preflight?.loading ? "预检中…" : "重新预检"}
-                    </Button>
-                    <Button variant="outline" size="sm" className="h-8 px-2.5 text-xs"
-                      type="button"
-                      onClick={() => setExpanded((current) => open ? current.filter((id) => id !== item.id) : [...current, item.id])} >
-                      {open ? "收起信息" : "展开信息"}
-                    </Button>
-                  </div>
-                  <Button asChild variant="outline" size="sm" className="group h-8 text-xs">
-                    <Link href={detailHref("/review", item.id, from)}>
-                      查看详情
-                      <ButtonArrow />
-                    </Link>
-                  </Button>
                   {level ? (
-                    <div className="grid grid-cols-2 gap-1.5">
-                      <Button variant="default" size="sm" type="button" className="h-8 px-2.5 text-xs" disabled={pending} onClick={() => void approve(item)} >
+                    <div className="flex shrink-0 items-center gap-2 pt-0.5">
+                      <Button variant="default" size="sm" type="button" className="h-8 px-4 text-xs" disabled={pending} onClick={() => void approve(item)} >
                         {level === "COLLEGE" ? "学院通过" : "校级通过"}
                       </Button>
-                      <Button variant="destructive" size="sm" type="button" className="h-8 px-2.5 text-xs" disabled={pending} onClick={() => setRejectTarget({ kind: "single", projectId: item.id, projectName: item.projectName, level })} >
+                      <Button variant="destructive" size="sm" type="button" className="h-8 border-red-200/90 bg-white/80 px-3.5 text-xs" disabled={pending} onClick={() => setRejectTarget({ kind: "single", projectId: item.id, projectName: item.projectName, level })} >
                         驳回
                       </Button>
                     </div>
                   ) : null}
+                </div>
+
+                {/* 次级工具动作收拢到底部轻文字链，不再在右侧堆叠白框胶囊 */}
+                <div className="ml-7 mt-3 flex flex-wrap items-center gap-5 border-t border-black/[0.06] pt-2.5 text-xs font-medium text-[#465768]">
+                  <button
+                    type="button"
+                    disabled={preflight?.loading}
+                    onClick={() => void runPreflight(item.id)}
+                    className="transition-colors hover:text-[#002554] disabled:opacity-50"
+                  >
+                    {preflight?.loading ? "预检中…" : "重新预检"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setExpanded((current) => open ? current.filter((id) => id !== item.id) : [...current, item.id])}
+                    className="transition-colors hover:text-[#002554]"
+                  >
+                    {open ? "收起信息 ▴" : "展开信息 ▾"}
+                  </button>
+                  <Link
+                    href={detailHref("/review", item.id, from)}
+                    className="group ml-auto inline-flex items-center gap-1 font-semibold text-[#002554] hover:underline"
+                  >
+                    查看详情
+                    <ButtonArrow />
+                  </Link>
                 </div>
               </div>
 

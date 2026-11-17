@@ -105,7 +105,7 @@ export function AnomalyManagement({ initialData, isAdmin }: { initialData: Anoma
           </div>
         </div>
         <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100" role="progressbar" aria-label="异常处置率" aria-valuenow={data.summary.resolutionRate} aria-valuemin={0} aria-valuemax={100}>
-          <div className="h-full rounded-full bg-blue-600 transition-all" style={{ width: `${data.summary.resolutionRate}%` }} />
+          <div className="h-full rounded-full bg-blue-600 transition-[width] duration-200" style={{ width: `${data.summary.resolutionRate}%` }} />
         </div>
         <div className="mt-2 text-xs text-slate-500">已处置 {data.summary.resolved} / 总数 {data.summary.total}</div>
       </section>

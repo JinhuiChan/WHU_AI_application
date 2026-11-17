@@ -38,81 +38,87 @@ export type CardThemeSpec = {
   border: string;
   /** 悬停边框色 */
   hoverBorder: string;
-  /** 主标题颜色（高明度宝石色系，一眼拉开类型差异，不接近纯黑） */
+  /** 主标题颜色（源自武大校园建筑三正色：珞珈蓝 / 孔雀绿 / 斋舍绛朱） */
   titleInk: string;
-  /** 匹配赛事性格的展示字体类名（宋体 / 粗黑体 / 华文楷体） */
+  /** 统一采用稳重展示宋体，通过颜色区分层级 */
   titleFontClass: string;
-  /** 眉题/次级强调字颜色 */
+  /** 次级强调字颜色 */
   accentInk: string;
   /** 实景建筑背景图 */
   photo: StaticImageData;
-  /** 遮罩渐变（从左实色底平滑淡出，让右侧隐约露出校园建筑轮廓） */
+  /** 图片alt与署名角注 */
+  photoCaption: string;
+  /** 详情页横幅遮罩渐变 */
   overlay: string;
 };
 
 /**
- * 按赛事等级区分的「背景色块 + 字体气质与色彩 + 武大建筑底图」完整视觉方案：
- * - 国赛：清透浅蓝块 + 皇家钴蓝粗思源宋体 + 老图书馆全景
- * - 省赛：清透翡翠浅绿 + 翡翠琉璃绿特粗思源黑体 + 国立武汉大学牌坊
- * - 校赛：清透丁香浅紫 + 华贵绛紫华文楷体 + 樱顶与樱花大道
+ * 按赛事等级区分的「武大建筑实景 + 校园正色」视觉方案：
+ * - 国赛：清透蓝底 + 珞珈蓝 #002554 + 老图书馆全景
+ * - 省赛：清透青绿 + 孔雀绿 #115740 + 国立武汉大学牌坊
+ * - 校赛：清透茜粉 + 老斋舍绛朱 #8a2c36 + 樱顶与樱花大道
  */
 export function levelCardTheme(level?: string | null): CardThemeSpec {
   switch (level) {
     case "NATIONAL":
       return {
         surface: "#edf4fc",
-        border: "#c7dcf5",
-        hoverBorder: "#5c92db",
-        titleInk: "#134eb8",
-        titleFontClass: "font-display font-bold tracking-tight text-[22px]",
-        accentInk: "#1d5fd1",
+        border: "#c5daf4",
+        hoverBorder: "#7aa6df",
+        titleInk: "#002554",
+        titleFontClass: "font-display font-bold tracking-tight text-[21px]",
+        accentInk: "#002554",
         photo: WHU_PHOTOS.oldLibrary.src,
+        photoCaption: WHU_PHOTOS.oldLibrary.caption,
         overlay:
           "linear-gradient(104deg, rgba(237,244,252,0.97) 0%, rgba(237,244,252,0.93) 48%, rgba(237,244,252,0.72) 78%, rgba(237,244,252,0.56) 100%)",
       };
     case "PROVINCE":
       return {
-        surface: "#e9f6f1",
-        border: "#bfe3d6",
-        hoverBorder: "#44a083",
-        titleInk: "#0a7456",
-        titleFontClass: "font-editorial font-bold tracking-tight text-[22px]",
-        accentInk: "#0e8563",
+        surface: "#eaf5ef",
+        border: "#bfe0cd",
+        hoverBorder: "#6db38f",
+        titleInk: "#115740",
+        titleFontClass: "font-display font-bold tracking-tight text-[21px]",
+        accentInk: "#115740",
         photo: WHU_PHOTOS.gate.src,
+        photoCaption: WHU_PHOTOS.gate.caption,
         overlay:
-          "linear-gradient(104deg, rgba(233,246,241,0.97) 0%, rgba(233,246,241,0.93) 48%, rgba(233,246,241,0.72) 78%, rgba(233,246,241,0.58) 100%)",
+          "linear-gradient(104deg, rgba(234,245,239,0.97) 0%, rgba(234,245,239,0.93) 48%, rgba(234,245,239,0.72) 78%, rgba(234,245,239,0.58) 100%)",
       };
     case "SCHOOL":
       return {
-        surface: "#f4edfc",
-        border: "#d9c6f5",
-        hoverBorder: "#9670df",
-        titleInk: "#6d28d9",
-        titleFontClass: "font-kaiti font-semibold tracking-wide text-[25px]",
-        accentInk: "#7c3aed",
+        surface: "#fcf1f2",
+        border: "#ecc9cd",
+        hoverBorder: "#cf8e96",
+        titleInk: "#8a2c36",
+        titleFontClass: "font-display font-bold tracking-tight text-[21px]",
+        accentInk: "#8a2c36",
         photo: WHU_PHOTOS.cherryCampus.src,
+        photoCaption: WHU_PHOTOS.cherryCampus.caption,
         overlay:
-          "linear-gradient(104deg, rgba(244,237,252,0.97) 0%, rgba(244,237,252,0.93) 48%, rgba(244,237,252,0.74) 78%, rgba(244,237,252,0.58) 100%)",
+          "linear-gradient(104deg, rgba(252,241,242,0.97) 0%, rgba(252,241,242,0.93) 48%, rgba(252,241,242,0.74) 78%, rgba(252,241,242,0.58) 100%)",
       };
     default:
       return {
         surface: "#f4f7f5",
-        border: "#dde5e0",
+        border: "#d5e2db",
         hoverBorder: "#96aea2",
         titleInk: "#115740",
-        titleFontClass: "font-display font-bold tracking-tight text-[22px]",
+        titleFontClass: "font-display font-bold tracking-tight text-[21px]",
         accentInk: "#115740",
         photo: WHU_PHOTOS.arch.src,
+        photoCaption: WHU_PHOTOS.arch.caption,
         overlay:
           "linear-gradient(104deg, rgba(244,247,245,0.97) 0%, rgba(244,247,245,0.93) 48%, rgba(244,247,245,0.74) 78%, rgba(244,247,245,0.6) 100%)",
       };
   }
 }
 
-/** 分组表格/赛道区块用的多色块柔和配色（参考分类色块表：蓝/暖橘/青绿/雅紫） */
+/** 分组表格/赛道区块用的多色块柔和配色（参考分类色块表：珞珈蓝/暖金/孔雀绿/绛朱） */
 export const TRACK_BLOCK_TONES = [
-  { bg: "#eef4fc", softBg: "#f6f9fe", text: "#1d4ed8", strong: "#002554", border: "#d6e4f7" },
-  { bg: "#fdf2e6", softBg: "#fef8f1", text: "#b45309", strong: "#92400e", border: "#f5dec4" },
-  { bg: "#ebf6f2", softBg: "#f4fbf8", text: "#0f766e", strong: "#115740", border: "#cbe8dd" },
-  { bg: "#f4effa", softBg: "#faf7fd", text: "#6d28d9", strong: "#4c3575", border: "#dfd2f2" },
+  { bg: "#eef4fc", softBg: "#f6f9fe", text: "#002554", strong: "#002554", border: "#c5daf4" },
+  { bg: "#fdf2e6", softBg: "#fef8f1", text: "#b45309", strong: "#92400e", border: "#f0d9b8" },
+  { bg: "#ebf6f2", softBg: "#f4fbf8", text: "#115740", strong: "#115740", border: "#bfe0cd" },
+  { bg: "#fcf1f2", softBg: "#fef7f8", text: "#8a2c36", strong: "#8a2c36", border: "#ecc9cd" },
 ] as const;

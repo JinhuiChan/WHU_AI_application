@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Lock } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "无权限访问",
@@ -11,10 +12,10 @@ export default function ForbiddenPage({ searchParams }: { searchParams?: { reaso
   const value = searchParams?.reason?.trim();
   const reason = value ? labels[value] || value : undefined;
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+    <main className="flex min-h-screen items-center justify-center bg-[#edf4ef] px-4">
       <section className="w-full max-w-md rounded-xl border border-amber-200 bg-white p-8 text-center shadow-sm">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-50 text-2xl" aria-hidden="true">
-          🔒
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-50 text-amber-700" aria-hidden="true">
+          <Lock size={22} />
         </div>
         <h1 className="mt-4 text-xl font-semibold text-slate-900">无权限访问</h1>
         <p className="mt-2 text-sm leading-6 text-slate-600">

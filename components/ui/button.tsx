@@ -24,9 +24,9 @@ const buttonVariants = cva(
         default:
           "bg-blue-600 text-white shadow-sm hover:bg-blue-700 active:bg-blue-800",
         outline:
-          "border border-slate-300 bg-white text-slate-700 shadow-sm hover:border-slate-400 hover:bg-slate-50 active:bg-slate-100",
+          "border border-[#c6d6cd] bg-white text-slate-700 hover:border-[#9eb4a8] hover:bg-[#f7faf8] active:bg-[#eef4f0]",
         destructive:
-          "border border-red-300 bg-white text-red-700 shadow-sm hover:bg-red-50 active:bg-red-100",
+          "border border-red-200 bg-white text-red-700 hover:border-red-300 hover:bg-red-50 active:bg-red-100",
         ghost:
           "bg-transparent text-blue-700 hover:bg-blue-50 active:bg-blue-100",
       },
@@ -74,7 +74,7 @@ export function ButtonArrow() {
   return (
     <span
       aria-hidden="true"
-      className="-ml-2 grid w-0 -translate-x-1 place-items-center overflow-hidden opacity-0 transition-all duration-150 ease-out group-hover:ml-0 group-hover:w-3.5 group-hover:translate-x-0 group-hover:opacity-100 motion-reduce:transition-none"
+      className="-ml-2 grid w-0 -translate-x-1 place-items-center overflow-hidden opacity-0 transition-[width,margin,opacity,transform] duration-150 ease-out group-hover:ml-0 group-hover:w-3.5 group-hover:translate-x-0 group-hover:opacity-100 motion-reduce:transition-none"
     >
       <ArrowRight size={14} className="shrink-0" />
     </span>

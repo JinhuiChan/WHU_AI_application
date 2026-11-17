@@ -131,17 +131,17 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
 
   return (
     <>
-      <aside className="app-shell-aside fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-[#dde5e0] md:flex">
-        <Link href="/dashboard" className="flex h-16 items-center gap-3 border-b border-[#dde5e0] px-5">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#002554] text-white shadow-sm ring-1 ring-inset ring-white/10">
+      <aside className="app-shell-aside fixed inset-y-0 left-0 z-40 hidden w-60 flex-col bg-[#0d3b2e] text-[#cde2d8] md:flex">
+        <Link href="/dashboard" className="flex items-center gap-3 px-5 pb-4 pt-6">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/[0.13] text-white">
             <BrandMark className="h-5 w-5" />
           </span>
           <span className="min-w-0">
-            <span className="block truncate font-display text-[15px] font-semibold tracking-tight text-slate-900">珞珈科创</span>
-            <span className="block truncate font-mono text-[10px] tracking-[0.14em] text-[#115740]/80">WHU INNOVATION</span>
+            <span className="block truncate font-display text-[16px] font-bold tracking-tight text-white">珞珈科创</span>
+            <span className="mt-0.5 block truncate text-[11px] text-[#9ec2b3]">武汉大学竞赛平台</span>
           </span>
         </Link>
-        <nav aria-label="主导航" className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
+        <nav aria-label="主导航" className="flex-1 space-y-0.5 overflow-y-auto px-3 py-2">
           {navigation.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
@@ -150,18 +150,18 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
                 key={item.href}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={`flex h-9 items-center gap-2.5 rounded-lg px-3 text-sm transition duration-150 ${
+                className={`flex h-9 items-center gap-2.5 rounded-lg px-3 text-[13.5px] transition duration-150 ${
                   active
-                    ? "bg-blue-50/90 font-medium text-blue-700 ring-1 ring-inset ring-blue-200/70"
-                    : "text-slate-600 hover:bg-slate-100/70 hover:text-slate-900"
+                    ? "bg-[#edf4ef] font-semibold text-[#0d3b2e]"
+                    : "text-[#cde2d8] hover:bg-white/[0.08] hover:text-white"
                 }`}
               >
-                <Icon size={17} aria-hidden="true" className={active ? "text-blue-600" : "text-slate-400"} />
+                <Icon size={16} aria-hidden="true" className={active ? "text-[#0d3b2e]" : "text-[#8fb8a7]"} />
                 <span className="truncate">{item.label}</span>
                 {item.href === "/my/teams" && teamRequests > 0 ? (
                   <span
                     title={`待处理入队申请 ${teamRequests} 条`}
-                    className="ml-auto rounded-full bg-red-50 px-1.5 py-0.5 text-xs font-medium leading-none text-red-700 ring-1 ring-red-200"
+                    className="ml-auto rounded-full bg-[#fde8e9] px-1.5 py-0.5 text-[11px] font-semibold leading-none text-[#8b1e28] tabular-nums"
                   >
                     {teamRequests}
                   </span>
@@ -171,7 +171,7 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
           })}
           {roles.includes("ADMIN") ? (
             <div className="pt-5">
-              <p className="mb-1.5 px-3 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-slate-400">Admin</p>
+              <p className="mb-1.5 px-3 text-[11.5px] font-medium text-[#87b09f]">管理工作台</p>
               <div className="space-y-0.5">
               {administration.map((item) => {
                 const Icon = item.icon;
@@ -181,18 +181,18 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
                     key={item.href}
                     href={item.href}
                     aria-current={active ? "page" : undefined}
-                    className={`flex h-9 items-center gap-2.5 rounded-lg px-3 text-sm transition duration-150 ${
+                    className={`flex h-9 items-center gap-2.5 rounded-lg px-3 text-[13.5px] transition duration-150 ${
                       active
-                        ? "bg-blue-50/90 font-medium text-blue-700 ring-1 ring-inset ring-blue-200/70"
-                        : "text-slate-600 hover:bg-slate-100/70 hover:text-slate-900"
+                        ? "bg-[#edf4ef] font-semibold text-[#0d3b2e]"
+                        : "text-[#cde2d8] hover:bg-white/[0.08] hover:text-white"
                     }`}
                   >
-                    <Icon size={17} aria-hidden="true" className={active ? "text-blue-600" : "text-slate-400"} />
+                    <Icon size={16} aria-hidden="true" className={active ? "text-[#0d3b2e]" : "text-[#8fb8a7]"} />
                     <span className="truncate">{item.label}</span>
                     {item.href === "/review" && pendingTodo > 0 ? (
                       <span
                         title={pendingTitle}
-                        className="ml-auto rounded-full bg-red-50 px-1.5 py-0.5 text-xs font-medium leading-none text-red-700 ring-1 ring-red-200"
+                        className="ml-auto rounded-full bg-[#fde8e9] px-1.5 py-0.5 text-[11px] font-semibold leading-none text-[#8b1e28] tabular-nums"
                       >
                         {pendingTodo}
                       </span>
@@ -200,7 +200,7 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
                     {item.href === "/admin/users" && adminUsers > 0 ? (
                       <span
                         title={`待审核的管理员申请 ${adminUsers} 个`}
-                        className="ml-auto rounded-full bg-red-50 px-1.5 py-0.5 text-xs font-medium leading-none text-red-700 ring-1 ring-red-200"
+                        className="ml-auto rounded-full bg-[#fde8e9] px-1.5 py-0.5 text-[11px] font-semibold leading-none text-[#8b1e28] tabular-nums"
                       >
                         {adminUsers}
                       </span>
@@ -212,12 +212,12 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
             </div>
           ) : null}
         </nav>
-        <div className="pointer-events-none shrink-0 overflow-hidden px-4 pb-3 pt-2">
-          <WhuArchWatermark className="mx-auto w-44 text-[#002554]/[0.07]" />
+        <div className="pointer-events-none shrink-0 overflow-hidden px-4 pb-4 pt-2">
+          <WhuArchWatermark className="mx-auto w-44 text-white/[0.06]" />
         </div>
       </aside>
 
-      <nav aria-label="移动端导航" className="fixed inset-x-0 bottom-0 z-40 flex border-t border-slate-200/90 bg-white/95 backdrop-blur-md pb-safe md:hidden">
+      <nav aria-label="移动端导航" className="fixed inset-x-0 bottom-0 z-40 flex border-t border-[#d5e2db] bg-[#fbfdfc]/95 pb-safe md:hidden">
         {mobileNavigation.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.href);

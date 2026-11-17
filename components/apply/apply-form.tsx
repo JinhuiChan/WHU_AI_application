@@ -361,7 +361,7 @@ export function ApplyForm({ student, options, projectId, initialValue, initialMe
             </span>
             <span className="h-1.5 w-20 shrink-0 overflow-hidden rounded-full bg-slate-100">
               <span
-                className="block h-full rounded-full bg-blue-600 transition-all"
+                className="block h-full rounded-full bg-blue-600 transition-[width] duration-200"
                 style={{ width: `${progressPercent}%` }}
               />
             </span>

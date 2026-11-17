@@ -5,23 +5,23 @@
 /* 设计变量：新增语义 token，不改任何已有 Tailwind 类名的解析结果。
    新代码可直接用 var(--xxx) 或 bg-surface / text-ink / border-line 等语义类。 */
 :root {
-  --background: #f4f7f5;
-  --foreground: #14171c;
+  --background: #edf4ef;
+  --foreground: #0f1d18;
 
   --surface: #ffffff;
-  --surface-subtle: #f8faf9;
-  --surface-muted: #eef3f0;
-  --border: #dde5e0;
-  --border-strong: #c4d1ca;
+  --surface-subtle: #f7faf8;
+  --surface-muted: #e3ede7;
+  --border: #d5e2db;
+  --border-strong: #b8cbc0;
 
-  --ink: #14171c;
-  --ink-muted: #374151;
-  --ink-subtle: #637083;
-  --ink-faint: #9ca3af;
+  --ink: #0f1d18;
+  --ink-muted: #33433d;
+  --ink-subtle: #5c6c65;
+  --ink-faint: #8c9c95;
 
   --brand: #002554;
   --brand-strong: #001a3d;
-  --brand-soft: #e6edf6;
+  --brand-soft: #e4ecf5;
   --brand-accent: #115740;
   --danger: #b91c1c;
   --danger-strong: #991b1b;
@@ -45,22 +45,21 @@ body {
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
-/* 浅淡竹青画布（更灰更轻的极淡青绿中性底）+ 克制的武大双色（珞珈绿 / 珞珈蓝）环境底光 */
+/* 柔光淡青玉画布（#edf4ef）+ 方案 A 深孔雀绿侧栏与无框通透顶区 */
 @media screen {
   .app-canvas {
-    background-color: #f4f7f5;
+    background-color: #edf4ef;
     background-image:
-      radial-gradient(960px 360px at 18% -90px, rgba(17, 87, 64, 0.048), transparent 70%),
-      radial-gradient(880px 340px at 88% -80px, rgba(0, 37, 84, 0.03), transparent 68%);
+      radial-gradient(960px 360px at 18% -90px, rgba(17, 87, 64, 0.06), transparent 70%),
+      radial-gradient(880px 340px at 88% -80px, rgba(0, 37, 84, 0.025), transparent 68%);
   }
 
   .app-shell-aside {
-    background-color: #fbfdfc;
+    background-color: #0d3b2e;
   }
 
   .app-shell-header {
-    background-color: rgba(251, 253, 252, 0.88);
-    backdrop-filter: blur(10px);
+    background-color: transparent;
   }
 }
 

@@ -27,11 +27,11 @@ export async function AppShell({ user, children }: { user: AuthUser; children: R
       <div aria-hidden="true" className="fixed inset-x-0 top-0 z-50 h-[2px] bg-gradient-to-r from-[#002554] via-[#0c3f4a] to-[#115740]" />
       <Sidebar roles={user.roles} badges={badges} />
       <div className="min-h-screen md:pl-60">
-        <header className="app-shell-header sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b border-[#dde5e0] px-4 md:px-6">
+        <header className="flex h-14 items-center justify-between gap-4 px-4 pt-2 md:px-8">
           <Breadcrumbs />
           <UserMenu user={user} />
         </header>
-        <main className="px-4 pb-24 pt-6 md:px-6 md:pb-8 md:pt-6">
+        <main className="px-4 pb-24 pt-2 md:px-8 md:pb-10 md:pt-3">
           <PageTransition>{children}</PageTransition>
         </main>
       </div>

@@ -26,9 +26,9 @@ export type EventTone = {
 };
 
 const TONES: Record<string, EventTone> = {
-  NATIONAL: { from: "#1b3b6b", to: "#0f2547", dot: "#1b3b6b", soft: "#e1eaf6", ink: "#1b3b6b", eyebrow: "NATIONAL ROUND" },
-  PROVINCE: { from: "#134e45", to: "#0a312b", dot: "#134e45", soft: "#dcf2ec", ink: "#134e45", eyebrow: "PROVINCIAL ROUND" },
-  SCHOOL: { from: "#4c3575", to: "#2e1e4b", dot: "#4c3575", soft: "#ebe5f8", ink: "#4c3575", eyebrow: "COLLEGE ROUND" },
+  NATIONAL: { from: "#002554", to: "#001430", dot: "#002554", soft: "#dceafc", ink: "#002554", eyebrow: "NATIONAL ROUND" },
+  PROVINCE: { from: "#115740", to: "#0a3627", dot: "#115740", soft: "#d6ede0", ink: "#115740", eyebrow: "PROVINCIAL ROUND" },
+  SCHOOL: { from: "#8a2c36", to: "#5c1b22", dot: "#8a2c36", soft: "#f8dfe2", ink: "#8a2c36", eyebrow: "COLLEGE ROUND" },
   DEFAULT: { from: "#3f4b5c", to: "#252e3c", dot: "#475569", soft: "#eef1f5", ink: "#334155", eyebrow: "COMPETITION" },
 };
 

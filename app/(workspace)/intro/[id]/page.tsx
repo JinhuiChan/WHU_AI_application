@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ArrowUpRight, CalendarDays, FileText, PlayCircle } from "lucide-react";
-import { WhuRoofDivider } from "@/components/brand/whu-motifs";
 import { levelCardTheme, TRACK_BLOCK_TONES } from "@/components/brand/whu-photos";
 import { BreadcrumbTitle } from "@/components/layout/breadcrumbs";
 import { introContentFor } from "@/components/competitions/competition-intro-data";
@@ -226,13 +225,10 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
         </div>
       </section>
 
-      <WhuRoofDivider />
-
       {keyDates.length ? (
         <section aria-label="关键时间" className="card overflow-hidden">
           <div className="px-5 pt-5">
             <SectionHead
-              eyebrow="SECTION 01 · SCHEDULE"
               meta="具体安排以当年度通知为准"
               sub="还剩几天直接算好，不用自己数日历"
               title="关键时间"
@@ -321,21 +317,21 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
             </div>
 
             {/* 按类型分背景色块与字体色彩区分的「赛道与组别对照表」 */}
-            <div className="overflow-hidden rounded-xl border border-[#dde5e0] bg-white shadow-sm">
-              <div className="border-b border-[#dde5e0] bg-[#f8faf9] px-5 py-3">
+            <div className="overflow-hidden rounded-xl border border-[#d5e2db] bg-white">
+              <div className="border-b border-[#d5e2db] bg-[#f7faf8] px-5 py-3">
                 <h3 className="text-sm font-semibold text-slate-900">赛道、组别与可选类别对照表</h3>
                 <p className="mt-0.5 text-xs text-slate-500">以颜色块区分不同赛道归属，具体申报条件以当年度正式通知为准。</p>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[640px] border-collapse text-left text-sm">
                   <thead>
-                    <tr className="border-b border-[#dde5e0] bg-[#f4f7f5] text-xs font-medium text-slate-600">
+                    <tr className="border-b border-[#d5e2db] bg-[#edf4ef] text-xs font-medium text-slate-600">
                       <th className="w-48 px-4 py-3">赛道类型</th>
                       <th className="w-56 px-4 py-3">子赛道 / 组别</th>
                       <th className="px-4 py-3">可选类别与申报方向</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#dde5e0]">
+                  <tbody className="divide-y divide-[#d5e2db]">
                     {topTracks.map((track, index) => {
                       const t = TRACK_BLOCK_TONES[index % TRACK_BLOCK_TONES.length];
                       const subs = childrenOf(track.id).map((c) => c.name);
