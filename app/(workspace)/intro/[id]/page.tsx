@@ -8,6 +8,7 @@ import { ArrowUpRight, CalendarDays, FileText, PlayCircle } from "lucide-react";
 import { BreadcrumbTitle } from "@/components/layout/breadcrumbs";
 import { introContentFor } from "@/components/competitions/competition-intro-data";
 import { TrackCard } from "@/components/competitions/track-card";
+import { SectionHead } from "@/components/ui/section-head";
 import SpotlightCard from "@/components/react-bits/SpotlightCard";
 import { Button, ButtonArrow } from "@/components/ui/button";
 import { getActiveUser } from "@/lib/auth.server";
@@ -124,10 +125,19 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
             bar: "bg-emerald-500",
           };
     const sameYear = item.startAt.getFullYear() === item.endAt.getFullYear();
+    // 窗口进度：进行中的阶段才有意义，未开始记 0、已结束记 100
+    const span = item.endAt.getTime() - item.startAt.getTime();
+    const percent = span > 0
+      ? Math.max(0, Math.min(100, Math.round(((now.getTime() - item.startAt.getTime()) / span) * 100)))
+      : ended ? 100 : 0;
     return {
       id: item.id,
       stage: item.stage,
       range: `${item.startAt.getFullYear()}.${md(item.startAt)} — ${sameYear ? md(item.endAt) : `${item.endAt.getFullYear()}.${md(item.endAt)}`}`,
+      percent,
+      running: !ended && now >= item.startAt,
+      // 窗口进度条的紧迫度：和表格里的截止胶囊同一套阈值（7 天 / 3 天）
+      urgency: ended ? "bar" : left <= 3 ? "red" : left <= 7 ? "amber" : "blue",
       ...state,
     };
   });
@@ -206,10 +216,15 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
 
       {keyDates.length ? (
         <section aria-label="关键时间" className="card overflow-hidden">
-          <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-slate-100 px-5 py-3.5">
-            <h2 className="text-base text-slate-900">关键时间</h2>
-            <span className="text-xs text-slate-500">具体安排以当年度通知为准</span>
+          <div className="px-5 pt-5">
+            <SectionHead
+              eyebrow="SECTION 01 · SCHEDULE"
+              meta="具体安排以当年度通知为准"
+              sub="还剩几天直接算好，不用自己数日历"
+              title="关键时间"
+            />
           </div>
+          <div aria-hidden="true" className="mx-5 mt-4 h-px bg-gradient-to-r from-slate-200 to-transparent" />
           <ul className="divide-y divide-slate-100">
             {keyDates.map((item) => (
               <li className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-4" key={item.id}>
@@ -217,8 +232,23 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
                   <span aria-hidden="true" className={`h-7 w-1 rounded-full ${item.bar}`} />
                   <span className="text-sm font-medium text-slate-700">{STAGE_LABEL[item.stage] ?? item.stage}</span>
                 </span>
-                <span className="text-lg font-bold tracking-tight text-slate-900 tabular-nums">{item.range}</span>
-                <span className={`ml-auto rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 ${item.tone}`}>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-lg font-bold tracking-tight text-slate-900 tabular-nums">{item.range}</span>
+                  <span aria-hidden="true" className="mt-1.5 flex items-center gap-2">
+                    <span className="h-1 flex-1 overflow-hidden rounded-full bg-slate-100">
+                      <span
+                        className={`block h-full rounded-full ${
+                          item.urgency === "red" ? "bg-red-500" : item.urgency === "amber" ? "bg-amber-500" : item.urgency === "bar" ? item.bar : "bg-blue-500"
+                        }`}
+                        style={{ width: `${item.percent}%` }}
+                      />
+                    </span>
+                    <span className="shrink-0 text-[11px] text-slate-400 tabular-nums">
+                      {item.running ? `已过 ${item.percent}%` : item.percent >= 100 ? "窗口已关闭" : "尚未开始"}
+                    </span>
+                  </span>
+                </span>
+                <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 ${item.tone}`}>
                   {item.label}
                 </span>
               </li>

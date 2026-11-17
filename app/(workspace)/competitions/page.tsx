@@ -7,13 +7,16 @@ import { redirect } from "next/navigation";
 import { CompetitionCreate } from "@/components/admin/competition-create";
 import { CompetitionDeleteButton } from "@/components/admin/competition-delete-button";
 import { CompetitionCards } from "@/components/competitions/competition-cards";
+import { EventSwatch, eventTone } from "@/components/competitions/event-tone";
+import { DeadlinePill } from "@/components/ui/deadline-meter";
+import { SectionHead } from "@/components/ui/section-head";
 import { CompetitionMobileList } from "@/components/competitions/competition-mobile-list";
 import { Pagination } from "@/components/data/pagination";
 import { detailHref, listHref } from "@/components/data/list-link";
 import { getActiveUser } from "@/lib/auth.server";
 import { getCompetitionPage, listCompetitionYears } from "@/lib/competitions";
 import { firstParam, optionalCompetitionLevel, optionalPublishStatus, optionalText, optionalYear, pageParams } from "@/lib/list-query";
-import { competitionLevelLabels, formatDateTime, publishStatusLabels, registrationStatusLabels } from "@/lib/presentation";
+import { competitionLevelLabels, publishStatusLabels, registrationStatusLabels } from "@/lib/presentation";
 
 export const metadata: Metadata = { title: "赛事" };
 
@@ -131,6 +134,15 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
       </section>
 
       <section className="overflow-hidden card">
+        <div className="px-5 pt-5">
+          <SectionHead
+            eyebrow="SECTION 02 · EVENT LIST"
+            meta={`共 ${data.total} 场`}
+            sub={isStudent ? "点赛事名查看通知与规程；截止时间按剩余天数标色" : "点赛事名查看详情与获奖名单"}
+            title="赛事明细"
+          />
+        </div>
+        <div aria-hidden="true" className="mx-5 mt-4 h-px bg-gradient-to-r from-slate-200 to-transparent" />
         <div className="hidden overflow-x-auto lg:block">
           <table className="w-full min-w-[900px] text-left text-sm">
             <thead className="bg-slate-50 text-xs text-slate-500">
@@ -158,23 +170,29 @@ export default async function CompetitionsPage({ searchParams }: PageProps) {
                 <tr key={competition.id} className="text-slate-700 hover:bg-slate-50">
                   <td className="px-4 py-4">{competition.year}</td>
                   <td className="px-4 py-4 font-medium text-slate-900">
-                    <Link href={detailHref("/competitions", competition.id, from)} className="hover:text-blue-600">{competition.name}</Link>
+                    <span className="flex items-center gap-2">
+                      {/* 与顶部赛事卡同色，扫一眼就能把行和卡对上 */}
+                      <EventSwatch level={competition.level} />
+                      <Link href={detailHref("/competitions", competition.id, from)} className="hover:text-blue-600">{competition.name}</Link>
+                    </span>
                   </td>
                   <td className="px-4 py-4">
-                    <span className="rounded-full bg-blue-50 px-2 py-1 text-xs text-blue-700">{competitionLevelLabels[competition.level]}</span>
+                    {/* 等级胶囊与色标同色系，行首色块、卡片底色、胶囊三者一致 */}
+                    <span
+                      className="rounded-full px-2 py-1 text-xs"
+                      style={{ backgroundColor: eventTone(competition.level).soft, color: eventTone(competition.level).ink }}
+                    >
+                      {competitionLevelLabels[competition.level]}
+                    </span>
                   </td>
                   {isStudent ? (
                     <>
                       <td className="px-4 py-4 text-xs text-slate-600">
                         {competition.registration?.windowEndAt ? (
-                          <span className="flex flex-wrap items-center gap-2">
-                            {formatDateTime(competition.registration.windowEndAt)}
-                            {competition.registration.windowOpen ? (
-                              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] text-emerald-700">报名中</span>
-                            ) : (
-                              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] text-slate-500">已关闭</span>
-                            )}
-                          </span>
+                          <DeadlinePill
+                            endAt={competition.registration.windowEndAt}
+                            startAt={competition.registration.windowStartAt}
+                          />
                         ) : (
                           <span className="text-slate-400">未设置报名窗口</span>
                         )}

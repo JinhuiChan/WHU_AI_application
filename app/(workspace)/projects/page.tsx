@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Pagination } from "@/components/data/pagination";
+import { SectionHead } from "@/components/ui/section-head";
 import { getActiveUser } from "@/lib/auth.server";
 import { firstParam, optionalAwardLevel, optionalText, optionalYear, pageParams } from "@/lib/list-query";
 import { awardLevelLabels, awardStatusLabels, projectStatusLabels } from "@/lib/presentation";
@@ -109,6 +110,15 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
       </section>
 
       <section className="overflow-hidden card">
+        <div className="px-5 pt-5">
+          <SectionHead
+            eyebrow="SECTION 02 · PROJECT LEDGER"
+            meta={`共 ${data.total} 个`}
+            sub="按赛事、赛年、学院与获奖情况筛选，点项目名看全貌"
+            title="项目台账"
+          />
+        </div>
+        <div aria-hidden="true" className="mx-5 mt-4 h-px bg-gradient-to-r from-slate-200 to-transparent" />
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1180px] text-left text-sm">
             <thead className="bg-slate-50 text-xs text-slate-500">

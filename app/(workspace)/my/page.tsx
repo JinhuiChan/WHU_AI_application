@@ -11,6 +11,7 @@ import { AlertTriangle, CheckCircle2, Clock3, Compass, FileEdit, Filter, Search,
 import { getMyProjects } from "@/lib/apply";
 import { getActiveUser } from "@/lib/auth.server";
 import { firstParam } from "@/lib/list-query";
+import { SectionHead } from "@/components/ui/section-head";
 import { formatDateTime, registrationStatusLabels } from "@/lib/presentation";
 
 export const metadata: Metadata = { title: "我的项目" };
@@ -257,6 +258,15 @@ export default async function MyProjectsPage({ searchParams }: PageProps) {
       </div>
 
       <Card as="section" className="overflow-hidden">
+        <div className="px-5 pt-5">
+          <SectionHead
+            eyebrow="SECTION 02 · MY PROJECTS"
+            meta={`共 ${rows.length} 个`}
+            sub="驳回原因、提交次数与最后修改时间都在这一张表里"
+            title="项目明细"
+          />
+        </div>
+        <div aria-hidden="true" className="mx-5 mt-4 h-px bg-gradient-to-r from-slate-200 to-transparent" />
         <div className="overflow-x-auto">
           <table className="w-full min-w-[860px] text-left text-sm">
             <thead className="bg-slate-50 text-xs text-slate-500">
