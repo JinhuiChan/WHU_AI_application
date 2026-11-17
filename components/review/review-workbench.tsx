@@ -199,8 +199,8 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
       ) : null}
 
       <section className="space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-3 card px-4 py-3">
-          <label className="flex items-center gap-2 text-sm text-slate-700">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#e5e0d5] bg-[#faf8f4] px-4 py-2.5">
+          <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
             <input
               type="checkbox"
               aria-label="全选当前页"
@@ -216,10 +216,17 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
             />
             全选当前页
           </label>
-          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400">
-            <span>共 {data.total} 条；红色卡片表示存在未确认指导关系</span>
+          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+            <span>
+              本页共 <span className="font-mono font-semibold text-slate-800 tabular-nums">{data.total}</span> 项
+              <span className="mx-1.5 text-slate-300">·</span>
+              <span className="inline-flex items-center gap-1.5">
+                <span aria-hidden="true" className="inline-block h-2.5 w-[3px] rounded-full bg-red-600" />
+                红色竖线标示指导关系未确认
+              </span>
+            </span>
             {selectedIds.length ? (
-              <Button variant="ghost" size="default" type="button" onClick={() => setSelectedIds([])} >
+              <Button variant="ghost" size="sm" type="button" onClick={() => setSelectedIds([])} >
                 清除已选 {selectedIds.length} 项
               </Button>
             ) : null}
@@ -233,9 +240,13 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
           return (
             <article
               key={item.id}
-              className={`rounded-lg border bg-white shadow-sm ${item.hasUnconfirmedTeachers ? "border-red-300" : "border-slate-200"}`}
+              className={`rounded-xl border transition duration-150 ${
+                item.hasUnconfirmedTeachers
+                  ? "border-[#e5e0d5] border-l-[3px] border-l-red-600 bg-red-50/[0.22]"
+                  : "border-[#e5e0d5] bg-white hover:border-[#d0c9ba]"
+              }`}
             >
-              <div className="flex flex-wrap items-start gap-3 px-4 py-4">
+              <div className="flex flex-wrap items-start gap-3.5 px-5 py-4">
                 <input
                   type="checkbox"
                   aria-label={`选择项目：${item.projectName}`}
@@ -244,24 +255,39 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
                   onChange={(event) => setSelectedIds((current) => event.target.checked
                     ? [...current, item.id]
                     : current.filter((id) => id !== item.id))}
-                  className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600"
+                  className="mt-1.5 h-4 w-4 rounded border-slate-300 text-blue-600"
                 />
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Link href={detailHref("/review", item.id, from)} className="text-sm font-semibold text-slate-900 hover:text-blue-600">
+                    <Link
+                      href={detailHref("/review", item.id, from)}
+                      className="font-display text-base font-semibold text-slate-900 hover:text-[#002554]"
+                    >
                       {item.projectName}
                     </Link>
                     <StatusBadge status={item.status}>{registrationStatusLabels[item.status]}</StatusBadge>
                     {item.hasUnconfirmedTeachers ? (
-                      <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">指导关系未确认</span>
+                      <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700 ring-1 ring-red-200">指导关系未确认</span>
                     ) : null}
                   </div>
                   <p className="mt-1 text-xs text-slate-500">{item.competitionName} · {item.trackDisplay}</p>
-                  <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-xs md:grid-cols-4">
-                    <div><dt className="text-sm text-slate-400">负责人</dt><dd className="mt-0.5 text-slate-700">{show(item.leaderName)}（{show(item.leaderStudentNo)}）</dd></div>
-                    <div><dt className="text-sm text-slate-400">申报单位</dt><dd className="mt-0.5 text-slate-700">{show(item.applicationUnit)}</dd></div>
-                    <div><dt className="text-sm text-slate-400">提交时间</dt><dd className="mt-0.5 text-slate-700">{item.submittedAt ? formatDateTime(item.submittedAt) : "—"}</dd></div>
-                    <div><dt className="text-sm text-slate-400">提交次数 / 批次</dt><dd className="mt-0.5 text-slate-700">{item.submissionCount} 次 · {show(item.batchName)}</dd></div>
+                  <dl className="mt-3.5 grid grid-cols-2 gap-x-6 gap-y-2 text-xs md:grid-cols-4">
+                    <div>
+                      <dt className="t-label text-xs text-slate-500">负责人</dt>
+                      <dd className="mt-0.5 text-slate-800">{show(item.leaderName)} <span className="font-mono text-slate-500">({show(item.leaderStudentNo)})</span></dd>
+                    </div>
+                    <div>
+                      <dt className="t-label text-xs text-slate-500">申报单位</dt>
+                      <dd className="mt-0.5 text-slate-800">{show(item.applicationUnit)}</dd>
+                    </div>
+                    <div>
+                      <dt className="t-label text-xs text-slate-500">提交时间</dt>
+                      <dd className="mt-0.5 font-mono text-slate-700 tabular-nums">{item.submittedAt ? formatDateTime(item.submittedAt) : "—"}</dd>
+                    </div>
+                    <div>
+                      <dt className="t-label text-xs text-slate-500">提交次数 / 批次</dt>
+                      <dd className="mt-0.5 text-slate-700"><span className="font-mono tabular-nums">{item.submissionCount}</span> 次 · {show(item.batchName)}</dd>
+                    </div>
                   </dl>
                 </div>
                 <div className="flex flex-col items-stretch gap-2">
@@ -310,7 +336,7 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
               ) : null}
 
               {open ? (
-                <div className="space-y-6 border-t border-slate-100 bg-slate-50/40 px-4 py-4 text-xs">
+                <div className="space-y-6 border-t border-[#e5e0d5] bg-[#faf8f4] px-5 py-4 text-xs">
                   <div>
                     <h3 className="font-semibold text-slate-900">报名信息</h3>
                     <dl className="mt-2 grid grid-cols-2 gap-x-6 gap-y-3 md:grid-cols-4">

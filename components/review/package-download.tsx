@@ -10,10 +10,11 @@ export function PackageDownload({ filters }: { filters: Record<string, string> }
   const [notice, setNotice] = useState("");
 
   return (
-    <div className="flex flex-col items-start gap-2 md:items-end">
+    <div className="flex flex-col items-start gap-1.5 lg:items-end">
       <Button
         type="button"
         disabled={pending}
+        title="按当前筛选结果打包盖章件（≤100 项且 ≤500MB）"
         onClick={async () => {
           setPending(true);
           setError("");
@@ -49,9 +50,8 @@ export function PackageDownload({ filters }: { filters: Record<string, string> }
       >
         {pending ? "打包中…" : "打包下载"}
       </Button>
-      <p className="text-xs text-slate-400">按当前筛选结果，≤100 项且 ≤500MB</p>
       {error ? <p role="alert" className="max-w-md text-right text-xs text-red-600">{error}</p> : null}
-      {notice ? <p role="status" className="text-xs text-emerald-600">{notice}</p> : null}
+      {notice ? <p role="status" className="text-xs text-emerald-700">{notice}</p> : null}
     </div>
   );
 }

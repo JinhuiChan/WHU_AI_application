@@ -13,6 +13,11 @@ const geistMono = localFont({
   variable: "--font-geist-mono",
   weight: "100 900",
 });
+const notoSerifDisplay = localFont({
+  src: "./fonts/NotoSerifSC-Subset.woff2",
+  variable: "--font-serif-display",
+  weight: "400 700",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -29,7 +34,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} ${notoSerifDisplay.variable} antialiased`}>
         {children}
         <Toaster theme="light" position="top-right" richColors closeButton duration={3200} offset={76} />
       </body>

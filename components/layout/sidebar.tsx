@@ -19,6 +19,7 @@ import {
   Users,
 } from "lucide-react";
 import type { Role } from "@prisma/client";
+import { WhuArchWatermark } from "@/components/brand/whu-motifs";
 import { BrandMark } from "@/components/layout/brand-mark";
 
 const adminNavigation = [
@@ -130,14 +131,14 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
 
   return (
     <>
-      <aside className="app-shell-aside fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-slate-200/80 md:flex">
-        <Link href="/dashboard" className="flex h-16 items-center gap-3 border-b border-slate-200/80 px-5">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
+      <aside className="app-shell-aside fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-[#e5e0d5] md:flex">
+        <Link href="/dashboard" className="flex h-16 items-center gap-3 border-b border-[#e5e0d5] px-5">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#002554] text-white shadow-sm ring-1 ring-inset ring-white/10">
             <BrandMark className="h-5 w-5" />
           </span>
           <span className="min-w-0">
-            <span className="block truncate text-sm font-semibold tracking-tight text-slate-900">珞珈科创</span>
-            <span className="block truncate font-mono text-[10px] tracking-[0.14em] text-slate-400">WHU INNOVATION</span>
+            <span className="block truncate font-display text-[15px] font-semibold tracking-tight text-slate-900">珞珈科创</span>
+            <span className="block truncate font-mono text-[10px] tracking-[0.14em] text-[#115740]/80">WHU INNOVATION</span>
           </span>
         </Link>
         <nav aria-label="主导航" className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
@@ -211,6 +212,9 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
             </div>
           ) : null}
         </nav>
+        <div className="pointer-events-none shrink-0 overflow-hidden px-4 pb-3 pt-2">
+          <WhuArchWatermark className="mx-auto w-44 text-[#002554]/[0.07]" />
+        </div>
       </aside>
 
       <nav aria-label="移动端导航" className="fixed inset-x-0 bottom-0 z-40 flex border-t border-slate-200/90 bg-white/95 backdrop-blur-md pb-safe md:hidden">

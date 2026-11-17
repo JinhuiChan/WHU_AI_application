@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { WhuRoofDivider } from "@/components/brand/whu-motifs";
 import { listHref } from "@/components/data/list-link";
 import { Pagination } from "@/components/data/pagination";
 import { DatasetExport } from "@/components/export/dataset-export";
@@ -69,53 +70,92 @@ export default async function ReviewPage({ searchParams }: PageProps) {
     return `/review?${next.toString()}`;
   }
 
-  const tabs: { key: ReviewTab; label: string }[] = [
-    { key: "pending", label: `待审核 ${tabCounts.pending}` },
-    { key: "reviewed", label: `已审核 ${tabCounts.reviewed}` },
-    { key: "all", label: `全部 ${tabCounts.total}` },
+  const tabs: { key: ReviewTab; label: string; count: number }[] = [
+    { key: "pending", label: "待审核", count: tabCounts.pending },
+    { key: "reviewed", label: "已审核", count: tabCounts.reviewed },
+    { key: "all", label: "全部", count: tabCounts.total },
   ];
   // 导出/打包不受 tab 影响：tab 只是列表视图，避免默认「待审核」时导出 0 行
   const exportFilters = { ...values, tab: "" };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+    <div className="space-y-5">
+      {/* 修复页头左右错位：左标题区 + 右动作区紧凑对齐 */}
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="t-page-title text-xl font-semibold text-slate-900">报名审核</h1>
-          <p className="mt-1 text-sm text-slate-500">学院审核通过后进入校级终审；红色行表示存在未确认指导关系。</p>
+          <p className="font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-[#115740]">
+            LUOJIA AUDIT WORKBENCH
+          </p>
+          <h1 className="t-page-title mt-1 text-xl font-semibold text-slate-900">报名审核</h1>
+          <p className="mt-1 text-sm text-slate-500">
+            学院审核通过后进入校级终审；左侧红线标示存在未确认指导关系。
+          </p>
         </div>
-        <Link href="/review/changes" className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">
-          变更申请
-          {pendingChanges > 0 ? (
-            <span className="ml-2 rounded-full bg-red-600 px-2 py-0.5 text-xs font-medium text-white" title={`待审批变更申请 ${pendingChanges} 条`}>
-              {pendingChanges}
-            </span>
-          ) : null}
-        </Link>
-        <PackageDownload filters={exportFilters} />
-      </div>
-      <div className="flex flex-wrap items-center gap-2">
-        {tabs.map((item) => (
+        <div className="flex flex-wrap items-center gap-2.5">
           <Link
-            key={item.key}
-            href={tabHref(item.key)}
-            aria-current={tab === item.key ? "page" : undefined}
-            className={`h-10 rounded-lg px-4 text-sm leading-10 ${tab === item.key ? "bg-blue-600 font-medium text-white" : "border border-slate-300 bg-white text-slate-600 hover:bg-slate-50"}`}
+            href="/review/changes"
+            className="inline-flex h-10 items-center justify-center rounded-full border border-[#d0c9ba] bg-white px-5 text-sm font-medium text-slate-700 transition duration-150 ease-out hover:border-[#002554]/40 hover:bg-[#faf8f4] active:scale-[0.98]"
           >
-            {item.label}
+            变更申请
+            {pendingChanges > 0 ? (
+              <span
+                className="ml-2 rounded-full bg-red-50 px-2 py-0.5 font-mono text-xs font-medium text-red-700 ring-1 ring-red-200"
+                title={`待审批变更申请 ${pendingChanges} 条`}
+              >
+                {pendingChanges}
+              </span>
+            ) : null}
           </Link>
-        ))}
-        <span className="text-xs text-slate-400">默认只看待审核；状态下拉可精确到某一状态</span>
+          <PackageDownload filters={exportFilters} />
+        </div>
       </div>
+
+      {/* 一体化工作台控制面板：分段 Tab + 暖石筛选区 + 内嵌导出栏 */}
+      <section className="overflow-hidden rounded-xl border border-[#e5e0d5] bg-white shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e5e0d5] px-5 py-3">
+          <nav aria-label="审核状态分栏" className="inline-flex rounded-lg border border-[#e5e0d5] bg-[#f7f5f0] p-1">
+            {tabs.map((item) => {
+              const active = tab === item.key;
+              return (
+                <Link
+                  key={item.key}
+                  href={tabHref(item.key)}
+                  aria-current={active ? "page" : undefined}
+                  className={`inline-flex items-center gap-1.5 rounded-md px-3.5 py-1.5 text-sm transition duration-150 ${
+                    active
+                      ? "bg-[#002554] font-medium text-white shadow-sm"
+                      : "text-slate-600 hover:bg-white/70 hover:text-slate-900"
+                  }`}
+                >
+                  <span>{item.label}</span>
+                  <span
+                    className={`font-mono text-xs tabular-nums ${
+                      active ? "text-white/80" : "text-slate-400"
+                    }`}
+                  >
+                    {item.count}
+                  </span>
+                </Link>
+              );
+            })}
+          </nav>
+          <span className="text-xs text-slate-500">默认仅看待审核；下方状态下拉可精确筛选</span>
+        </div>
+
+        <ReviewFilters embedded options={options} values={values} />
+        <DatasetExport embedded scope="all" filters={exportFilters} buttonLabel="导出数据表" />
+      </section>
+
       {tab === "pending" && data.total === 0 ? (
-        <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+        <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
           当前没有待审核项目，可切换到
           <Link href={tabHref("reviewed")} className="mx-1 underline">已审核</Link>或
           <Link href={tabHref("all")} className="mx-1 underline">全部</Link>查看。
         </p>
       ) : null}
-      <ReviewFilters options={options} values={values} />
-      <DatasetExport scope="all" filters={exportFilters} buttonLabel="导出数据表" />
+
+      <WhuRoofDivider />
+
       <ReviewWorkbench data={data} from={listHref("/review", { ...values } as Record<string, string>)} />
       <div className="card">
         <Pagination basePath="/review" query={values} total={data.total} page={data.page} pageSize={data.pageSize} />

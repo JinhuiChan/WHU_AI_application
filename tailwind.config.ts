@@ -8,7 +8,18 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-geist-sans)", "PingFang SC", "HarmonyOS Sans SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", "sans-serif"],
+        display: ["var(--font-serif-display)", "Noto Serif SC", "Source Han Serif SC", "Songti SC", "SimSun", "serif"],
+        mono: ["var(--font-geist-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
+      },
       colors: {
+        whu: {
+          blue: "#002554",
+          green: "#115740",
+          stone: "#f7f5f0",
+          hairline: "#e5e0d5",
+        },
         background: "var(--background)",
         foreground: "var(--foreground)",
         surface: {
@@ -28,18 +39,18 @@ const config: Config = {
           soft: "var(--brand-soft)",
         },
         line: "var(--border)",
-        // 将默认 Tailwind 荧光蓝重映射为沉稳克制的学院普鲁士蓝，消除全站「模板蓝」廉价感
+        // 将主蓝色系锚定为武汉大学官方 VI「珞珈蓝 #002554」（RGB 0, 37, 84）
         blue: {
-          50: "#f1f5fa",
-          100: "#e2eaf4",
-          200: "#c6d6ea",
-          300: "#9bb5d7",
-          400: "#6387ba",
-          500: "#2e5996",
-          600: "#1e4278",
-          700: "#163360",
-          800: "#11274a",
-          900: "#0c1c36",
+          50: "#eef3f8",
+          100: "#dae5f1",
+          200: "#b8cbe3",
+          300: "#89a8ce",
+          400: "#4c75a8",
+          500: "#174278",
+          600: "#002554",
+          700: "#001c42",
+          800: "#001430",
+          900: "#000c1f",
         },
         slate: {
           400: "#637083",

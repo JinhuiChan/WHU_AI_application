@@ -5,32 +5,33 @@
 /* 设计变量：新增语义 token，不改任何已有 Tailwind 类名的解析结果。
    新代码可直接用 var(--xxx) 或 bg-surface / text-ink / border-line 等语义类。 */
 :root {
-  --background: #f5f6f8;
-  --foreground: #111827;
+  --background: #f7f5f0;
+  --foreground: #14171c;
 
   --surface: #ffffff;
-  --surface-subtle: #f8fafc;
-  --surface-muted: #f1f3f6;
-  --border: #e5e7eb;
-  --border-strong: #d1d5db;
+  --surface-subtle: #faf8f4;
+  --surface-muted: #f2efe8;
+  --border: #e5e0d5;
+  --border-strong: #d0c9ba;
 
-  --ink: #111827;
+  --ink: #14171c;
   --ink-muted: #374151;
   --ink-subtle: #637083;
   --ink-faint: #9ca3af;
 
-  --brand: #1e4278;
-  --brand-strong: #163360;
-  --brand-soft: #e2eaf4;
+  --brand: #002554;
+  --brand-strong: #001a3d;
+  --brand-soft: #e6edf6;
+  --brand-accent: #115740;
   --danger: #b91c1c;
   --danger-strong: #991b1b;
-  --success: #047857;
+  --success: #115740;
 
   --radius-card: 12px;
   --radius-control: 8px;
   --radius-pill: 9999px;
   --space-block: 16px;
-  --text-title: 22px;
+  --text-title: 24px;
   --text-label: 12px;
   --text-body: 14px;
   --text-note: 12px;
@@ -44,19 +45,21 @@ body {
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
-/* 画布克制化：去掉花哨的斜向蓝黄渐变，使用极净的冷微灰底 + 极微弱顶部环境光，突出白卡与内容本身 */
+/* 校石暖纸画布 + 极克制的武大双色（珞珈蓝 / 珞珈绿）环境底光 */
 @media screen {
   .app-canvas {
-    background-color: #f5f6f8;
-    background-image: radial-gradient(1100px 420px at 50% -120px, rgba(30, 66, 120, 0.04), transparent 72%);
+    background-color: #f7f5f0;
+    background-image:
+      radial-gradient(960px 360px at 18% -90px, rgba(0, 37, 84, 0.045), transparent 70%),
+      radial-gradient(880px 340px at 88% -80px, rgba(17, 87, 64, 0.04), transparent 68%);
   }
 
   .app-shell-aside {
-    background-color: #fafbfc;
+    background-color: #fdfcfa;
   }
 
   .app-shell-header {
-    background-color: rgba(255, 255, 255, 0.88);
+    background-color: rgba(253, 252, 250, 0.88);
     backdrop-filter: blur(10px);
   }
 }
@@ -86,11 +89,11 @@ body {
 @layer components {
   .card {
     border-radius: var(--radius-card);
-    border: 1px solid rgba(15, 23, 42, 0.08);
+    border: 1px solid rgba(28, 25, 23, 0.08);
     background-color: var(--surface);
     box-shadow:
-      0 1px 2px rgba(15, 23, 42, 0.03),
-      0 2px 6px -2px rgba(15, 23, 42, 0.04);
+      0 1px 2px rgba(28, 25, 23, 0.03),
+      0 2px 8px -4px rgba(0, 37, 84, 0.04);
   }
 }
 
@@ -176,12 +179,12 @@ body {
   }
 }
 
-/* 全站文字层级：只作用于工作区（.page-enter 内），登录页与注册页不受影响。
-   通过语义类名精确定位，不再依赖 Tailwind 工具类名组合。 */
+/* 全站文字层级：展示大标题使用思源宋体（--font-serif-display），正文维持精密无衬线体，形成鲜明书卷感与专业度对比。 */
 .page-enter .t-page-title {
-  font-size: 24px;
+  font-family: var(--font-serif-display), "Noto Serif SC", "Source Han Serif SC", "Songti SC", "SimSun", serif;
+  font-size: 26px;
   font-weight: 600;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 
 /* 区块标题保持 600 半粗，不与页面大标题及关键数字争夺视觉焦点 */
