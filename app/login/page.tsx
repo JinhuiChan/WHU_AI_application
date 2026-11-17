@@ -30,7 +30,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
   return (
     <div className="grid min-h-screen bg-[#edf4ef] text-slate-900 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-      <section className="relative hidden overflow-hidden bg-[#0d3b2e] px-12 py-12 lg:flex lg:flex-col">
+      <section className="relative hidden overflow-hidden bg-[#0d3b2e] px-12 py-9 lg:flex lg:flex-col">
         <Image
           alt="武汉大学校园建筑"
           aria-hidden="true"
@@ -88,7 +88,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             </div>
           </div>
 
-          <div className="login-fade-up mt-8 flex flex-wrap items-center justify-between gap-2 border-t border-white/15 pt-5" style={{ animationDelay: "300ms" }}>
+          <div className="login-fade-up mt-6 flex flex-wrap items-center justify-between gap-2 border-t border-white/15 pt-4" style={{ animationDelay: "300ms" }}>
             <p className="text-xs text-[#b7d3c6]">报名入口：第二课堂（校赛）· 大创网（官方报名）· 双创网（省赛）</p>
             <p className="text-xs tracking-widest text-[#95baa8]">自强 · 弘毅 · 求是 · 拓新</p>
           </div>
