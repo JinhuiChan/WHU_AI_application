@@ -27,7 +27,7 @@ export async function AppShell({ user, children }: { user: AuthUser; children: R
       <div aria-hidden="true" className="fixed inset-x-0 top-0 z-50 h-[2px] bg-gradient-to-r from-[#002554] via-[#0c3f4a] to-[#115740]" />
       <Sidebar roles={user.roles} badges={badges} />
       <div className="min-h-screen md:pl-60">
-        <header className="flex h-14 items-center justify-between gap-4 px-4 pt-2 md:px-8">
+        <header className="relative z-30 flex h-14 items-center justify-between gap-4 px-4 pt-2 md:px-8">
           <Breadcrumbs />
           <UserMenu user={user} />
         </header>

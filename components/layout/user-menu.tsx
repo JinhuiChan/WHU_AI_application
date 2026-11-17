@@ -49,7 +49,7 @@ export function UserMenu({ user }: { user: AuthUser }) {
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
         className="h-9 gap-2 border-[#d2dfd8] bg-white/85 px-2.5 shadow-none hover:border-[#b6cbc0] hover:bg-white" >
-        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#e3ede7] text-[#115740]">
           <UserRound size={15} aria-hidden="true" />
         </span>
         <span className="hidden text-left sm:block">
@@ -59,7 +59,7 @@ export function UserMenu({ user }: { user: AuthUser }) {
         <ChevronDown size={14} className="text-slate-400" aria-hidden="true" />
       </Button>
       {open ? (
-        <div role="menu" className="absolute right-0 top-12 w-64 card p-2">
+        <div role="menu" className="card absolute right-0 top-12 z-40 w-64 p-2 shadow-lg">
           <div className="border-b border-slate-100 px-3 py-3">
             <p className="font-medium text-slate-800">{user.name}</p>
             <p className="mt-1 text-xs text-slate-500">{user.phone}</p>
