@@ -131,8 +131,8 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
 
   return (
     <>
-      <aside className="app-shell-aside fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-[#d2e2d8] md:flex">
-        <Link href="/dashboard" className="flex h-16 items-center gap-3 border-b border-[#d2e2d8] px-5">
+      <aside className="app-shell-aside fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-[#e5e0d5] md:flex">
+        <Link href="/dashboard" className="flex h-16 items-center gap-3 border-b border-[#e5e0d5] px-5">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#002554] text-white shadow-sm ring-1 ring-inset ring-white/10">
             <BrandMark className="h-5 w-5" />
           </span>

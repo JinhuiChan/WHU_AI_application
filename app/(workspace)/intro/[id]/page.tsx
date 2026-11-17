@@ -321,21 +321,21 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
             </div>
 
             {/* 按类型分背景色块与字体色彩区分的「赛道与组别对照表」 */}
-            <div className="overflow-hidden rounded-xl border border-[#d2e2d8] bg-white shadow-sm">
-              <div className="border-b border-[#d2e2d8] bg-[#f5faf7] px-5 py-3">
+            <div className="overflow-hidden rounded-xl border border-[#e5e0d5] bg-white shadow-sm">
+              <div className="border-b border-[#e5e0d5] bg-[#faf8f4] px-5 py-3">
                 <h3 className="text-sm font-semibold text-slate-900">赛道、组别与可选类别对照表</h3>
                 <p className="mt-0.5 text-xs text-slate-500">以颜色块区分不同赛道归属，具体申报条件以当年度正式通知为准。</p>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[640px] border-collapse text-left text-sm">
                   <thead>
-                    <tr className="border-b border-[#d2e2d8] bg-[#eef5f1] text-xs font-medium text-slate-600">
+                    <tr className="border-b border-[#e5e0d5] bg-[#f7f5f0] text-xs font-medium text-slate-600">
                       <th className="w-48 px-4 py-3">赛道类型</th>
                       <th className="w-56 px-4 py-3">子赛道 / 组别</th>
                       <th className="px-4 py-3">可选类别与申报方向</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#d2e2d8]">
+                  <tbody className="divide-y divide-[#e5e0d5]">
                     {topTracks.map((track, index) => {
                       const t = TRACK_BLOCK_TONES[index % TRACK_BLOCK_TONES.length];
                       const subs = childrenOf(track.id).map((c) => c.name);

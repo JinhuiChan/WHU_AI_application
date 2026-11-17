@@ -19,8 +19,8 @@ const config: Config = {
         whu: {
           blue: "#002554",
           green: "#115740",
-          stone: "#eef5f1",
-          hairline: "#d2e2d8",
+          stone: "#f7f5f0",
+          hairline: "#e5e0d5",
         },
         background: "var(--background)",
         foreground: "var(--foreground)",

@@ -80,44 +80,40 @@ export default async function ReviewPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-5">
-      {/* 青玉轻底页头横幅：左标题区 + 右动作区紧凑对齐 */}
-      <header className="relative overflow-hidden rounded-2xl border border-[#c7ded1] bg-gradient-to-r from-[#e5f2eb] via-[#f2f8f4] to-[#f2f6fb] px-5 py-5 shadow-sm sm:px-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-[#115740]">
-              LUOJIA AUDIT WORKBENCH
-            </p>
-            <h1 className="t-page-title mt-1 font-display text-2xl font-bold tracking-tight text-[#115740]">
-              报名审核
-            </h1>
-            <p className="mt-1 text-sm text-slate-600">
-              学院审核通过后进入校级终审；卡片按审批状态铺设柔和填充色，左侧红线标示未确认指导关系。
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2.5">
-            <Link
-              href="/review/changes"
-              className="inline-flex h-10 items-center justify-center rounded-full border border-[#b4cbbd] bg-white px-5 text-sm font-medium text-slate-700 transition duration-150 ease-out hover:border-[#115740]/45 hover:bg-[#f5faf7] active:scale-[0.98]"
-            >
-              变更申请
-              {pendingChanges > 0 ? (
-                <span
-                  className="ml-2 rounded-full bg-red-50 px-2 py-0.5 font-mono text-xs font-medium text-red-700 ring-1 ring-red-200"
-                  title={`待审批变更申请 ${pendingChanges} 条`}
-                >
-                  {pendingChanges}
-                </span>
-              ) : null}
-            </Link>
-            <PackageDownload filters={exportFilters} />
-          </div>
+      {/* 修复页头左右错位：左标题区 + 右动作区紧凑对齐 */}
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p className="font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-[#115740]">
+            LUOJIA AUDIT WORKBENCH
+          </p>
+          <h1 className="t-page-title mt-1 text-xl font-semibold text-slate-900">报名审核</h1>
+          <p className="mt-1 text-sm text-slate-500">
+            学院审核通过后进入校级终审；左侧红线标示存在未确认指导关系。
+          </p>
         </div>
-      </header>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Link
+            href="/review/changes"
+            className="inline-flex h-10 items-center justify-center rounded-full border border-[#d0c9ba] bg-white px-5 text-sm font-medium text-slate-700 transition duration-150 ease-out hover:border-[#002554]/40 hover:bg-[#faf8f4] active:scale-[0.98]"
+          >
+            变更申请
+            {pendingChanges > 0 ? (
+              <span
+                className="ml-2 rounded-full bg-red-50 px-2 py-0.5 font-mono text-xs font-medium text-red-700 ring-1 ring-red-200"
+                title={`待审批变更申请 ${pendingChanges} 条`}
+              >
+                {pendingChanges}
+              </span>
+            ) : null}
+          </Link>
+          <PackageDownload filters={exportFilters} />
+        </div>
+      </div>
 
-      {/* 一体化工作台控制面板：分段 Tab + 浅青玉筛选区 + 内嵌导出栏 */}
-      <section className="overflow-hidden rounded-xl border border-[#d2e2d8] bg-white shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#d2e2d8] bg-[#fafdfb] px-5 py-3">
-          <nav aria-label="审核状态分栏" className="inline-flex rounded-lg border border-[#d2e2d8] bg-[#eef5f1] p-1">
+      {/* 一体化工作台控制面板：分段 Tab + 暖石筛选区 + 内嵌导出栏 */}
+      <section className="overflow-hidden rounded-xl border border-[#e5e0d5] bg-white shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e5e0d5] px-5 py-3">
+          <nav aria-label="审核状态分栏" className="inline-flex rounded-lg border border-[#e5e0d5] bg-[#f7f5f0] p-1">
             {tabs.map((item) => {
               const active = tab === item.key;
               return (
@@ -127,8 +123,8 @@ export default async function ReviewPage({ searchParams }: PageProps) {
                   aria-current={active ? "page" : undefined}
                   className={`inline-flex items-center gap-1.5 rounded-md px-3.5 py-1.5 text-sm transition duration-150 ${
                     active
-                      ? "bg-[#115740] font-medium text-white shadow-sm"
-                      : "text-slate-600 hover:bg-white/80 hover:text-slate-900"
+                      ? "bg-[#002554] font-medium text-white shadow-sm"
+                      : "text-slate-600 hover:bg-white/70 hover:text-slate-900"
                   }`}
                 >
                   <span>{item.label}</span>

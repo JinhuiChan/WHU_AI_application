@@ -6,7 +6,6 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { ReactNode } from "react";
 import type { RegistrationStatus, ReviewLevel } from "@prisma/client";
 import { BatchActionBar } from "@/components/review/batch-action-bar";
 import { RejectDialog } from "@/components/review/reject-dialog";
@@ -30,78 +29,6 @@ type PreflightState = {
   error: string;
 };
 
-type CardTone = {
-  shell: string;
-  title: string;
-  metaBox: string;
-};
-
-const CARD_TONE_BY_KEY = {
-  danger: {
-    shell: "border-[#f0c7c9] border-l-[4px] border-l-red-600 bg-[#fef4f4] hover:border-[#e3a3a7]",
-    title: "text-[#991b1b] hover:text-[#7f1d1d]",
-    metaBox: "bg-white/80 ring-1 ring-[#efd0d2]/75",
-  },
-  pending: {
-    shell: "border-[#ecd9b0] border-l-[4px] border-l-[#d97706] bg-[#fefaf0] hover:border-[#d9bc80]",
-    title: "text-[#92400e] hover:text-[#78350f]",
-    metaBox: "bg-white/80 ring-1 ring-[#ead8b4]/75",
-  },
-  college: {
-    shell: "border-[#c6dbf6] border-l-[4px] border-l-[#1d4ed8] bg-[#f2f7fe] hover:border-[#9dc0ef]",
-    title: "text-[#002554] hover:text-[#1d4ed8]",
-    metaBox: "bg-white/85 ring-1 ring-[#c8dcf6]/80",
-  },
-  approved: {
-    shell: "border-[#bde0cd] border-l-[4px] border-l-[#115740] bg-[#eef8f3] hover:border-[#8dc5a8]",
-    title: "text-[#115740] hover:text-[#0b3e2d]",
-    metaBox: "bg-white/85 ring-1 ring-[#bfe0cf]/80",
-  },
-  muted: {
-    shell: "border-[#d2e2d8] border-l-[4px] border-l-slate-400 bg-[#f5faf7] hover:border-[#b4cbbd]",
-    title: "text-slate-900 hover:text-[#115740]",
-    metaBox: "bg-white/85 ring-1 ring-[#d2e2d8]",
-  },
-} satisfies Record<string, CardTone>;
-
-/** 按审核状态与指导关系核验状态给出卡片柔彩底色（统一从色表取值） */
-function cardToneFor(status: RegistrationStatus, hasUnconfirmedTeachers: boolean): CardTone {
-  if (hasUnconfirmedTeachers || status === "REJECTED") return CARD_TONE_BY_KEY.danger;
-  if (status === "PENDING") return CARD_TONE_BY_KEY.pending;
-  if (status === "COLLEGE_REVIEW") return CARD_TONE_BY_KEY.college;
-  if (status === "SCHOOL_FINAL" || status === "PROVINCE_ADVANCED" || status === "NATIONAL_ADVANCED") {
-    return CARD_TONE_BY_KEY.approved;
-  }
-  return CARD_TONE_BY_KEY.muted;
-}
-
-const EXPANDED_TONES = {
-  emerald: { box: "border-[#c7e3d4] bg-[#eef8f2]", heading: "text-[#115740]" },
-  blue: { box: "border-[#cadcf6] bg-[#f1f6fe]", heading: "text-[#002554]" },
-  amber: { box: "border-[#eedcb8] bg-[#fef9ee]", heading: "text-[#92400e]" },
-  violet: { box: "border-[#dcd1f6] bg-[#f6f2fd]", heading: "text-[#5b21b6]" },
-  teal: { box: "border-[#c5e2e5] bg-[#edf7f8]", heading: "text-[#0f5e6e]" },
-} as const;
-
-/** 展开区信息分组色块卡片：以柔和填充色区分报名/负责人/作品/师生信息 */
-function DetailSectionCard({
-  title,
-  tone,
-  children,
-}: {
-  title: string;
-  tone: keyof typeof EXPANDED_TONES;
-  children: ReactNode;
-}) {
-  const palette = EXPANDED_TONES[tone];
-  return (
-    <div className={`rounded-xl border px-4 py-3.5 ${palette.box}`}>
-      <h3 className={`text-xs font-semibold tracking-wide ${palette.heading}`}>{title}</h3>
-      {children}
-    </div>
-  );
-}
-
 function levelForStatus(status: RegistrationStatus): ReviewLevel | null {
   if (status === "PENDING") return "COLLEGE";
   if (status === "COLLEGE_REVIEW") return "SCHOOL";
@@ -115,8 +42,8 @@ function show(value: string | number | null | undefined) {
 function Field({ label, value }: { label: string; value: string | number | null | undefined }) {
   return (
     <div>
-      <dt className="t-label text-[11px] font-medium text-slate-500">{label}</dt>
-      <dd className="mt-0.5 break-all font-medium text-slate-800">{show(value)}</dd>
+      <dt className="text-sm text-slate-400">{label}</dt>
+      <dd className="mt-0.5 break-all text-slate-700">{show(value)}</dd>
     </div>
   );
 }
@@ -272,7 +199,7 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
       ) : null}
 
       <section className="space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#d2e2d8] bg-[#f5faf7] px-4 py-2.5">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#e5e0d5] bg-[#faf8f4] px-4 py-2.5">
           <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
             <input
               type="checkbox"
@@ -291,11 +218,11 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
           </label>
           <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
             <span>
-              本页共 <span className="font-mono font-semibold text-[#115740] tabular-nums">{data.total}</span> 项
+              本页共 <span className="font-mono font-semibold text-slate-800 tabular-nums">{data.total}</span> 项
               <span className="mx-1.5 text-slate-300">·</span>
               <span className="inline-flex items-center gap-1.5">
                 <span aria-hidden="true" className="inline-block h-2.5 w-[3px] rounded-full bg-red-600" />
-                红框红线标示指导关系未确认，其余按状态着色
+                红色竖线标示指导关系未确认
               </span>
             </span>
             {selectedIds.length ? (
@@ -310,11 +237,14 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
           const level = levelForStatus(item.status);
           const open = expanded.includes(item.id);
           const preflight = preflights[item.id];
-          const tone = cardToneFor(item.status, item.hasUnconfirmedTeachers);
           return (
             <article
               key={item.id}
-              className={`overflow-hidden rounded-xl border shadow-sm transition duration-150 ${tone.shell}`}
+              className={`rounded-xl border transition duration-150 ${
+                item.hasUnconfirmedTeachers
+                  ? "border-[#e5e0d5] border-l-[3px] border-l-red-600 bg-red-50/[0.22]"
+                  : "border-[#e5e0d5] bg-white hover:border-[#d0c9ba]"
+              }`}
             >
               <div className="flex flex-wrap items-start gap-3.5 px-5 py-4">
                 <input
@@ -331,32 +261,32 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
                   <div className="flex flex-wrap items-center gap-2">
                     <Link
                       href={detailHref("/review", item.id, from)}
-                      className={`font-display text-[17px] font-bold tracking-tight transition-colors ${tone.title}`}
+                      className="font-display text-base font-semibold text-slate-900 hover:text-[#002554]"
                     >
                       {item.projectName}
                     </Link>
                     <StatusBadge status={item.status}>{registrationStatusLabels[item.status]}</StatusBadge>
                     {item.hasUnconfirmedTeachers ? (
-                      <span className="rounded-full bg-red-100/80 px-2.5 py-0.5 text-xs font-medium text-red-700 ring-1 ring-red-200">指导关系未确认</span>
+                      <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700 ring-1 ring-red-200">指导关系未确认</span>
                     ) : null}
                   </div>
-                  <p className="mt-1 text-xs text-slate-600">{item.competitionName} · {item.trackDisplay}</p>
-                  <dl className={`mt-3 grid grid-cols-2 gap-x-6 gap-y-2 rounded-lg px-3.5 py-2.5 text-xs md:grid-cols-4 ${tone.metaBox}`}>
+                  <p className="mt-1 text-xs text-slate-500">{item.competitionName} · {item.trackDisplay}</p>
+                  <dl className="mt-3.5 grid grid-cols-2 gap-x-6 gap-y-2 text-xs md:grid-cols-4">
                     <div>
-                      <dt className="t-label text-[11px] text-slate-500">负责人</dt>
-                      <dd className="mt-0.5 font-medium text-slate-800">{show(item.leaderName)} <span className="font-mono font-normal text-slate-500">({show(item.leaderStudentNo)})</span></dd>
+                      <dt className="t-label text-xs text-slate-500">负责人</dt>
+                      <dd className="mt-0.5 text-slate-800">{show(item.leaderName)} <span className="font-mono text-slate-500">({show(item.leaderStudentNo)})</span></dd>
                     </div>
                     <div>
-                      <dt className="t-label text-[11px] text-slate-500">申报单位</dt>
-                      <dd className="mt-0.5 font-medium text-slate-800">{show(item.applicationUnit)}</dd>
+                      <dt className="t-label text-xs text-slate-500">申报单位</dt>
+                      <dd className="mt-0.5 text-slate-800">{show(item.applicationUnit)}</dd>
                     </div>
                     <div>
-                      <dt className="t-label text-[11px] text-slate-500">提交时间</dt>
+                      <dt className="t-label text-xs text-slate-500">提交时间</dt>
                       <dd className="mt-0.5 font-mono text-slate-700 tabular-nums">{item.submittedAt ? formatDateTime(item.submittedAt) : "—"}</dd>
                     </div>
                     <div>
-                      <dt className="t-label text-[11px] text-slate-500">提交次数 / 批次</dt>
-                      <dd className="mt-0.5 text-slate-700"><span className="font-mono font-medium tabular-nums">{item.submissionCount}</span> 次 · {show(item.batchName)}</dd>
+                      <dt className="t-label text-xs text-slate-500">提交次数 / 批次</dt>
+                      <dd className="mt-0.5 text-slate-700"><span className="font-mono tabular-nums">{item.submissionCount}</span> 次 · {show(item.batchName)}</dd>
                     </div>
                   </dl>
                 </div>
@@ -408,9 +338,10 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
               ) : null}
 
               {open ? (
-                <div className="space-y-3 border-t border-[#d2e2d8] bg-[#f7fbf9] px-5 py-4 text-xs">
-                  <DetailSectionCard title="报名信息" tone="emerald">
-                    <dl className="mt-2.5 grid grid-cols-2 gap-x-6 gap-y-3 md:grid-cols-4">
+                <div className="space-y-6 border-t border-[#e5e0d5] bg-[#faf8f4] px-5 py-4 text-xs">
+                  <div>
+                    <h3 className="font-semibold text-slate-900">报名信息</h3>
+                    <dl className="mt-2 grid grid-cols-2 gap-x-6 gap-y-3 md:grid-cols-4">
                       <Field label="批次" value={item.batchName} />
                       <Field label="分组" value={item.groupName} />
                       <Field label="赛道" value={item.trackDisplay} />
@@ -420,9 +351,10 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
                       <Field label="赛事" value={item.competitionName} />
                       <Field label="状态" value={registrationStatusLabels[item.status]} />
                     </dl>
-                  </DetailSectionCard>
-                  <DetailSectionCard title="负责人信息" tone="blue">
-                    <dl className="mt-2.5 grid grid-cols-2 gap-x-6 gap-y-3 md:grid-cols-4">
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-slate-900">负责人信息</h3>
+                    <dl className="mt-2 grid grid-cols-2 gap-x-6 gap-y-3 md:grid-cols-4">
                       <Field label="姓名" value={item.leaderName} />
                       <Field label="学号" value={item.leaderStudentNo} />
                       <Field label="年级" value={item.grade} />
@@ -436,9 +368,10 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
                       <Field label="邮箱" value={item.email} />
                       <Field label="奖金领款人" value={item.payeeName} />
                     </dl>
-                  </DetailSectionCard>
-                  <DetailSectionCard title="作品信息" tone="amber">
-                    <dl className="mt-2.5 grid grid-cols-2 gap-x-6 gap-y-3 md:grid-cols-4">
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-slate-900">作品信息</h3>
+                    <dl className="mt-2 grid grid-cols-2 gap-x-6 gap-y-3 md:grid-cols-4">
                       <Field label="作品" value={item.workName} />
                       <Field label="作品形式" value={item.workForm} />
                       <Field label="作品类别" value={item.workCategory} />
@@ -446,14 +379,16 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
                       <Field label="申报者姓名（集体名称）" value={item.applicantName} />
                       <Field label="评分（只读）" value={item.score} />
                     </dl>
-                  </DetailSectionCard>
-                  <div className="grid gap-3 md:grid-cols-2">
-                    <DetailSectionCard title="指导老师（多人）" tone="violet">
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                      <h3 className="font-semibold text-slate-900">指导老师（多人）</h3>
                       <p className="mt-2 whitespace-pre-line break-all leading-6 text-slate-700">{show(item.teachers)}</p>
-                    </DetailSectionCard>
-                    <DetailSectionCard title="团队成员（多人）" tone="teal">
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-slate-900">团队成员（多人）</h3>
                       <p className="mt-2 whitespace-pre-line break-all leading-6 text-slate-700">{show(item.members)}</p>
-                    </DetailSectionCard>
+                    </div>
                   </div>
                 </div>
               ) : null}
