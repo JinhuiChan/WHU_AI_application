@@ -1,6 +1,7 @@
 import { BackLink } from "@/components/data/list-link";
 import { firstParam } from "@/lib/list-query";
 import { ProjectProgress } from "@/components/project/project-progress";
+import { SectionHead } from "@/components/ui/section-head";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Button, ButtonArrow } from "@/components/ui/button";
 import type { Metadata } from "next";
@@ -81,7 +82,8 @@ export default async function MyProjectPage({ params, searchParams }: PageProps)
       ) : null}
 
       <section className="card p-5">
-        <h2 className="text-base font-semibold text-slate-900">项目基本信息</h2>
+        <SectionHead eyebrow="SECTION 01 · BASICS" sub="报名表里填过的内容，这里只读展示" title="项目基本信息" />
+        <div aria-hidden="true" className="mt-4 h-px bg-gradient-to-r from-slate-200 to-transparent" />
         <dl className="mt-4 grid gap-4 md:grid-cols-3">
           <Item label="项目组别" value={project.groupLabel} /><Item label="项目类别" value={project.categoryLabel} />
           <Item label="申报单位" value={project.applicationUnit} /><Item label="培养单位" value={project.trainingUnit} />
@@ -97,7 +99,8 @@ export default async function MyProjectPage({ params, searchParams }: PageProps)
       </section>
 
       <section className="card p-5">
-        <h2 className="text-base font-semibold text-slate-900">团队成员</h2>
+        <SectionHead eyebrow="SECTION 02 · TEAM" sub="负责人可改；校外成员需上传在读或工作证明" title="团队成员" />
+        <div aria-hidden="true" className="mt-4 h-px bg-gradient-to-r from-slate-200 to-transparent" />
         <div className="mt-4 space-y-3">
           {[project.leader, ...project.members].map((member) => (
             <div key={member.id} className="rounded-lg border border-slate-200 p-4">
@@ -123,7 +126,8 @@ export default async function MyProjectPage({ params, searchParams }: PageProps)
       </section>
 
       <section className="card p-5">
-        <h2 className="text-base font-semibold text-slate-900">指导老师</h2>
+        <SectionHead eyebrow="SECTION 03 · ADVISOR" sub="变更需提交申请，由管理员审批" title="指导老师" />
+        <div aria-hidden="true" className="mt-4 h-px bg-gradient-to-r from-slate-200 to-transparent" />
         <div className="mt-4 space-y-2">
           {project.teachers.map((teacher) => <p key={teacher.id} className="rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-700">{teacher.isInternal ? "校内" : "校外"} · {teacher.name} · {teacher.unit} · {teacher.title || "—"} · {teacher.phone || "—"}</p>)}
           {project.teachers.length === 0 ? <p className="text-sm text-slate-500 inline-empty">暂无指导老师</p> : null}
@@ -131,7 +135,8 @@ export default async function MyProjectPage({ params, searchParams }: PageProps)
       </section>
 
       <section className="card p-5">
-        <h2 className="text-base font-semibold text-slate-900">作品与材料</h2>
+        <SectionHead eyebrow="SECTION 04 · WORKS" sub="这里只登记名称与链接，文件走下方材料上传" title="作品与材料" />
+        <div aria-hidden="true" className="mt-4 h-px bg-gradient-to-r from-slate-200 to-transparent" />
         {project.work ? <dl className="mt-4 grid gap-4 md:grid-cols-3"><Item label="作品形式" value={project.work.formLabel} /><Item label="作品类别" value={project.work.categoryLabel} /><Item label="作品组别" value={project.work.groupLabel} /><Item label="作品文件" value={project.work.fileName ? `${project.work.fileName}（仅登记名称，未上传）` : ""} /><Item label="作品外链" value={project.work.externalUrl} /><Item label="PPT 文件" value={project.work.pptFileName ? `${project.work.pptFileName}（仅登记名称，未上传）` : ""} /></dl> : <p className="mt-3 text-sm text-slate-500 inline-empty">暂无作品信息</p>}
       </section>
 
