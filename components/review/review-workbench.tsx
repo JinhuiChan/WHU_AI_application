@@ -30,12 +30,12 @@ type PreflightState = {
 };
 
 const REVIEW_CARD_SURFACE = {
-  // 极低饱和度微底色：保留清爽白底阅读感，仅用轻薄色调区分审核流转阶段与异常状态
-  abnormal: "border-[#e9d0d0] bg-[#fdf6f6] hover:border-[#dbb5b5]",
-  pending: "border-[#d8e3e0] bg-[#f7faf9] hover:border-[#bccdc8]",
-  collegeReview: "border-[#d5e0ef] bg-[#f6f9fd] hover:border-[#b7cae4]",
-  approved: "border-[#cde2d6] bg-[#f3faf6] hover:border-[#abcbb9]",
-  muted: "border-[#dde5e0] bg-[#f8faf9] hover:border-[#c4d1ca]",
+  // 柔和可辨的低饱和填充色：保持「一条一条」横条卡片结构，让不同审批状态一眼可分
+  abnormal: "border-[#eec6c8] bg-[#fdefef] hover:border-[#dd9ca0]",
+  pending: "border-[#ebd8b0] bg-[#fdf6e7] hover:border-[#d6ba7d]",
+  collegeReview: "border-[#c2d8f4] bg-[#eaf2fc] hover:border-[#98bbea]",
+  approved: "border-[#badec9] bg-[#e9f6ef] hover:border-[#8ec5a5]",
+  muted: "border-[#cfdcd4] bg-[#eef3f0] hover:border-[#b0c5b9]",
 } as const;
 
 /** 按审批状态返回极低饱和度卡片底色与细边框，不加粗额外彩条 */
@@ -340,7 +340,7 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
               </div>
 
               {preflight && !preflight.loading ? (
-                <div className="space-y-2 border-t border-slate-100 px-4 py-3">
+                <div className="space-y-2 border-t border-black/[0.06] bg-white/60 px-4 py-3">
                   {preflight.error ? <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">{preflight.error}</div> : null}
                   {!preflight.error && preflight.items.length === 0 ? <div role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">预检未发现问题</div> : null}
                   {preflight.items.map((issue) => (
@@ -357,7 +357,7 @@ export function ReviewWorkbench({ data, from }: { data: ReviewListPage; from: st
               ) : null}
 
               {open ? (
-                <div className="space-y-6 rounded-b-xl border-t border-[#dde5e0] bg-[#f8faf9] px-5 py-4 text-xs">
+                <div className="space-y-6 rounded-b-xl border-t border-black/[0.06] bg-white/75 px-5 py-4 text-xs">
                   <div>
                     <h3 className="font-semibold text-slate-900">报名信息</h3>
                     <dl className="mt-2 grid grid-cols-2 gap-x-6 gap-y-3 md:grid-cols-4">
