@@ -21,7 +21,8 @@ type TeacherResult = {
   email: string | null;
 };
 
-const fieldClass = "h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-blue-600 disabled:bg-slate-100";
+const fieldClass =
+  "h-10 w-full rounded-lg border border-[#7f9384] bg-white px-3 text-sm text-[#0f1d18] outline-none transition-colors placeholder:text-[#7c8e85] focus:border-[#115740] focus:ring-2 focus:ring-[#115740]/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#115740]/25 disabled:cursor-not-allowed disabled:border-[#c8d7cf] disabled:bg-[#f1f6f3] disabled:text-[#5c6c65]";
 
 function emptyTeacher(isInternal: boolean): TeacherInput {
   return {
@@ -111,128 +112,236 @@ export function TeacherSection({ teachers, onChange }: TeacherSectionProps) {
   }
 
   return (
-    <section className="card p-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-base font-semibold text-slate-900">指导老师</h2>
-          <p className="mt-1 text-xs text-slate-500">已添加 {teachers.length}/8 名</p>
+    <>
+      <section id="apply-teachers" className="scroll-mt-28 card p-5 sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-start gap-3">
+            <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#cde0d5] bg-[#eef5f1] font-display text-xs font-bold text-[#115740] tabular-nums">
+              02
+            </span>
+            <div>
+              <h2 className="text-base font-semibold text-[#0f1d18]">指导老师</h2>
+              <p className="mt-0.5 text-xs text-[#54635d]">
+                已添加 <span className="font-semibold text-[#0f1d18] tabular-nums">{teachers.length}</span>/8 名校内或校外导师
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => openModal(true)}
+              className="rounded-full border-[#7f9384] bg-white text-[#1b2e26] hover:border-[#115740] hover:bg-[#eef5f1] focus-visible:ring-[#115740]/25"
+            >
+              + 添加校内指导老师
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => openModal(false)}
+              className="rounded-full border-[#7f9384] bg-white text-[#1b2e26] hover:border-[#115740] hover:bg-[#eef5f1] focus-visible:ring-[#115740]/25"
+            >
+              + 添加校外指导老师
+            </Button>
+          </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button type="button" variant="outline" onClick={() => openModal(true)} className="rounded-full">
-            + 添加校内指导老师
-          </Button>
-          <Button type="button" variant="outline" onClick={() => openModal(false)} className="rounded-full">
-            + 添加校外指导老师
-          </Button>
+        <div aria-hidden="true" className="mt-4 h-px bg-[#d5e2db]/70" />
+
+        {error && !modal ? <p role="alert" className="mt-3 text-sm text-[#9e2a35]">{error}</p> : null}
+
+        <div className="mt-4 space-y-3">
+          {teachers.map((teacher, index) => (
+            <div
+              key={teacher.id ?? `${teacher.staffNo}-${index}`}
+              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#d5e2db] bg-[#f8fbf9] p-4"
+            >
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#cde0d5] bg-[#eef5f1] font-display text-sm font-bold text-[#115740]">
+                  {teacher.name?.slice(0, 1) || "师"}
+                </span>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-semibold text-[#0f1d18]">{teacher.name}</span>
+                    <span
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
+                        teacher.isInternal
+                          ? "border border-[#cde0d5] bg-[#eef5f1] text-[#115740]"
+                          : "border border-[#ead7af] bg-[#fdf8ee] text-[#8a651b]"
+                      }`}
+                    >
+                      {teacher.isInternal ? "校内" : "校外"}
+                    </span>
+                    {teacher.title ? <span className="text-xs font-medium text-[#43554d]">{teacher.title}</span> : null}
+                    {teacher.gender ? <span className="text-xs text-[#6c7e76]">{teacher.gender}</span> : null}
+                  </div>
+                  <p className="mt-0.5 truncate text-xs text-[#54635d]">
+                    {[teacher.school, teacher.unit, teacher.staffNo ? `工号 ${teacher.staffNo}` : null].filter(Boolean).join(" · ")}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="font-mono text-xs text-[#43554d] tabular-nums">{teacher.phone || "—"}</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  type="button"
+                  className="rounded-full border-[#7f9384] bg-white px-4 text-[#9e2a35] hover:border-[#9e2a35] hover:bg-[#fdf2f3] focus-visible:ring-[#9e2a35]/20"
+                  onClick={() => onChange(teachers.filter((_, itemIndex) => itemIndex !== index))}
+                >
+                  删除
+                </Button>
+              </div>
+            </div>
+          ))}
+          {teachers.length === 0 ? (
+            <p className="rounded-xl border border-dashed border-[#b8cbc0] bg-[#f8fbf9] py-7 text-center text-sm text-[#5c6c65]">
+              暂未添加指导老师
+            </p>
+          ) : null}
         </div>
-      </div>
-      {error && !modal ? <p role="alert" className="mt-3 text-sm text-red-600">{error}</p> : null}
-      <div className="mt-4 overflow-x-auto">
-        <table className="w-full min-w-[760px] text-left text-sm">
-          <thead className="t-thead bg-slate-50 text-xs text-slate-500">
-            <tr><th className="px-3 py-2">是否校内</th><th className="px-3 py-2">姓名</th><th className="px-3 py-2">单位</th><th className="px-3 py-2">性别</th><th className="px-3 py-2">职称/职务</th><th className="px-3 py-2">联系电话</th><th className="px-3 py-2">操作</th></tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {teachers.map((teacher, index) => (
-              <tr key={teacher.id ?? `${teacher.staffNo}-${index}`}>
-                <td className="px-3 py-3">{teacher.isInternal ? "校内" : "校外"}</td><td className="px-3 py-3">{teacher.name}</td><td className="px-3 py-3">{teacher.unit}</td><td className="px-3 py-3">{teacher.gender}</td><td className="px-3 py-3">{teacher.title}</td><td className="px-3 py-3">{teacher.phone}</td>
-                <td className="px-3 py-3"><Button variant="ghost" size="default" type="button" onClick={() => onChange(teachers.filter((_, itemIndex) => itemIndex !== index))} >删除</Button></td>
-              </tr>
-            ))}
-            {teachers.length === 0 ? <tr><td colSpan={7} className="px-3 py-8 text-center text-slate-500">暂未添加指导老师</td></tr> : null}
-          </tbody>
-        </table>
-      </div>
+      </section>
 
       {modal ? (
-        <div ref={dialogRef} className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 p-4" role="dialog" aria-modal="true" aria-label={modal === "internal" ? "添加校内指导老师" : "添加校外指导老师"}>
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto card p-5 shadow-xl">
-            <h3 className="text-lg font-semibold text-slate-900">{modal === "internal" ? "添加校内指导老师" : "添加校外指导老师"}</h3>
+        <div
+          ref={dialogRef}
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-[#091812]/45 p-4 backdrop-blur-[2px]"
+          role="dialog"
+          aria-modal="true"
+          aria-label={modal === "internal" ? "添加校内指导老师" : "添加校外指导老师"}
+        >
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl">
+            <h3 className="font-display text-lg font-bold text-[#0f1d18]">
+              {modal === "internal" ? "添加校内指导老师" : "添加校外指导老师"}
+            </h3>
             {modal === "internal" ? (
-              <div className="mt-4 rounded-lg bg-slate-50 p-3">
+              <div className="mt-4 rounded-xl border border-[#d5e2db] bg-[#f8fbf9] p-4">
                 <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
-                  <span className="text-sm text-slate-600">按工号/姓名检索</span>
+                  <span className="text-sm font-medium text-[#24362f]">按工号/姓名检索</span>
                   <div className="flex gap-2">
                     <input className={fieldClass} value={keyword} onChange={(event) => setKeyword(event.target.value)} placeholder="工号或姓名" />
-                    <Button type="button" onClick={searchTeachers} disabled={searching} className="shrink-0">
+                    <Button
+                      type="button"
+                      onClick={searchTeachers}
+                      disabled={searching}
+                      className="shrink-0 rounded-full bg-[#115740] px-5 text-white hover:bg-[#0d4633] active:bg-[#093526] focus-visible:ring-[#115740]/25"
+                    >
                       {searching ? "检索中" : "检索"}
                     </Button>
                   </div>
                 </label>
-                {results.length ? <div className="mt-2 space-y-1">{results.map((teacher) => (
-                  <Button variant="default" size="default"
-                    type="button"
-                    key={teacher.staffNo ?? teacher.name}
-                    onClick={() => {
-                      setDraft({ isInternal: true, staffNo: teacher.staffNo, name: teacher.name, gender: teacher.gender ?? "", phone: teacher.phone, school: "武汉大学", unit: teacher.unit, title: teacher.title, email: teacher.email ?? "" });
-                      setFieldErrors({});
-                    }}
-                    className="block w-full text-left" >{teacher.staffNo} · {teacher.name} · {teacher.unit} · {teacher.title || "职称未登记"}</Button>
-                ))}</div> : <p className="mt-2 text-xs text-slate-500">检索后选择老师，也可继续校正信息；检索结果没有职称时请手填。</p>}
+                {results.length ? (
+                  <div className="mt-3 space-y-1.5">
+                    {results.map((teacher) => (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        type="button"
+                        key={teacher.staffNo ?? teacher.name}
+                        onClick={() => {
+                          setDraft({
+                            isInternal: true,
+                            staffNo: teacher.staffNo,
+                            name: teacher.name,
+                            gender: teacher.gender ?? "",
+                            phone: teacher.phone,
+                            school: "武汉大学",
+                            unit: teacher.unit,
+                            title: teacher.title,
+                            email: teacher.email ?? "",
+                          });
+                          setFieldErrors({});
+                        }}
+                        className="w-full justify-start rounded-full border-[#7f9384] bg-white px-4 text-left text-xs text-[#0f1d18] hover:border-[#115740] hover:bg-[#eef5f1]"
+                      >
+                        {teacher.staffNo} · {teacher.name} · {teacher.unit} · {teacher.title || "职称未登记"}
+                      </Button>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-2 text-xs text-[#5c6c65]">检索后选择老师即可带入档案；若检索结果无职称请手填补齐。</p>
+                )}
               </div>
             ) : null}
+
             <div className="mt-4 space-y-3">
               {modal === "internal" ? (
                 <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
-                  <span className="text-sm text-slate-600">工号</span>
+                  <span className="text-sm font-medium text-[#24362f]">工号</span>
                   <div>
-                    <input className={`${fieldClass}${fieldErrors.staffNo ? " border-red-500" : ""}`} value={draft.staffNo ?? ""} onChange={(event) => updateDraft({ staffNo: event.target.value })} required />
-                    {fieldErrors.staffNo ? <span role="alert" className="mt-1 block text-xs text-red-600">{fieldErrors.staffNo}</span> : null}
+                    <input className={`${fieldClass}${fieldErrors.staffNo ? " border-[#9e2a35]" : ""}`} value={draft.staffNo ?? ""} onChange={(event) => updateDraft({ staffNo: event.target.value })} required />
+                    {fieldErrors.staffNo ? <span role="alert" className="mt-1 block text-xs text-[#9e2a35]">{fieldErrors.staffNo}</span> : null}
                   </div>
                 </label>
               ) : null}
               <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
-                <span className="text-sm text-slate-600">姓名</span>
+                <span className="text-sm font-medium text-[#24362f]">姓名</span>
                 <div>
-                  <input className={`${fieldClass}${fieldErrors.name ? " border-red-500" : ""}`} value={draft.name} onChange={(event) => updateDraft({ name: event.target.value })} required />
-                  {fieldErrors.name ? <span role="alert" className="mt-1 block text-xs text-red-600">{fieldErrors.name}</span> : null}
+                  <input className={`${fieldClass}${fieldErrors.name ? " border-[#9e2a35]" : ""}`} value={draft.name} onChange={(event) => updateDraft({ name: event.target.value })} required />
+                  {fieldErrors.name ? <span role="alert" className="mt-1 block text-xs text-[#9e2a35]">{fieldErrors.name}</span> : null}
                 </div>
               </label>
               <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
-                <span className="text-sm text-slate-600">性别</span>
-                <select className={fieldClass} value={draft.gender} onChange={(event) => updateDraft({ gender: event.target.value })}><option value="">请选择</option><option value="男">男</option><option value="女">女</option></select>
+                <span className="text-sm font-medium text-[#24362f]">性别</span>
+                <select className={fieldClass} value={draft.gender} onChange={(event) => updateDraft({ gender: event.target.value })}>
+                  <option value="">请选择</option>
+                  <option value="男">男</option>
+                  <option value="女">女</option>
+                </select>
               </label>
               <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
-                <span className="text-sm text-slate-600">手机号</span>
+                <span className="text-sm font-medium text-[#24362f]">手机号</span>
                 <div>
-                  <input type="tel" className={`${fieldClass}${fieldErrors.phone ? " border-red-500" : ""}`} value={draft.phone} onChange={(event) => updateDraft({ phone: event.target.value })} required />
-                  {fieldErrors.phone ? <span role="alert" className="mt-1 block text-xs text-red-600">{fieldErrors.phone}</span> : null}
+                  <input type="tel" className={`${fieldClass} tabular-nums${fieldErrors.phone ? " border-[#9e2a35]" : ""}`} value={draft.phone} onChange={(event) => updateDraft({ phone: event.target.value })} required />
+                  {fieldErrors.phone ? <span role="alert" className="mt-1 block text-xs text-[#9e2a35]">{fieldErrors.phone}</span> : null}
                 </div>
               </label>
               <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
-                <span className="text-sm text-slate-600">所在院校/公司</span>
+                <span className="text-sm font-medium text-[#24362f]">所在院校/公司</span>
                 <div>
-                  <input className={`${fieldClass}${fieldErrors.school ? " border-red-500" : ""}`} value={draft.school} onChange={(event) => updateDraft({ school: event.target.value })} disabled={modal === "internal"} required />
-                  {fieldErrors.school ? <span role="alert" className="mt-1 block text-xs text-red-600">{fieldErrors.school}</span> : null}
+                  <input className={`${fieldClass}${fieldErrors.school ? " border-[#9e2a35]" : ""}`} value={draft.school} onChange={(event) => updateDraft({ school: event.target.value })} disabled={modal === "internal"} required />
+                  {fieldErrors.school ? <span role="alert" className="mt-1 block text-xs text-[#9e2a35]">{fieldErrors.school}</span> : null}
                 </div>
               </label>
               <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
-                <span className="text-sm text-slate-600">所在单位/部门</span>
+                <span className="text-sm font-medium text-[#24362f]">所在单位/部门</span>
                 <div>
-                  <input className={`${fieldClass}${fieldErrors.unit ? " border-red-500" : ""}`} value={draft.unit} onChange={(event) => updateDraft({ unit: event.target.value })} required />
-                  {fieldErrors.unit ? <span role="alert" className="mt-1 block text-xs text-red-600">{fieldErrors.unit}</span> : null}
+                  <input className={`${fieldClass}${fieldErrors.unit ? " border-[#9e2a35]" : ""}`} value={draft.unit} onChange={(event) => updateDraft({ unit: event.target.value })} required />
+                  {fieldErrors.unit ? <span role="alert" className="mt-1 block text-xs text-[#9e2a35]">{fieldErrors.unit}</span> : null}
                 </div>
               </label>
               <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
-                <span className="text-sm text-slate-600">{modal === "internal" ? "职称" : "职务"}</span>
+                <span className="text-sm font-medium text-[#24362f]">{modal === "internal" ? "职称" : "职务"}</span>
                 <div>
-                  <input className={`${fieldClass}${fieldErrors.title ? " border-red-500" : ""}`} value={draft.title} onChange={(event) => updateDraft({ title: event.target.value })} required />
-                  {fieldErrors.title ? <span role="alert" className="mt-1 block text-xs text-red-600">{fieldErrors.title}</span> : null}
+                  <input className={`${fieldClass}${fieldErrors.title ? " border-[#9e2a35]" : ""}`} value={draft.title} onChange={(event) => updateDraft({ title: event.target.value })} required />
+                  {fieldErrors.title ? <span role="alert" className="mt-1 block text-xs text-[#9e2a35]">{fieldErrors.title}</span> : null}
                 </div>
               </label>
               <label className="grid gap-2 sm:grid-cols-[9.5rem_1fr] sm:items-center sm:gap-x-4">
-                <span className="text-sm text-slate-600">邮箱</span>
+                <span className="text-sm font-medium text-[#24362f]">邮箱</span>
                 <input type="email" className={fieldClass} value={draft.email} onChange={(event) => updateDraft({ email: event.target.value })} />
               </label>
             </div>
-            {error ? <p role="alert" className="mt-3 text-sm text-red-600">{error}</p> : null}
-            <div className="mt-5 flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => { setModal(null); setError(""); }}>取消</Button>
-              <Button type="button" onClick={addTeacher}>确认添加</Button>
+            {error ? <p role="alert" className="mt-3 text-sm text-[#9e2a35]">{error}</p> : null}
+            <div className="mt-6 flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="rounded-full border-[#7f9384] px-5 hover:border-[#115740] hover:bg-[#f4f9f6]"
+                onClick={() => { setModal(null); setError(""); }}
+              >
+                取消
+              </Button>
+              <Button
+                type="button"
+                className="rounded-full bg-[#115740] px-6 text-white hover:bg-[#0d4633] active:bg-[#093526] focus-visible:ring-[#115740]/25"
+                onClick={addTeacher}
+              >
+                确认添加
+              </Button>
             </div>
           </div>
         </div>
       ) : null}
-    </section>
+    </>
   );
 }

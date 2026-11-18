@@ -20,7 +20,7 @@ type Props = {
 };
 
 const fieldClass =
-  "mt-1 h-9 w-full rounded-lg border border-slate-300 bg-white px-2 text-sm outline-none focus:border-blue-600";
+  "mt-1.5 h-10 w-full rounded-lg border border-[#7f9384] bg-white px-3 text-sm text-[#0f1d18] outline-none transition-colors placeholder:text-[#7c8e85] focus:border-[#115740] focus:ring-2 focus:ring-[#115740]/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#115740]/25 disabled:cursor-not-allowed disabled:border-[#c8d7cf] disabled:bg-[#f1f6f3] disabled:text-[#5c6c65]";
 
 // 每个变更类型允许填写的字段（与 lib/change.ts 白名单保持一致）
 const EDITABLE_FIELDS: Record<ChangeType, string[]> = {
@@ -42,9 +42,9 @@ const SELECTOR_LABEL: Partial<Record<ChangeType, string>> = {
 };
 
 function statusTone(status: ChangeRequestView["status"]) {
-  if (status === "APPROVED") return "bg-emerald-50 text-emerald-700";
-  if (status === "REJECTED") return "bg-red-50 text-red-700";
-  return "bg-amber-50 text-amber-700";
+  if (status === "APPROVED") return "border border-[#cde0d5] bg-[#eef5f1] text-[#115740]";
+  if (status === "REJECTED") return "border border-[#e5b8bd] bg-[#fdf2f3] text-[#9e2a35]";
+  return "border border-[#ead7af] bg-[#fdf8ee] text-[#8a651b]";
 }
 
 export function ChangeRequestPanel({ projectId, data }: Props) {
@@ -127,17 +127,31 @@ export function ChangeRequestPanel({ projectId, data }: Props) {
   }
 
   return (
-    <section className="card p-5">
+    <section className="card p-5 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-sm font-semibold text-slate-900">变更申请</h2>
-        <span className="text-xs text-slate-500">
-          {data.canRequest ? "当前不在自主修改窗口，需提交申请由管理员审核" : "当前处于可自主修改窗口，请直接编辑，无需申请"}
+        <div>
+          <h2 className="text-base font-semibold text-[#0f1d18]">变更申请</h2>
+          <p className="mt-0.5 text-xs text-[#54635d]">
+            {data.canRequest
+              ? "当前不在自主修改窗口，调整核心信息需提交申请由管理员审核"
+              : "当前处于可自主修改窗口，请直接点击顶部「编辑报名表」，无需提交申请"}
+          </p>
+        </div>
+        <span
+          className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
+            data.canRequest
+              ? "border border-[#ead7af] bg-[#fdf8ee] text-[#8a651b]"
+              : "border border-[#cde0d5] bg-[#eef5f1] text-[#115740]"
+          }`}
+        >
+          {data.canRequest ? "审批变更模式" : "自主修订窗口"}
         </span>
       </div>
+      <div aria-hidden="true" className="mt-4 h-px bg-[#d5e2db]/70" />
 
       {data.canRequest ? (
-        <div className="mt-4 grid gap-3 md:grid-cols-3">
-          <label className="text-sm text-slate-600">
+        <div className="mt-4 grid gap-4 rounded-xl border border-[#d5e2db] bg-[#f8fbf9] p-4 md:grid-cols-3">
+          <label className="text-sm font-medium text-[#24362f]">
             变更类型
             <select
               className={fieldClass}
@@ -156,7 +170,7 @@ export function ChangeRequestPanel({ projectId, data }: Props) {
           </label>
 
           {needsSelector ? (
-            <label className="text-sm text-slate-600">
+            <label className="text-sm font-medium text-[#24362f]">
               {SELECTOR_LABEL[type as ChangeType]}
               <select className={fieldClass} value={selector} onChange={(event) => onSelectorChange(event.target.value)}>
                 <option value="">请选择</option>
@@ -168,7 +182,7 @@ export function ChangeRequestPanel({ projectId, data }: Props) {
           ) : null}
 
           {type === "TRACK" ? (
-            <label className="text-sm text-slate-600">
+            <label className="text-sm font-medium text-[#24362f]">
               新赛道
               <select
                 className={fieldClass}
@@ -186,7 +200,7 @@ export function ChangeRequestPanel({ projectId, data }: Props) {
           {editableFields
             .filter((field) => !(type === "TRACK" && field === "trackId"))
             .map((field) => (
-              <label key={field} className="text-sm text-slate-600">
+              <label key={field} className="text-sm font-medium text-[#24362f]">
                 {CHANGE_FIELD_LABELS[field] ?? field}
                 <input
                   className={fieldClass}
@@ -197,48 +211,59 @@ export function ChangeRequestPanel({ projectId, data }: Props) {
               </label>
             ))}
 
-          <label className="text-sm text-slate-600 md:col-span-3">
+          <label className="text-sm font-medium text-[#24362f] md:col-span-3">
             变更理由（必填，不超过 200 字）
             <textarea
-              className="mt-1 min-h-20 w-full rounded-lg border border-slate-300 px-2 py-2 text-sm outline-none focus:border-blue-600"
+              className="mt-1.5 min-h-20 w-full rounded-lg border border-[#7f9384] bg-white px-3 py-2 text-sm text-[#0f1d18] outline-none transition-colors placeholder:text-[#7c8e85] focus:border-[#115740] focus:ring-2 focus:ring-[#115740]/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#115740]/25"
               value={reason}
               maxLength={200}
+              placeholder="请简明说明申请调整的具体事由"
               onChange={(event) => setReason(event.target.value)}
             />
           </label>
 
-          {error ? <p role="alert" className="text-xs text-red-600 md:col-span-3">{error}</p> : null}
+          {error ? <p role="alert" className="text-xs font-medium text-[#9e2a35] md:col-span-3">{error}</p> : null}
 
           <div className="md:col-span-3">
-            <Button variant="default" size="default"
+            <Button
+              variant="default"
+              size="default"
               type="button"
               onClick={submit}
-              disabled={submitting} >
+              disabled={submitting}
+              className="rounded-full bg-[#115740] px-6 text-white hover:bg-[#0d4633] active:scale-[0.98] active:bg-[#093526] focus-visible:ring-[#115740]/25 disabled:opacity-60"
+            >
               {submitting ? "提交中…" : "提交变更申请"}
             </Button>
           </div>
         </div>
       ) : null}
 
-      <div className="mt-6">
-        <h3 className="t-label text-xs font-medium text-slate-500">申请记录（{data.requests.length}）</h3>
+      <div className="mt-5">
+        <h3 className="t-label text-xs font-semibold text-[#54635d]">申请记录（{data.requests.length}）</h3>
         {data.requests.length === 0 ? (
-          <p className="mt-2 text-sm text-slate-500 inline-empty">暂无变更申请</p>
+          <p className="mt-2.5 text-sm text-[#5c6c65] inline-empty">暂无变更申请</p>
         ) : (
-          <ul className="mt-2 divide-y divide-slate-100">
+          <ul className="mt-3 space-y-2.5">
             {data.requests.map((item) => (
-              <li key={item.id} className="py-3 text-sm">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-medium text-slate-900">{CHANGE_TYPE_LABELS[item.type as ChangeType] ?? item.type}</span>
-                  <span className={`rounded-full px-2 py-0.5 text-xs ${statusTone(item.status)}`}>{CHANGE_STATUS_LABELS[item.status]}</span>
-                  <span className="text-xs text-slate-500">{formatDateTime(item.createdAt)}</span>
+              <li key={item.id} className="rounded-xl border border-[#d5e2db] bg-[#f8fbf9] px-4 py-3 text-sm">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-semibold text-[#0f1d18]">
+                      {CHANGE_TYPE_LABELS[item.type as ChangeType] ?? item.type}
+                    </span>
+                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusTone(item.status)}`}>
+                      {CHANGE_STATUS_LABELS[item.status]}
+                    </span>
+                  </div>
+                  <span className="text-xs text-[#6c7e76] tabular-nums">{formatDateTime(item.createdAt)}</span>
                 </div>
-                <p className="mt-1 text-xs text-slate-600">理由：{item.reason}</p>
+                <p className="mt-1.5 text-xs text-[#43554d]">变更理由：{item.reason}</p>
                 {item.collegeReason || item.schoolReason ? (
-                  <p className="mt-1 text-xs text-red-700">驳回理由：{item.schoolReason || item.collegeReason}</p>
+                  <p className="mt-1 text-xs font-medium text-[#9e2a35]">驳回理由：{item.schoolReason || item.collegeReason}</p>
                 ) : null}
                 {item.cooldownUntil ? (
-                  <p className="mt-1 text-xs text-amber-700">该字段可再次提交时间：{formatDateTime(item.cooldownUntil)}</p>
+                  <p className="mt-1 text-xs text-[#8a651b] tabular-nums">该字段可再次提交时间：{formatDateTime(item.cooldownUntil)}</p>
                 ) : null}
               </li>
             ))}
