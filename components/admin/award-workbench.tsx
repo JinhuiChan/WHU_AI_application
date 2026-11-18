@@ -107,8 +107,8 @@ export function AwardWorkbench({ data, competitions, colleges, filters }: AwardW
               {adminAwardLevels.map((level) => <option key={level} value={level}>{awardLevelLabels[level]}</option>)}
             </select>
           </label>
-          <Button variant="default" size="sm" type="submit" >筛选</Button>
-          <Link href="/admin/awards" className="inline-flex h-10 items-center rounded-lg border border-slate-300 px-4 text-sm text-slate-600 hover:bg-slate-50">重置</Link>
+          <Button variant="default" size="default" type="submit">筛选</Button>
+          <Link href="/admin/awards" className="inline-flex h-10 items-center rounded-full border border-[#7f9384] bg-white px-5 text-sm font-medium text-slate-700 transition hover:border-[#657a6f] hover:bg-[#f7faf8]">重置</Link>
         </form>
       </section>
 

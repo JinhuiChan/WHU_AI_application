@@ -56,16 +56,16 @@ export function SealedPanel({ projectId, files, currentFileId, canExportSensitiv
           ) : (
             <Button variant="outline" size="default" type="button" disabled title="仅项目负责人、第二/第三负责人或管理员可下载完整报名表" >下载报名表（交学院核验）</Button>
           )}
-          <a href={`/api/export/form?projectId=${encodeURIComponent(projectId)}&full=0`} className="rounded-lg border border-blue-300 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50">下载报名表（脱敏留存）</a>
+          <a href={`/api/export/form?projectId=${encodeURIComponent(projectId)}&full=0`} className="inline-flex h-10 items-center justify-center rounded-full border border-[#7f9384] bg-white px-5 text-sm font-medium text-slate-700 transition hover:border-[#657a6f] hover:bg-[#f7faf8]">下载报名表（脱敏留存）</a>
         </div>
       </div>
 
-      <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-4">
+      <div className="mt-5 rounded-xl border border-[#d5e2db] bg-[#f5faf7] p-4">
         <h3 className="text-sm font-medium text-slate-800">当前最终版</h3>
         {currentFile ? (
           <div className="mt-2 flex flex-wrap items-center gap-3">
             <span className="text-sm text-slate-700">第 {currentFile.versionNo} 版 · {currentFile.fileName} · {fileSize(currentFile.sizeBytes)}</span>
-            <a href={`/api/sealed/download?fileId=${encodeURIComponent(currentFile.id)}`} className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700">下载最终版</a>
+            <a href={`/api/sealed/download?fileId=${encodeURIComponent(currentFile.id)}`} className="inline-flex h-8 items-center rounded-full bg-blue-600 px-4 text-xs font-medium text-white transition hover:bg-blue-700">下载最终版</a>
           </div>
         ) : <p className="mt-2 text-sm text-slate-500">尚未上传可用的盖章件</p>}
       </div>

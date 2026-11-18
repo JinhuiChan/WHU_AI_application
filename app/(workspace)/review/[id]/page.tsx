@@ -159,7 +159,7 @@ export default async function ReviewDetailPage({ params, searchParams }: PagePro
                   <p className="mt-1 text-xs text-slate-500">{file.mimeType} · {(file.sizeBytes / 1024).toFixed(1)} KB · {file.uploaderName} 上传于 {formatDateTime(file.uploadedAt)}</p>
                   <p className="mt-1 text-xs text-slate-500">审查：{file.reviewResult}{file.reviewNote ? ` · ${file.reviewNote}` : ""}</p>
                 </div>
-                <a href={`/api/sealed/download?fileId=${encodeURIComponent(file.id)}`} className="shrink-0 rounded-lg border border-blue-300 px-3 py-2 text-center text-sm text-blue-700 hover:bg-blue-50">下载此版本</a>
+                <a href={`/api/sealed/download?fileId=${encodeURIComponent(file.id)}`} className="inline-flex h-9 shrink-0 items-center justify-center rounded-full border border-[#7f9384] bg-white px-4 text-center text-xs font-medium text-[#002554] transition hover:border-[#002554]/50 hover:bg-[#f7faf8]">下载此版本</a>
               </div>
             ))}
           </div>

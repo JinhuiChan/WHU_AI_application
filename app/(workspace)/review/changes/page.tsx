@@ -53,7 +53,7 @@ export default async function ChangeReviewPage({ searchParams }: PageProps) {
           <h1 className="t-page-title text-xl font-semibold text-slate-900">变更申请</h1>
           <p className="mt-1 text-sm text-slate-500">学生提交的变更申请，按类型走学院审核或学院 + 校级两级审核；默认只列待审批。</p>
         </div>
-        <Link href="/review" className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">
+        <Link href="/review" className="inline-flex h-10 items-center justify-center rounded-full border border-[#7f9384] bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:border-[#657a6f] hover:bg-[#f7faf8] active:scale-[0.97] motion-reduce:active:scale-100">
           返回报名审核
         </Link>
       </div>
@@ -68,8 +68,8 @@ export default async function ChangeReviewPage({ searchParams }: PageProps) {
             ))}
           </select>
         </label>
-        <Button variant="default" size="sm" type="submit" >筛选</Button>
-        <Link href="/review/changes" className="h-10 inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">重置</Link>
+        <Button variant="default" size="default" type="submit">筛选</Button>
+        <Link href="/review/changes" className="inline-flex h-10 items-center justify-center rounded-full border border-[#7f9384] bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:border-[#657a6f] hover:bg-[#f7faf8] active:scale-[0.97] motion-reduce:active:scale-100">重置</Link>
       </form>
 
       <section className="overflow-hidden card">
@@ -128,10 +128,10 @@ export default async function ChangeReviewPage({ searchParams }: PageProps) {
           <span>共 {result.total} 条，第 {result.page} / {totalPages} 页</span>
           <div className="flex gap-2">
             {result.page > 1 ? (
-              <Link href={`/review/changes?page=${result.page - 1}&status=${statusQuery}`} className="rounded-lg border border-slate-300 px-3 py-1 hover:bg-slate-50">上一页</Link>
+              <Link href={`/review/changes?page=${result.page - 1}&status=${statusQuery}`} className="inline-flex h-8 items-center rounded-full border border-[#7f9384] bg-white px-3.5 text-xs font-medium text-slate-700 transition hover:border-[#657a6f] hover:bg-[#f7faf8]">上一页</Link>
             ) : null}
             {result.page < totalPages ? (
-              <Link href={`/review/changes?page=${result.page + 1}&status=${statusQuery}`} className="rounded-lg border border-slate-300 px-3 py-1 hover:bg-slate-50">下一页</Link>
+              <Link href={`/review/changes?page=${result.page + 1}&status=${statusQuery}`} className="inline-flex h-8 items-center rounded-full border border-[#7f9384] bg-white px-3.5 text-xs font-medium text-slate-700 transition hover:border-[#657a6f] hover:bg-[#f7faf8]">下一页</Link>
             ) : null}
           </div>
         </div>

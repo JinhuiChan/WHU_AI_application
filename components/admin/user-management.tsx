@@ -136,8 +136,8 @@ export function UserManagement({
                             title={isCurrentUser ? "不能修改当前登录账号的身份" : undefined}
                             className={`h-7 rounded-full border px-2.5 text-xs transition disabled:cursor-not-allowed disabled:opacity-60 ${
                               checked
-                                ? "border-blue-200 bg-blue-50 font-medium text-blue-700"
-                                : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
+                                ? "border-[#115740]/35 bg-[#e3f0ea] font-medium text-[#115740]"
+                                : "border-[#7f9384] bg-white text-slate-600 hover:border-[#115740] hover:bg-[#f2f8f4]"
                             }`}
                           >
                             {option.label}

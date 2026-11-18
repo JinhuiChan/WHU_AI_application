@@ -61,12 +61,12 @@ export default async function UsersPage({ searchParams }: { searchParams?: Recor
               aria-current={active ? "page" : undefined}
               className={`inline-flex h-9 items-center gap-2 rounded-full border px-4 text-sm transition ${
                 active
-                  ? "border-blue-200 bg-blue-50 font-medium text-blue-700"
-                  : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                  ? "border-[#115740] bg-[#115740] font-medium text-white"
+                  : "border-[#7f9384] bg-white text-slate-700 hover:border-[#115740] hover:bg-[#f2f8f4]"
               }`}
             >
               {tab.label}
-              <span className={`text-xs ${active ? "text-blue-500" : "text-slate-400"}`}>{counts[tab.key]}</span>
+              <span className={`text-xs tabular-nums ${active ? "text-white/80" : "text-slate-400"}`}>{counts[tab.key]}</span>
               {pending > 0 ? (
                 <span
                   title={`待审核的管理员申请 ${pending} 个`}

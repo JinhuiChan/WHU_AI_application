@@ -199,7 +199,7 @@ export default async function MyProjectPage({ params, searchParams }: PageProps)
       <SealedPanel projectId={params.id} files={sealedFiles} currentFileId={currentFileId} canExportSensitive={canExportSensitive} />
       {canExportSensitive ? (
         <div className="no-print flex justify-end print:hidden">
-          <a href={`/my/${project.id}/print`} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-blue-300 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50">打印报名表（PDF）</a>
+          <a href={`/my/${project.id}/print`} target="_blank" rel="noopener noreferrer" className="inline-flex h-10 items-center justify-center rounded-full border border-[#7f9384] bg-white px-5 text-sm font-medium text-[#002554] transition hover:border-[#002554]/50 hover:bg-[#f7faf8]">打印报名表（PDF）</a>
         </div>
       ) : null}
       {changePanel ? <ChangeRequestPanel projectId={params.id} data={changePanel} /> : null}

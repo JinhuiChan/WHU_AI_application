@@ -68,9 +68,14 @@ export default async function ApplyPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <header className="rounded-xl border border-blue-100 bg-blue-50 px-5 py-4">
-        <h1 className="t-page-title text-xl font-semibold text-slate-900">项目报名</h1>
-        <p className="mt-1 text-sm text-blue-900">当前学生：{student.studentNo ?? "未绑定学号"} · {student.name}</p>
+      <header className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="t-page-title">项目报名</h1>
+          <p className="mt-1.5 text-sm text-[#54635d]">按赛项规程填写团队与作品信息，提交后将进入学院与校级审核流程。</p>
+        </div>
+        <span className="inline-flex items-center rounded-full border border-[#c0d5ca] bg-white/85 px-3.5 py-1.5 text-xs font-medium text-[#33433d]">
+          当前学生：{student.studentNo ?? "未绑定学号"} · {student.name}
+        </span>
       </header>
       <ApplyForm
         student={student}

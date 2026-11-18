@@ -117,9 +117,9 @@ export function MyTeams({
         {tabs.map((tab) => {
           const active = tab.key === activeTab;
           return (
-            <Link key={tab.key} href={`/my/teams?tab=${tab.key}`} aria-current={active ? "page" : undefined} className={`inline-flex h-9 items-center gap-1.5 rounded-full border px-3.5 text-sm transition duration-[160ms] ${active ? "border-blue-600 bg-blue-600 text-white" : "border-slate-300 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50/50"}`}>
+            <Link key={tab.key} href={`/my/teams?tab=${tab.key}`} aria-current={active ? "page" : undefined} className={`inline-flex h-9 items-center gap-1.5 rounded-full border px-3.5 text-sm transition duration-[160ms] ${active ? "border-[#115740] bg-[#115740] text-white" : "border-[#7f9384] bg-white text-slate-700 hover:border-[#115740] hover:bg-[#f2f8f4]"}`}>
               {tab.label}
-              <span className={`text-xs tabular-nums ${active ? "text-blue-100" : tab.key === "received" && pendingCount ? "text-red-600" : "text-slate-400"}`}>{tab.count}</span>
+              <span className={`text-xs tabular-nums ${active ? "text-white/80" : tab.key === "received" && pendingCount ? "text-red-600" : "text-slate-400"}`}>{tab.count}</span>
             </Link>
           );
         })}

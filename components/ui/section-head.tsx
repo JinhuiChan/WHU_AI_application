@@ -41,7 +41,7 @@ export function SectionRule({ className }: { className?: string }) {
   return (
     <div
       aria-hidden="true"
-      className={`h-px bg-gradient-to-r from-slate-200 to-transparent ${className ?? ""}`}
+      className={`h-px bg-[#d5e2db]/60 ${className ?? ""}`}
     />
   );
 }

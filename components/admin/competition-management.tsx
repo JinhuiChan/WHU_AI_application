@@ -138,7 +138,7 @@ export function CompetitionManagement({ competition, attachments, initialWindow 
 
   return (
     <div className="space-y-6">
-      <section className="rounded-lg border border-blue-200 bg-blue-50 p-5">
+      <section className="rounded-xl border border-[#bfd5ca] bg-[#eef5f0] p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div><h2 className="text-sm font-semibold text-slate-900">管理员操作区</h2><p className="mt-1 text-xs text-slate-600">赛事信息、公开材料和报名窗口保存后立即生效。</p></div>
           <Button type="button" variant="default" size="sm" onClick={() => setEditOpen(true)}>编辑赛事信息</Button>
@@ -320,7 +320,7 @@ export function CompetitionManagement({ competition, attachments, initialWindow 
                     {pending === `sync-${file.id}` ? "解析中…" : "重新解析"}
                   </Button>
                 ) : null}
-                <a href={file.filePath} target="_blank" rel="noreferrer" className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-700">查看 / 下载</a>
+                <a href={file.filePath} target="_blank" rel="noreferrer" className="inline-flex h-8 items-center rounded-full border border-[#7f9384] bg-white px-3.5 text-xs font-medium text-slate-700 transition hover:border-[#657a6f] hover:bg-[#f7faf8]">查看 / 下载</a>
                 <Button
                   type="button"
                   variant="destructive"

@@ -518,8 +518,8 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
               ) : null}
 
               <div className="mt-5 flex flex-wrap gap-3">
-                {commitResult.failed > 0 ? <a href={`/api/import/failed?batchId=${encodeURIComponent(savedBatchId)}`} className="inline-flex h-10 items-center rounded-lg border border-red-200 bg-red-50 px-4 text-sm font-medium text-red-700 hover:bg-red-100">下载失败行</a> : null}
-                <Link href="/review" className="inline-flex h-10 items-center rounded-lg bg-blue-600 px-4 text-sm font-medium text-white hover:bg-blue-700">前往审核工作台</Link>
+                {commitResult.failed > 0 ? <a href={`/api/import/failed?batchId=${encodeURIComponent(savedBatchId)}`} className="inline-flex h-10 items-center rounded-full border border-red-200 bg-red-50 px-5 text-sm font-medium text-red-700 transition hover:bg-red-100">下载失败行</a> : null}
+                <Link href="/review" className="inline-flex h-10 items-center rounded-full bg-blue-600 px-5 text-sm font-medium text-white transition hover:bg-blue-700">前往审核工作台</Link>
               </div>
             </>
           )}

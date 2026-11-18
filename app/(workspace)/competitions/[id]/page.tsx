@@ -130,16 +130,16 @@ export default async function CompetitionDetailPage({ params, searchParams }: Pa
         <div className="mt-4 flex flex-wrap items-center gap-3">
           {user.role === "STUDENT" ? (
             applyOpen ? (
-              <Link href={`/apply?competitionId=${competition.id}`} className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700">
+              <Link href={`/apply?competitionId=${competition.id}`} className="inline-flex h-10 items-center justify-center rounded-full bg-blue-600 px-6 text-sm font-medium text-white transition hover:bg-blue-700">
                 我要报名
               </Link>
             ) : (
-              <span className="rounded-lg bg-slate-100 px-5 py-2 text-sm text-slate-500">{applyWindow && !applyWindow.enabled ? "报名未开放" : "当前不在报名时间内"}</span>
+              <span className="inline-flex h-10 items-center justify-center rounded-full bg-slate-100 px-5 text-sm text-slate-500">{applyWindow && !applyWindow.enabled ? "报名未开放" : "当前不在报名时间内"}</span>
             )
           ) : (
             <span className="text-sm text-slate-500">仅参赛学生可报名</span>
           )}
-          <Link href="/my" className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100">我的项目</Link>
+          <Link href="/my" className="inline-flex h-10 items-center justify-center rounded-full border border-[#7f9384] bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:border-[#657a6f] hover:bg-[#f7faf8] active:scale-[0.97] motion-reduce:active:scale-100">我的项目</Link>
         </div>
       </section>
 
@@ -204,7 +204,7 @@ export default async function CompetitionDetailPage({ params, searchParams }: Pa
                     {file.knowledgeStatus === "REPLACED" && <p className="text-xs text-slate-500">已被新版替换，仅供历史查阅</p>}
                     <p className="text-xs text-slate-500">{file.kind === "RULE" ? "规程" : file.kind === "TEMPLATE" ? "模板" : "通知"} · {file.fileName}</p>
                   </div>
-                  <a href={file.filePath} target="_blank" rel="noreferrer" className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50">
+                  <a href={file.filePath} target="_blank" rel="noreferrer" className="inline-flex h-8 items-center rounded-full border border-[#7f9384] bg-white px-3.5 text-xs font-medium text-slate-700 transition hover:border-[#657a6f] hover:bg-[#f7faf8]">
                     查看 / 下载
                   </a>
                 </li>
