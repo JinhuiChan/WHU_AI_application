@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { WhuSeal, WhuTitleRule } from "@/components/brand/whu-motifs";
 import { listHref } from "@/components/data/list-link";
 import { Pagination } from "@/components/data/pagination";
 import { DatasetExport } from "@/components/export/dataset-export";
 import { PackageDownload } from "@/components/review/package-download";
-import { ReviewFilters } from "@/components/review/review-filters";
-import type { ReviewFilterValues } from "@/components/review/review-filters";
+import { ReviewFilters, type ReviewFilterValues } from "@/components/review/review-filters";
 import { ReviewWorkbench } from "@/components/review/review-workbench";
 import { WorkspaceForbidden } from "@/components/ui/workspace-forbidden";
 import { getActiveUser } from "@/lib/auth.server";
@@ -70,27 +70,32 @@ export default async function ReviewPage({ searchParams }: PageProps) {
     { key: "reviewed", label: "已审核", count: tabCounts.reviewed },
     { key: "all", label: "全部", count: tabCounts.total },
   ];
-  // 导出/打包不受 tab 影响：tab 只是列表视图，避免默认「待审核」时导出 0 行
   const exportFilters = { ...values, tab: "" };
 
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="t-page-title font-display text-[26px] font-bold tracking-tight text-[#0e1d17] sm:text-[28px]">报名审核</h1>
-          <p className="mt-1.5 text-sm text-[#54635d]">
-            学院初审通过后进入校级终审；存在未确认指导关系的项目以左侧红线标示。
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h1 className="t-page-title font-display text-[26px] font-bold tracking-tight text-[#0e1d17] sm:text-[28px]">
+              报名审核
+            </h1>
+            <WhuSeal label="审核工作台" />
+          </div>
+          <p className="mt-1.5 flex items-center gap-2 text-sm text-[#54635d]">
+            <WhuTitleRule />
+            <span>学院初审通过后进入校级终审；存在未确认指导关系的项目以左侧朱砂红线标示。</span>
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2.5">
           <Link
             href="/review/changes"
-            className="inline-flex h-9 items-center justify-center rounded-full border border-[#cbd8d1] bg-white px-4 text-sm font-medium text-slate-700 transition duration-150 ease-out hover:border-[#002554]/40 hover:bg-[#f7faf8] active:scale-[0.98]"
+            className="inline-flex h-10 items-center justify-center rounded-full border border-[#7f9384] bg-white px-4 text-sm font-medium text-[#162620] transition duration-150 ease-out hover:border-[#115740] hover:bg-[#eef5f1] active:scale-[0.98] motion-reduce:active:scale-100"
           >
             变更申请
             {pendingChanges > 0 ? (
               <span
-                className="ml-2 rounded-full bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700 tabular-nums"
+                className="ml-2 rounded-full bg-[#faeaea] px-2 py-0.5 text-xs font-semibold text-[#9e2a35] tabular-nums"
                 title={`待审批变更申请 ${pendingChanges} 条`}
               >
                 {pendingChanges}
@@ -101,7 +106,6 @@ export default async function ReviewPage({ searchParams }: PageProps) {
         </div>
       </div>
 
-      {/* 无框下划线分段 Tab：解除双层套盒 */}
       <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[#cedcd4]">
         <nav aria-label="审核状态分栏" className="flex items-center gap-6">
           {tabs.map((item) => {
@@ -111,16 +115,16 @@ export default async function ReviewPage({ searchParams }: PageProps) {
                 key={item.key}
                 href={tabHref(item.key)}
                 aria-current={active ? "page" : undefined}
-                className={`-mb-px inline-flex items-center gap-2 border-b-[2.5px] pb-2.5 pt-1 text-sm transition duration-150 ${
+                className={`-mb-px inline-flex items-center gap-2 border-b-[2.5px] pb-2.5 pt-1 text-sm transition-colors duration-150 ${
                   active
-                    ? "border-[#0d3b2e] font-semibold text-[#0d3b2e]"
+                    ? "border-[#115740] font-semibold text-[#115740]"
                     : "border-transparent font-medium text-[#5d6c65] hover:text-[#0e1d17]"
                 }`}
               >
                 <span>{item.label}</span>
                 <span
                   className={`rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums ${
-                    active ? "bg-[#d6e8de] text-[#0d3b2e]" : "bg-[#e1ebe5] text-[#5d6c65]"
+                    active ? "bg-[#eef5f1] text-[#115740] ring-1 ring-[#badec9]" : "bg-[#e3ede7] text-[#54635d]"
                   }`}
                 >
                   {item.count}
@@ -129,20 +133,25 @@ export default async function ReviewPage({ searchParams }: PageProps) {
             );
           })}
         </nav>
-        <span className="pb-2.5 text-xs text-[#64756d]">默认仅看待审核，可随时切换全部状态</span>
+        <span className="pb-2.5 text-xs text-[#5c6c65]">默认仅展示待审核项目，可随时切换全部状态</span>
       </div>
 
-      {/* 轻薄筛选卡 + 底部内嵌导出开关 */}
-      <section className="overflow-hidden rounded-xl border border-[#d5e2db] bg-white">
+      <section className="overflow-hidden rounded-xl border border-[#d5e2db] bg-white shadow-[0_1px_2px_rgba(20,34,27,0.03)]">
         <ReviewFilters embedded options={options} values={values} />
         <DatasetExport embedded scope="all" filters={exportFilters} buttonLabel="导出数据表" />
       </section>
 
       {tab === "pending" && data.total === 0 ? (
-        <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+        <p className="rounded-xl border border-[#badec9] bg-[#eef5f1] px-4 py-3 text-sm text-[#115740]">
           当前没有待审核项目，可切换到
-          <Link href={tabHref("reviewed")} className="mx-1 underline">已审核</Link>或
-          <Link href={tabHref("all")} className="mx-1 underline">全部</Link>查看。
+          <Link href={tabHref("reviewed")} className="mx-1 font-semibold underline">
+            已审核
+          </Link>
+          或
+          <Link href={tabHref("all")} className="mx-1 font-semibold underline">
+            全部
+          </Link>
+          查看历史台账。
         </p>
       ) : null}
 

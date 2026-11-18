@@ -4,17 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { RegistrationStatus } from "@prisma/client";
-import { Button } from "@/components/ui/button";
 import { RejectDialog } from "@/components/review/reject-dialog";
+import { Button } from "@/components/ui/button";
 import type { ApiResponse } from "@/types/api";
 import type { ReviewOperationResult } from "@/types/review";
 
-/**
- * 审核详情页顶部的通过 / 驳回。
- * 原来详情页只能看，要操作得退回列表再找那条，审十条就要来回切二十次。
- * 级别由当前状态推出来，与列表页的 levelForStatus 同一套规则：
- * PENDING → 学院级，COLLEGE_REVIEW → 校级；其他状态（已通过、已驳回）不给操作。
- */
 export function ReviewDecisionBar({
   projectId,
   projectName,
@@ -72,18 +66,25 @@ export function ReviewDecisionBar({
 
   return (
     <>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Button
           type="button"
           variant="outline"
           size="sm"
-          className="border-red-200 text-red-700 hover:bg-red-50"
+          className="border-red-200 bg-white text-red-700 hover:bg-red-50"
           disabled={pending !== null}
           onClick={() => setRejecting(true)}
         >
           驳回
         </Button>
-        <Button type="button" size="sm" loading={pending === "approve"} disabled={pending !== null} onClick={() => void approve()}>
+        <Button
+          type="button"
+          size="sm"
+          className="bg-[#115740] text-white hover:bg-[#0d4633]"
+          loading={pending === "approve"}
+          disabled={pending !== null}
+          onClick={() => void approve()}
+        >
           {level === "COLLEGE" ? "学院通过" : "校级通过"}
         </Button>
       </div>

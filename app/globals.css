@@ -37,6 +37,11 @@
   --text-note: 12px;
 }
 
+html,
+body {
+  overflow-x: clip;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
@@ -151,6 +156,10 @@ body {
     text-wrap: balance;
   }
 
+  .font-serif {
+    font-family: var(--font-serif-display), "Noto Serif SC", "Source Han Serif SC", "Songti SC", "SimSun", serif;
+  }
+
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom);
   }
@@ -190,6 +199,13 @@ body {
   }
 }
 
+h1,
+h2,
+.t-page-title,
+.t-hero {
+  text-wrap: balance;
+}
+
 /* 全站文字层级：展示大标题使用思源宋体（--font-serif-display），正文维持精密无衬线体，形成鲜明书卷感与专业度对比。 */
 .page-enter .t-page-title {
   font-family: var(--font-serif-display), "Noto Serif SC", "Source Han Serif SC", "Songti SC", "SimSun", serif;
@@ -198,6 +214,7 @@ body {
   line-height: 1.24;
   color: #0e1d17;
   letter-spacing: -0.01em;
+  text-wrap: balance;
 }
 
 /* 全站业务页题头统一附上绿琉璃 + 斋舍绛朱双色建筑短尺，形成一致的珞珈家族特征 */
