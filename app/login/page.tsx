@@ -29,7 +29,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const callbackUrl = rawCallback?.startsWith("/") && !rawCallback.startsWith("//") ? rawCallback : "/dashboard";
 
   return (
-    <div className="grid min-h-screen bg-[#edf4ef] text-slate-900 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+    <div className="grid min-h-[100dvh] bg-[#edf4ef] text-slate-900 lg:min-h-[100dvh] lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
       <section className="relative hidden overflow-hidden bg-[#0d3b2e] px-12 py-9 lg:flex lg:flex-col">
         <Image
           alt="武汉大学校园建筑"

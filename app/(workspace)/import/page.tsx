@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ImportWizard } from "@/components/admin/import-wizard";
+import { WhuSeal, WhuTitleRule } from "@/components/brand/whu-motifs";
 import { WorkspaceForbidden } from "@/components/ui/workspace-forbidden";
 import { getActiveUser } from "@/lib/auth.server";
 import { prisma } from "@/lib/prisma";
@@ -21,10 +22,18 @@ export default async function ImportPage() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div>
-        <h1 className="t-page-title text-xl font-semibold text-slate-900">赛事报名数据导入</h1>
-        <p className="mt-1 text-sm text-slate-500">选择赛事与阶段；Word/PDF 自动识别后可逐页核对、修改和补行，确认后入库并查看失败报告。</p>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <h1 className="t-page-title font-display text-[26px] font-bold tracking-tight text-[#0e1d17] sm:text-[28px]">
+            赛事报名数据导入
+          </h1>
+          <WhuSeal label="批量入库" />
+        </div>
+        <p className="mt-1.5 flex items-center gap-2 text-sm text-[#54635d]">
+          <WhuTitleRule />
+          <span>选择目标赛事与赛段，文档识别后可逐页核对、修改与补行，确认无误后统一入库。</span>
+        </p>
       </div>
       <ImportWizard competitions={competitions} />
     </div>

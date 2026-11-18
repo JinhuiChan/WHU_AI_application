@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-
 import { Button } from "@/components/ui/button";
 
 export function PackageDownload({ filters }: { filters: Record<string, string> }) {
@@ -14,6 +13,7 @@ export function PackageDownload({ filters }: { filters: Record<string, string> }
       <Button
         type="button"
         disabled={pending}
+        className="h-10 bg-[#115740] px-5 text-white hover:bg-[#0d4633]"
         title="按当前筛选结果打包盖章件（≤100 项且 ≤500MB）"
         onClick={async () => {
           setPending(true);
@@ -26,7 +26,7 @@ export function PackageDownload({ filters }: { filters: Record<string, string> }
               body: JSON.stringify(filters),
             });
             if (!response.ok) {
-              const result = await response.json() as { message?: string };
+              const result = (await response.json()) as { message?: string };
               throw new Error(result.message || "打包下载失败");
             }
             const blob = await response.blob();
@@ -51,7 +51,7 @@ export function PackageDownload({ filters }: { filters: Record<string, string> }
         {pending ? "打包中…" : "打包下载"}
       </Button>
       {error ? <p role="alert" className="max-w-md text-right text-xs text-red-600">{error}</p> : null}
-      {notice ? <p role="status" className="text-xs text-emerald-700">{notice}</p> : null}
+      {notice ? <p role="status" className="text-xs text-[#115740]">{notice}</p> : null}
     </div>
   );
 }

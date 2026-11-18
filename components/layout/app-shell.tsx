@@ -22,10 +22,10 @@ export async function AppShell({ user, children }: { user: AuthUser; children: R
     adminUsers,
   };
   return (
-    <div className="app-shell-root min-h-screen">
+    <div className="app-shell-root min-h-[100dvh]">
       <Sidebar user={user} roles={user.roles} badges={badges} />
-      <div className="min-h-screen md:py-2.5 md:pl-60 md:pr-2.5">
-        <div className="app-canvas flex min-h-screen flex-col md:min-h-[calc(100vh-20px)] md:rounded-[18px] md:shadow-[-2px_0_28px_rgba(0,0,0,0.22),inset_0_1px_0_rgba(255,255,255,0.85)]">
+      <div className="min-h-[100dvh] md:py-2.5 md:pl-60 md:pr-2.5">
+        <div className="app-canvas flex min-h-[100dvh] flex-col md:min-h-[calc(100dvh-20px)] md:rounded-[18px] md:shadow-[-2px_0_28px_rgba(0,0,0,0.22),inset_0_1px_0_rgba(255,255,255,0.85)]">
           <header className="relative z-30 flex h-12 items-center justify-between gap-4 px-4 pt-2 md:px-8 md:pt-3.5">
             <Breadcrumbs />
             <span className="hidden items-center gap-2 rounded-full bg-[#115740]/[0.075] px-3 py-1 text-[11.5px] font-medium text-[#115740] md:inline-flex">

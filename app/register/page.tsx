@@ -93,7 +93,7 @@ export default function RegisterPage() {
   const passwordFieldClass = `${fieldClass} pr-16`;
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#edf4ef] px-4 py-10">
+    <main className="flex min-h-[100dvh] items-center justify-center bg-[#edf4ef] px-4 py-10">
       <div className="w-full max-w-[460px] overflow-hidden rounded-2xl border border-[#c9dad1] bg-white shadow-[0_8px_28px_-14px_rgba(13,59,46,0.14)]">
         <div className="flex items-center justify-between gap-3 bg-gradient-to-r from-[#114636] to-[#0b3327] px-7 py-5 text-white">
           <div className="flex items-center gap-3">
@@ -103,7 +103,7 @@ export default function RegisterPage() {
               <span className="mt-0.5 block text-[11.5px] text-[#b4d3c5]">武汉大学大学生创新创业竞赛平台</span>
             </div>
           </div>
-          <span className="text-[11px] tracking-widest text-[#9ec4b3]">新用户注册</span>
+          <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-medium text-[#d2e7dc]">新用户注册</span>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 p-7 sm:p-8">
@@ -207,7 +207,7 @@ export default function RegisterPage() {
                 required
               />
               <Button
-                className="absolute right-1.5 top-1/2 h-8 -translate-y-1/2 px-3 text-xs"
+                className="absolute right-1.5 top-1/2 h-8 -translate-y-1/2 px-3 text-xs text-[#115740] hover:bg-[#eef5f1]"
                 onClick={() => setShowPassword((value) => !value)}
                 size="sm"
                 type="button"
@@ -251,10 +251,13 @@ export default function RegisterPage() {
           </div>
         ) : null}
 
-        <Button variant="default" size="default"
+        <Button
+          variant="default"
+          size="default"
           type="submit"
           loading={submitting}
-          className="w-full" >
+          className="w-full bg-[#115740] text-white hover:bg-[#0d4633]"
+        >
           {submitting ? "注册中…" : "注册"}
         </Button>
 
