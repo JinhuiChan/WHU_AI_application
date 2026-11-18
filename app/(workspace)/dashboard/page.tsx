@@ -86,7 +86,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
   // 图标底色按功能分类，保持柔和浅底，避免高饱和色块抢戏
   const ICON_TONE = {
-    blue: "bg-blue-50 text-blue-700",
+    blue: "bg-[#eef5f1] text-[#115740]",
     teal: "bg-teal-50 text-teal-700",
     emerald: "bg-emerald-50 text-emerald-700",
     amber: "bg-amber-50 text-amber-700",
@@ -328,7 +328,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
               <p className="text-sm text-slate-600">这个筛选条件下还没有你参与的项目。</p>
               <p className="mt-1 text-xs text-slate-400">换个赛事或年份试试，也可以清除筛选看看全部数据。</p>
               <Link
-                className="mt-4 inline-flex h-9 items-center justify-center rounded-full border border-slate-300 bg-white px-4 text-sm text-slate-700 transition hover:bg-slate-50"
+                className="mt-4 inline-flex h-9 items-center justify-center rounded-full border border-[#7f9384] bg-white px-4 text-sm text-[#24362f] transition hover:border-[#115740] hover:bg-[#f2f8f4]"
                 href="/dashboard"
               >
                 清除筛选
@@ -353,7 +353,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                 <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
                   {statusRows.map((item) => (
                     <Link
-                      className="group inline-flex items-center gap-1.5 text-xs text-slate-600 hover:text-blue-700"
+                      className="group inline-flex items-center gap-1.5 rounded-sm text-xs text-slate-600 transition-colors hover:text-[#115740] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#115740]"
                       href={`/my?filter=${statusFilter[item.status] ?? "all"}`}
                       key={item.status}
                     >
@@ -452,7 +452,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                         <p className="text-sm text-slate-600">这个筛选条件下还没有项目数据。</p>
                         <p className="mt-1 text-xs text-slate-400">换个赛事、年份或阶段试试，也可以清除筛选。</p>
                         <Link
-                          className="mt-4 inline-flex h-9 items-center justify-center rounded-full border border-slate-300 bg-white px-4 text-sm text-slate-700 transition hover:bg-slate-50"
+                          className="mt-4 inline-flex h-9 items-center justify-center rounded-full border border-[#7f9384] bg-white px-4 text-sm text-[#24362f] transition hover:border-[#115740] hover:bg-[#f2f8f4]"
                           href="/dashboard"
                         >
                           清除筛选
