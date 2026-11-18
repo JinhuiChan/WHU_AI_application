@@ -141,18 +141,18 @@ export function StatisticsCharts({
         </div>
         <div aria-hidden="true" className="mt-3.5 h-px bg-[#d5e2db]/60" />
 
-        <div className="mt-4 h-64" aria-label="赛道分布环形图">
+        <div className="mt-4 flex min-h-[18rem] flex-1 flex-col justify-center" aria-label="赛道分布环形图">
           {hasTrackData ? (
-            <div className="flex h-full flex-col items-center gap-3 sm:flex-row sm:items-center">
-              <div className="relative h-44 w-40 shrink-0 sm:h-48 sm:w-[152px]">
+            <div className="flex h-full flex-col items-center justify-between gap-2.5 sm:flex-row sm:items-center sm:gap-5 xl:flex-col xl:items-stretch xl:gap-2.5">
+              <div className="relative mx-auto h-36 w-40 shrink-0 sm:mx-0 sm:h-48 sm:w-44 xl:mx-auto xl:h-[136px] xl:w-[148px]">
                 <div
                   aria-hidden="true"
                   className="pointer-events-none absolute inset-0 z-0 flex flex-col items-center justify-center text-center"
                 >
-                  <span className="font-display text-[26px] font-bold leading-none tracking-tight text-[#0b1f18] tabular-nums">
+                  <span className="font-display text-[23px] font-bold leading-none tracking-tight text-[#0b1f18] tabular-nums sm:text-[26px] xl:text-[23px]">
                     {totalTrackProjects}
                   </span>
-                  <span className="mt-1.5 text-[11px] font-medium text-[#5c6c65]">项目总数</span>
+                  <span className="mt-1 text-[11px] font-medium text-[#5c6c65]">项目总数</span>
                 </div>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -162,8 +162,8 @@ export function StatisticsCharts({
                       nameKey="trackName"
                       cx="50%"
                       cy="50%"
-                      innerRadius={45}
-                      outerRadius={66}
+                      innerRadius="58%"
+                      outerRadius="86%"
                       paddingAngle={2}
                       stroke="#ffffff"
                       strokeWidth={1.5}
@@ -177,10 +177,7 @@ export function StatisticsCharts({
                 </ResponsiveContainer>
               </div>
 
-              <ul
-                aria-label="赛道数量与占比图例"
-                className="max-h-52 w-full min-w-0 flex-1 space-y-2 overflow-y-auto pr-1"
-              >
+              <ul aria-label="赛道数量与占比图例" className="w-full min-w-0 flex-1 space-y-1">
                 {trackChartData.map((item) => {
                   const pct =
                     typeof item.percentage === "number"
@@ -189,7 +186,7 @@ export function StatisticsCharts({
                   return (
                     <li
                       key={item.trackId ?? item.trackName}
-                      className="flex items-center justify-between gap-2 rounded-lg px-2 py-1 text-xs transition-colors hover:bg-[#f2f7f4]"
+                      className="flex items-center justify-between gap-2.5 rounded-lg px-2 py-1 text-xs transition-colors hover:bg-[#f2f7f4]"
                     >
                       <span className="flex min-w-0 items-center gap-2">
                         <span
@@ -204,7 +201,7 @@ export function StatisticsCharts({
                       <span className="shrink-0 whitespace-nowrap tabular-nums">
                         <span className="font-display font-bold text-[#0f1d18]">{item.projectCount}</span>
                         <span className="ml-0.5 text-[11px] text-[#5c6c65]">项</span>
-                        <span className="ml-1.5 inline-block min-w-[38px] text-right text-[11px] text-[#677770]">
+                        <span className="ml-1.5 inline-block min-w-[40px] text-right text-[11px] text-[#677770]">
                           {pct}%
                         </span>
                       </span>
@@ -232,7 +229,7 @@ export function StatisticsCharts({
         </div>
         <div aria-hidden="true" className="mt-3.5 h-px bg-[#d5e2db]/60" />
 
-        <div className="mt-4 h-64" aria-label="阶段分布柱状图">
+        <div className="mt-4 h-72" aria-label="阶段分布柱状图">
           {hasStageData ? (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stageChartData} margin={{ top: 12, right: 12, bottom: 2, left: -12 }}>
@@ -281,7 +278,7 @@ export function StatisticsCharts({
         </div>
         <div aria-hidden="true" className="mt-3.5 h-px bg-[#d5e2db]/60" />
 
-        <div className="mt-4 h-64" aria-label="奖项分布柱状图">
+        <div className="mt-4 h-72" aria-label="奖项分布柱状图">
           {hasAwardData ? (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={awardChartData} margin={{ top: 12, right: 12, bottom: 2, left: -12 }}>

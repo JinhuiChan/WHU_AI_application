@@ -16,6 +16,35 @@ import { WhuGateEmblem } from "@/components/brand/whu-motifs";
 
 const RANK_TONES = ["#c59b45", "#115740", "#2a7b5f", "#3d6b58", "#528c74", "#6b9682", "#789d8b", "#8aa99a"];
 
+const COLLEGE_SHORT_NAMES: Record<string, string> = {
+  计算机学院: "计算机",
+  电子信息学院: "电信",
+  机械与动力学院: "机动",
+  动力与机械学院: "动机",
+  经济与管理学院: "经管",
+  法学院: "法学",
+  遥感信息工程学院: "遥感",
+  生命科学学院: "生科",
+  数学与统计学院: "数统",
+  化学与分子科学学院: "化学",
+  新闻与传播学院: "新传",
+  信息管理学院: "信管",
+  国家网络安全学院: "网安",
+  测绘学院: "测绘",
+  水利水电学院: "水电",
+  电气与自动化学院: "电气",
+  物理科学与技术学院: "物理",
+  外国语言文学学院: "外语",
+};
+
+function formatCollegeTick(value: string) {
+  const trimmed = String(value ?? "").trim();
+  if (!trimmed) return "";
+  if (COLLEGE_SHORT_NAMES[trimmed]) return COLLEGE_SHORT_NAMES[trimmed];
+  const stripped = trimmed.length > 3 ? trimmed.replace(/学院$/, "") : trimmed.replace(/院$/, "");
+  return stripped.length > 3 ? `${stripped.slice(0, 3)}…` : stripped;
+}
+
 type TooltipPayloadItem = {
   name?: string | number;
   value?: number | string;
@@ -161,7 +190,8 @@ export function DashboardCharts({
                   axisLine={false}
                   tickLine={false}
                   tickMargin={8}
-                  interval={0}
+                  minTickGap={6}
+                  tickFormatter={formatCollegeTick}
                   tick={{ fontSize: 11, fill: "#54635d" }}
                 />
                 <YAxis
