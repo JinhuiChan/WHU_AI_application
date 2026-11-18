@@ -20,14 +20,14 @@ export default function WorkspaceError({ error, reset }: { error: Error & { dige
       ) : null}
       <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
         <button
-          className="inline-flex h-10 items-center justify-center rounded-full bg-blue-600 px-6 text-sm font-medium text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200 focus-visible:ring-offset-2"
+          className="inline-flex h-10 items-center justify-center rounded-full bg-[#115740] px-6 text-sm font-medium text-white transition-colors hover:bg-[#0d4633] active:bg-[#093325] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#115740]/20 focus-visible:ring-offset-2"
           onClick={() => reset()}
           type="button"
         >
           重试
         </button>
         <a
-          className="inline-flex h-10 items-center justify-center rounded-full border border-[#7f9384] bg-white px-6 text-sm font-medium text-slate-700 hover:border-[#657a6f] hover:bg-[#f7faf8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200 focus-visible:ring-offset-2"
+          className="inline-flex h-10 items-center justify-center rounded-full border border-[#7f9384] bg-white px-6 text-sm font-medium text-[#162620] transition-colors hover:border-[#115740] hover:bg-[#eef5f1]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#115740]/20 focus-visible:ring-offset-2"
           href="/dashboard"
         >
           返回看板

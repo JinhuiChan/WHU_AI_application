@@ -61,17 +61,26 @@ export function FileDropZone({ children, label, showSelection = true }: {
   }
 
   return (
-    <div ref={region} role="group" aria-label={label + "拖放与粘贴区域"} tabIndex={0}
-      onPaste={paste} onDrop={drop}
+    <div
+      ref={region}
+      role="group"
+      aria-label={label + "拖放与粘贴区域"}
+      tabIndex={0}
+      onPaste={paste}
+      onDrop={drop}
       onDragEnter={(event) => { event.preventDefault(); if (!disabled()) { dragDepth.current++; setActive(true); } }}
       onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = disabled() ? "none" : "copy"; }}
       onDragLeave={(event) => { event.preventDefault(); dragDepth.current = Math.max(0, dragDepth.current - 1); if (!dragDepth.current) setActive(false); }}
       onChange={() => { setError(""); setFileName(input()?.files?.[0]?.name ?? ""); }}
-      className={"min-w-0 rounded-lg border border-dashed p-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 " + (active ? "border-blue-500 bg-blue-50" : "border-slate-300 bg-white")}>
+      className={
+        "min-w-0 rounded-xl border border-dashed p-3.5 outline-none transition-colors focus:border-[#115740] focus:ring-2 focus:ring-[#115740]/15 " +
+        (active ? "border-[#115740] bg-[#eef5f1]" : "border-[#7f9384] bg-white")
+      }
+    >
       {children}
-      <p className="mt-2 text-xs leading-5 text-slate-500">{active ? "松开即可添加文件" : "可拖入单个文件；点击此区域后按 Ctrl+V 粘贴文件。"}</p>
-      {showSelection && fileName ? <p aria-live="polite" className="mt-1 break-all text-xs text-blue-700">已选择：{fileName}</p> : null}
-      {error ? <p role="alert" className="mt-1 text-xs leading-5 text-red-600">{error}</p> : null}
+      <p className="mt-2 text-xs leading-5 text-[#5c6c65]">{active ? "松开即可添加文件" : "可拖入单个文件；点击此区域后按 Ctrl+V 粘贴文件。"}</p>
+      {showSelection && fileName ? <p aria-live="polite" className="mt-1 break-all text-xs font-medium text-[#115740]">已选择：{fileName}</p> : null}
+      {error ? <p role="alert" className="mt-1 text-xs leading-5 text-[#b91c1c]">{error}</p> : null}
     </div>
   );
 }

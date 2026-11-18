@@ -6,7 +6,7 @@ export function WorkspaceForbidden({ message }: { message?: string }) {
     <section className="card mx-auto max-w-lg px-6 py-10 text-center">
       <div
         aria-hidden="true"
-        className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-50 text-amber-700"
+        className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#fbf3e2] text-[#9a6712] ring-1 ring-[#e8cf9d]"
       >
         <Lock size={20} />
       </div>
@@ -17,7 +17,7 @@ export function WorkspaceForbidden({ message }: { message?: string }) {
       <div className="mt-6 flex justify-center">
         <Link
           href="/dashboard"
-          className="inline-flex h-9 items-center justify-center rounded-full bg-blue-600 px-5 text-xs font-medium text-white transition hover:bg-blue-700"
+          className="inline-flex h-9 items-center justify-center rounded-full bg-[#115740] px-5 text-xs font-medium text-white transition-colors hover:bg-[#0d4633] active:bg-[#093325] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#115740]/20 focus-visible:ring-offset-2"
         >
           返回看板
         </Link>
