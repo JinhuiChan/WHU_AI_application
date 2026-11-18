@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ApplyForm } from "@/components/apply/apply-form";
+import { WhuSeal, WhuTitleRule } from "@/components/brand/whu-motifs";
 import { getMyProject, getTeamAcceptedMembers } from "@/lib/apply";
 import { buildApplyOptions } from "@/lib/apply-options";
 import { getActiveUser } from "@/lib/auth.server";
@@ -65,15 +66,29 @@ export default async function ApplyPage({ searchParams }: PageProps) {
 
   const options = await buildApplyOptions(lockedCompetitionId);
   const initialMembers = teamPostId ? await getTeamAcceptedMembers(teamPostId, user.id) : undefined;
+  const activeCompetition = options.competitions.find((item) => item.id === lockedCompetitionId);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="t-page-title">项目报名</h1>
-          <p className="mt-1.5 text-sm text-[#54635d]">按赛项规程填写团队与作品信息，提交后将进入学院与校级审核流程。</p>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h1 className="t-page-title font-display text-[26px] font-bold tracking-tight text-[#0e1d17] sm:text-[28px]">
+              项目报名
+            </h1>
+            <WhuSeal label={projectId ? "修订台账" : "申报台账"} />
+          </div>
+          <p className="mt-1.5 flex items-center gap-2 text-sm text-[#54635d]">
+            <WhuTitleRule />
+            <span>
+              {activeCompetition
+                ? `所属赛事：${activeCompetition.name}（${activeCompetition.year}） · 填写完备后提交学院与校级核验`
+                : "按赛项规程填写团队与作品信息，提交后将进入学院与校级审核流程。"}
+            </span>
+          </p>
         </div>
-        <span className="inline-flex items-center rounded-full border border-[#c0d5ca] bg-white/85 px-3.5 py-1.5 text-xs font-medium text-[#33433d]">
+        <span className="inline-flex items-center gap-2 rounded-full border border-[#cfded5] bg-white/95 px-3.5 py-1.5 text-xs font-medium text-[#2c3e37] shadow-sm">
+          <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-[#115740]" />
           当前学生：{student.studentNo ?? "未绑定学号"} · {student.name}
         </span>
       </header>

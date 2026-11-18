@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import type { MemberInput, PayeeInput, ProjectFormInput, TeacherInput } from "@/types/apply";
@@ -128,13 +129,13 @@ function validatePayee(payee: PayeeInput | undefined, owner: string): string[] {
 }
 
 /**
- * 必填完成度，只用于底部进度提示。
+ * 必填完成度与各分步完成情况，用于吸顶总览条展示。
  * 和 validateForm 分开：那边返回的是错误清单（含格式错误、人数上限等），
- * 拿它当"还差几项"会把人填对的字段也算成没完成。
+ * 拿它当“还差几项”会把人填对的字段也算成没完成。
  */
-function requiredProgress(form: ProjectFormInput, options: ApplyOptions): { done: number; total: number } {
+function requiredProgress(form: ProjectFormInput, options: ApplyOptions) {
   const filled = (value: string | undefined | null) => Boolean(value && value.trim());
-  const base = [
+  const basicFields = [
     form.trackId,
     form.groupName,
     form.categoryName,
@@ -148,18 +149,26 @@ function requiredProgress(form: ProjectFormInput, options: ApplyOptions): { done
     form.major,
     form.phone,
     form.email,
-    form.work.form,
-    form.work.category,
-    form.work.groupName,
   ];
   const selectedTrack = options.competitions.map((competition) => findTrack(competition.tracks, form.trackId)).find(Boolean);
   const isEnterprise = Boolean(selectedTrack && `${selectedTrack.kind}${selectedTrack.name}`.includes("企业命题"));
-  const extra = isEnterprise ? [form.propositionName ?? "", form.propositionCompany ?? ""] : [];
-  const items = [...base, ...extra];
+  const extraBasic = isEnterprise ? [form.propositionName ?? "", form.propositionCompany ?? ""] : [];
+  const allBasic = [...basicFields, ...extraBasic];
+  const basicDone = allBasic.filter(filled).length;
+  const basicTotal = allBasic.length;
+
+  const workMeta = [form.work.form, form.work.category, form.work.groupName];
   const workAttached = filled(form.work.fileName) || filled(form.work.externalUrl);
+  const workDone = workMeta.filter(filled).length + (workAttached ? 1 : 0);
+  const workTotal = workMeta.length + 1;
+
   return {
-    done: items.filter(filled).length + (workAttached ? 1 : 0),
-    total: items.length + 1,
+    done: basicDone + workDone,
+    total: basicTotal + workTotal,
+    basicDone,
+    basicTotal,
+    workDone,
+    workTotal,
   };
 }
 
@@ -223,7 +232,7 @@ export function ApplyForm({ student, options, projectId, initialValue, initialMe
   const [payeeHint, setPayeeHint] = useState("");
   const errors = validateForm(form, resolvedOptions);
   const progress = requiredProgress(form, resolvedOptions);
-  const progressPercent = Math.round((progress.done / progress.total) * 100);
+  const pct = Math.round((progress.done / progress.total) * 100);
 
   useEffect(() => {
     let active = true;
@@ -318,77 +327,178 @@ export function ApplyForm({ student, options, projectId, initialValue, initialMe
     }
   }
 
+  const sectionCapsules = [
+    {
+      href: "#apply-basic",
+      title: "基本信息",
+      meta: `${progress.basicDone}/${progress.basicTotal}`,
+      complete: progress.basicDone === progress.basicTotal,
+    },
+    {
+      href: "#apply-teachers",
+      title: "指导老师",
+      meta: form.teachers.length > 0 ? `${form.teachers.length}/8 名` : "选填",
+      complete: form.teachers.length > 0,
+    },
+    {
+      href: "#apply-members",
+      title: "团队成员",
+      meta: form.members.length > 0 ? `${form.members.length}/14 名` : "单人/待添",
+      complete: form.members.length > 0,
+    },
+    {
+      href: "#apply-work",
+      title: "作品与材料",
+      meta: `${progress.workDone}/${progress.workTotal}`,
+      complete: progress.workDone === progress.workTotal,
+    },
+  ];
+
   return (
-    <div className="relative">
-      <div className="space-y-6" onBlur={() => setValidationVisible(true)}>
-      <BasicInfoCard student={student} value={form} competitions={resolvedOptions.competitions} dictionaries={resolvedOptions.dictionaries} onChange={updateBasic} onPayeeToggle={toggleLeaderPayee} />
-      {payeeHint ? <p role="status" className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">{payeeHint}</p> : null}
-      <TeacherSection teachers={form.teachers} onChange={(teachers: TeacherInput[]) => updateBasic({ teachers })} />
-      <MemberSection
-        members={form.members.map((member) => ({
-          ...member,
-          educationStage: labelFor(resolvedOptions.dictionaries.educationStages, member.educationStage),
-          ethnicity: labelFor(resolvedOptions.dictionaries.ethnicities, member.ethnicity),
-        }))}
-        dictionaries={resolvedOptions.dictionaries}
-        onChange={updateMembers}
-        onPayeeToggle={toggleMemberPayee}
-      />
-      <WorkSection
-        value={{
-          ...form.work,
-          form: labelFor(resolvedOptions.dictionaries.workForms, form.work.form),
-          category: labelFor(resolvedOptions.dictionaries.categories, form.work.category),
-          groupName: labelFor(resolvedOptions.dictionaries.groups, form.work.groupName),
-        }}
-        dictionaries={resolvedOptions.dictionaries}
-        onChange={updateWork}
-      />
-      {validationVisible ? (
-        <section className={`rounded-xl border p-4 text-sm ${errors.length ? "border-amber-200 bg-amber-50 text-amber-900" : "border-emerald-200 bg-emerald-50 text-emerald-800"}`}>
-          <h2 className="font-medium">前端校验</h2>
-          {errors.length ? <ul className="mt-2 list-disc space-y-1 pl-5">{errors.map((error) => <li key={error}>{error}</li>)}</ul> : <p className="mt-2">当前填写已通过前端校验，尚未保存或提交。</p>}
-        </section>
-      ) : null}
-      {requestError ? <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{requestError}</p> : null}
-      <div className="h-14 shrink-0" aria-hidden="true" />
-      </div>
-      <div className="sticky bottom-0 z-20 w-full border-t border-slate-200 bg-white shadow-sm max-md:bottom-16">
-        <div className="flex w-full items-center gap-3 bg-white py-2">
-          <div className="hidden min-w-0 flex-1 items-center gap-2 sm:flex" aria-live="polite">
-            <span className="shrink-0 text-xs text-slate-500">
-              必填 <strong className="tabular-nums text-slate-900">{progress.done}</strong> / {progress.total}
-            </span>
-            <span className="h-1.5 w-20 shrink-0 overflow-hidden rounded-full bg-slate-100">
+    <div className="relative space-y-5">
+      {/* 吸顶完成度总览条：半透明宣纸白毛玻璃顶栏 + 宋体大号完成率 + GPU scaleX 进度轴 + 章节胶囊 + 胶囊操作按钮 */}
+      <div
+        aria-label="报名表填写完成度总览"
+        className="sticky top-2 z-20 rounded-2xl border border-[#cfded5] bg-white/95 px-3.5 py-2.5 shadow-[0_8px_24px_-14px_rgba(17,87,64,0.18)] backdrop-blur-md sm:top-2.5 sm:px-4 sm:py-3.5"
+      >
+        <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between lg:gap-3">
+          <div className="min-w-0 lg:w-60 lg:shrink-0" aria-live="polite">
+            <div className="flex items-baseline justify-between gap-2">
+              <div className="flex items-baseline gap-2">
+                <span className="font-display text-2xl font-bold leading-none tracking-tight text-[#115740] tabular-nums sm:text-[28px]">
+                  {pct}%
+                </span>
+                <span className="text-xs font-medium text-[#43554d]">
+                  必填 <strong className="font-semibold text-[#0f1d18] tabular-nums">{progress.done}</strong>/{progress.total}
+                </span>
+              </div>
               <span
-                className="block h-full rounded-full bg-blue-600 transition-[width] duration-200"
-                style={{ width: `${progressPercent}%` }}
+                className={`text-xs font-medium ${
+                  progress.done === progress.total ? "text-[#115740]" : "text-[#8a651b]"
+                }`}
+              >
+                {progress.done === progress.total ? "必填项已齐备" : `尚差 ${progress.total - progress.done} 项`}
+              </span>
+            </div>
+            <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-[#e3ede7] sm:mt-2">
+              <span
+                className="block h-full w-full origin-left rounded-full bg-gradient-to-r from-[#115740] via-[#217256] to-[#c59b45] transition-transform duration-300 motion-reduce:transition-none"
+                style={{ transform: `scaleX(${Math.max(0, Math.min(1, pct / 100))})` }}
               />
-            </span>
-            <span className={`truncate text-xs ${progress.done === progress.total ? "text-emerald-700" : "text-slate-400"}`}>
-              {progress.done === progress.total ? "必填项已填完" : `还有 ${progress.total - progress.done} 项未填`}
-            </span>
+            </div>
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            className="h-10 min-w-0 flex-1 px-4 sm:w-28 sm:flex-none"
-            disabled={pendingAction !== null}
-            loading={pendingAction === "draft"}
-            onClick={() => void persist("draft")}
-          >
-            {pendingAction === "draft" ? "保存中…" : "保存草稿"}
-          </Button>
-          <Button
-            type="button"
-            className="h-10 min-w-0 flex-1 px-4 sm:w-32 sm:flex-none"
-            disabled={pendingAction !== null}
-            loading={pendingAction === "submit"}
-            onClick={() => void persist("submit")}
-          >
-            {pendingAction === "submit" ? "提交中…" : "提交报名"}
-          </Button>
+
+          <nav aria-label="报名章节导航" className="flex items-center gap-1.5 overflow-x-auto pb-0.5 sm:flex-wrap sm:overflow-visible sm:pb-0">
+            {sectionCapsules.map((item, idx) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 text-xs font-medium transition-colors duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#115740]/30 motion-reduce:active:scale-100 sm:px-3 ${
+                  item.complete
+                    ? "border-[#b8d4c5] bg-[#eef5f1] text-[#115740] hover:border-[#115740]"
+                    : "border-[#d5e2db] bg-[#f8fbf9] text-[#43554d] hover:border-[#7f9384] hover:bg-[#eef5f1]/60"
+                }`}
+              >
+                {item.complete ? (
+                  <Check aria-hidden="true" className="text-[#115740]" size={12} />
+                ) : (
+                  <span className="font-display text-[11px] font-bold text-[#6c7e76] tabular-nums">0{idx + 1}</span>
+                )}
+                <span>{item.title}</span>
+                <span className={`tabular-nums ${item.complete ? "text-[#115740]/80" : "text-[#6c7e76]"}`}>
+                  {item.meta}
+                </span>
+              </a>
+            ))}
+          </nav>
+
+          <div className="flex items-center gap-2 sm:justify-end lg:shrink-0">
+            <Button
+              type="button"
+              variant="outline"
+              className="h-10 min-w-0 flex-1 rounded-full border-[#7f9384] bg-white px-5 text-[#1b2e26] hover:border-[#115740] hover:bg-[#f4f9f6] active:scale-[0.98] focus-visible:ring-[#115740]/25 disabled:opacity-60 sm:flex-none"
+              disabled={pendingAction !== null}
+              loading={pendingAction === "draft"}
+              onClick={() => void persist("draft")}
+            >
+              {pendingAction === "draft" ? "保存中…" : "保存草稿"}
+            </Button>
+            <Button
+              type="button"
+              className="h-10 min-w-0 flex-1 rounded-full bg-[#115740] px-6 text-white shadow-sm hover:bg-[#0d4633] active:scale-[0.98] active:bg-[#093526] focus-visible:ring-[#115740]/25 disabled:opacity-60 sm:flex-none"
+              disabled={pendingAction !== null}
+              loading={pendingAction === "submit"}
+              onClick={() => void persist("submit")}
+            >
+              {pendingAction === "submit" ? "提交中…" : "提交报名"}
+            </Button>
+          </div>
         </div>
+      </div>
+
+      <div className="space-y-5" onBlur={() => setValidationVisible(true)}>
+        <BasicInfoCard
+          student={student}
+          value={form}
+          competitions={resolvedOptions.competitions}
+          dictionaries={resolvedOptions.dictionaries}
+          onChange={updateBasic}
+          onPayeeToggle={toggleLeaderPayee}
+        />
+        {payeeHint ? (
+          <p role="status" className="rounded-xl border border-[#e6cf9e] bg-[#fdf8ee] p-4 text-sm text-[#785313]">
+            {payeeHint}
+          </p>
+        ) : null}
+        <TeacherSection
+          teachers={form.teachers}
+          onChange={(teachers: TeacherInput[]) => updateBasic({ teachers })}
+        />
+        <MemberSection
+          members={form.members.map((member) => ({
+            ...member,
+            educationStage: labelFor(resolvedOptions.dictionaries.educationStages, member.educationStage),
+            ethnicity: labelFor(resolvedOptions.dictionaries.ethnicities, member.ethnicity),
+          }))}
+          dictionaries={resolvedOptions.dictionaries}
+          onChange={updateMembers}
+          onPayeeToggle={toggleMemberPayee}
+        />
+        <WorkSection
+          value={{
+            ...form.work,
+            form: labelFor(resolvedOptions.dictionaries.workForms, form.work.form),
+            category: labelFor(resolvedOptions.dictionaries.categories, form.work.category),
+            groupName: labelFor(resolvedOptions.dictionaries.groups, form.work.groupName),
+          }}
+          dictionaries={resolvedOptions.dictionaries}
+          onChange={updateWork}
+        />
+        {validationVisible ? (
+          <section
+            className={`rounded-xl border p-4 text-sm ${
+              errors.length
+                ? "border-[#e6cf9e] bg-[#fdf8ee] text-[#785313]"
+                : "border-[#b8d4c5] bg-[#eef5f1] text-[#115740]"
+            }`}
+          >
+            <h2 className="font-semibold">台账填写核验</h2>
+            {errors.length ? (
+              <ul className="mt-2 list-disc space-y-1 pl-5">
+                {errors.map((error) => (
+                  <li key={error}>{error}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-1.5">当前必填项与格式已通过前端核验，请点击顶部「保存草稿」或「提交报名」完成入库。</p>
+            )}
+          </section>
+        ) : null}
+        {requestError ? (
+          <p role="alert" className="rounded-xl border border-[#e5b8bd] bg-[#fdf2f3] p-4 text-sm text-[#9e2a35]">
+            {requestError}
+          </p>
+        ) : null}
       </div>
     </div>
   );

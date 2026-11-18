@@ -26,31 +26,43 @@ const STATUS_CONFIG: Record<RegistrationStatus, StatusConfig> = {
 };
 
 const CIRCLE_TONE: Record<StepTone, string> = {
-  done: "border-brand bg-brand text-surface",
-  draft: "border-brand bg-brand-soft text-brand-strong",
-  warn: "border-amber-200 bg-amber-50 text-amber-700",
-  info: "border-blue-200 bg-blue-50 text-blue-700",
-  success: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  danger: "border-red-200 bg-red-50 text-red-700",
-  neutral: "border-line bg-surface-muted text-ink-faint",
+  done: "border-[#115740] bg-[#115740] text-white",
+  draft: "border-[#c59b45] bg-[#fdf8ee] text-[#8a651b]",
+  warn: "border-[#c59b45] bg-[#fdf8ee] text-[#8a651b]",
+  info: "border-[#115740] bg-[#eef5f1] text-[#115740]",
+  success: "border-[#115740] bg-[#115740] text-white",
+  danger: "border-[#e5b8bd] bg-[#fdf2f3] text-[#9e2a35]",
+  neutral: "border-[#d5e2db] bg-[#f4f8f5] text-[#7a8c83]",
 };
 
 const LABEL_TONE: Record<StepTone, string> = {
-  done: "text-ink-muted",
-  draft: "text-brand-strong",
-  warn: "text-amber-700",
-  info: "text-blue-700",
-  success: "text-emerald-700",
-  danger: "text-red-700",
-  neutral: "text-ink-faint",
+  done: "text-[#115740]",
+  draft: "text-[#8a651b]",
+  warn: "text-[#8a651b]",
+  info: "text-[#115740]",
+  success: "text-[#115740]",
+  danger: "text-[#9e2a35]",
+  neutral: "text-[#7a8c83]",
+};
+
+const BADGE_TONE: Record<StepTone, string> = {
+  done: "border-[#cde0d5] bg-[#eef5f1] text-[#115740]",
+  draft: "border-[#ead7af] bg-[#fdf8ee] text-[#8a651b]",
+  warn: "border-[#ead7af] bg-[#fdf8ee] text-[#8a651b]",
+  info: "border-[#cde0d5] bg-[#eef5f1] text-[#115740]",
+  success: "border-[#cde0d5] bg-[#eef5f1] text-[#115740]",
+  danger: "border-[#e5b8bd] bg-[#fdf2f3] text-[#9e2a35]",
+  neutral: "border-[#d5e2db] bg-[#f4f8f5] text-[#6c7e76]",
 };
 
 export function ProjectProgress({
   status,
   rejectedStage,
+  compact = false,
 }: {
   status: RegistrationStatus;
   rejectedStage?: "COLLEGE" | "SCHOOL";
+  compact?: boolean;
 }) {
   const config = STATUS_CONFIG[status];
   const rejectedSteps = status === "REJECTED"
@@ -60,7 +72,7 @@ export function ProjectProgress({
         ? [1]
         : [1, 2]
     : [];
-  // 驳回时"当前段"必须跟着驳回层级走；否则会拿 REJECTED 的默认 current=1，
+  // 驳回时“当前段”必须跟着驳回层级走；否则会拿 REJECTED 的默认 current=1，
   // 把标签错误地挂在「学院初审」下面（学校驳回也会显示在学院段）。
   const rejectedIndex = rejectedStage === "SCHOOL" ? 2 : rejectedStage === "COLLEGE" ? 1 : -1;
   const current = status === "REJECTED" ? rejectedIndex : config.current;
@@ -73,7 +85,7 @@ export function ProjectProgress({
       ? config.label
       : null;
   const endLabelTone =
-    status === "WITHDRAWN" ? "text-ink-faint" : status === "REJECTED" ? "text-red-700" : "text-emerald-700";
+    status === "WITHDRAWN" ? "text-[#7a8c83]" : status === "REJECTED" ? "text-[#9e2a35]" : "text-[#115740]";
   const rejectedLineEnd = rejectedSteps.length > 0 ? rejectedSteps[rejectedSteps.length - 1] : -1;
 
   function toneForStep(index: number): StepTone {
@@ -85,14 +97,49 @@ export function ProjectProgress({
   }
 
   function connectorClass(index: number) {
-    if (status === "WITHDRAWN") return "bg-line";
-    if (status === "REJECTED") return index <= rejectedLineEnd ? "bg-red-200" : "bg-line";
-    return index <= current ? "bg-brand" : "bg-line";
+    if (status === "WITHDRAWN") return "bg-[#d5e2db]";
+    if (status === "REJECTED") return index <= rejectedLineEnd ? "bg-[#e5b8bd]" : "bg-[#d5e2db]";
+    if (index <= completed - 1 || index <= current) return "bg-[#115740]";
+    return "bg-[#d5e2db]";
+  }
+
+  if (compact) {
+    return (
+      <ol aria-label="项目进度" className="inline-flex items-center gap-1 text-[11px]">
+        {STEPS.map((step, index) => {
+          const tone = toneForStep(index);
+          const shortStep = index === 0 ? "提交" : index === 1 ? "初审" : "终审";
+          return (
+            <li
+              key={step}
+              aria-current={index === current ? "step" : undefined}
+              className="inline-flex items-center gap-1 whitespace-nowrap"
+            >
+              {index > 0 ? (
+                <span aria-hidden="true" className={`h-0.5 w-2.5 rounded-full ${connectorClass(index)}`} />
+              ) : null}
+              <span
+                className={`inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border text-[10px] font-semibold tabular-nums ${CIRCLE_TONE[tone]}`}
+              >
+                {index + 1}
+              </span>
+              <span className={`font-medium ${LABEL_TONE[tone]}`}>{shortStep}</span>
+            </li>
+          );
+        })}
+      </ol>
+    );
   }
 
   return (
     <div className="overflow-x-auto">
-      <div className="min-w-[320px] rounded-card border border-line bg-surface px-3 py-3">
+      <div className="min-w-[300px] rounded-xl border border-[#d5e2db] bg-white px-5 py-4 shadow-[0_1px_2px_rgba(20,34,27,0.03)]">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2 border-b border-[#e5efe9] pb-2.5">
+          <span className="text-xs font-semibold text-[#33433d]">审核流转节点</span>
+          <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${BADGE_TONE[config.tone]}`}>
+            {config.label}
+          </span>
+        </div>
         <ol aria-label="项目进度" className="grid grid-cols-3">
           {STEPS.map((step, index) => {
             const tone = toneForStep(index);
@@ -100,13 +147,17 @@ export function ProjectProgress({
               <li key={step} aria-current={index === current ? "step" : undefined} className="min-w-0 text-center">
                 <div className="flex w-full items-center">
                   <span className={`h-0.5 flex-1 ${index === 0 ? "bg-transparent" : connectorClass(index)}`} />
-                  <span className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-semibold ${CIRCLE_TONE[tone]}`}>
+                  <span
+                    className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border font-display text-xs font-bold tabular-nums ${CIRCLE_TONE[tone]}`}
+                  >
                     {index + 1}
                   </span>
                   <span className={`h-0.5 flex-1 ${index === STEPS.length - 1 ? "bg-transparent" : connectorClass(index + 1)}`} />
                 </div>
-                <p className={`mt-2 text-xs font-medium ${LABEL_TONE[tone]}`}>{step}</p>
-                {!endLabel && index === current ? <p className={`mt-1 text-xs ${LABEL_TONE[tone]}`}>{config.label}</p> : null}
+                <p className={`mt-2 text-xs font-semibold ${LABEL_TONE[tone]}`}>{step}</p>
+                {!endLabel && index === current ? (
+                  <p className={`mt-0.5 text-[11px] ${LABEL_TONE[tone]}`}>{config.label}</p>
+                ) : null}
               </li>
             );
           })}
