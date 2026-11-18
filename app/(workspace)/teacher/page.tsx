@@ -132,19 +132,19 @@ export default async function TeacherPage() {
             <table className="w-full min-w-[900px] text-left text-sm">
               <thead className="t-thead bg-[#f5faf7] text-xs text-[#4d5e57]">
                 <tr>
-                  <th className="w-[24%] px-4 py-3 font-medium">项目</th>
-                  <th className="w-[20%] px-3.5 py-3 font-medium">赛事与赛道</th>
+                  <th className="w-[22%] px-4 py-3 font-medium">项目</th>
+                  <th className="w-[18%] px-3.5 py-3 font-medium">赛事与赛道</th>
                   <th className="w-[13%] px-3.5 py-3 font-medium">学院</th>
-                  <th className="w-[8%] whitespace-nowrap px-3 py-3 font-medium">成员数</th>
+                  <th className="w-[7%] whitespace-nowrap px-3 py-3 font-medium">成员数</th>
                   <th className="w-[11%] whitespace-nowrap px-3.5 py-3 font-medium">项目状态</th>
                   <th className="w-[12%] whitespace-nowrap px-3.5 py-3 font-medium">指导关系</th>
-                  <th className="w-[12%] whitespace-nowrap px-4 py-3 font-medium">操作</th>
+                  <th className="w-[17%] min-w-[168px] whitespace-nowrap px-4 py-3 font-medium">操作</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#eaf1ed]">
                 {rows.map((row) => (
                   <tr key={row.id} className="align-top text-[#24362f]">
-                    <td className="max-w-[230px] px-4 py-3.5">
+                    <td className="max-w-[216px] px-4 py-3.5">
                       {/* 教师只能看项目详情；/review/{id} 是管理员审核页，链过去会被中间件拦成 403 */}
                       <Link
                         href={`/projects/${row.projectId}`}
@@ -153,7 +153,7 @@ export default async function TeacherPage() {
                         {row.projectName}
                       </Link>
                     </td>
-                    <td className="max-w-[200px] px-3.5 py-3.5 text-xs">
+                    <td className="max-w-[184px] px-3.5 py-3.5 text-xs">
                       <span className="block font-medium text-[#24362f]">{row.competitionName}</span>
                       <span className="mt-0.5 block text-[#5c6c65]">{row.trackName}</span>
                     </td>

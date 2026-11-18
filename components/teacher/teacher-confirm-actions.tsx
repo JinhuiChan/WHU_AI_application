@@ -52,7 +52,7 @@ export function TeacherConfirmActions({ teacherId, confirmStatus }: Props) {
 
   return (
     <div className="space-y-2">
-      <div className="flex flex-wrap items-center gap-1.5">
+      <div className="flex flex-nowrap items-center gap-1.5 whitespace-nowrap">
         <Button
           type="button"
           size="sm"
@@ -80,7 +80,7 @@ export function TeacherConfirmActions({ teacherId, confirmStatus }: Props) {
       </div>
 
       {mode === "reject" ? (
-        <div className="w-60 space-y-2 rounded-xl border border-[#d5e2db] bg-[#f8fbf9] p-3">
+        <div className="w-56 whitespace-normal space-y-2 rounded-xl border border-[#d5e2db] bg-[#f8fbf9] p-3">
           <label className="block text-xs font-medium text-[#24362f]">
             <span className="mb-1.5 flex items-center justify-between">
               <span>退回理由</span>
