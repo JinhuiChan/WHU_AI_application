@@ -180,14 +180,18 @@ export default async function ChangeReviewPage({ searchParams }: PageProps) {
                     {CHANGE_TYPE_LABELS[item.type as ChangeType] ?? item.type}
                   </td>
                   <td className="px-4 py-3.5 text-xs leading-5">
-                    {Object.entries(item.newValues).map(([key, value]) => (
-                      <div key={key} className="break-all">
-                        <span className="text-[#5c6c65]">{CHANGE_FIELD_LABELS[key] ?? key}：</span>
-                        <span className="text-[#8c9c95] line-through">{item.oldValues[key] || "空"}</span>
-                        <span className="mx-1 text-[#54635d]">→</span>
-                        <span className="font-medium text-[#0f1d18]">{value || "空"}</span>
-                      </div>
-                    ))}
+                    {Object.entries(item.newValues).length > 0 ? (
+                      Object.entries(item.newValues).map(([key, value]) => (
+                        <div key={key} className="break-all">
+                          <span className="text-[#5c6c65]">{CHANGE_FIELD_LABELS[key] ?? key}：</span>
+                          <span className="text-[#8c9c95] line-through">{item.oldValues[key] || "空"}</span>
+                          <span className="mx-1 text-[#54635d]">→</span>
+                          <span className="font-medium text-[#0f1d18]">{value || "空"}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <span className="text-[#6b7c74]">详见申请理由</span>
+                    )}
                   </td>
                   <td className="px-4 py-3.5 text-xs leading-5 text-[#43554d]">{item.reason}</td>
                   <td className="px-4 py-3.5 text-xs">
