@@ -2,7 +2,6 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function DashboardFilterBar({
@@ -31,13 +30,13 @@ export function DashboardFilterBar({
       aria-label="看板筛选"
       className="inline-flex flex-wrap items-center gap-1.5 rounded-2xl border border-[#115740]/12 bg-[#dbe9e1]/80 p-1.5 sm:flex-nowrap sm:rounded-full"
     >
-      <label className="relative inline-flex h-8 items-center rounded-full border border-[#7f9384] bg-white pl-3 pr-6 text-xs text-[#5c6c65] shadow-[0_1px_2px_rgba(15,29,24,0.04)] transition focus-within:border-[#115740]">
+      <label className="inline-flex h-8 items-center rounded-full border border-[#7f9384] bg-white pl-3 pr-2 text-xs text-[#5c6c65] shadow-[0_1px_2px_rgba(15,29,24,0.04)] transition focus-within:border-[#115740]">
         <span className="shrink-0 leading-none">赛事</span>
         <select
           value={current.competitionId}
           disabled={pending}
           onChange={(event) => update("competitionId", event.target.value)}
-          className="select-pill h-full max-w-[136px] cursor-pointer appearance-none truncate border-0 bg-transparent py-0 pl-1.5 pr-1 text-xs font-semibold leading-8 text-[#162620] outline-none focus:outline-none"
+          className="select-pill h-full max-w-[144px] cursor-pointer truncate border-0 bg-transparent py-0 pl-1.5 pr-1 text-xs font-semibold leading-8 text-[#162620] outline-none focus:outline-none"
         >
           <option value="">全部赛事</option>
           {competitions.map((item) => (
@@ -46,15 +45,14 @@ export function DashboardFilterBar({
             </option>
           ))}
         </select>
-        <ChevronDown aria-hidden="true" size={13} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[#54635d]" />
       </label>
-      <label className="relative inline-flex h-8 items-center rounded-full border border-[#7f9384] bg-white pl-3 pr-6 text-xs text-[#5c6c65] shadow-[0_1px_2px_rgba(15,29,24,0.04)] transition focus-within:border-[#115740]">
+      <label className="inline-flex h-8 items-center rounded-full border border-[#7f9384] bg-white pl-3 pr-2 text-xs text-[#5c6c65] shadow-[0_1px_2px_rgba(15,29,24,0.04)] transition focus-within:border-[#115740]">
         <span className="shrink-0 leading-none">赛年</span>
         <select
           value={current.year}
           disabled={pending}
           onChange={(event) => update("year", event.target.value)}
-          className="select-pill h-full cursor-pointer appearance-none border-0 bg-transparent py-0 pl-1.5 pr-1 text-xs font-semibold leading-8 text-[#162620] outline-none focus:outline-none"
+          className="select-pill h-full cursor-pointer border-0 bg-transparent py-0 pl-1.5 pr-1 text-xs font-semibold leading-8 text-[#162620] outline-none focus:outline-none"
         >
           <option value="">全部赛年</option>
           {years.map((item) => (
@@ -63,22 +61,20 @@ export function DashboardFilterBar({
             </option>
           ))}
         </select>
-        <ChevronDown aria-hidden="true" size={13} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[#54635d]" />
       </label>
-      <label className="relative inline-flex h-8 items-center rounded-full border border-[#7f9384] bg-white pl-3 pr-6 text-xs text-[#5c6c65] shadow-[0_1px_2px_rgba(15,29,24,0.04)] transition focus-within:border-[#115740]">
+      <label className="inline-flex h-8 items-center rounded-full border border-[#7f9384] bg-white pl-3 pr-2 text-xs text-[#5c6c65] shadow-[0_1px_2px_rgba(15,29,24,0.04)] transition focus-within:border-[#115740]">
         <span className="shrink-0 leading-none">阶段</span>
         <select
           value={current.stage}
           disabled={pending}
           onChange={(event) => update("stage", event.target.value)}
-          className="select-pill h-full cursor-pointer appearance-none border-0 bg-transparent py-0 pl-1.5 pr-1 text-xs font-semibold leading-8 text-[#162620] outline-none focus:outline-none"
+          className="select-pill h-full cursor-pointer border-0 bg-transparent py-0 pl-1.5 pr-1 text-xs font-semibold leading-8 text-[#162620] outline-none focus:outline-none"
         >
           <option value="">全部阶段</option>
           <option value="SCHOOL">校赛</option>
           <option value="PROVINCE">省赛</option>
           <option value="NATIONAL">国赛</option>
         </select>
-        <ChevronDown aria-hidden="true" size={13} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[#54635d]" />
       </label>
       <Button
         type="button"
