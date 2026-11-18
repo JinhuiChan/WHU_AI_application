@@ -205,38 +205,42 @@ export function TrackEditor({ competitionId }: { competitionId: string }) {
         </div>
 
         <div className="mt-3 grid gap-3 md:grid-cols-2">
-          <div>
+          <div className="flex flex-col">
             <label className="text-xs font-medium text-[#3f524a]">组别（一行一个，或用顿号 / 逗号分隔）</label>
             <textarea
               className={areaClass}
               value={groupDraft[node.id] ?? ""}
               onChange={(event) => setGroupDraft((current) => ({ ...current, [node.id]: event.target.value }))}
             />
-            <LabelPreview labels={groupLabels} />
+            <div className="pb-2">
+              <LabelPreview labels={groupLabels} />
+            </div>
             <Button
               size="sm"
               type="button"
               disabled={pending !== ""}
               onClick={() => void saveOptions(node, "GROUP")}
-              className="mt-2 bg-[#115740] text-white hover:bg-[#0d4633]"
+              className="mt-auto self-start bg-[#115740] text-white hover:bg-[#0d4633]"
             >
               保存组别
             </Button>
           </div>
-          <div>
+          <div className="flex flex-col">
             <label className="text-xs font-medium text-[#3f524a]">类别（一行一个，或用顿号 / 逗号分隔）</label>
             <textarea
               className={areaClass}
               value={categoryDraft[node.id] ?? ""}
               onChange={(event) => setCategoryDraft((current) => ({ ...current, [node.id]: event.target.value }))}
             />
-            <LabelPreview labels={categoryLabels} />
+            <div className="pb-2">
+              <LabelPreview labels={categoryLabels} />
+            </div>
             <Button
               size="sm"
               type="button"
               disabled={pending !== ""}
               onClick={() => void saveOptions(node, "CATEGORY")}
-              className="mt-2 bg-[#115740] text-white hover:bg-[#0d4633]"
+              className="mt-auto self-start bg-[#115740] text-white hover:bg-[#0d4633]"
             >
               保存类别
             </Button>
