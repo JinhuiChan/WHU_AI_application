@@ -90,7 +90,7 @@ function CeladonTooltip({
 
 function ChartEmptyState({ title, hint }: { title: string; hint: string }) {
   return (
-    <div className="flex h-full flex-col items-center justify-center rounded-xl border border-dashed border-[#d5e2db] bg-[#f8fbf9]/85 px-4 py-7 text-center">
+    <div className="flex h-full min-h-[18rem] flex-col items-center justify-center rounded-xl border border-dashed border-[#d5e2db] bg-[#f8fbf9]/85 px-4 py-7 text-center">
       <WhuGateEmblem className="h-10 w-14 text-[#115740]/35" />
       <p className="mt-2.5 font-display text-sm font-semibold text-[#162620]">{title}</p>
       <p className="mt-1 max-w-[220px] text-xs leading-5 text-[#677770]">{hint}</p>
@@ -107,14 +107,28 @@ export function StatisticsCharts({
   const totalStageProjects = byStage.reduce((sum, item) => sum + item.projectCount, 0);
   const totalAwards = byAward.reduce((sum, item) => sum + item.count, 0);
 
-  const hasTrackData = byTrack.length > 0 && totalTrackProjects > 0;
+  const mergedTracksMap = new Map<string, number>();
+  for (const item of byTrack) {
+    if (item.projectCount <= 0) continue;
+    const name = item.trackName.trim() || "未设置赛道";
+    mergedTracksMap.set(name, (mergedTracksMap.get(name) ?? 0) + item.projectCount);
+  }
+
+  const trackChartData = [...mergedTracksMap.entries()]
+    .map(([trackName, projectCount]) => ({
+      trackName,
+      projectCount,
+      percentage: totalTrackProjects > 0 ? Number(((projectCount / totalTrackProjects) * 100).toFixed(1)) : 0,
+    }))
+    .sort((a, b) => b.projectCount - a.projectCount || a.trackName.localeCompare(b.trackName, "zh-CN"))
+    .map((item, index) => ({
+      ...item,
+      fill: TRACK_PALETTE[index % TRACK_PALETTE.length],
+    }));
+
+  const hasTrackData = trackChartData.length > 0 && totalTrackProjects > 0;
   const hasStageData = byStage.length > 0 && totalStageProjects > 0;
   const hasAwardData = byAward.length > 0 && totalAwards > 0;
-
-  const trackChartData = byTrack.map((item, index) => ({
-    ...item,
-    fill: TRACK_PALETTE[index % TRACK_PALETTE.length],
-  }));
 
   const stageChartData = byStage.map((item) => ({
     ...item,
@@ -169,7 +183,7 @@ export function StatisticsCharts({
                       strokeWidth={1.5}
                     >
                       {trackChartData.map((item) => (
-                        <Cell key={item.trackId ?? item.trackName} fill={item.fill} />
+                        <Cell key={item.trackName} fill={item.fill} />
                       ))}
                     </Pie>
                     <Tooltip content={<CeladonTooltip unit="项" />} wrapperStyle={{ zIndex: 20 }} />
@@ -178,36 +192,30 @@ export function StatisticsCharts({
               </div>
 
               <ul aria-label="赛道数量与占比图例" className="w-full min-w-0 flex-1 space-y-1">
-                {trackChartData.map((item) => {
-                  const pct =
-                    typeof item.percentage === "number"
-                      ? item.percentage
-                      : Number(((item.projectCount / totalTrackProjects) * 100).toFixed(1));
-                  return (
-                    <li
-                      key={item.trackId ?? item.trackName}
-                      className="flex items-center justify-between gap-2.5 rounded-lg px-2 py-1 text-xs transition-colors hover:bg-[#f2f7f4]"
-                    >
-                      <span className="flex min-w-0 items-center gap-2">
-                        <span
-                          aria-hidden="true"
-                          className="h-2.5 w-2.5 shrink-0 rounded-full"
-                          style={{ backgroundColor: item.fill }}
-                        />
-                        <span className="truncate font-medium text-[#162620]" title={item.trackName}>
-                          {item.trackName}
-                        </span>
+                {trackChartData.map((item) => (
+                  <li
+                    key={item.trackName}
+                    className="flex items-center justify-between gap-2.5 rounded-lg px-2 py-1 text-xs transition-colors hover:bg-[#f2f7f4]"
+                  >
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span
+                        aria-hidden="true"
+                        className="h-2.5 w-2.5 shrink-0 rounded-full"
+                        style={{ backgroundColor: item.fill }}
+                      />
+                      <span className="truncate font-medium text-[#162620]" title={item.trackName}>
+                        {item.trackName}
                       </span>
-                      <span className="shrink-0 whitespace-nowrap tabular-nums">
-                        <span className="font-display font-bold text-[#0f1d18]">{item.projectCount}</span>
-                        <span className="ml-0.5 text-[11px] text-[#5c6c65]">项</span>
-                        <span className="ml-1.5 inline-block min-w-[40px] text-right text-[11px] text-[#677770]">
-                          {pct}%
-                        </span>
+                    </span>
+                    <span className="shrink-0 whitespace-nowrap tabular-nums">
+                      <span className="font-display font-bold text-[#0f1d18]">{item.projectCount}</span>
+                      <span className="ml-0.5 text-[11px] text-[#5c6c65]">项</span>
+                      <span className="ml-1.5 inline-block min-w-[40px] text-right text-[11px] text-[#677770]">
+                        {item.percentage}%
                       </span>
-                    </li>
-                  );
-                })}
+                    </span>
+                  </li>
+                ))}
               </ul>
             </div>
           ) : (
@@ -229,9 +237,9 @@ export function StatisticsCharts({
         </div>
         <div aria-hidden="true" className="mt-3.5 h-px bg-[#d5e2db]/60" />
 
-        <div className="mt-4 h-72" aria-label="阶段分布柱状图">
+        <div className="mt-4 min-h-[18rem] flex-1" aria-label="阶段分布柱状图">
           {hasStageData ? (
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minHeight={288}>
               <BarChart data={stageChartData} margin={{ top: 12, right: 12, bottom: 2, left: -12 }}>
                 <CartesianGrid stroke="#dce7e0" strokeDasharray="3 3" vertical={false} />
                 <XAxis
@@ -278,9 +286,9 @@ export function StatisticsCharts({
         </div>
         <div aria-hidden="true" className="mt-3.5 h-px bg-[#d5e2db]/60" />
 
-        <div className="mt-4 h-72" aria-label="奖项分布柱状图">
+        <div className="mt-4 min-h-[18rem] flex-1" aria-label="奖项分布柱状图">
           {hasAwardData ? (
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minHeight={288}>
               <BarChart data={awardChartData} margin={{ top: 12, right: 12, bottom: 2, left: -12 }}>
                 <CartesianGrid stroke="#dce7e0" strokeDasharray="3 3" vertical={false} />
                 <XAxis
