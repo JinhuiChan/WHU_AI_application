@@ -40,8 +40,8 @@ const DAY = 24 * 60 * 60 * 1000;
 const URGENCY_STYLE: Record<DeadlineUrgency, { tone: string; barTone: string }> = {
   unset: { tone: "bg-slate-100 text-slate-600", barTone: "bg-slate-300" },
   closed: { tone: "bg-slate-100 text-slate-600", barTone: "bg-slate-300" },
-  upcoming: { tone: "bg-blue-50 text-blue-700", barTone: "bg-blue-300" },
-  normal: { tone: "bg-slate-100 text-slate-700", barTone: "bg-blue-600" },
+  upcoming: { tone: "bg-[#eef5f1] text-[#115740]", barTone: "bg-[#115740]" },
+  normal: { tone: "bg-[#eef5f1] text-[#115740]", barTone: "bg-[#115740]" },
   soon: { tone: "bg-amber-50 text-amber-700", barTone: "bg-amber-500" },
   urgent: { tone: "bg-red-50 text-red-700", barTone: "bg-red-500" },
 };

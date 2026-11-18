@@ -74,7 +74,7 @@ export function ButtonArrow() {
   return (
     <span
       aria-hidden="true"
-      className="-ml-2 grid w-0 -translate-x-1 place-items-center overflow-hidden opacity-0 transition-[width,margin,opacity,transform] duration-150 ease-out group-hover:ml-0 group-hover:w-3.5 group-hover:translate-x-0 group-hover:opacity-100 motion-reduce:transition-none"
+      className="-ml-1 grid w-3.5 -translate-x-1 place-items-center opacity-0 transition-[opacity,transform] duration-150 ease-out group-hover:translate-x-0 group-hover:opacity-100 motion-reduce:transition-none"
     >
       <ArrowRight size={14} className="shrink-0" />
     </span>

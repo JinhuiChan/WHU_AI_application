@@ -39,7 +39,7 @@ export function BackLink({ to, fallback, label }: BackLinkProps) {
   return (
     <Link
       href={safeReturnTo(to, fallback)}
-      className="inline-flex items-center gap-1 text-sm text-slate-500 transition-colors hover:text-blue-600"
+      className="inline-flex items-center gap-1 text-sm text-[#54635d] transition-colors hover:text-[#115740]"
     >
       <ArrowLeft size={14} aria-hidden="true" />
       {label}

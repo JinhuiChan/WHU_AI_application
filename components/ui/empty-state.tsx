@@ -17,17 +17,17 @@ export function EmptyState({ title, description, action, icon }: EmptyStateProps
   return (
     <div className="flex flex-col items-center justify-center gap-2.5 px-4 py-12 text-center">
       {icon ? (
-        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#f8faf9] text-slate-400 ring-1 ring-[#dde5e0]">
+        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#f8faf9] text-[#54635d] ring-1 ring-[#d5e2db]">
           {icon}
         </span>
       ) : (
-        <WhuGateEmblem className="h-11 w-16 text-[#002554]/30" />
+        <WhuGateEmblem className="h-11 w-16 text-[#115740]/35" />
       )}
-      <p className="font-display text-base font-semibold text-slate-800">{title}</p>
-      {description ? <p className="max-w-md text-xs leading-5 text-slate-500">{description}</p> : null}
+      <p className="font-display text-base font-semibold text-[#0f1d18]">{title}</p>
+      {description ? <p className="max-w-md text-xs leading-5 text-[#5c6c65]">{description}</p> : null}
       {action ? (
         <Link
-          className="mt-2 inline-flex h-9 items-center justify-center rounded-full border border-[#c4d1ca] bg-white px-4 text-sm font-medium text-slate-700 transition duration-150 ease-out hover:border-[#002554]/40 hover:bg-[#f8faf9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-100 focus-visible:ring-offset-2 active:scale-[0.98]"
+          className="mt-2 inline-flex h-9 items-center justify-center rounded-full border border-[#7f9384] bg-white px-4 text-sm font-medium text-[#162620] transition-colors duration-150 ease-out hover:border-[#115740]/50 hover:bg-[#eef5f1]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#115740]/25 focus-visible:ring-offset-2 active:scale-[0.98] motion-reduce:active:scale-100"
           href={action.href}
         >
           {action.label}

@@ -86,21 +86,21 @@ export function Breadcrumbs() {
           只留「首页 › 当前页」；sm 以上恢复完整路径。每节都 nowrap，宁可截断也不换行。 */}
       <ol className="flex items-center gap-1 text-sm">
         <li className="shrink-0 whitespace-nowrap">
-          <Link href="/dashboard" className="text-slate-500 hover:text-blue-600">
+          <Link href="/dashboard" className="text-[#54635d] transition-colors hover:text-[#115740]">
             首页
           </Link>
         </li>
         {parent ? (
           <li className="hidden shrink-0 items-center gap-1 whitespace-nowrap sm:flex">
-            <ChevronRight size={14} className="text-slate-400" aria-hidden="true" />
+            <ChevronRight size={14} className="text-[#8c9c95]" aria-hidden="true" />
             {parent.href ? (
-              <Link href={parent.href} className="text-slate-500 hover:text-blue-600">{parent.label}</Link>
-            ) : <span className="text-slate-500">{parent.label}</span>}
+              <Link href={parent.href} className="text-[#54635d] transition-colors hover:text-[#115740]">{parent.label}</Link>
+            ) : <span className="text-[#54635d]">{parent.label}</span>}
           </li>
         ) : null}
         <li className="flex min-w-0 items-center gap-1">
-          <ChevronRight size={14} className="shrink-0 text-slate-400" aria-hidden="true" />
-          <span className="truncate font-medium text-slate-900" aria-current="page">
+          <ChevronRight size={14} className="shrink-0 text-[#8c9c95]" aria-hidden="true" />
+          <span className="truncate font-medium text-[#0f1d18]" aria-current="page">
             {current}
           </span>
         </li>
