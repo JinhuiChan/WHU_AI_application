@@ -47,34 +47,36 @@ export function ChangeReviewActions({ requestId, status }: Props) {
   }
 
   if (!actionable) {
-    return <span className="text-xs text-slate-400">—</span>;
+    return <span className="text-xs text-[#6c7e76]">已办结</span>;
   }
 
   return (
     <div className="space-y-2">
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-nowrap items-center gap-1.5 whitespace-nowrap">
         <Button
           type="button"
-          onClick={() => send("approve")}
+          size="sm"
+          onClick={() => void send("approve")}
           disabled={pending}
-          className="rounded-full bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60"
+          className="h-8 rounded-full bg-[#115740] px-3.5 text-xs text-white hover:bg-[#0d4633] active:scale-[0.98] active:bg-[#093526] focus-visible:ring-[#115740]/25 disabled:opacity-60"
         >
           通过
         </Button>
         <Button
           type="button"
+          size="sm"
           variant="outline"
           onClick={() => setMode(mode === "reject" ? "idle" : "reject")}
           disabled={pending}
-          className="rounded-full border-red-300 text-red-700 hover:bg-red-50 disabled:opacity-60"
+          className="h-8 rounded-full border-[#c98a91] bg-white px-3.5 text-xs text-[#9e2a35] hover:border-[#9e2a35] hover:bg-[#fdf2f3] active:scale-[0.98] focus-visible:ring-[#9e2a35]/20 disabled:opacity-60"
         >
           驳回
         </Button>
       </div>
       {mode === "reject" ? (
-        <div className="space-y-1">
+        <div className="space-y-1.5 whitespace-normal">
           <textarea
-            className="w-56 rounded-lg border border-slate-300 px-2 py-1 text-xs outline-none focus:border-blue-600"
+            className="w-52 rounded-lg border border-[#7f9384] bg-white px-2.5 py-1.5 text-xs text-[#0f1d18] outline-none transition-colors placeholder:text-[#7c8e85] focus:border-[#115740] focus:ring-2 focus:ring-[#115740]/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#115740]/25"
             placeholder="驳回理由（必填，不超过 200 字）"
             maxLength={200}
             value={reason}
@@ -82,16 +84,17 @@ export function ChangeReviewActions({ requestId, status }: Props) {
           />
           <Button
             type="button"
+            size="sm"
             variant="outline"
-          onClick={() => send("reject")}
+            onClick={() => void send("reject")}
             disabled={pending}
-            className="rounded-full border-red-300 text-red-700 hover:bg-red-50 disabled:opacity-60"
+            className="h-8 rounded-full border-[#9e2a35] bg-[#9e2a35] px-4 text-xs text-white hover:bg-[#82202a] active:scale-[0.98] focus-visible:ring-[#9e2a35]/25 disabled:opacity-60"
           >
             确认驳回
           </Button>
         </div>
       ) : null}
-      {error ? <p role="alert" className="text-xs text-red-600">{error}</p> : null}
+      {error ? <p role="alert" className="text-xs text-[#9e2a35]">{error}</p> : null}
     </div>
   );
 }
