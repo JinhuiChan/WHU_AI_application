@@ -185,7 +185,7 @@ export function MaterialChecker() {
             type="checkbox"
             checked={localOnly}
             onChange={(event) => setLocalOnly(event.target.checked)}
-            className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#7f9384] text-[#115740] focus:ring-2 focus:ring-[#115740]/25"
+            className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#7f9384] accent-[#115740] text-[#115740] focus:ring-2 focus:ring-[#115740]/25"
           />
           <span className="min-w-0">
             <span className="block text-sm font-semibold text-[#0f1d18]">仅本地内存检测、原文不入库</span>

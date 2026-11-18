@@ -99,7 +99,7 @@ export function AssistantChat({
               <h3 className="mt-3.5 font-display text-lg font-bold tracking-tight text-[#0e1d17]">
                 展卷研读 · 规程细则有据可查
               </h3>
-              <p className="mx-auto mt-1.5 max-w-xl text-xs leading-6 text-[#54635d]">
+              <p className="mx-auto mt-1.5 max-w-2xl text-balance text-xs leading-6 text-[#54635d]">
                 {competitionLabel
                   ? `已锁定「${competitionLabel}」，可直接询问参赛资格、组队人数上限、截止节点与申报材料规范。`
                   : "可就全校已发布赛事询问参赛资格、跨院组队上限、截止时间节点与材料规范，系统将自动摘录通知原文供核对。"}
