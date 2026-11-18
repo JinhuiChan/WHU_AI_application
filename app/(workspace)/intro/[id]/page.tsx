@@ -170,7 +170,10 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
             <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-700">{intro.tagline}</p>
 
             <div className="mt-5 flex flex-wrap items-center gap-3">
-              <Button asChild className="group">
+              <Button
+                asChild
+                className="group rounded-full bg-[#115740] text-white hover:bg-[#0d4633] active:bg-[#093426] focus-visible:ring-[#115740]/30"
+              >
                 <Link href={`/competitions/${competition.id}`}>
                   查看赛事详情
                   <ButtonArrow />
@@ -180,7 +183,7 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
                 applyOpen ? (
                   <Link
                     href={`/apply?competitionId=${competition.id}`}
-                    className="group inline-flex h-10 items-center justify-center gap-2 rounded-full border border-[#115740]/30 bg-white/90 px-6 text-sm font-medium text-[#115740] transition duration-150 ease-out hover:bg-white active:scale-[0.98]"
+                    className="group inline-flex h-10 items-center justify-center gap-2 rounded-full border border-[#115740]/45 bg-white/95 px-6 text-sm font-medium text-[#115740] transition duration-150 ease-out hover:bg-white active:scale-[0.98] motion-reduce:active:scale-100 motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#115740]"
                   >
                     我要报名
                     <ButtonArrow />
@@ -189,7 +192,7 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
               ) : null}
               <Link
                 href="/my"
-                className="inline-flex h-10 items-center justify-center rounded-full border border-black/15 bg-white/85 px-5 text-sm font-medium text-slate-700 transition duration-150 ease-out hover:bg-white active:scale-[0.98]"
+                className="inline-flex h-10 items-center justify-center rounded-full border border-[#7f9384] bg-white/90 px-5 text-sm font-medium text-[#24362f] transition duration-150 ease-out hover:border-[#115740] hover:bg-white active:scale-[0.98] motion-reduce:active:scale-100 motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#115740]"
               >
                 我的项目
               </Link>
@@ -385,41 +388,44 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
         )}
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-base text-slate-900">参赛流程</h2>
+      <section className="rounded-2xl border border-[#d5e2db] bg-white p-6 shadow-sm">
+        <h2 className="text-base font-semibold text-[#0f1d18]">参赛流程</h2>
         <ol className="mt-4 grid gap-4 md:grid-cols-2">
           {intro.steps.map((step, index) => (
             <li key={step.title} className="flex gap-3">
-              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-50 text-xs font-semibold text-blue-700">
+              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[#cfe0d6] bg-[#eef5f1] font-display text-xs font-semibold tabular-nums text-[#115740]">
                 {index + 1}
               </span>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-slate-900">{step.title}</p>
-                <p className="mt-0.5 text-xs leading-6 text-slate-600">{step.desc}</p>
+                <p className="text-sm font-semibold text-[#0f1d18]">{step.title}</p>
+                <p className="mt-0.5 text-xs leading-6 text-[#4a5c54]">{step.desc}</p>
               </div>
             </li>
           ))}
         </ol>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="rounded-2xl border border-[#d5e2db] bg-white p-6 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-base text-slate-900">宣传片与赛事解读</h2>
+          <h2 className="text-base font-semibold text-[#0f1d18]">宣传片与赛事解读</h2>
           {user.role === "ADMIN" ? (
-            <Link href={`/competitions/${competition.id}#media`} className="text-xs font-medium text-blue-700 hover:underline">
+            <Link
+              href={`/competitions/${competition.id}#media`}
+              className="rounded-sm text-xs font-medium text-[#115740] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#115740]"
+            >
               管理宣传片
             </Link>
           ) : (
-            <span className="text-xs text-slate-500">视频素材接入位</span>
+            <span className="text-xs text-[#5c6c65]">视频素材接入位</span>
           )}
         </div>
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-1 text-xs text-[#5c6c65]">
           上传的视频会在这里直接播放；没有素材时先占位，不显示空白播放器。
         </p>
         <div className="mt-4">
           {video ? (
             <video
-              className="w-full max-w-3xl rounded-xl border border-slate-200 bg-black"
+              className="w-full max-w-3xl rounded-xl border border-[#cfe0d6] bg-black"
               controls
               playsInline
               preload="metadata"
@@ -427,46 +433,46 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
             >
               <track kind="captions" />
               你的浏览器不支持内嵌视频，可以
-              <a href={video.filePath} className="text-blue-600 underline">直接下载观看</a>。
+              <a href={video.filePath} className="text-[#115740] underline">直接下载观看</a>。
             </video>
           ) : (
-            <div className="flex aspect-video max-w-3xl flex-col items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50/80 px-6 text-center">
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-blue-600 shadow-sm ring-1 ring-slate-200/80">
-                  <PlayCircle aria-hidden="true" size={20} />
-                </span>
-                <p className="text-sm font-semibold text-slate-800">宣传片 / 赛事解读</p>
-                <p className="max-w-md text-xs leading-6 text-slate-500">
-                  还没有上传视频。管理员上传后，这里会变成可播放的宣传片，也可以在下面配一段赛事解读。
-                </p>
-                {user.role === "ADMIN" ? (
-                  <Link
-                    href={`/competitions/${competition.id}#media`}
-                    className="mt-1 inline-flex h-9 items-center justify-center rounded-full border border-slate-300 bg-white px-4 text-xs font-medium text-slate-700 transition hover:bg-slate-50"
-                  >
-                    去上传宣传片
-                  </Link>
-                ) : null}
+            <div className="flex aspect-video max-w-3xl flex-col items-center justify-center gap-2 rounded-xl border border-[#cfe0d6] bg-[#f6faf8] px-6 text-center">
+              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#eef5f1] text-[#115740] ring-1 ring-[#cfe0d6]">
+                <PlayCircle aria-hidden="true" size={20} />
+              </span>
+              <p className="text-sm font-semibold text-[#0f1d18]">宣传片 / 赛事解读</p>
+              <p className="max-w-md text-xs leading-6 text-[#5c6c65]">
+                还没有上传视频。管理员上传后，这里会变成可播放的宣传片，也可以在下面配一段赛事解读。
+              </p>
+              {user.role === "ADMIN" ? (
+                <Link
+                  href={`/competitions/${competition.id}#media`}
+                  className="mt-1 inline-flex h-9 items-center justify-center rounded-full border border-[#7f9384] bg-white px-4 text-xs font-medium text-[#24362f] transition-colors hover:border-[#115740] hover:bg-[#eef5f1] hover:text-[#115740] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#115740]"
+                >
+                  去上传宣传片
+                </Link>
+              ) : null}
             </div>
           )}
         </div>
       </section>
 
       {documents.length ? (
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-base text-slate-900">官方通知与规程</h2>
-          <p className="mt-1 text-xs text-slate-500">简介只做概览，报名条件与规则以这些文件为准。</p>
-          <ul className="mt-4 divide-y divide-slate-100">
+        <section className="rounded-2xl border border-[#d5e2db] bg-white p-6 shadow-sm">
+          <h2 className="text-base font-semibold text-[#0f1d18]">官方通知与规程</h2>
+          <p className="mt-1 text-xs text-[#5c6c65]">简介只做概览，报名条件与规则以这些文件为准。</p>
+          <ul className="mt-4 divide-y divide-[#eaf1ed]">
             {documents.map((file) => (
               <li key={file.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
-                <span className="flex items-center gap-2 text-sm text-slate-800">
-                  <FileText aria-hidden="true" className="text-slate-400" size={16} />
+                <span className="flex items-center gap-2 text-sm text-[#14261f]">
+                  <FileText aria-hidden="true" className="text-[#115740]/70" size={16} />
                   {file.title}
                 </span>
                 <a
                   href={file.filePath}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1 rounded-full border border-slate-300 px-3 py-1.5 text-xs text-slate-700 transition hover:bg-slate-50"
+                  className="inline-flex h-8 items-center gap-1 rounded-full border border-[#7f9384] bg-white px-3.5 text-xs font-medium text-[#24362f] transition-colors hover:border-[#115740] hover:bg-[#eef5f1] hover:text-[#115740] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#115740]"
                 >
                   查看 / 下载
                   <ArrowUpRight aria-hidden="true" size={12} />
@@ -477,14 +483,17 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
         </section>
       ) : null}
 
-      <section className="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
-        <p className="flex items-start gap-2 text-xs leading-6 text-slate-600">
-          <CalendarDays aria-hidden="true" className="mt-0.5 shrink-0 text-blue-600" size={14} />
+      <section className="rounded-xl border border-[#cfe0d6] bg-[#eef5f1]/75 p-4">
+        <p className="flex items-start gap-2 text-xs leading-6 text-[#33433d]">
+          <CalendarDays aria-hidden="true" className="mt-0.5 shrink-0 text-[#115740]" size={14} />
           <span>
             {intro.note ?? "具体赛道、组别与时间安排以当年度报名通知为准。"}
-            <span className="ml-1 text-slate-500">
+            <span className="ml-1 text-[#54635d]">
               报名与材料提交请到
-              <Link href={`/competitions/${competition.id}`} className="mx-1 text-blue-700 underline">
+              <Link
+                href={`/competitions/${competition.id}`}
+                className="mx-1 rounded-sm font-medium text-[#115740] underline hover:text-[#0d4633] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#115740]"
+              >
                 赛事详情
               </Link>
               办理。
