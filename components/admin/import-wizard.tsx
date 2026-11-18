@@ -350,7 +350,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
                       ? "bg-[#115740] text-white"
                       : complete
                         ? "bg-[#dbece2] text-[#115740]"
-                        : "border border-[#93a49b] bg-white text-[#5c6c65]"
+                        : "border border-[#7f9384] bg-white text-[#5c6c65]"
                   }`}
                 >
                   {complete ? <Check aria-hidden="true" size={13} strokeWidth={2.75} /> : number}
@@ -433,7 +433,7 @@ export function ImportWizard({ competitions }: ImportWizardProps) {
             }}
             onDrop={drop}
             className={`mt-5 rounded-xl border-2 border-dashed p-5 transition-colors duration-150 ${
-              dragActive ? "border-[#115740] bg-[#eef5f1]" : "border-[#93a49b] bg-[#f8fbf9]"
+              dragActive ? "border-[#115740] bg-[#eef5f1]" : "border-[#7f9384] bg-[#f8fbf9]"
             }`}
           >
             <p className="font-medium text-[#0e1d17]">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { useDialogA11y } from "@/components/ui/use-dialog-a11y";
 
@@ -20,7 +21,9 @@ export function RejectDialog({
 
   const dialogRef = useDialogA11y(true, onCancel, !pending);
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <div
       ref={dialogRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-[#09211a]/45 p-4 backdrop-blur-[1px]"
@@ -29,7 +32,7 @@ export function RejectDialog({
       aria-labelledby="reject-dialog-title"
     >
       <form
-        className="w-full max-w-lg card border-[#c9dad1] p-6"
+        className="w-full max-w-lg rounded-2xl border border-[#c9dad1] bg-white p-6 shadow-2xl"
         onSubmit={(event) => {
           event.preventDefault();
           const normalized = reason.trim();
@@ -86,6 +89,7 @@ export function RejectDialog({
           </Button>
         </div>
       </form>
-    </div>
+    </div>,
+    document.body,
   );
 }
