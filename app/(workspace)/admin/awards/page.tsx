@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AwardWorkbench } from "@/components/admin/award-workbench";
+import { WhuSeal, WhuTitleRule } from "@/components/brand/whu-motifs";
 import { WorkspaceForbidden } from "@/components/ui/workspace-forbidden";
 import { getAdminAwardPage, parseAdminAwardLevel } from "@/lib/admin-awards";
 import { getActiveUser } from "@/lib/auth.server";
@@ -55,21 +56,28 @@ export default async function AdminAwardsPage({ searchParams }: PageProps) {
   const exportHref = `/api/export/awards-list${exportQuery ? `?${exportQuery}` : ""}`;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <div className="space-y-5">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="t-page-title text-xl font-semibold text-slate-900">奖项录入</h1>
-          <p className="mt-1 text-sm text-slate-500">为终审通过项目录入或调整奖项，每次新增和改级均保留历史与审计记录。</p>
-          <p className="mt-1 text-xs text-slate-400">列表只显示已通过校级终审及以上的项目（含已有奖项的历史项目），未审核与已驳回的不在此出现。</p>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h1 className="t-page-title font-display text-[26px] font-bold tracking-tight text-[#0e1d17] sm:text-[28px]">
+              奖项录入
+            </h1>
+            <WhuSeal label="奖项台账" />
+          </div>
+          <p className="mt-1.5 flex items-center gap-2 text-sm text-[#54635d]">
+            <WhuTitleRule />
+            <span>为校级终审通过项目核定或调整奖项等级，每次新增与改级均保留变更记录与审计留痕。</span>
+          </p>
         </div>
-        <div className="text-right">
+        <div className="flex flex-col items-start gap-1 lg:items-end">
           <a
             href={exportHref}
-            className="inline-flex h-10 items-center rounded-full bg-blue-600 px-5 text-sm font-medium text-white transition hover:bg-blue-700"
+            className="inline-flex h-10 items-center justify-center rounded-full bg-[#115740] px-5 text-sm font-medium text-white transition duration-150 hover:bg-[#0d4633] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#115740]/25 focus-visible:ring-offset-2 active:scale-[0.98] motion-reduce:active:scale-100"
           >
             导出获奖名单
           </a>
-          <p className="mt-1 text-xs text-slate-500">按当前筛选导出，仅含已录奖项的项目</p>
+          <p className="text-xs text-[#6c7e76]">按当前筛选导出，仅含已录奖项项目</p>
         </div>
       </div>
       <AwardWorkbench
