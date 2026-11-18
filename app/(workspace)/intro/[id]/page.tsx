@@ -108,8 +108,8 @@ export default async function CompetitionIntroDetailPage({ params, searchParams 
   // 紧迫度、颜色与剩余天数统一由 deadlineState 计算，避免同页和列表出现两套口径。
   const keyDates = competition.timeWindows.map((item) => {
     const state = deadlineState(item.startAt, item.endAt, now);
-    const startYear = new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", year: "numeric" }).format(item.startAt);
-    const endYear = new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", year: "numeric" }).format(item.endAt);
+    const startYear = new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", year: "numeric" }).format(item.startAt).replace(/年$/, "");
+    const endYear = new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", year: "numeric" }).format(item.endAt).replace(/年$/, "");
     const sameYear = sameYearCN(item.startAt, item.endAt);
     const label = state.running ? `进行中 · ${state.label}` : state.label;
     return {

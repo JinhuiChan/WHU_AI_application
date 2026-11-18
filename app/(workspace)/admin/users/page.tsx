@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Role } from "@prisma/client";
 import { UserManagement } from "@/components/admin/user-management";
+import { WorkspaceForbidden } from "@/components/ui/workspace-forbidden";
 import { countManagedUsers, countPendingAdminRegistrations, listManagedUsers } from "@/lib/admin-users";
 import { getActiveUser } from "@/lib/auth.server";
 import { firstParam } from "@/lib/list-query";
@@ -31,12 +32,7 @@ export default async function UsersPage({ searchParams }: { searchParams?: Recor
     redirect("/login");
   }
   if (user.role !== "ADMIN") {
-    return (
-      <section className="rounded-lg border border-red-200 bg-white p-6">
-        <h1 className="t-page-title text-xl font-semibold text-red-600">403 无权限</h1>
-        <p className="mt-2 text-sm text-slate-500">仅管理员可以访问用户管理。</p>
-      </section>
-    );
+    return <WorkspaceForbidden message="仅管理员可以访问用户管理。" />;
   }
 
   const roleParam = firstParam(searchParams?.role);

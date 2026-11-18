@@ -10,9 +10,9 @@ export default function WorkspaceError({ error, reset }: { error: Error & { dige
 
   return (
     <section className="card px-6 py-12 text-center" role="alert">
-      <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-2xl text-red-600" aria-hidden="true">!</span>
-      <h1 className="t-page-title mt-4 text-xl font-semibold text-slate-900">这个页面暂时打不开</h1>
-      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
+      <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#faeaea] text-xl font-bold text-[#9e2a35]" aria-hidden="true">!</span>
+      <h1 className="t-page-title mt-4 font-display text-2xl font-bold text-[#0e1d17]">这个页面暂时打不开</h1>
+      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#54635d]">
         可能是数据加载失败，重试一次通常就能恢复；也可以从左侧导航回到看板。
       </p>
       {error.digest ? (
@@ -20,14 +20,14 @@ export default function WorkspaceError({ error, reset }: { error: Error & { dige
       ) : null}
       <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
         <button
-          className="inline-flex h-11 items-center justify-center rounded-full bg-blue-600 px-6 text-sm font-medium text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-100 focus-visible:ring-offset-2"
+          className="inline-flex h-10 items-center justify-center rounded-full bg-blue-600 px-6 text-sm font-medium text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200 focus-visible:ring-offset-2"
           onClick={() => reset()}
           type="button"
         >
           重试
         </button>
         <a
-          className="inline-flex h-11 items-center justify-center rounded-full border border-slate-300 bg-white px-6 text-sm font-medium text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-100 focus-visible:ring-offset-2"
+          className="inline-flex h-10 items-center justify-center rounded-full border border-[#7f9384] bg-white px-6 text-sm font-medium text-slate-700 hover:border-[#657a6f] hover:bg-[#f7faf8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200 focus-visible:ring-offset-2"
           href="/dashboard"
         >
           返回看板

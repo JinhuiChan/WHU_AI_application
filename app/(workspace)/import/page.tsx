@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ImportWizard } from "@/components/admin/import-wizard";
+import { WorkspaceForbidden } from "@/components/ui/workspace-forbidden";
 import { getActiveUser } from "@/lib/auth.server";
 import { prisma } from "@/lib/prisma";
 
@@ -11,12 +12,7 @@ export default async function ImportPage() {
   const user = await getActiveUser();
   if (!user) redirect("/login");
   if (user.role !== "ADMIN") {
-    return (
-      <section className="rounded-lg border border-red-200 bg-white p-6">
-        <h1 className="t-page-title text-xl font-semibold text-red-600">403 无权限</h1>
-        <p className="mt-2 text-sm text-slate-500">仅管理员可以上传并映射赛事报名数据。</p>
-      </section>
-    );
+    return <WorkspaceForbidden message="仅管理员可以上传并映射赛事报名数据。" />;
   }
 
   const competitions = await prisma.competition.findMany({

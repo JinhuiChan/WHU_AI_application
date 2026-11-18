@@ -1,6 +1,6 @@
 /** 工作区加载骨架：结构与看板一致，切换页面时不跳版。 */
 function Skeleton({ className }: { className: string }) {
-  return <div className={`animate-pulse rounded-lg bg-slate-100 motion-reduce:animate-none ${className}`} aria-hidden="true" />;
+  return <div className={`animate-pulse rounded-lg bg-[#dfebe4] motion-reduce:animate-none ${className}`} aria-hidden="true" />;
 }
 
 export default function WorkspaceLoading() {

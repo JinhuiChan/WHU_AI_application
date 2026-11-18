@@ -50,27 +50,45 @@ export function WhuArchWatermark({ className }: { className?: string }) {
   );
 }
 
-/** 学院印信方章：用于官方简章、指南封面与页尾落款 */
+/** 学院朱文印信角标（1% 斋舍绛朱点睛）：用于核心看板标题旁或正式题头 */
 export function WhuSeal({
-  label = "珞珈科创",
-  sub = "WHU",
+  label = "珞珈台账",
   className,
 }: {
   label?: string;
-  sub?: string;
   className?: string;
 }) {
   return (
     <span
-      className={`inline-flex items-center gap-2 rounded-md border border-[#115740]/25 bg-[#115740]/[0.06] px-2.5 py-1 text-xs font-medium text-[#115740] ${className ?? ""}`}
+      className={`inline-flex items-center justify-center rounded border border-[#9e2a35]/50 bg-[#9e2a35]/[0.045] px-1.5 py-0.5 font-display text-[11px] font-bold tracking-[0.08em] text-[#9e2a35] ${className ?? ""}`}
     >
-      <svg aria-hidden="true" className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 20 20">
-        <path d="M10 2.5 3.5 8h13z" fill="currentColor" fillOpacity="0.85" />
-        <path d="M2.5 9.5h15M5.5 15.5h9M7 9.5v4.5M10 9.5v4.5M13 9.5v4.5" stroke="currentColor" strokeLinecap="round" strokeWidth="1.25" />
-      </svg>
-      <span className="font-display tracking-wide">{label}</span>
-      <span className="font-mono text-[10px] tracking-[0.14em] text-[#115740]/75">{sub}</span>
+      {label}
     </span>
+  );
+}
+
+/** 绿琉璃 + 斋舍绛朱双色短尺：放在大标题下方与副标题同行，形成武大建筑色锚点 */
+export function WhuTitleRule({ className }: { className?: string }) {
+  return (
+    <span aria-hidden="true" className={`inline-flex items-center gap-[3px] ${className ?? ""}`}>
+      <span className="h-[2.5px] w-[22px] rounded-full bg-[#115740]" />
+      <span className="h-[2.5px] w-[7px] rounded-full bg-[#9e2a35]" />
+    </span>
+  );
+}
+
+/** 老图书馆重檐飞角线稿暗纹：垫于核心主卡右下角（约 5% 透明度） */
+export function WhuEavesWatermark({ className }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 220 130">
+      <path d="M30 56 Q110 20 190 56" strokeLinecap="round" />
+      <path d="M10 82 Q110 48 210 82" strokeLinecap="round" />
+      <line x1="48" x2="48" y1="82" y2="126" />
+      <line x1="88" x2="88" y1="80" y2="126" />
+      <line x1="132" x2="132" y1="80" y2="126" />
+      <line x1="172" x2="172" y1="82" y2="126" />
+      <line strokeLinecap="round" x1="22" x2="198" y1="126" y2="126" />
+    </svg>
   );
 }
 

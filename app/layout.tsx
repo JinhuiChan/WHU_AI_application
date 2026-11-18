@@ -23,11 +23,6 @@ const notoSansCN = localFont({
   variable: "--font-sans-cn",
   weight: "100 900",
 });
-const stKaiti = localFont({
-  src: "./fonts/STKaiti-Subset.woff2",
-  variable: "--font-kaiti-cn",
-  weight: "400 700",
-});
 
 export const metadata: Metadata = {
   title: {
@@ -44,7 +39,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN">
-      <body className={`${geistSans.variable} ${geistMono.variable} ${notoSerifDisplay.variable} ${notoSansCN.variable} ${stKaiti.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} ${notoSerifDisplay.variable} ${notoSansCN.variable} antialiased`}>
         {children}
         <Toaster theme="light" position="top-right" richColors closeButton duration={3200} offset={76} />
       </body>

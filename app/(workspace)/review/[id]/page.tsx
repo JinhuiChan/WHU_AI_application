@@ -1,6 +1,7 @@
 import { BackLink } from "@/components/data/list-link";
 import { firstParam } from "@/lib/list-query";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { WorkspaceForbidden } from "@/components/ui/workspace-forbidden";
 import { ReviewDecisionBar } from "@/components/review/review-decision-bar";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
@@ -41,7 +42,7 @@ export default async function ReviewDetailPage({ params, searchParams }: PagePro
   const user = await getActiveUser();
   if (!user) redirect("/login");
   if (user.role !== "ADMIN") {
-    return <section className="rounded-lg border border-red-200 bg-white p-6"><h1 className="t-page-title text-xl font-semibold text-red-600">403 无权限</h1></section>;
+    return <WorkspaceForbidden message="仅管理员可以查看审核项目详情。" />;
   }
   const project = await getReviewDetail(params.id);
   if (!project) notFound();

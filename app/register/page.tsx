@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { WhuCrest } from "@/components/layout/brand-mark";
 import Link from "next/link";
 import { useRef, useState } from "react";
 
@@ -88,24 +89,30 @@ export default function RegisterPage() {
   }
 
   const fieldClass =
-    "mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100";
+    "mt-1 h-11 w-full rounded-lg border border-[#7f9384] bg-white px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#115740] focus:ring-2 focus:ring-[#115740]/15";
   const passwordFieldClass = `${fieldClass} pr-16`;
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-10">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-md space-y-4 card p-6"
-      >
-        <div className="flex items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-sm font-bold text-white">科</span>
-          <span className="text-sm font-medium text-slate-900">WHU 科创赛事平台</span>
+    <main className="flex min-h-screen items-center justify-center bg-[#edf4ef] px-4 py-10">
+      <div className="w-full max-w-[460px] overflow-hidden rounded-2xl border border-[#c9dad1] bg-white shadow-[0_8px_28px_-14px_rgba(13,59,46,0.14)]">
+        <div className="flex items-center justify-between gap-3 bg-gradient-to-r from-[#114636] to-[#0b3327] px-7 py-5 text-white">
+          <div className="flex items-center gap-3">
+            <WhuCrest framed size={38} />
+            <div>
+              <span className="block font-display text-base font-bold leading-tight text-white">珞珈科创</span>
+              <span className="mt-0.5 block text-[11.5px] text-[#b4d3c5]">武汉大学大学生创新创业竞赛平台</span>
+            </div>
+          </div>
+          <span className="text-[11px] tracking-widest text-[#9ec4b3]">新用户注册</span>
         </div>
 
-        <div>
-          <h1 className="text-xl font-semibold text-slate-900">账号注册</h1>
-          <p className="mt-1 text-sm text-slate-500">学生、老师注册后可直接登录；管理员账号需管理员审核通过后才能登录。</p>
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-4 p-7 sm:p-8">
+          <div>
+            <h1 className="font-display text-[25px] font-bold tracking-tight text-[#0e1d17]">账号注册</h1>
+            <p className="mt-1.5 text-sm text-[#54635d]">
+              学生、指导老师注册后可直接登录；管理员账号需审核通过后方可登录。
+            </p>
+          </div>
 
         <div>
           <label className="block text-sm text-slate-700" htmlFor="identity">
@@ -251,13 +258,14 @@ export default function RegisterPage() {
           {submitting ? "注册中…" : "注册"}
         </Button>
 
-        <div className="space-y-2 border-t border-slate-100 pt-4">
+        <div className="space-y-2.5 border-t border-[#e5ede8] pt-5">
           <p className="text-center text-sm text-slate-500">已有账号？</p>
           <Button asChild className="w-full" variant="outline">
             <Link href="/login">返回登录</Link>
           </Button>
         </div>
-      </form>
+        </form>
+      </div>
     </main>
   );
 }

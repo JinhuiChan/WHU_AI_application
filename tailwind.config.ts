@@ -12,7 +12,6 @@ const config: Config = {
         sans: ["var(--font-geist-sans)", "var(--font-sans-cn)", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "sans-serif"],
         display: ["var(--font-serif-display)", "Noto Serif SC", "Songti SC", "SimSun", "serif"],
         editorial: ["var(--font-geist-sans)", "var(--font-sans-cn)", "PingFang SC", "sans-serif"],
-        kaiti: ["var(--font-kaiti-cn)", "KaiTi", "STKaiti", "BiauKai", "serif"],
         mono: ["var(--font-geist-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
       },
       colors: {

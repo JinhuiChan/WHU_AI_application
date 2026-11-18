@@ -45,17 +45,29 @@ body {
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
-/* 柔光淡青玉画布（#edf4ef）+ 方案 A 深孔雀绿侧栏与无框通透顶区 */
+/* 方案三：外圈深孔雀琉璃绿画框 + 内嵌 18px 圆角淡青玉宣纸画布（#edf4ef） */
 @media screen {
+  .app-shell-root {
+    background-color: #edf4ef;
+  }
+
+  @media (min-width: 768px) {
+    .app-shell-root {
+      background-color: #0c372b;
+      background-image: linear-gradient(165deg, #124939 0%, #0c372b 52%, #07221a 100%);
+    }
+  }
+
   .app-canvas {
     background-color: #edf4ef;
     background-image:
-      radial-gradient(960px 360px at 18% -90px, rgba(17, 87, 64, 0.06), transparent 70%),
-      radial-gradient(880px 340px at 88% -80px, rgba(0, 37, 84, 0.025), transparent 68%);
+      radial-gradient(880px 320px at 18% -60px, rgba(17, 87, 64, 0.06), transparent 70%),
+      radial-gradient(760px 280px at 90% -50px, rgba(158, 42, 53, 0.028), transparent 68%);
   }
 
   .app-shell-aside {
-    background-color: #0d3b2e;
+    background-color: #0c372b;
+    background-image: linear-gradient(180deg, #124939 0%, #0c372b 52%, #07221a 100%);
   }
 
   .app-shell-header {
@@ -111,13 +123,13 @@ body {
       不存在被 utilities 覆盖的需求，所以不需要进层。 */
 @media screen {
   .page-enter input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
-  .page-enter select,
+  .page-enter select:not(.select-pill),
   .page-enter textarea {
     box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.05);
   }
 }
 
-.page-enter select {
+.page-enter select:not(.select-pill) {
   padding-top: 0.45rem;
   padding-bottom: 0.45rem;
   line-height: 1.4;
@@ -181,8 +193,10 @@ body {
 /* 全站文字层级：展示大标题使用思源宋体（--font-serif-display），正文维持精密无衬线体，形成鲜明书卷感与专业度对比。 */
 .page-enter .t-page-title {
   font-family: var(--font-serif-display), "Noto Serif SC", "Source Han Serif SC", "Songti SC", "SimSun", serif;
-  font-size: 26px;
-  font-weight: 600;
+  font-size: 27px;
+  font-weight: 700;
+  line-height: 1.24;
+  color: #0e1d17;
   letter-spacing: -0.01em;
 }
 
@@ -348,6 +362,13 @@ body {
   header,
   button {
     display: none !important;
+  }
+
+  .app-shell-root,
+  .app-canvas {
+    background: #ffffff !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
   }
 
   .page-enter > * > *,

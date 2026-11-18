@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowUpRight, BookOpen, ClipboardCheck, FolderKanban, Trophy, Upload, type LucideIcon } from "lucide-react";
+import { WhuEavesWatermark, WhuSeal, WhuTitleRule } from "@/components/brand/whu-motifs";
 import { DashboardFilterBar } from "@/components/data/dashboard-filter-bar";
 import { SectionHead } from "@/components/ui/section-head";
 import { StatisticsCharts } from "@/components/data/statistics-charts";
@@ -106,110 +107,197 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     { href: "/my", label: "我的项目", note: "查看本人参与的项目与状态", icon: FolderKanban, tone: "emerald" },
   ];
 
+  const pendingCnt = summary.cards.pendingReviewCount;
+  const advCnt = summary.cards.provinceAdvancedCount;
+  const schoolPassCnt = scoped
+    ? Math.max(0, finalCount - advCnt)
+    : Math.max(0, totalProjects - pendingCnt - advCnt);
+  const maxCollegeProjects = Math.max(1, ...summary.byCollege.map((item) => item.projectCount));
+  const advShareText = totalProjects > 0 ? `${((advCnt / totalProjects) * 100).toFixed(1)}%` : "0%";
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="t-page-title font-display text-[26px] font-bold tracking-tight text-[#0e1d17] sm:text-[28px]">{scoped ? "我的统计" : "统计看板"}</h1>
-        <p className="mt-1.5 text-sm text-[#54635d]">{scoped ? "仅统计本人参与的项目与状态，不展示全校数据。" : "所有数字按当前筛选条件实时聚合。"}</p>
+    <div className="space-y-4">
+      <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
+        <div>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h1 className="t-page-title font-display text-[26px] font-bold tracking-tight text-[#0e1d17] sm:text-[28px]">
+              {scoped ? "我的统计" : "统计看板"}
+            </h1>
+            <WhuSeal label={scoped ? "个人台账" : "珞珈台账"} />
+          </div>
+          <p className="mt-1.5 flex items-center gap-2 text-sm text-[#54635d]">
+            <WhuTitleRule />
+            <span>
+              {scoped
+                ? "仅统计本人参与的项目与状态，点击卡片可穿透查看对应明细。"
+                : "实时聚合全校申报进度与院系分布，点击任意卡片或学院下钻明细。"}
+            </span>
+          </p>
+        </div>
+        <DashboardFilterBar
+          competitions={summary.options.competitions}
+          years={summary.options.years}
+          current={{
+            competitionId: summary.filters.competitionId ?? "",
+            year: summary.filters.year?.toString() ?? "",
+            stage: summary.filters.stage ?? "",
+          }}
+        />
       </div>
 
-      <section className={`grid gap-3 sm:grid-cols-2 ${isAdmin ? "lg:grid-cols-4" : "lg:grid-cols-3"}`} aria-label="快捷入口">
+      <section className={`grid gap-2.5 sm:grid-cols-2 ${isAdmin ? "lg:grid-cols-4" : "lg:grid-cols-3"}`} aria-label="快捷入口">
         {quickLinks.map((item) => {
           const Icon = item.icon;
           return (
             <Link
-              className="group flex items-center gap-3 card p-4 transition duration-150 hover:border-[#9eb4a8] active:scale-[0.99] motion-reduce:active:scale-100"
+              className="group flex items-center gap-3 rounded-xl border border-[#14221b]/[0.075] bg-white/75 px-3.5 py-2.5 transition duration-150 hover:border-[#657a6f] hover:bg-white active:scale-[0.99] motion-reduce:active:scale-100"
               href={item.href}
               key={item.href}
             >
-              <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${ICON_TONE[item.tone]}`}>
-                <Icon aria-hidden="true" size={17} />
+              <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${ICON_TONE[item.tone]}`}>
+                <Icon aria-hidden="true" size={16} />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-medium text-slate-900">{item.label}</span>
-                <span className="mt-0.5 block truncate text-xs text-slate-500">{item.note}</span>
+                <span className="block text-[13px] font-semibold text-[#13231d]">{item.label}</span>
+                <span className="block truncate text-[11px] text-[#677770]">{item.note}</span>
               </span>
-              <ArrowUpRight aria-hidden="true" className="shrink-0 text-slate-400 transition group-hover:text-[#002554]" size={15} />
+              <ArrowUpRight aria-hidden="true" className="shrink-0 text-[#9ab0a5] transition group-hover:text-[#002554]" size={14} />
             </Link>
           );
         })}
       </section>
 
-      <DashboardFilterBar
-        competitions={summary.options.competitions}
-        years={summary.options.years}
-        current={{
-          competitionId: summary.filters.competitionId ?? "",
-          year: summary.filters.year?.toString() ?? "",
-          stage: summary.filters.stage ?? "",
-        }}
-      />
-
-      {/* Bento：第一块放大带环形进度，其余三块退成次要信息。
-          原来四块等宽等高，眼睛在四个同尺寸方块之间没有落点。
-          环的百分比来自已有统计字段，不新增查询。 */}
+      {/* Bento：主卡采用宣纸青玉微釉 + 双圈刻度环 + 宋体展示大数 + 状态分段条 + 老图书馆重檐暗纹 */}
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-12">
         {cards.map((card, index) => {
-          // 只在真的有数字时才标红：0 个待审核不是需要处理的事，标红会变成常驻噪音
           const isWarning = card.value > 0 && /待审核|异常|退回|待补|超期/.test(card.label);
           const interactive = Boolean(card.href);
           const big = index === 0;
+          const wide = index === 3;
           const span = big
             ? "sm:col-span-2 xl:col-span-6 xl:row-span-2"
-            : index === 3
+            : wide
               ? "sm:col-span-2 xl:col-span-6"
               : "xl:col-span-3";
           const className = [
-            "relative card p-5",
-            big ? "flex flex-col" : "",
+            "relative overflow-hidden card p-5",
+            big
+              ? "flex flex-col justify-between border-[#c0d5ca] bg-gradient-to-br from-white via-white to-[#f0f7f3] shadow-[0_8px_24px_-12px_rgba(17,87,64,0.16),0_1px_3px_rgba(17,87,64,0.05)] before:absolute before:inset-x-0 before:top-0 before:h-[3px] before:bg-gradient-to-r before:from-[#115740] before:via-[#1c7859] before:to-[#c59b45]"
+              : wide
+                ? "flex items-center justify-between gap-4 py-4"
+                : "flex flex-col justify-between",
             span,
-            isWarning ? "t-warn" : "",
+            isWarning && !big ? "border-l-[3px] border-l-[#9e2a35] bg-[#fffdfd]" : "",
             interactive
-              ? "group block transition duration-[160ms] hover:border-[#9eb4a8] hover:bg-[#f7faf8] active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#115740] motion-reduce:active:scale-100"
+              ? "group block transition duration-[160ms] hover:border-[#657a6f] hover:bg-[#f7faf8] active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#115740] motion-reduce:active:scale-100"
               : "",
           ].filter(Boolean).join(" ");
-          const circumference = 2 * Math.PI * 26;
-          const body = (
+          const circumference = 2 * Math.PI * 27;
+          const body = big ? (
             <>
-              <h2 className="t-label text-xs text-slate-500">{card.label}</h2>
-              {big ? (
-                <div className="flex flex-1 items-center gap-5 py-4">
-                  <svg aria-hidden="true" className="shrink-0" height="80" viewBox="0 0 64 64" width="80">
-                    <circle cx="32" cy="32" fill="none" r="26" stroke="#e3ede7" strokeWidth="6" />
-                    <circle
-                      cx="32"
-                      cy="32"
-                      fill="none"
-                      r="26"
-                      stroke={isWarning ? "#d97706" : "#115740"}
-                      strokeDasharray={circumference}
-                      strokeDashoffset={circumference * (1 - ringPercent / 100)}
-                      strokeLinecap="round"
-                      strokeWidth="6"
-                      transform="rotate(-90 32 32)"
-                    />
-                  </svg>
-                  <div className="min-w-0">
-                    <div className={`text-4xl font-semibold tracking-tight tabular-nums ${isWarning ? "t-warn-value" : "text-slate-900"}`}>
-                      {card.value}
-                    </div>
-                    <p className="mt-1.5 text-xs text-slate-500">
-                      {ringLabel} <span className="font-semibold text-slate-900 tabular-nums">{ringPercent}%</span>
-                      <span className="text-slate-400 tabular-nums"> · {ringNumerator}/{totalProjects}</span>
-                    </p>
+              <div className="relative z-[1] flex items-center justify-between gap-2">
+                <h2 className="t-label text-xs font-semibold text-[#43554d]">
+                  {card.label} · {scoped ? "本人参与" : "全校在库"}
+                </h2>
+                <span className="inline-flex items-center rounded-full bg-[#e3f0ea] px-2.5 py-0.5 text-[11.5px] font-semibold text-[#115740] tabular-nums">
+                  {ringLabel} {ringPercent}%
+                </span>
+              </div>
+              <div className="relative z-[1] flex items-center gap-5 py-4">
+                <svg aria-hidden="true" className="shrink-0" height="78" viewBox="0 0 68 68" width="78">
+                  <circle cx="34" cy="34" fill="none" r="27" stroke="#dfeae4" strokeWidth="5.5" />
+                  <circle cx="34" cy="34" fill="none" r="21" stroke="#d0e0d7" strokeDasharray="2 3" strokeWidth="1" />
+                  <circle
+                    cx="34"
+                    cy="34"
+                    fill="none"
+                    r="27"
+                    stroke={isWarning ? "#d97706" : "#115740"}
+                    strokeDasharray={circumference}
+                    strokeDashoffset={circumference * (1 - ringPercent / 100)}
+                    strokeLinecap="round"
+                    strokeWidth="5.5"
+                    transform="rotate(-90 34 34)"
+                  />
+                </svg>
+                <div className="min-w-0">
+                  <div className="font-display text-[46px] font-bold leading-none tracking-tight text-[#0b1f18] tabular-nums">
+                    {card.value}
                   </div>
+                  <p className="mt-2 text-xs text-[#54635d]">
+                    {scoped ? "终审通过" : "已终审结项"}{" "}
+                    <span className="font-semibold text-[#0f1d18] tabular-nums">{ringNumerator} 项</span>
+                    <span className="text-[#6c7e76] tabular-nums"> · 流转待审 {pendingCnt} 项</span>
+                  </p>
                 </div>
-              ) : (
-                <div className={`t-hero-title mt-3 text-3xl font-semibold ${isWarning ? "t-warn-value" : "text-slate-900"}`}>
-                  {card.value}
+              </div>
+              <div className="relative z-[1] border-t border-[#e2ede7] pt-3">
+                <div className="flex h-1.5 overflow-hidden rounded-full bg-[#e5efe9] gap-[2px]">
+                  {totalProjects > 0 ? (
+                    <>
+                      {schoolPassCnt > 0 ? (
+                        <span style={{ width: `${(schoolPassCnt / totalProjects) * 100}%` }} className="bg-[#115740]" />
+                      ) : null}
+                      {advCnt > 0 ? (
+                        <span style={{ width: `${(advCnt / totalProjects) * 100}%` }} className="bg-[#002554]" />
+                      ) : null}
+                      {pendingCnt > 0 ? (
+                        <span style={{ width: `${(pendingCnt / totalProjects) * 100}%` }} className="bg-[#d97706]" />
+                      ) : null}
+                    </>
+                  ) : null}
                 </div>
-              )}
-              <p className={`text-xs text-slate-400 ${big ? "mt-auto" : "mt-3"} ${interactive ? "pr-5" : ""}`}>{card.note}</p>
+                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11.5px] text-[#54635d] tabular-nums">
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#115740]" />
+                    {scoped ? "校赛已通过" : "校终审结项"} {schoolPassCnt}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#002554]" />
+                    晋级省/国赛 {advCnt}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#d97706]" />
+                    待审核 {pendingCnt}
+                  </span>
+                </div>
+              </div>
+              <WhuEavesWatermark className="pointer-events-none absolute -bottom-2 -right-1.5 h-[116px] w-[204px] text-[#0d3b2e]/[0.05]" />
+            </>
+          ) : wide ? (
+            <>
+              <div className="min-w-0">
+                <h2 className="t-label text-xs text-[#5c6c65]">{card.label}</h2>
+                <p className="mt-1.5 text-xs text-[#7c8e85]">
+                  占当前在库项目的 <span className="font-medium text-[#43554d] tabular-nums">{advShareText}</span> · {card.note}
+                </p>
+              </div>
+              <div className="shrink-0 font-display text-[36px] font-bold leading-none text-[#002554] tabular-nums">
+                {card.value}
+              </div>
+            </>
+          ) : (
+            <>
+              <h2 className={`t-label text-xs ${isWarning ? "font-semibold !text-[#9e2a35]" : "text-[#5c6c65]"}`}>
+                {card.label}
+              </h2>
+              <div
+                className={`mt-2 font-display text-[33px] font-bold leading-tight tabular-nums ${
+                  isWarning ? "text-[#9e2a35]" : "text-[#0f1d18]"
+                }`}
+              >
+                {card.value}
+              </div>
+              <p className={`mt-2 text-xs ${isWarning ? "text-[#9e5960]" : "text-[#82948b]"} ${interactive ? "pr-5" : ""}`}>
+                {card.note}
+              </p>
               {interactive ? (
                 <ArrowUpRight
                   aria-hidden="true"
-                  className="absolute right-4 top-4 text-slate-300 transition group-hover:text-[#002554]"
-                  size={16}
+                  className={`absolute right-4 top-4 transition ${
+                    isWarning ? "text-[#c48188] group-hover:text-[#9e2a35]" : "text-slate-300 group-hover:text-[#002554]"
+                  }`}
+                  size={15}
                 />
               ) : null}
             </>
@@ -302,30 +390,62 @@ export default async function DashboardPage({ searchParams }: PageProps) {
       ) : (
         <>
           <section className="overflow-hidden card">
-            <div className="px-5 pt-5">
+            <div className="px-5 pt-4">
               <SectionHead
                 meta={`共 ${summary.byCollege.length} 个学院`}
-                sub="点击学院名可下钻到对应审核项目列表"
+                sub="点击学院名可下钻审核列表 · 条形长度表示申报量占比"
                 title="学院统计"
               />
             </div>
-            <div aria-hidden="true" className="mx-5 mt-4 h-px bg-[#d5e2db]/60" />
+            <div aria-hidden="true" className="mx-5 mt-3.5 h-px bg-[#d5e2db]/60" />
             <div className="overflow-x-auto">
               <table className="w-full min-w-[650px] text-left text-sm">
-                <thead className="t-thead bg-[#f7faf8] text-xs text-[#54635d]">
-                  <tr><th className="px-5 py-3 font-medium">学院</th><th className="px-5 py-3 font-medium">项目数</th><th className="px-5 py-3 font-medium">人数（去重）</th><th className="px-5 py-3 font-medium">晋级省赛数</th></tr>
+                <thead className="t-thead bg-[#f5faf7] text-xs text-[#4d5e57]">
+                  <tr>
+                    <th className="w-[32%] px-5 py-2.5 font-medium">学院</th>
+                    <th className="w-[28%] px-5 py-2.5 font-medium">项目数与院系占比</th>
+                    <th className="w-[20%] px-5 py-2.5 font-medium">参赛人数（去重）</th>
+                    <th className="w-[20%] px-5 py-2.5 font-medium">晋级省赛数</th>
+                  </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {summary.byCollege.map((item) => (
-                    <tr key={item.college} className="text-slate-700">
-                      <td className="px-5 py-3 font-medium text-slate-900">
-                        {isAdmin ? <Link href={`/review?college=${encodeURIComponent(item.college)}`} className="text-[#002554] hover:underline">{item.college}</Link> : item.college}
-                      </td>
-                      <td className="px-5 py-3">{item.projectCount}</td>
-                      <td className="px-5 py-3">{item.participantCount}</td>
-                      <td className="px-5 py-3">{item.provinceAdvancedCount}</td>
-                    </tr>
-                  ))}
+                <tbody className="divide-y divide-[#eef4f0]">
+                  {summary.byCollege.map((item) => {
+                    const barWidth = `${Math.max(8, Math.round((item.projectCount / maxCollegeProjects) * 100))}%`;
+                    return (
+                      <tr key={item.college} className="text-slate-700">
+                        <td className="px-5 py-2.5 font-semibold text-slate-900">
+                          {isAdmin ? (
+                            <Link href={`/review?college=${encodeURIComponent(item.college)}`} className="text-[#002554] hover:underline">
+                              {item.college}
+                            </Link>
+                          ) : (
+                            item.college
+                          )}
+                        </td>
+                        <td className="px-5 py-2.5">
+                          <div className="flex items-center gap-3">
+                            <span className="w-5 font-display text-sm font-bold text-[#0f1d18] tabular-nums">{item.projectCount}</span>
+                            <span className="block h-[7px] w-32 overflow-hidden rounded-full bg-[#e2ece6]">
+                              <span
+                                className="block h-full rounded-full bg-gradient-to-r from-[#115740] to-[#237a5d]"
+                                style={{ width: item.projectCount > 0 ? barWidth : "0%" }}
+                              />
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-5 py-2.5 text-[#33433d] tabular-nums">{item.participantCount} 人</td>
+                        <td className="px-5 py-2.5 tabular-nums">
+                          {item.provinceAdvancedCount > 0 ? (
+                            <span className="inline-flex rounded-full bg-[#e6eef8] px-2.5 py-0.5 text-xs font-semibold text-[#002554]">
+                              {item.provinceAdvancedCount} 项晋级
+                            </span>
+                          ) : (
+                            <span className="text-[#95a59d]">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                   {!summary.byCollege.length ? (
                     <tr>
                       <td colSpan={4} className="px-5 py-10 text-center">

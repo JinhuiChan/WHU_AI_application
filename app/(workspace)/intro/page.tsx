@@ -40,12 +40,12 @@ export default async function CompetitionIntroPage() {
 
   return (
     <div className="space-y-6">
-      {/* 校史文化横幅：保留纯粹珞珈蓝与老图书馆摄影轮廓，去除玻璃气泡与英文眉标 */}
-      <section className="on-dark relative isolate overflow-hidden rounded-2xl bg-[#002554] text-white">
+      {/* 校史文化横幅：与深孔雀绿侧栏同源的琉璃黛绿 + 暖金导语细线，右侧透出老图书馆绿瓦飞檐 */}
+      <section className="on-dark relative isolate overflow-hidden rounded-2xl border border-white/15 bg-[#0d3b2e] text-white shadow-[0_10px_28px_-12px_rgba(10,44,34,0.26)]">
         <Image
           alt=""
           aria-hidden="true"
-          className="pointer-events-none select-none object-cover object-[72%_42%]"
+          className="pointer-events-none select-none object-cover object-[72%_40%]"
           fill
           priority
           src={introHero}
@@ -56,15 +56,19 @@ export default async function CompetitionIntroPage() {
           className="pointer-events-none absolute inset-0"
           style={{
             backgroundImage:
-              "linear-gradient(96deg, #002554 0%, rgba(0,37,84,0.94) 44%, rgba(0,37,84,0.56) 76%, rgba(0,37,84,0.25) 100%)",
+              "linear-gradient(96deg, #0b3327 0%, rgba(13,59,46,0.94) 44%, rgba(13,59,46,0.52) 76%, rgba(13,59,46,0.18) 100%)",
           }}
         />
-        <div className="relative flex flex-col justify-between gap-6 p-7 sm:p-9 lg:min-h-[214px] lg:flex-row lg:items-end lg:px-10 lg:py-9">
+        <div className="relative flex flex-col justify-between gap-6 p-7 sm:p-9 lg:min-h-[208px] lg:flex-row lg:items-end lg:px-10 lg:py-8">
           <div className="max-w-xl">
-            <h1 className="font-display text-3xl font-bold tracking-tight text-white sm:text-[34px]">
+            <p className="mb-2.5 inline-flex items-center gap-2 text-xs font-medium text-[#e8d39e]">
+              <span aria-hidden="true" className="h-[2px] w-[18px] rounded-full bg-[#c59b45]" />
+              武汉大学大学生创新创业重点赛事目录
+            </p>
+            <h1 className="font-display text-3xl font-bold tracking-tight text-white sm:text-[33px]">
               赛事指南与赛道全览
             </h1>
-            <p className="mt-3 max-w-lg text-sm leading-6 text-[#dce7f5]">
+            <p className="mt-3 max-w-lg text-sm leading-6 text-[#d6e8df]">
               先看清每项赛事的定位、赛道设置与时间节点，再选择适合团队当前阶段的赛道；点开下方卡片可阅读完整章程与宣传片。
             </p>
             {user.role === "ADMIN" ? (
@@ -77,13 +81,13 @@ export default async function CompetitionIntroPage() {
           <div className="flex flex-col items-start gap-2.5 lg:items-end">
             <Link
               href="/competitions"
-              className="inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-white px-5 text-sm font-semibold text-[#002554] transition duration-150 hover:bg-[#edf4ef] active:scale-[0.98]"
+              className="inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-white px-5 text-sm font-semibold text-[#0d3b2e] shadow-[0_4px_14px_rgba(0,0,0,0.18)] transition duration-150 hover:bg-[#edf4ef] active:scale-[0.98]"
             >
               前往赛事报名
               <ArrowUpRight aria-hidden="true" size={15} />
             </Link>
-            <span className="text-xs text-[#e2ecf8] tabular-nums">
-              当前已开放 {competitions.length} 项年度赛事
+            <span className="text-xs text-[#cce2d7] tabular-nums">
+              当前已开放 <strong className="font-display font-bold text-white">{competitions.length}</strong> 项年度赛事
             </span>
           </div>
         </div>

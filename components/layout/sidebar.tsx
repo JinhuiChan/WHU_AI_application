@@ -19,8 +19,10 @@ import {
   Users,
 } from "lucide-react";
 import type { Role } from "@prisma/client";
+import type { AuthUser } from "@/lib/auth";
 import { WhuArchWatermark } from "@/components/brand/whu-motifs";
 import { WhuCrest } from "@/components/layout/brand-mark";
+import { UserMenu } from "@/components/layout/user-menu";
 
 const adminNavigation = [
   { href: "/dashboard", label: "看板", icon: LayoutDashboard },
@@ -106,7 +108,15 @@ const administration = [
   { href: "/admin/logs", label: "审计日志", icon: FileText },
 ];
 
-export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: number; changes: number; teamRequests: number; adminUsers: number } }) {
+export function Sidebar({
+  user,
+  roles,
+  badges,
+}: {
+  user?: AuthUser;
+  roles: Role[];
+  badges?: { review: number; changes: number; teamRequests: number; adminUsers: number };
+}) {
   const pathname = usePathname();
   const navigation = navigationFor(roles);
   const pendingTodo = badges ? badges.review + badges.changes : 0;
@@ -131,15 +141,15 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
 
   return (
     <>
-      <aside className="app-shell-aside fixed inset-y-0 left-0 z-40 hidden w-60 flex-col bg-[#0d3b2e] text-[#cde2d8] md:flex">
-        <Link href="/dashboard" className="flex items-center gap-3 px-5 pb-4 pt-6">
-          <WhuCrest framed size={38} />
+      <aside className="app-shell-aside fixed inset-y-0 left-0 z-40 hidden w-60 flex-col text-[#cde2d8] md:flex">
+        <Link href="/dashboard" className="mx-3.5 mb-2 flex items-center gap-3 border-b border-white/[0.09] px-1.5 pb-4 pt-5">
+          <WhuCrest framed size={38} className="shadow-[0_2px_10px_rgba(0,0,0,0.22)]" />
           <span className="min-w-0">
-            <span className="block truncate font-display text-[16px] font-bold tracking-tight text-white">珞珈科创</span>
-            <span className="mt-0.5 block truncate text-[11px] text-[#9ec2b3]">武汉大学竞赛平台</span>
+            <span className="block truncate font-display text-[16.5px] font-bold tracking-tight text-white">珞珈科创</span>
+            <span className="mt-0.5 block truncate text-[11px] text-[#9fc5b5]">武汉大学竞赛平台</span>
           </span>
         </Link>
-        <nav aria-label="主导航" className="flex-1 space-y-0.5 overflow-y-auto px-3 py-2">
+        <nav aria-label="主导航" className="flex-1 space-y-0.5 overflow-y-auto px-3.5 py-2">
           {navigation.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
@@ -148,9 +158,9 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
                 key={item.href}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={`flex h-9 items-center gap-2.5 rounded-lg px-3 text-[13.5px] transition duration-150 ${
+                className={`relative flex h-9 items-center gap-2.5 rounded-[10px] px-3 text-[13.5px] transition duration-150 ${
                   active
-                    ? "bg-[#edf4ef] font-semibold text-[#0d3b2e]"
+                    ? "bg-gradient-to-r from-[#eff6f1] to-[#e4efe8] font-semibold text-[#0b3327] shadow-[0_3px_10px_rgba(0,0,0,0.16)] before:absolute before:bottom-1.5 before:left-0 before:top-1.5 before:w-[3px] before:rounded-r before:bg-[#c59b45]"
                     : "text-[#cde2d8] hover:bg-white/[0.08] hover:text-white"
                 }`}
               >
@@ -168,8 +178,8 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
             );
           })}
           {roles.includes("ADMIN") ? (
-            <div className="pt-5">
-              <p className="mb-1.5 px-3 text-[11.5px] font-medium text-[#87b09f]">管理工作台</p>
+            <div className="pt-4">
+              <p className="mb-1.5 px-3 text-[11px] font-medium tracking-wide text-[#87b09f]">管理工作台</p>
               <div className="space-y-0.5">
               {administration.map((item) => {
                 const Icon = item.icon;
@@ -179,9 +189,9 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
                     key={item.href}
                     href={item.href}
                     aria-current={active ? "page" : undefined}
-                    className={`flex h-9 items-center gap-2.5 rounded-lg px-3 text-[13.5px] transition duration-150 ${
+                    className={`relative flex h-9 items-center gap-2.5 rounded-[10px] px-3 text-[13.5px] transition duration-150 ${
                       active
-                        ? "bg-[#edf4ef] font-semibold text-[#0d3b2e]"
+                        ? "bg-gradient-to-r from-[#eff6f1] to-[#e4efe8] font-semibold text-[#0b3327] shadow-[0_3px_10px_rgba(0,0,0,0.16)] before:absolute before:bottom-1.5 before:left-0 before:top-1.5 before:w-[3px] before:rounded-r before:bg-[#c59b45]"
                         : "text-[#cde2d8] hover:bg-white/[0.08] hover:text-white"
                     }`}
                   >
@@ -210,9 +220,14 @@ export function Sidebar({ roles, badges }: { roles: Role[]; badges?: { review: n
             </div>
           ) : null}
         </nav>
-        <div className="pointer-events-none shrink-0 overflow-hidden px-4 pb-4 pt-2">
-          <WhuArchWatermark className="mx-auto w-44 text-white/[0.06]" />
+        <div className="pointer-events-none shrink-0 overflow-hidden px-4 pt-1">
+          <WhuArchWatermark className="mx-auto w-36 text-white/[0.05]" />
         </div>
+        {user ? (
+          <div className="shrink-0 px-3.5 pb-3.5 pt-1.5">
+            <UserMenu user={user} variant="sidebar" />
+          </div>
+        ) : null}
       </aside>
 
       <nav aria-label="移动端导航" className="fixed inset-x-0 bottom-0 z-40 flex border-t border-[#d5e2db] bg-[#fbfdfc]/95 pb-safe md:hidden">

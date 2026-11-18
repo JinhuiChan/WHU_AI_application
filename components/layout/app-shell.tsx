@@ -22,18 +22,23 @@ export async function AppShell({ user, children }: { user: AuthUser; children: R
     adminUsers,
   };
   return (
-    <div className="app-canvas min-h-screen bg-background">
-      {/* 顶部 2px 武大双色屋脊细线（珞珈蓝 → 珞珈绿） */}
-      <div aria-hidden="true" className="fixed inset-x-0 top-0 z-50 h-[2px] bg-gradient-to-r from-[#002554] via-[#0c3f4a] to-[#115740]" />
-      <Sidebar roles={user.roles} badges={badges} />
-      <div className="min-h-screen md:pl-60">
-        <header className="relative z-30 flex h-14 items-center justify-between gap-4 px-4 pt-2 md:px-8">
-          <Breadcrumbs />
-          <UserMenu user={user} />
-        </header>
-        <main className="px-4 pb-24 pt-2 md:px-8 md:pb-10 md:pt-3">
-          <PageTransition>{children}</PageTransition>
-        </main>
+    <div className="app-shell-root min-h-screen">
+      <Sidebar user={user} roles={user.roles} badges={badges} />
+      <div className="min-h-screen md:py-2.5 md:pl-60 md:pr-2.5">
+        <div className="app-canvas flex min-h-screen flex-col md:min-h-[calc(100vh-20px)] md:rounded-[18px] md:shadow-[-2px_0_28px_rgba(0,0,0,0.22),inset_0_1px_0_rgba(255,255,255,0.85)]">
+          <header className="relative z-30 flex h-12 items-center justify-between gap-4 px-4 pt-2 md:px-8 md:pt-3.5">
+            <Breadcrumbs />
+            <span className="hidden items-center gap-2 rounded-full bg-[#115740]/[0.075] px-3 py-1 text-[11.5px] font-medium text-[#115740] md:inline-flex">
+              自强 · 弘毅 · 求是 · 拓新
+            </span>
+            <div className="md:hidden">
+              <UserMenu user={user} />
+            </div>
+          </header>
+          <main className="flex-1 px-4 pb-24 pt-2 md:px-8 md:pb-9 md:pt-2.5">
+            <PageTransition>{children}</PageTransition>
+          </main>
+        </div>
       </div>
     </div>
   );

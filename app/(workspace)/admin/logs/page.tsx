@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Pagination } from "@/components/data/pagination";
+import { WorkspaceForbidden } from "@/components/ui/workspace-forbidden";
 import { resolveAuditTargets } from "@/components/admin/audit-targets";
 import { getAuditLogPage, listAuditActions } from "@/lib/audit-logs";
 import { getActiveUser } from "@/lib/auth.server";
@@ -29,12 +30,7 @@ export default async function AuditLogsPage({ searchParams }: PageProps) {
   const user = await getActiveUser();
   if (!user) redirect("/login");
   if (user.role !== "ADMIN") {
-    return (
-      <section className="rounded-lg border border-red-200 bg-white p-6">
-        <h1 className="t-page-title text-xl font-semibold text-red-600">403 无权限</h1>
-        <p className="mt-2 text-sm text-slate-500">仅管理员可以查看审计日志。</p>
-      </section>
-    );
+    return <WorkspaceForbidden message="仅管理员可以查看审计日志。" />;
   }
 
   const actor = firstParam(searchParams?.actor);

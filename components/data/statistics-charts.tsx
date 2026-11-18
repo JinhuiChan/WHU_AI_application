@@ -15,7 +15,7 @@ import {
 } from "recharts";
 import type { StatisticsSummary } from "@/types/statistics";
 
-const colors = ["#1e4278", "#134e45", "#b45309", "#4c3575", "#9f1239", "#0e7490", "#4d7c0f", "#475569"];
+const colors = ["#115740", "#002554", "#8a2c36", "#b45309", "#1f5f6b", "#4d6b53", "#3f536e", "#64748b"];
 
 export function StatisticsCharts({ byTrack, byStage, byAward }: Pick<StatisticsSummary, "byTrack" | "byStage" | "byAward">) {
   const hasTrackData = byTrack.some((item) => item.projectCount > 0);
@@ -45,11 +45,11 @@ export function StatisticsCharts({ byTrack, byStage, byAward }: Pick<StatisticsS
         <div className="mt-4 h-72" aria-label="阶段分布柱状图">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={byStage} margin={{ top: 12, right: 12, bottom: 0, left: -12 }}>
-              <CartesianGrid stroke="#eef1f5" vertical={false} />
-              <XAxis dataKey="label" tick={{ fontSize: 12, fill: "#637083" }} />
-              <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: "#637083" }} />
+              <CartesianGrid stroke="#e3ede7" vertical={false} />
+              <XAxis dataKey="label" tick={{ fontSize: 12, fill: "#54635d" }} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: "#54635d" }} />
               <Tooltip formatter={(value) => [`${value} 项`, "项目数"]} />
-              <Bar dataKey="projectCount" name="项目数" fill="#1e4278" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="projectCount" name="项目数" fill="#115740" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -61,7 +61,7 @@ export function StatisticsCharts({ byTrack, byStage, byAward }: Pick<StatisticsS
         <div className="mt-4 h-72" aria-label="奖项分布柱状图">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={byAward} margin={{ top: 12, right: 12, bottom: 0, left: -12 }}>
-              <CartesianGrid stroke="#e2e8f0" vertical={false} />
+              <CartesianGrid stroke="#e3ede7" vertical={false} />
               <XAxis dataKey="label" tick={{ fontSize: 12, fill: "#64748b" }} />
               <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: "#64748b" }} />
               <Tooltip formatter={(value) => [`${value} 项`, "奖项数"]} />

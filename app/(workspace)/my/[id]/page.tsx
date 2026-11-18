@@ -53,10 +53,18 @@ export default async function MyProjectPage({ params, searchParams }: PageProps)
     <div className="space-y-6">
       <BreadcrumbTitle label={project.name} />
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div><h1 className="t-page-title text-xl font-semibold text-slate-900">{project.name}</h1><p className="mt-1 text-sm text-slate-500">{project.competitionName} / {project.trackName}</p></div>
+        <div>
+          <BackLink to={firstParam(searchParams?.from)} fallback="/my" label="返回我的项目" />
+          <h1 className="t-page-title mt-2 font-display text-[26px] font-bold tracking-tight text-[#0e1d17] sm:text-[28px]">{project.name}</h1>
+          <p className="mt-1 text-sm text-[#54635d]">{project.competitionName} / {project.trackName}</p>
+        </div>
         <div className="flex items-center gap-3">
           <StatusBadge status={project.status} scope="project">{projectStatusLabels[project.status]}</StatusBadge>
-          {project.canEdit ? <Link href={`/apply?projectId=${project.id}`} className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white">编辑</Link> : null}
+          {project.canEdit ? (
+            <Button asChild size="sm">
+              <Link href={`/apply?projectId=${project.id}`}>编辑报名表</Link>
+            </Button>
+          ) : null}
         </div>
       </div>
       <ProjectProgress status={project.reviewStatus} rejectedStage={latestRejectedReview?.level} />
@@ -82,8 +90,8 @@ export default async function MyProjectPage({ params, searchParams }: PageProps)
       ) : null}
 
       <section className="card p-5">
-        <SectionHead eyebrow="SECTION 01 · BASICS" sub="报名表里填过的内容，这里只读展示" title="项目基本信息" />
-        <div aria-hidden="true" className="mt-4 h-px bg-gradient-to-r from-slate-200 to-transparent" />
+        <SectionHead sub="报名表里填过的内容，这里只读展示" title="项目基本信息" />
+        <div aria-hidden="true" className="mt-4 h-px bg-[#d5e2db]/60" />
         <dl className="mt-4 grid gap-4 md:grid-cols-3">
           <Item label="项目组别" value={project.groupLabel} /><Item label="项目类别" value={project.categoryLabel} />
           <Item label="申报单位" value={project.applicationUnit} /><Item label="培养单位" value={project.trainingUnit} />
@@ -99,19 +107,48 @@ export default async function MyProjectPage({ params, searchParams }: PageProps)
       </section>
 
       <section className="card p-5">
-        <SectionHead eyebrow="SECTION 02 · TEAM" sub="负责人可改；校外成员需上传在读或工作证明" title="团队成员" />
-        <div aria-hidden="true" className="mt-4 h-px bg-gradient-to-r from-slate-200 to-transparent" />
+        <SectionHead sub="负责人可改；校外成员需上传在读或工作证明" title="团队成员" />
+        <div aria-hidden="true" className="mt-4 h-px bg-[#d5e2db]/60" />
         <div className="mt-4 space-y-3">
           {[project.leader, ...project.members].map((member) => (
-            <div key={member.id} className="rounded-lg border border-slate-200 p-4">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="font-medium text-slate-900">{member.name}<span className="ml-2 text-xs font-normal text-slate-500">{member.role === "LEADER" ? "负责人" : "成员"}</span></p>
-                <p className="text-sm text-slate-600">{member.personNo || "无学号"} · {member.isInternal ? "校内" : "校外"}{member.isPayee ? " · 领款人" : ""}</p>
+            <div key={member.id} className="rounded-xl border border-[#d5e2db] bg-[#fbfdfc] p-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#e3ede7] font-display text-sm font-bold text-[#115740]">
+                    {member.name?.slice(0, 1) || "成"}
+                  </span>
+                  <div>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="font-semibold text-slate-900">{member.name}</span>
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                          member.role === "LEADER" ? "bg-[#e3f0ea] text-[#115740]" : "bg-slate-100 text-slate-600"
+                        }`}
+                      >
+                        {member.role === "LEADER" ? "负责人" : "成员"}
+                      </span>
+                      <span className="rounded-full bg-[#eef3f8] px-2 py-0.5 text-[11px] font-medium text-[#002554]">
+                        {member.isInternal ? "校内" : "校外"}
+                      </span>
+                      {member.isPayee ? (
+                        <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-800">
+                          领款人
+                        </span>
+                      ) : null}
+                    </div>
+                    <p className="mt-1 text-xs text-[#54635d]">
+                      {[member.school, member.trainingUnit, member.major].filter(Boolean).join(" · ") || "单位待补充"}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right font-mono text-xs text-slate-500 tabular-nums">
+                  <span className="block">{member.personNo || "无学号"}</span>
+                  <span className="mt-0.5 block">{member.phone || "—"}</span>
+                </div>
               </div>
-              <p className="mt-2 text-sm text-slate-600">{member.school} / {member.trainingUnit} / {member.major} / {member.phone || "—"}</p>
               {member.payeeBank ? (
-                <div className="mt-3 rounded bg-slate-50 p-3 text-sm text-slate-600">
-                  {member.payeeBank.boundFinancePlatform ? <p>已绑定校园卡银行账户，仅需学号。</p> : (
+                <div className="mt-3 rounded-lg border border-[#e3ede7] bg-[#f4f9f6] p-3 text-sm text-slate-600">
+                  {member.payeeBank.boundFinancePlatform ? <p className="text-xs text-[#3b4d45]">已绑定校园卡银行账户，仅需学号核验。</p> : (
                     <dl className="grid gap-3 md:grid-cols-3">
                       <Item label="学习/工作单位" value={member.payeeBank.organization} /><Item label="联系电话" value={member.payeeBank.phone} />
                       <Item label="身份证号" value={member.payeeBank.idCardMasked} /><Item label="银行卡号" value={member.payeeBank.bankCardMasked} />
@@ -126,17 +163,36 @@ export default async function MyProjectPage({ params, searchParams }: PageProps)
       </section>
 
       <section className="card p-5">
-        <SectionHead eyebrow="SECTION 03 · ADVISOR" sub="变更需提交申请，由管理员审批" title="指导老师" />
-        <div aria-hidden="true" className="mt-4 h-px bg-gradient-to-r from-slate-200 to-transparent" />
-        <div className="mt-4 space-y-2">
-          {project.teachers.map((teacher) => <p key={teacher.id} className="rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-700">{teacher.isInternal ? "校内" : "校外"} · {teacher.name} · {teacher.unit} · {teacher.title || "—"} · {teacher.phone || "—"}</p>)}
+        <SectionHead sub="变更需提交申请，由管理员审批" title="指导老师" />
+        <div aria-hidden="true" className="mt-4 h-px bg-[#d5e2db]/60" />
+        <div className="mt-4 space-y-2.5">
+          {project.teachers.map((teacher) => (
+            <div key={teacher.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#d5e2db] bg-[#fbfdfc] px-4 py-3">
+              <div className="flex items-center gap-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#e6eef8] font-display text-xs font-bold text-[#002554]">
+                  {teacher.name?.slice(0, 1) || "师"}
+                </span>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-slate-900">{teacher.name}</span>
+                    <span className="rounded-full bg-[#eef3f8] px-2 py-0.5 text-[11px] font-medium text-[#002554]">
+                      {teacher.isInternal ? "校内导师" : "校外导师"}
+                    </span>
+                    {teacher.title ? <span className="text-xs text-slate-500">{teacher.title}</span> : null}
+                  </div>
+                  <p className="mt-0.5 text-xs text-[#54635d]">{teacher.unit || "所属单位未填"}</p>
+                </div>
+              </div>
+              <span className="font-mono text-xs text-slate-500 tabular-nums">{teacher.phone || "—"}</span>
+            </div>
+          ))}
           {project.teachers.length === 0 ? <p className="text-sm text-slate-500 inline-empty">暂无指导老师</p> : null}
         </div>
       </section>
 
       <section className="card p-5">
-        <SectionHead eyebrow="SECTION 04 · WORKS" sub="这里只登记名称与链接，文件走下方材料上传" title="作品与材料" />
-        <div aria-hidden="true" className="mt-4 h-px bg-gradient-to-r from-slate-200 to-transparent" />
+        <SectionHead sub="这里只登记名称与链接，文件走下方材料上传" title="作品与材料" />
+        <div aria-hidden="true" className="mt-4 h-px bg-[#d5e2db]/60" />
         {project.work ? <dl className="mt-4 grid gap-4 md:grid-cols-3"><Item label="作品形式" value={project.work.formLabel} /><Item label="作品类别" value={project.work.categoryLabel} /><Item label="作品组别" value={project.work.groupLabel} /><Item label="作品文件" value={project.work.fileName ? `${project.work.fileName}（仅登记名称，未上传）` : ""} /><Item label="作品外链" value={project.work.externalUrl} /><Item label="PPT 文件" value={project.work.pptFileName ? `${project.work.pptFileName}（仅登记名称，未上传）` : ""} /></dl> : <p className="mt-3 text-sm text-slate-500 inline-empty">暂无作品信息</p>}
       </section>
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AwardWorkbench } from "@/components/admin/award-workbench";
+import { WorkspaceForbidden } from "@/components/ui/workspace-forbidden";
 import { getAdminAwardPage, parseAdminAwardLevel } from "@/lib/admin-awards";
 import { getActiveUser } from "@/lib/auth.server";
 import { firstParam, pageParams } from "@/lib/list-query";
@@ -17,12 +18,7 @@ export default async function AdminAwardsPage({ searchParams }: PageProps) {
   const user = await getActiveUser();
   if (!user) redirect("/login");
   if (user.role !== "ADMIN") {
-    return (
-      <section className="rounded-lg border border-red-200 bg-white p-6">
-        <h1 className="t-page-title text-xl font-semibold text-red-600">403 无权限</h1>
-        <p className="mt-2 text-sm text-slate-500">仅管理员可以录入和调整奖项。</p>
-      </section>
-    );
+    return <WorkspaceForbidden message="仅管理员可以录入和调整奖项。" />;
   }
 
   const filters = {

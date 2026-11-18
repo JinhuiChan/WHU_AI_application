@@ -17,11 +17,11 @@ export default function ForbiddenPage({ searchParams }: { searchParams?: { reaso
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-50 text-amber-700" aria-hidden="true">
           <Lock size={22} />
         </div>
-        <h1 className="mt-4 text-xl font-semibold text-slate-900">无权限访问</h1>
-        <p className="mt-2 text-sm leading-6 text-slate-600">
+        <h1 className="mt-4 font-display text-2xl font-bold text-[#0e1d17]">无权限访问</h1>
+        <p className="mt-2 text-sm leading-6 text-[#54635d]">
           {reason || "当前身份没有访问该页面的权限。"}
         </p>
-        <p className="mt-1 text-xs text-slate-400">
+        <p className="mt-1 text-xs text-slate-500">
           如果你同时拥有多个身份，可在「个人中心」确认当前身份，或退出后用另一个身份登录。
         </p>
         <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
@@ -33,7 +33,7 @@ export default function ForbiddenPage({ searchParams }: { searchParams?: { reaso
           </Link>
           <Link
             href="/teams"
-            className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            className="inline-flex h-10 items-center justify-center rounded-full border border-[#7f9384] bg-white px-5 text-sm font-medium text-slate-700 transition hover:border-[#657a6f] hover:bg-[#f7faf8]"
           >
             去组队广场
           </Link>

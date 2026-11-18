@@ -14,19 +14,16 @@ import { ArrowUpRight } from "lucide-react";
  */
 
 type Scheme = {
-  /** 渐变起止色 */
-  from: string;
-  to: string;
-  /** 左上角英文标记，只标序号不标含义，避免编造官方口径 */
-  eyebrow: string;
+  /** 纯色底色（与赛事卡语言拉齐：珞珈蓝 / 孔雀绿 / 斋舍绛朱 / 深青黛） */
+  bg: string;
   art: "growth" | "chart" | "network";
 };
 
 const SCHEMES: Scheme[] = [
-  { from: "#1b3b6b", to: "#0f2547", eyebrow: "TRACK 01", art: "growth" },
-  { from: "#134e45", to: "#0a312b", eyebrow: "TRACK 02", art: "chart" },
-  { from: "#7c3a22", to: "#512312", eyebrow: "TRACK 03", art: "network" },
-  { from: "#6b2135", to: "#441220", eyebrow: "TRACK 04", art: "growth" },
+  { bg: "#002554", art: "growth" },
+  { bg: "#115740", art: "chart" },
+  { bg: "#8a2c36", art: "network" },
+  { bg: "#17484f", art: "growth" },
 ];
 
 /** 成长型：上升折线 + 旗子 + 山形，对应「一路往上走」 */
@@ -35,7 +32,7 @@ function GrowthArt() {
     <svg
       aria-hidden="true"
       className="pointer-events-none absolute inset-y-0 right-0 h-full w-[64%]"
-      preserveAspectRatio="xMaxYMid slice"
+      preserveAspectRatio="xMaxYMid meet"
       viewBox="0 0 260 180"
     >
       <circle cx="212" cy="38" fill="#fff" opacity="0.07" r="98" />
@@ -76,7 +73,7 @@ function ChartArt() {
     <svg
       aria-hidden="true"
       className="pointer-events-none absolute inset-y-0 right-0 h-full w-[64%]"
-      preserveAspectRatio="xMaxYMid slice"
+      preserveAspectRatio="xMaxYMid meet"
       viewBox="0 0 260 180"
     >
       <circle cx="206" cy="34" fill="#fff" opacity="0.07" r="94" />
@@ -97,7 +94,7 @@ function NetworkArt() {
     <svg
       aria-hidden="true"
       className="pointer-events-none absolute inset-y-0 right-0 h-full w-[64%]"
-      preserveAspectRatio="xMaxYMid slice"
+      preserveAspectRatio="xMaxYMid meet"
       viewBox="0 0 260 180"
     >
       <circle cx="208" cy="36" fill="#fff" opacity="0.07" r="94" />
@@ -136,25 +133,26 @@ export function TrackCard({ name, detail, subTracks, href, index }: TrackCardPro
   const scheme = SCHEMES[index % SCHEMES.length];
   const Art = ART[scheme.art];
 
+  const trackLabel = `赛道 ${String(index + 1).padStart(2, "0")}`;
+
   return (
     <div
       className="on-dark relative isolate overflow-hidden rounded-2xl p-6 text-white ring-1 ring-inset ring-white/10"
-      style={{ backgroundImage: `linear-gradient(135deg, ${scheme.from}, ${scheme.to})` }}
+      style={{ backgroundColor: scheme.bg }}
     >
       <Art />
 
-      {/* 文字遮罩：插画里的白线和白柱不透明度到 0.95，文字压上去会糊在一起。
-          这层从左侧底色渐变到透明，保证文字区始终是纯色，插画只在右侧露出。
-          用 scheme.from 起笔是因为卡片渐变从左上起，左侧本就是 from 色。 */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0"
-        style={{ backgroundImage: `linear-gradient(95deg, ${scheme.from} 22%, ${scheme.from}00 62%)` }}
+        style={{ backgroundImage: `linear-gradient(95deg, ${scheme.bg} 24%, ${scheme.bg}00 64%)` }}
       />
 
       <div className="relative flex h-full min-h-[168px] flex-col">
-        <p className="font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-white/70">{scheme.eyebrow}</p>
-        <h3 className="mt-2.5 max-w-[74%] text-lg font-semibold leading-snug">{name}</h3>
+        <span className="inline-flex w-fit rounded-full bg-white/15 px-2.5 py-0.5 text-[11px] font-medium text-white/95 tabular-nums">
+          {trackLabel}
+        </span>
+        <h3 className="mt-2.5 max-w-[74%] font-display text-lg font-bold leading-snug">{name}</h3>
         <p className="mt-1.5 max-w-[72%] text-sm leading-6 text-white/80">{detail}</p>
 
         {subTracks?.length ? (

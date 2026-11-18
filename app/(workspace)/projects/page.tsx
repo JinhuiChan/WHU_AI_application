@@ -104,23 +104,22 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
               {[10, 20, 50].map((size) => <option key={size} value={size}>{size} 条</option>)}
             </select>
           </label>
-          <Button variant="default" size="sm" type="submit" >筛选</Button>
-          <Link href="/projects" className="inline-flex h-10 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:bg-slate-50 active:scale-[0.97] active:bg-slate-100 motion-reduce:active:scale-100 px-4">重置</Link>
+          <Button variant="default" size="default" type="submit">筛选</Button>
+          <Link href="/projects" className="inline-flex h-10 items-center justify-center rounded-full border border-[#7f9384] bg-white px-4 text-sm font-medium text-slate-700 transition duration-[160ms] ease-out hover:border-[#657a6f] hover:bg-[#f7faf8] active:scale-[0.97] motion-reduce:active:scale-100">重置</Link>
         </form>
       </section>
 
       <section className="overflow-hidden card">
         <div className="px-5 pt-5">
           <SectionHead
-            eyebrow="SECTION 02 · PROJECT LEDGER"
             meta={`共 ${data.total} 个`}
             sub="按赛事、赛年、学院与获奖情况筛选，点项目名看全貌"
             title="项目台账"
           />
         </div>
-        <div aria-hidden="true" className="mx-5 mt-4 h-px bg-gradient-to-r from-slate-200 to-transparent" />
+        <div aria-hidden="true" className="mx-5 mt-4 h-px bg-[#d5e2db]/60" />
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[1180px] text-left text-sm">
+          <table className="w-full min-w-[940px] text-left text-sm">
             <thead className="t-thead bg-slate-50 text-xs text-slate-500">
               <tr>
                 <th className="px-4 py-3 font-medium">项目</th>

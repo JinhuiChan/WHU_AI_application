@@ -8,6 +8,7 @@ import { PackageDownload } from "@/components/review/package-download";
 import { ReviewFilters } from "@/components/review/review-filters";
 import type { ReviewFilterValues } from "@/components/review/review-filters";
 import { ReviewWorkbench } from "@/components/review/review-workbench";
+import { WorkspaceForbidden } from "@/components/ui/workspace-forbidden";
 import { getActiveUser } from "@/lib/auth.server";
 import { countPendingChangeRequests } from "@/lib/change";
 import { firstParam } from "@/lib/list-query";
@@ -25,12 +26,7 @@ export default async function ReviewPage({ searchParams }: PageProps) {
   const user = await getActiveUser();
   if (!user) redirect("/login");
   if (user.role !== "ADMIN") {
-    return (
-      <section className="rounded-lg border border-red-200 bg-white p-6">
-        <h1 className="t-page-title text-xl font-semibold text-red-600">403 无权限</h1>
-        <p className="mt-2 text-sm text-slate-500">仅管理员可以查看报名审核。</p>
-      </section>
-    );
+    return <WorkspaceForbidden message="仅管理员可以查看报名审核。" />;
   }
 
   const rawTab = firstParam(searchParams?.tab);

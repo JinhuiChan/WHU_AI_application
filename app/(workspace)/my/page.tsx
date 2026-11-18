@@ -220,13 +220,13 @@ export default async function MyProjectsPage({ searchParams }: PageProps) {
                 aria-current={isActive ? "page" : undefined}
                 className={`inline-flex h-9 items-center gap-1.5 rounded-full border px-3.5 text-sm transition duration-[160ms] ${
                   isActive
-                    ? "border-blue-600 bg-blue-600 text-white"
-                    : "border-slate-300 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50/50"
+                    ? "border-[#115740] bg-[#115740] text-white"
+                    : "border-[#7f9384] bg-white text-slate-700 hover:border-[#115740] hover:bg-[#f2f8f4]"
                 }`}
                 href={filterHref(item.key)}
               >
                 {item.label}
-                <span className={`text-xs tabular-nums ${isActive ? "text-blue-100" : "text-slate-400"}`}>{count}</span>
+                <span className={`text-xs tabular-nums ${isActive ? "text-white/80" : "text-slate-400"}`}>{count}</span>
               </Link>
             );
           })}
@@ -237,7 +237,7 @@ export default async function MyProjectsPage({ searchParams }: PageProps) {
           {filterKey !== "all" ? <input type="hidden" name="filter" value={filterKey} /> : null}
           <input
             aria-label="搜索我的项目"
-            className="h-9 w-44 rounded-full border border-slate-300 bg-white px-3.5 text-sm text-slate-700 outline-none transition duration-[160ms] placeholder:text-slate-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+            className="h-9 w-44 rounded-full border border-[#7f9384] bg-white px-3.5 text-sm text-slate-700 outline-none transition duration-[160ms] placeholder:text-slate-400 focus:border-[#115740] focus:ring-2 focus:ring-[#115740]/15"
             defaultValue={query}
             name="q"
             placeholder="搜索项目 / 赛事"
@@ -260,13 +260,12 @@ export default async function MyProjectsPage({ searchParams }: PageProps) {
       <Card as="section" className="overflow-hidden">
         <div className="px-5 pt-5">
           <SectionHead
-            eyebrow="SECTION 02 · MY PROJECTS"
             meta={`共 ${rows.length} 个`}
             sub="驳回原因、提交次数与最后修改时间都在这一张表里"
             title="项目明细"
           />
         </div>
-        <div aria-hidden="true" className="mx-5 mt-4 h-px bg-gradient-to-r from-slate-200 to-transparent" />
+        <div aria-hidden="true" className="mx-5 mt-4 h-px bg-[#d5e2db]/60" />
         <div className="overflow-x-auto">
           <table className="w-full min-w-[860px] text-left text-sm">
             <thead className="t-thead bg-slate-50 text-xs text-slate-500">
