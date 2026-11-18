@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Role } from "@prisma/client";
 import { UserManagement } from "@/components/admin/user-management";
+import { WhuSeal, WhuTitleRule } from "@/components/brand/whu-motifs";
 import { WorkspaceForbidden } from "@/components/ui/workspace-forbidden";
 import { countManagedUsers, countPendingAdminRegistrations, listManagedUsers } from "@/lib/admin-users";
 import { getActiveUser } from "@/lib/auth.server";
@@ -36,21 +37,26 @@ export default async function UsersPage({ searchParams }: { searchParams?: Recor
   }
 
   const roleParam = firstParam(searchParams?.role);
-  // 有管理员注册申请待审核时，默认落在「管理员」分类，省得管理员满页找
   const [counts, pendingAdmins] = await Promise.all([countManagedUsers(), countPendingAdminRegistrations()]);
   const activeRole: TabKey = isTabKey(roleParam) ? roleParam : pendingAdmins > 0 ? "ADMIN" : "STUDENT";
   const users = await listManagedUsers(activeRole as Role);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div>
-        <h1 className="t-page-title text-xl font-semibold text-slate-900">用户管理</h1>
-        <p className="mt-1 text-sm text-slate-500">
-          按身份分三类管理账号与角色，所有操作均保留审计记录。一个人可以同时拥有多个身份，会在对应分类里各出现一次。
+        <div className="flex flex-wrap items-center gap-2.5">
+          <h1 className="t-page-title font-display text-[26px] font-bold tracking-tight text-[#0e1d17] sm:text-[28px]">
+            用户管理
+          </h1>
+          <WhuSeal label="身份与权限" />
+        </div>
+        <p className="mt-1.5 flex items-center gap-2 text-sm text-[#54635d]">
+          <WhuTitleRule />
+          <span>按身份分类核定账号准入与多重角色权限，所有变更均实时记入审计日志。</span>
         </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
+      <nav aria-label="用户身份分类" className="flex flex-wrap items-center gap-2">
         {TABS.map((tab) => {
           const active = tab.key === activeRole;
           const pending = tab.key === "ADMIN" ? pendingAdmins : 0;
@@ -59,34 +65,39 @@ export default async function UsersPage({ searchParams }: { searchParams?: Recor
               key={tab.key}
               href={`/admin/users?role=${tab.key}`}
               aria-current={active ? "page" : undefined}
-              className={`inline-flex h-9 items-center gap-2 rounded-full border px-4 text-sm transition ${
+              className={`inline-flex h-10 items-center gap-2 rounded-full border px-4 text-sm transition-colors duration-150 ${
                 active
-                  ? "border-[#115740] bg-[#115740] font-medium text-white"
-                  : "border-[#7f9384] bg-white text-slate-700 hover:border-[#115740] hover:bg-[#f2f8f4]"
+                  ? "border-[#115740] bg-[#115740] font-medium text-white shadow-sm"
+                  : "border-[#7f9384] bg-white text-[#162620] hover:border-[#115740] hover:bg-[#eef5f1]"
               }`}
             >
-              {tab.label}
-              <span className={`text-xs tabular-nums ${active ? "text-white/80" : "text-slate-400"}`}>{counts[tab.key]}</span>
+              <span>{tab.label}</span>
+              <span
+                className={`rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums ${
+                  active ? "bg-white/20 text-white" : "bg-[#eef5f1] text-[#115740]"
+                }`}
+              >
+                {counts[tab.key]}
+              </span>
               {pending > 0 ? (
                 <span
                   title={`待审核的管理员申请 ${pending} 个`}
-                  className="rounded-full bg-red-600 px-1.5 text-[11px] font-medium leading-4 text-white"
+                  className="rounded-full bg-[#9e2a35] px-2 py-0.5 text-[11px] font-semibold leading-none text-white tabular-nums"
                 >
-                  {pending}
+                  待审 {pending}
                 </span>
               ) : null}
             </Link>
           );
         })}
-      </div>
+      </nav>
 
       {activeRole === "ADMIN" && pendingAdmins > 0 ? (
-        <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          有 {pendingAdmins} 个管理员注册申请待审核，通过后才能登录。请在此页核对身份后点「审核通过」或「驳回」。
+        <p className="rounded-xl border border-[#ead4a8] bg-[#fdf6e7] px-4 py-3 text-sm text-[#854d0e]">
+          当前有 <span className="font-semibold tabular-nums">{pendingAdmins}</span> 个管理员注册申请待核验，审核通过后方可登录工作台。
         </p>
       ) : null}
 
-      {/* key 必须带 activeRole：否则切换分类时客户端组件被复用，useState 仍持有上一类的列表 */}
       <UserManagement key={activeRole} initialUsers={users} currentUserId={user.id} activeRole={activeRole as Role} />
     </div>
   );
