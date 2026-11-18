@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import type { Prisma, TeamPostStatus } from "@prisma/client";
+import { WhuTitleRule } from "@/components/brand/whu-motifs";
 import { BackLink } from "@/components/data/list-link";
 import { BreadcrumbTitle } from "@/components/layout/breadcrumbs";
 import { RequestDecisionButtons, TeamPostActions } from "@/components/teams/team-actions";
 import { Button, ButtonArrow } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { SectionHead, SectionRule } from "@/components/ui/section-head";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { getActiveUser } from "@/lib/auth.server";
 import { firstParam } from "@/lib/list-query";
@@ -104,17 +106,28 @@ export default async function TeamDetailPage({ params, searchParams }: PageProps
   const from = firstParam(searchParams?.from);
   const backLabel = from.startsWith("/my/teams") ? "返回我的组队" : "返回组队广场";
   const skills = skillList(post.skills);
+  const ratio = post.memberLimit > 0 ? Math.min(1, Math.max(0, post.currentCount / post.memberLimit)) : 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <BreadcrumbTitle label={post.title} />
       <div>
         <BackLink to={from} fallback="/teams" label={backLabel} />
         <div className="mt-3 flex flex-wrap items-center gap-3">
-          <h1 className="t-page-title text-xl font-semibold text-slate-900">{post.title}</h1>
-          <StatusBadge status={status} scope="team">{postStatusLabels[status]}</StatusBadge>
+          <h1 className="t-page-title font-display text-[24px] font-bold tracking-tight text-[#0e1d17] sm:text-[26px]">
+            {post.title}
+          </h1>
+          <StatusBadge status={status} scope="team">
+            {postStatusLabels[status]}
+          </StatusBadge>
         </div>
-        <p className="mt-2 text-sm text-slate-500">{post.competition ? `${post.competition.name} · ${post.competition.year}` : "未设置赛事"}{post.track ? ` · ${post.track.name}` : ""}</p>
+        <p className="mt-2 flex items-center gap-2 text-sm text-[#54635d]">
+          <WhuTitleRule />
+          <span>
+            {post.competition ? `${post.competition.name}（${post.competition.year}）` : "未设置赛事"}
+            {post.track ? `，${post.track.name}` : ""}
+          </span>
+        </p>
       </div>
 
       {post.removedBy ? (
@@ -123,71 +136,166 @@ export default async function TeamDetailPage({ params, searchParams }: PageProps
         </div>
       ) : null}
 
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <div className="min-w-0 space-y-6">
-          <section className="card p-5">
-            <h2 className="text-sm font-semibold text-slate-900">招募说明</h2>
-            <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-slate-700">{post.summary}</p>
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_316px]">
+        <div className="min-w-0 space-y-5">
+          <section className="card p-5 sm:p-6">
+            <SectionHead title="招募说明" sub="项目方向、已有进展与理想队友要求" />
+            <SectionRule className="mt-3.5" />
+            <p className="mt-4 whitespace-pre-wrap text-sm leading-7 text-[#1f3029]">{post.summary}</p>
             {post.expectation ? (
-              <div className="mt-5 border-t border-slate-100 pt-5">
-                <h3 className="text-sm font-semibold text-slate-900">想找的队友</h3>
-                <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-slate-700">{post.expectation}</p>
+              <div className="mt-5 border-t border-[#e5eee8] pt-5">
+                <h3 className="text-sm font-semibold text-[#0f1d18]">想找的队友</h3>
+                <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-[#1f3029]">{post.expectation}</p>
               </div>
             ) : null}
             {skills.length ? (
-              <div className="mt-5 flex flex-wrap gap-2 border-t border-slate-100 pt-5">
-                {skills.map((skill) => <span key={skill} className="rounded-full bg-blue-50 px-2.5 py-1 text-xs text-blue-700">{skill}</span>)}
+              <div className="mt-5 border-t border-[#e5eee8] pt-4">
+                <span className="t-label block text-xs text-[#5c6c65]">所需专长技能</span>
+                <div className="mt-2.5 flex flex-wrap gap-2">
+                  {skills.map((skill) => (
+                    <span
+                      key={skill}
+                      className="inline-flex items-center rounded-full border border-[#d0e0d6] bg-[#eef5f1] px-3 py-1 text-xs font-medium text-[#115740]"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
               </div>
             ) : null}
           </section>
 
-          <section className="card p-5">
-            <h2 className="text-sm font-semibold text-slate-900">队伍成员 <span className="ml-1 font-normal tabular-nums text-slate-500">{post.currentCount}/{post.memberLimit}</span></h2>
-            <ul className="mt-4 space-y-3">
-              <li className="flex items-center gap-3 rounded-lg border border-slate-100 p-3">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-medium text-blue-700">{post.author.name.trim().charAt(0) || "友"}</span>
+          <section className="card p-5 sm:p-6">
+            <SectionHead
+              title="队伍成员"
+              sub="发起人与已通过入队申请的正式成员"
+              meta={
+                <span className="inline-flex items-center rounded-full border border-[#d0e0d6] bg-[#eef5f1] px-2.5 py-0.5 text-xs font-semibold tabular-nums text-[#115740]">
+                  {post.currentCount}/{post.memberLimit} 人
+                </span>
+              }
+            />
+            <div aria-hidden="true" className="mt-3.5 h-1.5 w-full overflow-hidden rounded-full bg-[#e4eee8]">
+              <div
+                className={`h-full w-full origin-left rounded-full transition-transform duration-300 motion-reduce:transition-none ${
+                  ratio >= 1 ? "bg-[#7f9384]" : "bg-[#115740]"
+                }`}
+                style={{ transform: `scaleX(${ratio})` }}
+              />
+            </div>
+
+            <ul className="mt-4 space-y-2.5">
+              <li className="flex items-center gap-3 rounded-xl border border-[#d5e2db] bg-[#f8fbf9] px-3.5 py-3">
+                <span
+                  aria-hidden="true"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#c59b45]/65 bg-[#115740] font-display text-sm font-semibold text-[#f3e3b3]"
+                >
+                  {Array.from(post.author.name.trim())[0] || "友"}
+                </span>
                 <div className="min-w-0 flex-1">
-                  <Link href={`/u/${post.author.id}`} className="text-sm font-medium text-slate-900 hover:text-blue-600">{post.author.name}</Link>
-                  <p className="mt-0.5 truncate text-xs text-slate-500">{post.author.college ?? "未填写学院"}{post.author.major ? ` · ${post.author.major}` : ""}</p>
+                  <Link
+                    href={`/u/${post.author.id}`}
+                    className="rounded-sm text-sm font-semibold text-[#0f1d18] transition-colors hover:text-[#115740] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#115740]"
+                  >
+                    {post.author.name}
+                  </Link>
+                  <p className="mt-0.5 truncate text-xs text-[#5c6c65]">
+                    {post.author.college ?? "未填写学院"}
+                    {post.author.major ? `，${post.author.major}` : ""}
+                  </p>
                 </div>
-                <span className="text-xs text-slate-500">发起人</span>
+                <span className="shrink-0 rounded-full border border-[#dfc890] bg-[#fcf7eb] px-2.5 py-0.5 text-xs font-medium text-[#7d5914]">
+                  发起人
+                </span>
               </li>
+
               {acceptedRequests.map((request) => (
-                <li key={request.id} className="flex items-center gap-3 rounded-lg border border-slate-100 p-3">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-medium text-slate-600">{request.user.name.trim().charAt(0) || "员"}</span>
+                <li
+                  key={request.id}
+                  className="flex items-center gap-3 rounded-xl border border-[#d5e2db] bg-[#f8fbf9] px-3.5 py-3"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#e3ede7] font-display text-sm font-semibold text-[#115740] ring-1 ring-[#c8dbd0]"
+                  >
+                    {Array.from(request.user.name.trim())[0] || "员"}
+                  </span>
                   <div className="min-w-0 flex-1">
-                    <Link href={`/u/${request.user.id}`} className="text-sm font-medium text-slate-900 hover:text-blue-600">{request.user.name}</Link>
-                    <p className="mt-0.5 truncate text-xs text-slate-500">{request.user.college ?? "未填写学院"}{request.user.major ? ` · ${request.user.major}` : ""}</p>
+                    <Link
+                      href={`/u/${request.user.id}`}
+                      className="rounded-sm text-sm font-medium text-[#0f1d18] transition-colors hover:text-[#115740] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#115740]"
+                    >
+                      {request.user.name}
+                    </Link>
+                    <p className="mt-0.5 truncate text-xs text-[#5c6c65]">
+                      {request.user.college ?? "未填写学院"}
+                      {request.user.major ? `，${request.user.major}` : ""}
+                    </p>
                   </div>
-                  <span className="text-xs text-slate-500">成员 · {formatDate((request.handledAt ?? request.createdAt).toISOString())}加入</span>
+                  <span className="shrink-0 text-xs tabular-nums text-[#5c6c65]">
+                    成员（{formatDate((request.handledAt ?? request.createdAt).toISOString())} 加入）
+                  </span>
                 </li>
               ))}
             </ul>
           </section>
 
           {canManage || visibleRequests.length ? (
-            <section id="applications" className="card p-5">
-              <div className="flex items-center justify-between gap-3">
-                <h2 className="text-sm font-semibold text-slate-900">{canManage ? "管理申请" : "我的申请"}</h2>
-                {canManage ? <span className="text-xs text-slate-500">{post._count.requests} 条待处理</span> : null}
-              </div>
+            <section id="applications" className="card p-5 sm:p-6">
+              <SectionHead
+                title={canManage ? "管理申请" : "我的申请"}
+                sub={canManage ? "查阅申请留言并及时作出入队决定" : "你在本招募帖提交的入队申请记录"}
+                meta={
+                  canManage ? (
+                    <span className="inline-flex items-center rounded-full bg-[#eef5f1] px-2.5 py-0.5 text-xs font-semibold tabular-nums text-[#115740]">
+                      {post._count.requests} 条待处理
+                    </span>
+                  ) : undefined
+                }
+              />
+              <SectionRule className="mt-3.5" />
               {visibleRequests.length ? (
                 <ul className="mt-4 space-y-3">
                   {visibleRequests.map((request) => (
-                    <li key={request.id} className="rounded-lg border border-slate-200 p-4">
+                    <li key={request.id} className="rounded-xl border border-[#d5e2db] bg-[#f8fbf9] p-4">
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div className="flex min-w-0 items-center gap-3">
-                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-medium text-slate-600">{request.user.name.trim().charAt(0) || "申"}</span>
+                          <span
+                            aria-hidden="true"
+                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#e3ede7] font-display text-sm font-semibold text-[#115740] ring-1 ring-[#c8dbd0]"
+                          >
+                            {Array.from(request.user.name.trim())[0] || "申"}
+                          </span>
                           <div className="min-w-0">
-                            <Link href={`/u/${request.user.id}`} className="text-sm font-medium text-slate-900 hover:text-blue-600">{request.user.name}</Link>
-                            <p className="mt-0.5 text-xs text-slate-500">{request.user.college ?? "未填写学院"}{request.user.major ? ` · ${request.user.major}` : ""}{request.user.grade ? ` · ${request.user.grade}` : ""}</p>
+                            <Link
+                              href={`/u/${request.user.id}`}
+                              className="rounded-sm text-sm font-medium text-[#0f1d18] transition-colors hover:text-[#115740] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#115740]"
+                            >
+                              {request.user.name}
+                            </Link>
+                            <p className="mt-0.5 text-xs text-[#5c6c65]">
+                              {request.user.college ?? "未填写学院"}
+                              {request.user.major ? `，${request.user.major}` : ""}
+                              {request.user.grade ? `（${request.user.grade}）` : ""}
+                            </p>
                           </div>
                         </div>
-                        <StatusBadge status={request.status} scope="team">{joinStatusLabels[request.status]}</StatusBadge>
+                        <StatusBadge status={request.status} scope="team">
+                          {joinStatusLabels[request.status]}
+                        </StatusBadge>
                       </div>
-                      {request.message ? <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-700">{request.message}</p> : <p className="mt-3 text-sm text-slate-400">未填写申请留言</p>}
-                      <p className="mt-2 text-xs text-slate-400">申请于 {formatDateTime(request.createdAt.toISOString())}{request.handledAt ? ` · 处理于 ${formatDateTime(request.handledAt.toISOString())}` : ""}</p>
-                      {canManage && request.status === "PENDING" ? <RequestDecisionButtons postId={post.id} requestId={request.id} /> : null}
+                      {request.message ? (
+                        <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-[#24362f]">{request.message}</p>
+                      ) : (
+                        <p className="mt-3 text-sm text-[#6c7e76]">未填写申请留言</p>
+                      )}
+                      <p className="mt-2 text-xs tabular-nums text-[#6c7e76]">
+                        申请于 {formatDateTime(request.createdAt.toISOString())}
+                        {request.handledAt ? `，处理于 ${formatDateTime(request.handledAt.toISOString())}` : ""}
+                      </p>
+                      {canManage && request.status === "PENDING" ? (
+                        <RequestDecisionButtons postId={post.id} requestId={request.id} />
+                      ) : null}
                     </li>
                   ))}
                 </ul>
@@ -199,26 +307,81 @@ export default async function TeamDetailPage({ params, searchParams }: PageProps
         </div>
 
         <aside className="card p-5 lg:sticky lg:top-24">
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="text-sm font-semibold text-slate-900">招募信息</h2>
-            <StatusBadge status={status} scope="team">{postStatusLabels[status]}</StatusBadge>
-          </div>
-          <dl className="mt-4 space-y-4 text-sm">
-            <div><dt className="t-label text-xs text-slate-500">赛事</dt><dd className="mt-1 text-slate-900">{post.competition ? <Link href={`/competitions/${post.competition.id}`} className="hover:text-blue-600">{post.competition.name}（{post.competition.year}）</Link> : "未设置赛事"}</dd></div>
-            <div><dt className="t-label text-xs text-slate-500">赛道</dt><dd className="mt-1 text-slate-900">{post.track?.name ?? "不限赛道"}</dd></div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><dt className="t-label text-xs text-slate-500">当前人数</dt><dd className="mt-1 font-medium tabular-nums text-slate-900">{post.currentCount}/{post.memberLimit}</dd></div>
-              <div><dt className="t-label text-xs text-slate-500">还缺人数</dt><dd className="mt-1 font-medium tabular-nums text-slate-900">{Math.max(0, post.memberLimit - post.currentCount)}</dd></div>
+          <SectionHead
+            title="招募信息"
+            meta={
+              <StatusBadge status={status} scope="team">
+                {postStatusLabels[status]}
+              </StatusBadge>
+            }
+          />
+          <SectionRule className="mt-3.5" />
+
+          <dl className="mt-4 space-y-3.5 text-sm">
+            <div>
+              <dt className="t-label text-xs text-[#5c6c65]">赛事</dt>
+              <dd className="mt-1 font-medium text-[#0f1d18]">
+                {post.competition ? (
+                  <Link
+                    href={`/competitions/${post.competition.id}`}
+                    className="rounded-sm transition-colors hover:text-[#115740] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#115740]"
+                  >
+                    {post.competition.name}（{post.competition.year}）
+                  </Link>
+                ) : (
+                  "未设置赛事"
+                )}
+              </dd>
             </div>
-            <div><dt className="t-label text-xs text-slate-500">招募范围</dt><dd className="mt-1 text-slate-900">{post.requirement || "全部"}</dd></div>
-            <div><dt className="t-label text-xs text-slate-500">截止时间</dt><dd className="mt-1 text-slate-900">{formatDateTime(post.expiresAt.toISOString())}</dd></div>
-            <div><dt className="t-label text-xs text-slate-500">发布时间</dt><dd className="mt-1 text-slate-900">{formatDate(post.createdAt.toISOString())}</dd></div>
-            {post.contact ? <div><dt className="t-label text-xs text-slate-500">联系方式</dt><dd className="mt-1 whitespace-pre-wrap break-words text-slate-900">{post.contact}</dd></div> : null}
+            <div>
+              <dt className="t-label text-xs text-[#5c6c65]">赛道</dt>
+              <dd className="mt-1 text-[#0f1d18]">{post.track?.name ?? "不限赛道"}</dd>
+            </div>
+            <div className="grid grid-cols-2 gap-3 rounded-xl border border-[#d5e2db] bg-[#f8fbf9] p-3">
+              <div>
+                <dt className="t-label text-xs text-[#5c6c65]">当前人数</dt>
+                <dd className="mt-1 font-display text-lg font-bold tabular-nums text-[#0f1d18]">
+                  {post.currentCount}/{post.memberLimit}
+                </dd>
+              </div>
+              <div>
+                <dt className="t-label text-xs text-[#5c6c65]">还缺名额</dt>
+                <dd className="mt-1 font-display text-lg font-bold tabular-nums text-[#115740]">
+                  {Math.max(0, post.memberLimit - post.currentCount)}
+                </dd>
+              </div>
+            </div>
+            <div>
+              <dt className="t-label text-xs text-[#5c6c65]">招募范围</dt>
+              <dd className="mt-1 text-[#0f1d18]">{post.requirement || "全部"}</dd>
+            </div>
+            <div>
+              <dt className="t-label text-xs text-[#5c6c65]">截止时间</dt>
+              <dd className="mt-1 tabular-nums text-[#0f1d18]">{formatDateTime(post.expiresAt.toISOString())}</dd>
+            </div>
+            <div>
+              <dt className="t-label text-xs text-[#5c6c65]">发布时间</dt>
+              <dd className="mt-1 tabular-nums text-[#0f1d18]">{formatDate(post.createdAt.toISOString())}</dd>
+            </div>
+            {post.contact ? (
+              <div>
+                <dt className="t-label text-xs text-[#5c6c65]">联系方式</dt>
+                <dd className="mt-1 whitespace-pre-wrap break-words text-[#0f1d18]">{post.contact}</dd>
+              </div>
+            ) : null}
           </dl>
+
           <div className="mt-5">
             {(isAuthor || isAcceptedMember) && post.competition ? (
-              <Button asChild arrow className="group mb-3 w-full">
-                <Link href={`/apply?competitionId=${post.competition.id}&teamPostId=${post.id}`}>去报名<ButtonArrow /></Link>
+              <Button
+                asChild
+                arrow
+                className="group mb-3 h-10 w-full rounded-full bg-[#115740] text-white hover:bg-[#0d4633] active:bg-[#093426] focus-visible:ring-[#115740]/30"
+              >
+                <Link href={`/apply?competitionId=${post.competition.id}&teamPostId=${post.id}`}>
+                  去报名
+                  <ButtonArrow />
+                </Link>
               </Button>
             ) : null}
             <TeamPostActions

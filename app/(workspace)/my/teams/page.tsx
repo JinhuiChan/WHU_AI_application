@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Prisma } from "@prisma/client";
+import { WhuSeal, WhuTitleRule } from "@/components/brand/whu-motifs";
 import { MyTeams } from "@/components/teams/my-teams";
 import { Button } from "@/components/ui/button";
 import { getActiveUser } from "@/lib/auth.server";
@@ -82,15 +83,34 @@ export default async function MyTeamsPage({ searchParams }: PageProps) {
   const activeTab = requestedTab === "received" || requestedTab === "sent" ? requestedTab : "posts";
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="t-page-title text-xl font-semibold text-slate-900">我的组队</h1>
-          <p className="mt-1 text-sm text-slate-500">管理发布的招募、处理收到的申请，并跟踪自己发出的申请。</p>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h1 className="t-page-title font-display text-[26px] font-bold tracking-tight text-[#0e1d17] sm:text-[28px]">
+              我的组队
+            </h1>
+            <WhuSeal label="组队台账" />
+          </div>
+          <p className="mt-1.5 flex items-center gap-2 text-sm text-[#54635d]">
+            <WhuTitleRule />
+            <span>管理发布的招募、处理收到的入队申请，并跟踪本人发出的组队意向。</span>
+          </p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button asChild variant="outline"><Link href="/teams">组队广场</Link></Button>
-          <Button asChild><Link href="/teams/new">发布组队帖</Link></Button>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Button
+            asChild
+            variant="outline"
+            className="h-10 rounded-full border-[#7f9384] px-5 text-[#1c2e26] hover:border-[#115740] hover:bg-[#f2f8f4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#115740]"
+          >
+            <Link href="/teams">组队广场</Link>
+          </Button>
+          <Button
+            asChild
+            className="h-10 rounded-full bg-[#115740] px-5 text-white hover:bg-[#0d4633] active:bg-[#093426] focus-visible:ring-[#115740]/30"
+          >
+            <Link href="/teams/new">发布组队帖</Link>
+          </Button>
         </div>
       </div>
       <MyTeams
