@@ -87,16 +87,16 @@ export function UserManagement({
       {error ? <div role="alert" className="border-b border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div> : null}
       {notice ? <div role="status" className="border-b border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{notice}</div> : null}
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[1000px] text-left text-sm">
+        <table className="w-full min-w-[920px] text-left text-sm">
           <thead className="t-thead bg-slate-50 text-xs text-slate-500">
             <tr>
-              <th className="px-4 py-3 font-medium">用户</th>
-              <th className="px-4 py-3 font-medium">手机号</th>
-              <th className="px-4 py-3 font-medium">身份（可多选）</th>
-              <th className="px-4 py-3 font-medium">审核状态</th>
-              <th className="px-4 py-3 font-medium">审核信息</th>
-              <th className="px-4 py-3 font-medium">创建时间</th>
-              <th className="px-4 py-3 font-medium">操作</th>
+              <th className="px-3.5 py-3 font-medium">用户</th>
+              <th className="px-3 py-3 font-medium">手机号</th>
+              <th className="px-3 py-3 font-medium">身份（可多选）</th>
+              <th className="px-3 py-3 font-medium">审核状态</th>
+              <th className="px-3 py-3 font-medium">审核信息</th>
+              <th className="px-3 py-3 font-medium">创建时间</th>
+              <th className="px-3.5 py-3 font-medium">操作</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -114,16 +114,16 @@ export function UserManagement({
               const changed = !sameIdentities(draft, pickIdentities(user.roles));
               return (
                 <tr key={user.id} className="text-slate-700">
-                  <td className="px-4 py-4">
+                  <td className="px-3.5 py-3.5">
                     <div className="font-medium text-slate-900">
                       {user.name}
                       {isCurrentUser ? <span className="ml-2 text-xs font-normal text-blue-600">当前账号</span> : null}
                     </div>
                     <div className="mt-1 text-xs text-slate-400">{user.externalId ?? "本地账号"}</div>
                   </td>
-                  <td className="px-4 py-4">{user.phone}</td>
-                  <td className="px-4 py-4">
-                    <div className="flex flex-wrap gap-1.5">
+                  <td className="px-3 py-3.5 tabular-nums">{user.phone}</td>
+                  <td className="px-3 py-3.5">
+                    <div className="flex flex-wrap gap-1">
                       {IDENTITY_OPTIONS.map((option) => {
                         const checked = draft.includes(option.key);
                         return (
@@ -149,7 +149,7 @@ export function UserManagement({
                       {draft.length > 1 ? `多身份：${draft.map((item) => IDENTITY_OPTIONS.find((option) => option.key === item)?.label).join(" + ")}` : "单一身份"}
                     </div>
                   </td>
-                  <td className="px-4 py-4">
+                  <td className="px-3 py-3.5">
                     <span className={`inline-flex rounded-full px-2 py-1 text-xs ${user.approvalStatus === "APPROVED" ? "bg-emerald-50 text-emerald-700" : user.approvalStatus === "REJECTED" ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-700"}`}>
                       {user.approvalStatus === "APPROVED" ? "已审核" : user.approvalStatus === "REJECTED" ? "已驳回" : "待审核"}
                     </span>
@@ -157,13 +157,13 @@ export function UserManagement({
                       {user.roles.map((item) => (item === "ADMIN" ? "管理员" : item === "STUDENT" ? "学生" : item === "TEACHER" ? "指导教师" : "普通用户")).join(" + ")}
                     </div>
                   </td>
-                  <td className="px-4 py-4 text-xs text-slate-500">
+                  <td className="px-3 py-3.5 text-xs text-slate-500">
                     {user.approvedBy ? <div>{user.approvedBy}</div> : "—"}
                     {user.approvedAt ? <div className="mt-1">{formatDate(user.approvedAt)}</div> : null}
                   </td>
-                  <td className="px-4 py-4 text-xs text-slate-500">{formatDate(user.createdAt)}</td>
-                  <td className="px-4 py-4">
-                    <div className="flex gap-2">
+                  <td className="whitespace-nowrap px-3 py-3.5 text-xs text-slate-500 tabular-nums">{formatDate(user.createdAt)}</td>
+                  <td className="px-3.5 py-3.5">
+                    <div className="flex gap-1.5">
                       <Button variant="outline" size="sm"
                         type="button"
                         disabled={pending || user.approvalStatus === "APPROVED"}

@@ -192,14 +192,14 @@ export function CompetitionCards({ items, isStudent, from }: CompetitionCardsPro
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-0"
-              style={{ backgroundImage: `linear-gradient(100deg, ${scheme.from} 26%, ${scheme.from}00 64%)` }}
+              style={{ backgroundImage: `linear-gradient(100deg, ${scheme.from} 38%, ${scheme.from}00 72%)` }}
             />
 
             <div className="relative flex h-full min-h-[168px] flex-col">
               <span className="inline-flex w-fit rounded-full bg-white/15 px-2.5 py-0.5 text-[11px] font-medium text-white/95">
                 {competitionLevelLabels[item.level]}
               </span>
-              <h3 className="mt-2.5 max-w-[76%] font-display text-lg font-bold leading-snug">{item.name}</h3>
+              <h3 className="mt-2.5 max-w-[70%] font-display text-lg font-bold leading-snug">{item.name}</h3>
               <p className="mt-1.5 max-w-[74%] text-[13px] leading-6 text-white/75">
                 {item.year} 年 · {competitionLevelLabels[item.level]} · {item.organizer ?? "主办方待补充"}
               </p>
