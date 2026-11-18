@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { WhuSeal, WhuTitleRule } from "@/components/brand/whu-motifs";
 import { BackLink } from "@/components/data/list-link";
 import { TeamForm } from "@/components/teams/team-form";
 import { getActiveUser } from "@/lib/auth.server";
@@ -29,11 +30,19 @@ export default async function NewTeamPage() {
   });
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="mx-auto max-w-4xl space-y-5">
       <div>
         <BackLink fallback="/teams" label="返回组队广场" />
-        <h1 className="t-page-title mt-3 text-xl font-semibold text-slate-900">发布组队帖</h1>
-        <p className="mt-1 text-sm text-slate-500">介绍项目和需要的队友，发布后可在详情页管理入队申请。</p>
+        <div className="mt-3 flex flex-wrap items-center gap-2.5">
+          <h1 className="t-page-title font-display text-[26px] font-bold tracking-tight text-[#0e1d17] sm:text-[28px]">
+            发布组队帖
+          </h1>
+          <WhuSeal label="招募立项" />
+        </div>
+        <p className="mt-1.5 flex items-center gap-2 text-sm text-[#54635d]">
+          <WhuTitleRule />
+          <span>填写参赛方向、课题进展与所需专长，发布后可在详情页统一管理入队申请。</span>
+        </p>
       </div>
       <TeamForm competitions={competitions} />
     </div>
